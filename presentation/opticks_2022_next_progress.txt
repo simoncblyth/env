@@ -34,7 +34,7 @@
   that benefits from state-of-the-art GPU ray tracing from NVIDIA OptiX. 
   All optically relevant aspects of *Geant4* context must be translated+copied to GPU:
 
-  * :b:`geometry : solids, structure, material+surface properties`
+  * geometry : solids, structure, material+surface properties
   * generation : Cerenkov + Scintillation (using **Gensteps** from *Geant4*) 
   * :b:`propagation : Rayleigh scattering, absorption, reemission, boundary`
 
@@ -52,10 +52,125 @@
 
 .. s5_talk:: 
 
-    Most recent work has been focussed on fixing geometry issues
+    Most recent work has been focussed on getting both A and B simulations operational
+    and ready to align and compare  
     
 
 
+:i:`Geant4OpticksWorkflow`
+------------------------------
+
+.. s5_talk::
+
+    A brief reminder of Opticks
+
+
+:i:`Geant4OpticksWorkflow 2`
+------------------------------
+
+.. raw:: html 
+
+    <p style="margin-bottom:1cm;" />
+
+
+.. sidebar:: :small:`Integrate NVIDIA OptiX with Geant4`
+ 
+  .. class:: small
+
+     :g:`Geometry Translation` + :b:`"Gensteps"`
+       :r:`=> entirely offload photon simulation to GPU` 
+
+     * upload translated geometry at initialization
+     * only hits need to consume CPU memory 
+
+
+.. s5_talk::
+
+    Getting the geometry translated is the difficult part
+
+
+
+
+
+
+Validation : Opticks-Geant4 A-B testing 
+----------------------------------------------
+
+.. sidebar:: :small:`SEvt NumPy arrays : Extreme Detail`
+
+   .. raw:: html
+
+      <pre class="mypre15"> 
+      : a.genstep :        (1, 6, 4) : generation param
+      : a.seed    :         (10000,) : photon -> genstep
+      : a.inphoton:    (10000, 4, 4) : input photon 
+      : a.photon  :    (10000, 4, 4) : final photon param
+      : a.hit     :     (9633, 4, 4) : hitmasked photon
+      : a.seq     :       (10000, 2) : history sequence
+      : a.record  :(10000, 10, 4, 4) : steppoint record
+      : a.rec     :(10000, 10, 2, 4) : compressed record
+      : a.domain  :        (2, 4, 4) : used for compression
+      : a.sframe  :        (4, 4, 4) : used for targetting 
+      : a.flat    :      (10000, 64) : random numbers tagged
+      : a.tag     :       (10000, 4) : compressed tag enum 
+      : a.prd     :(10000, 10, 2, 4) : per-ray-data isect
+      </pre>
+
+   .. class:: small
+
+      :b:`Every random consumed by every photon step`
+
+
+.. class:: normal 
+
+   :huge:`A` : Opticks : GPU geometry + optical sim.
+
+   * full step point recording (QEvent, SEvt)
+
+   :huge:`B` : Geant4 simulation
+   
+   * full step point recording (U4Recorder, SEvt)
+
+   :huge:`A-B` : comparison via python/NumPy analysis
+
+   **Random Aligned**
+      direct comparison of photon steppoint record and history arrays 
+
+   **Non-aligned**  
+      statistical comparison of history fractions 
+
+
+
+.. s5_talk::
+
+    A - B  
+
+
+:small:`July => ??? : A-B validation iteration : random alignment, deviation checks`
+-------------------------------------------------------------------------------------
+
+.. class:: normal 
+
+    March : :b:`Shifted focus, geom issues => optical sim`,  July : :r:`A-B` iteration starting 
+
+.. image:: /env/presentation/notes/progress/2022_jul.png
+   :align: center
+   :width: 1000px
+
+
+.. class:: small 
+
+   :huge:`A` : Opticks GPU sim,  :huge:`B` : Geant4 CPU sim (both fully instrumented: point recording, histories, tagged random consumption) 
+
+
+.. comment 
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/notes/progress.rst  
+
+
+.. s5_talk::
+
+    This link provides month by month progress notes
 
 
 
@@ -113,11 +228,79 @@ Opticks Packages : Many Removed, Many Added
 :g:`green : active development`,   :b:`blue : plan to remove`,   :r:`red : removed`
 
 
+.. s5_talk::
+
+    Lots of Change 
+
+
+:small:`Simulation : Why so much had to be re-implemented ?` 
+---------------------------------------------------------------
+
+.. class:: small
+
+    * :r:`Huge change unavoidable from new OptiX API` --> :b:`So profit from rethink of simulation code` --> **2nd impl advantage** 
+
+    +------------------------------------------+-----------------------------------------------------+
+    |  Old simulation (OptiXRap)               |  New simulation (QUDARap/qsim.h + CSGOptiX)         | 
+    +==========================================+=====================================================+
+    |  * implemented on top of old OptiX API   | * pure CUDA implementation                          |
+    |                                          | * OptiX use kept separate, just for intersection    |
+    |                                          |                                                     |
+    +------------------------------------------+-----------------------------------------------------+
+    |  * rather monolithic .cu                 | * many small headers                                |
+    |  * GPU only implementation               | * many GPU+CPU headers                              |
+    |  * deep stack of support code            | * shallow stack : QUDARap depends only on SYSRap    | 
+    +------------------------------------------+-----------------------------------------------------+
+    |  * most code in GPU only context,        | * strict code segregation                           |
+    |    even when not needing OptiX or CUDA   |                                                     |
+    |                                          |   * code not needing GPU in SYSRap not QUDARap      |
+    +------------------------------------------+-----------------------------------------------------+
+    |  * testing : GPU only, coarse            | * testing : CPU+GPU , fine-grained                  |
+    |                                          | * curand mocking on CPU                             | 
+    +------------------------------------------+-----------------------------------------------------+
+    |  * limited code sharing between A and B  | * maximal sharing : SEvt.hh, sphoton.h, ...         |
+    +------------------------------------------+-----------------------------------------------------+
+    |  * timeconsuming manual random alignment | * :b:`new systematic approach to random alignment`  |  
+    |    conducted via debugger                |                                                     |
+    +------------------------------------------+-----------------------------------------------------+
+
+    **Goals of re-implementation : flexible, modular GPU simulation, easily testable, less code**
+
+    * code reduction, sharing as much as possible between **A** and **B** 
+    * fine grained testing on both CPU and GPU, with GPU curand mocking 
+    * profit from several years of CUDA experience, eg QSim.hh/qsim.h host/device counterpart pattern:
+
+      * hostside initializes and uploads device side counterpart --> :r:`device side hits ground running` 
+
+
+.. s5_talk::
+
+    Embrace the change : might as well profit from a rethink 
+
+
+
 Opticks Packages : :b:`Many more to be removed`
 -----------------------------------------------
 
 .. comment
     created by bin/packages.py:presentation_page with bin/stats.sh 
+
+
+.. sidebar:: :small:`Strong Code Reduction Potential`
+
+    .. class:: small
+
+        Several :b:`pkgs only used by geo translation`, not sim
+
+        Longer term: revisit geometry translation + viz
+
+        * more direct G4 -> GGeo -> CSG model
+        * simplified intermediary "GGeo"
+
+        Same translation in less code: 
+
+        * non-urgent, necessary for maintainability 
+
 
 
 .. class:: small
@@ -158,588 +341,35 @@ Opticks Packages : :b:`Many more to be removed`
 
 
 
-.. class:: small
-
-    Several :b:`packages only used by geometry translation`, not simulation 
-
-    * plan to replace with new "Geo" and "Viz" packages 
-
-
-
-cxs_debug_moi37684_repeated_step_point.png
----------------------------------------------
-
-cxs_debug_moi37684_yellow_epsilon_looks_appropriate.png
----------------------------------------------------------
-
-
-
-
-
-High Level Overview : 2022 January/February
----------------------------------------------
-
-.. class:: small
-
-    **January : Updating to JUNO trunk geometry** 
-        
-        * x3 slowdown compared to ~December trunk 
-        * many unintended overlaps : demonstrated with new 2D slice renders 
-        * *XJfixtureConstruction* : spurious internal intersects + performance bottleneck 
-       
-          * Anti-coincidence fixes **do not remove all spurious intersects**
-          * :r:`Reveals incompatibility between Opticks CSG intersection and balanced trees`
-          * :b:`switch OFF tree balancing avoids issue, but very bad for performance` : *NEED BETTER SOLUTION*
-
-    **February : Generalize Opticks CSG to handle "list-nodes" : n-ary (not binary) CSG**
-
-        * attempt to fix balancing (eg postorder preserving balance) and/or changing CSG intersection alg 
-          unsuccessful (difficult as problem only with high node count solids)  
-
-          * balancing was always a hack (not a solution) for handling high node count solids
-          * conclude that although it may be possible to get balancing to work the best longterm 
-            solution is to take the simpler route of avoiding large trees by implementing "list-nodes" 
-
-        * :b:`list-nodes avoid large trees, tree overheads, tree balancing`
-               
-          * CSG_CONTIGUOUS Union (Similar to G4MultiUnion)
-          * CSG_DISCONTIGUOUS Union
-          * CSG_OVERLAP Intersection 
-
 
 .. s5_talk::
 
-   Updating to trunk geometry in January revealed several issues, the biggest..
+    Having the final model, gives strong motivation to simplify intermediary geometry model 
 
 
 
-High Level Overview : 2022 March 
---------------------------------------------------
 
-.. class:: small
+A - B : New Systematic Random Alignment Approach
+------------------------------------------------------
 
-    **March : Geometry Optimization + Migrating Sim from Old to New Workflow** 
 
-    * fix "global leaf transform" bug following list-node CSG generalization
 
-      * add *X4VolumeMaker* *G4OKVolumeTest* for volume level debugging 
+A : Reduce Scatter and Absorption deviation 
+----------------------------------------------
 
-    * act on several suggestions from NVIDIA engineers regards OptiX 7 usage (PRD pointer trick, launch flags, stacksize config)
 
-      * performance stays same (geometry otherwise bottlenecked?) 
-    
-    * investigate x3 slower geometry compared to December
 
-      * bottleneck is global compound solid (~3000 Prim)
-      * :b:`implement dynamic CSG Prim include/exclude for fine-grained slowdown investigation`
-      * apply dynamic geometry to do render scan : quantifying slow Prim
-    
-    * mid-March : switch gears from geometry to physics 
 
-      * :r:`Simply skipping slow XJfixtureConstruction is faster way to get into production`
-   
-        * :b:`BUT: ray trace bottlenecks so far always from geometry not physics`
-        * :b:`This is why my focus has been on a sequence of geometry issues over many months`
 
-      * fill_state, rayleigh_scatter, propagate_to_boundary, propagate_at_boundary : brought over to qsim.h workflow
-      * *QSimTest* : fine grained testing as bring over functionality to new QUDARap/QSim workflow
 
-        * random aligned comparison qsim-vs-bst : 1-in-a-million level match for S/P/X-polarization/normal-incidence/TIR
-        * bst: opticks/examples/Geant4/BoundaryStandalone mocked Geant4 environment for Boundary unit testing         
+.. comment
 
+    cxs_debug_moi37684_repeated_step_point.png
+    ---------------------------------------------
 
-.. class:: small
+    cxs_debug_moi37684_yellow_epsilon_looks_appropriate.png
+    ---------------------------------------------------------
 
-    +-------------------------------+--------------------------------------------------------------------------+
-    | Month-by-month progress notes | https://bitbucket.org/simoncblyth/opticks/src/master/notes/progress.rst  |
-    +-------------------------------+--------------------------------------------------------------------------+
-    | Day-by-day commit messages    | https://bitbucket.org/simoncblyth/opticks/commits/                       |
-    +-------------------------------+--------------------------------------------------------------------------+
-
-
-.. s5_talk::
-
-    March was unusual in that my work was fairly evenly split between geometry and physics, 
-    in recent months geometry issues have dominated
-
-
-
-:small:`https://bitbucket.org/simoncblyth/opticks/src/master/notes/progress.rst`
------------------------------------------------------------------------------------
-
-:b:`Majority of recent months dominated by sequence of geometry issues` 
-
-.. image:: /env/presentation/notes/progress/2022_mar.png
-   :align: center
-   :width: 1000px
-
-
-.. s5_talk::
-
-    This link provides month by month progress notes
-
-
-:small:`Big Picture of Multi Year Transition to new workflow (OptiX 7 compatible)`
-------------------------------------------------------------------------------------
-
-.. sidebar:: :small:`New Workflow Packages`
-
-    .. class:: small
-
-        +-----------------+------------------------------------------------------------------+
-        | Package         | Role                                                             |
-        +=================+==================================================================+
-        | CSG             |  GPU/CPU geometry model Inst/Solid/Prim/Node                     |
-        +-----------------+------------------------------------------------------------------+
-        | CSG_GGeo        |  Translates GGeo into CSG                                        |
-        +-----------------+------------------------------------------------------------------+
-        | GeoChain        |  Geometry Translation Debug                                      |
-        +-----------------+------------------------------------------------------------------+
-        | QUDARap         |  CUDA Simulation                                                 |
-        +-----------------+------------------------------------------------------------------+
-        | CSGOptiX        |  Geom (CSG) + Sim (QUDARap)                                      |
-        +-----------------+------------------------------------------------------------------+
-
-        Design goals: 
-
-        * fine-grained GPU simulation testing *QSimTest*
-        * CPU testing of GPU code (eg CSG) 
-        * works with OptiX 7, 6, 5 (:b:`7 is prime target`) 
-
-        :r:`Non-monolithic flexibility, easier: test + customize` 
-
-        * eg JUNO MultiFilm PMT optical model
-        * many tests just use CUDA, no OptiX
-
-
-.. class:: small
-
-    Selection of most important Opticks packages
-
-    +-----------------+------------------------------------------------------------------+
-    | Package         | Indicative Functionality Examples                                |
-    +=================+==================================================================+
-    | SysRap          | SStr.hh, SSys.hh, NP.hh array                                    |
-    +-----------------+------------------------------------------------------------------+
-    | BoostRap        | less need with C++17 (longterm:remove)                           |
-    +-----------------+------------------------------------------------------------------+
-    | NPY             | old array, primitives (longterm:remove)                          |
-    +-----------------+------------------------------------------------------------------+
-    | OpticksCore     | argument handling, central steering                              |
-    +-----------------+------------------------------------------------------------------+
-    | GGeo            | geometry model, GInstancer geo-factorization                     |
-    +-----------------+------------------------------------------------------------------+
-    | ExtG4           | geometry translation from G4 to GGeo                             |
-    +-----------------+------------------------------------------------------------------+
-    | CFG4            | Opticks Geant4 comparison eg *CRecorder*                         |
-    +-----------------+------------------------------------------------------------------+
-    |:r:`CUDARap`     | curandState persist (:r:`removing`)                              |
-    +-----------------+------------------------------------------------------------------+
-    |:r:`ThrustRap`   | genstep->photon, photon index (:r:`removing`)                    |
-    +-----------------+------------------------------------------------------------------+
-    |:r:`OptiXRap`    | monolithic pre-7 simulation (:r:`removing`)                      |
-    +-----------------+------------------------------------------------------------------+
-    | G4Opticks       | High Level Interface                                             |
-    +-----------------+------------------------------------------------------------------+
-
-    Cherry-picking from removed packages into new ones
-
-
-.. s5_talk::
-
-   Opticks is organized into around 20 packages with different dependencies
-
-   * the most important ones are shown here, and the new ones  
-   * design goals..
-
-
-:small:`qudarap/QSimTest.cc fine-grained GPU testing qsim.h methods`
---------------------------------------------------------------------------------
-
-.. class:: small
-
-    * :r:`Major design goal of new workflow : fine-grained testing (much better than monolithic)` 
-    * some tests generate photon arrays, others mutate input arrays of photons
-
-.. raw:: html
-
-    <pre class="mypre15">
-    switch(type){
-        case RNG_SEQUENCE:                  rng_sequence(num, ni_tranche_size)         ; break ; 
-        case WAVELENGTH_S  :                wavelength('S', num)                       ; break ; 
-        case WAVELENGTH_C  :                wavelength('C', num)                       ; break ; 
-        case SCINT_PHOTON_P:                scint_photon(num);                         ; break ; 
-        case CERENKOV_PHOTON_K:             cerenkov_photon(num, print_id);            ; break ; 
-        case CERENKOV_PHOTON_ENPROP_E:      cerenkov_photon_enprop(num, print_id);     ; break ; 
-        case GENERATE_PHOTON_G:             generate_photon();                         ; break ; 
-        case BOUNDARY_LOOKUP_ALL_A:         boundary_lookup_all()                      ; break ;   
-        case BOUNDARY_LOOKUP_LINE_WATER_W:  boundary_lookup_line("Water", x0, x1, nx)  ; break ;   
-        case BOUNDARY_LOOKUP_LINE_LS_L:     boundary_lookup_line("LS",    x0, x1, nx)  ; break ;   
-        case PROP_LOOKUP_Y:                 prop_lookup(-1, -1.f,16.f,1701)            ; break ;   
-        case FILL_STATE_0:                  fill_state(0)                              ; break ;   
-        case RAYLEIGH_SCATTER_ALIGN:        photon_launch_generate(num, type)          ; break ;   
-        case PROPAGATE_TO_BOUNDARY:         photon_launch_generate(8,   type)          ; break ;   
-        case PROPAGATE_AT_SURFACE:          photon_launch_generate(8,   type)          ; break ;   
-        case PROPAGATE_AT_BOUNDARY:   
-        case PROPAGATE_AT_BOUNDARY_NORMAL_INCIDENCE:  
-                                            photon_launch_generate(num, type)          ; break ;   
-        case HEMISPHERE_S_POLARIZED:   
-        case HEMISPHERE_P_POLARIZED:  
-        case HEMISPHERE_X_POLARIZED:   
-                                            photon_launch_generate(num, type)          ; break ;   
-        case PROPAGATE_AT_BOUNDARY_S_POLARIZED: 
-        case PROPAGATE_AT_BOUNDARY_P_POLARIZED:   
-        case PROPAGATE_AT_BOUNDARY_X_POLARIZED:  
-                                                 photon_launch_mutate(num, type)       ; break ;   
-    }   
-    </pre>
-
-.. s5_talk::
-
-   Splitting up the monolith : gives fine grained testing of the GPU simulation 
-
-   * much more flexible design, profiting from years of CUDA experience 
-
-
-
-:small:`Standalone Geant4 Tests : Cerenkov, RayLeigh, Boundary`
-------------------------------------------------------------------------------------------------
-
-.. class:: small 
-
-    Provide photon arrays to compare against Opticks 
-
-    * https://bitbucket.org/simoncblyth/opticks/src/master/examples/Geant4/BoundaryStandalone/
-    * https://bitbucket.org/simoncblyth/opticks/src/master/examples/Geant4/RayleighStandalone/
-    * https://bitbucket.org/simoncblyth/opticks/src/master/examples/Geant4/CerenkovStandalone/
-
-    *Mocking* just enough Geant4 environment to invoke **PostStepDoIt** of process
-
-    Common Inputs to both Opticks and Geant4 tests: 
-
-    * pre-cooked random numbers from curand (using *OpticksRandom*) 
-    * input photons (generated by other tests)
-    * other params (eg refractive indices, momentum, polarization) via envvars
-
-    :b:`Small amount of Geant4 (and Opticks) code being run..` 
-
-    * easy to match every random consumption
-    * straightforward direct photon array A-B comparison 
-    * simple environment to debug discrepancies
-
-
-.. s5_talk::
-
-    Similarly more experience with Geant4 brings new ways of doing thing 
-
-
-``hemisphere_s_polarized_pvplt_polarized_p0.png``
----------------------------------------------------
-
-``1M photons all incident at origin   (red:momentum, grey:polarization)``
-
-
-.. raw:: html
-
-     <p style="margin-bottom:13cm;" />
-
-
-``S-polarization direction transverse to plane of incidence (and momentum)``
-
-
-.. s5_talk::
-
-    S-polarization
-
-
-``hemisphere_p_polarized_pvplt_polarized_p0.png``
----------------------------------------------------
-
-``1M  photons all incident at origin   (red:momentum, grey:polarization)``
-
-.. raw:: html
-
-     <p style="margin-bottom:13cm;" />
-
-
-``P-polarization direction in plane of incidence, transverse to momentum``
-
-.. s5_talk::
-
-    P-polarization
-
-
-
-``hemisphere_x_polarized_pvplt_polarized_p0.png``
----------------------------------------------------
-
-``1M photons all incident at origin   (red:momentum, grey:polarization)``
-
-.. raw:: html
-
-     <p style="margin-bottom:13cm;" />
-
-
-``"X"-polarized : equal admixture of S and P polarized``
-
-.. s5_talk::
-
-    "X"-polarization
-
-
-
-
-
-:small:`Boundary matched QSimTest.sh and G4OpBoundaryProcessTest.sh`
----------------------------------------------------------------------------------------------------- 
-
-.. raw:: html
-
-    <pre class="mypre15">
-    epsilon:BoundaryStandalone blyth$ TEST=propagate_at_boundary_s_polarized NUM=1000000  ./G4OpBoundaryProcessTest.sh cf
-    a.shape (1000000, 4, 4) : /tmp/blyth/opticks/QSimTest/propagate_at_boundary_s_polarized/p.npy  
-    b.shape (1000000, 4, 4) : /tmp/blyth/opticks/G4OpBoundaryProcessTest/propagate_at_boundary_s_polarized/p.npy  
-
-    a_flag=a[:,3,3].view(np.uint32)                    : [2048 2048 2048 ... 2048 2048 1024]
-    b_flag=b[:,3,3].view(np.uint32)                    : [2048 2048 2048 ... 2048 2048 1024]
-    w_flag=np.where( a_flag != b_flag )                : <span class="redbold">(array([209411]),)   ## 1 REFLECT/TRANSMIT flag mismatch</span>
-    ua_flag=np.unique(a_flag, return_counts=True)      : (array([1024, 2048], dtype=uint32), array([ 45024, 954976]))
-    ub_flag=np.unique(b_flag, return_counts=True)      : (array([1024, 2048], dtype=uint32), array([ 45025, 954975]))
-    a_TransCoeff=a[:,1,3]                              : [0.784 0.799 0.588 ... 0.853 0.481 0.959]
-    b_TransCoeff=b[:,1,3]                              : [0.784 0.799 0.588 ... 0.853 0.481 0.959]
-    w_TransCoeff=np.where( np.abs( a_TransCoeff - b_TransCoeff) > 1e-6 ) : (array([], dtype=int64),)
-    a_flat=a[:,0,3]                                    : [0.438 0.46  0.25  ... 0.557 0.184 0.992]
-    b_flat=b[:,0,3]                                    : [0.438 0.46  0.25  ... 0.557 0.184 0.992]
-    w_flat=np.where(a_flat != b_flat)                  : (array([], dtype=int64),)
-    w_ab0=np.where( np.abs(a[:,0] - b[:,0]) > 1e-6 )   : (array([], dtype=int64), array([], dtype=int64))
-    w_ab1=np.where( np.abs(a[:,1] - b[:,1]) > 1e-6 )   : <span class="redbold">(array([209411, 209411, 209411]), array([0, 1, 2])) ## diff direction</span>
-    w_ab2=np.where( np.abs(a[:,2] - b[:,2]) > 1e-6 )   : <span class="redbold">(array([209411, 209411]), array([0, 1])) ## diff polarization</span>
-    w_ab3=np.where( np.abs(a[:,3] - b[:,3]) > 1e-6 )   : (array([], dtype=int64), array([], dtype=int64))
-
-    In [1]: a[209411]                                                  
-    Out[1]:                                                       <span class="bluebold"> u_reflect > TransCoeff </span>             
-    array([[ -0.136,  -0.264,  -0.955,   0.955],                       In [3]: a[209411,0,3] > a[209411,1,3]
-           [ -0.09 ,  -0.176,  -0.98 ,   0.955],                       Out[3]: False  <span class="bluebold"> BOUNDARY_TRANSMIT </span> 
-           [  0.89 ,  -0.456,  -0.   , 500.   ],                              
-           [  0.89 ,  -0.456,   0.   ,   0.   ]], dtype=float32)       
-                                                                       
-    In [2]: b[209411] 
-    Out[2]:                                               
-    array([[ -0.136,  -0.264,  -0.955,   0.955],                       In [4]: b[209411,0,3] > b[209411,1,3]
-           [ -0.136,  -0.264,   0.955,   0.955],                       Out[4]: True    <span class="bluebold"> BOUNDARY_REFLECT </span> $                      
-           [ -0.89 ,   0.456,  -0.   , 500.   ],
-           [  0.89 ,  -0.456,   0.   ,   0.   ]], dtype=float32)
-                                                       <span class="redbold">One-in-a-million on TransCoeff REFLECT/TRANSMIT cut edge</span>
-    In [5]: a[209411,0,3] == b[209411,0,3]                             In [6]: a[209411,1,3] - b[209411,1,3]
-    Out[5]: True                                                       Out[6]: 5.9604645e-08                
-    </pre>
-
-
-.. s5_talk::
-
-    Simple NumPy commands to compare two arrays of photons
-
-
-``cxr_overview_emm_t0_moi_-1_confirmed_fix.jpg``
----------------------------------------------------
-
-``./cxr_overview.sh``
-   ``2022 January 0.0126  (cf 0.0054 from 2021 Dec)``
-
-``This Dec->Jan slowdown motivated development of dynamic Prim selection``    
-
-.. raw:: html
-
-    <p style="margin-bottom:8cm;" />
-
-.. class:: normal 
-
-    ``Dynamic Prim Selection:`` 
-        ``in memory CSGCopy with selection => construct any combination of Prim``
-
-
-.. s5_talk::
-
-    Dynamic Prim selection works by im memory CSGCopy with selection applied, 
-    so can dynamically construct any combination of the Prim. 
-
-
-
-:small:`Dynamic Prim Selection Speed Scan : One "G4VSolid" Geometries`
---------------------------------------------------------------------------
-
-::
-
-    cd ~/opticks/CSGOptiX
-    ./grabsnap.sh --reverse --selectspec not_elv_t --candle t103 --rst
-
-.. sidebar:: :small:`ELV including single Prim`
-
-     .. class:: small
-
-         * relative: to candle t103:EXCLUDE-solidXJfixture
-         * :r:`NNVTMCPPMTTail` in 2nd spot 
-         * informs where to investigate
-
-         JUNO Geometry (January trunk) has 140 solids
-
-         * full include, exclude table : ~280 entries
-
-.. class:: tiny
-
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |idx|        -e|       time(s)    |      relative    |    enabled geometry description 41c046fe                                     |
-    +===+==========+==================+==================+==============================================================================+
-    |  0|       103|        0.0225    |        3.0917    |:r:`ONLY: solidXJfixture`                                                     |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  1|       112|        0.0051    |        0.7009    |:r:`ONLY: NNVTMCPPMTTail`                                                     |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  2|       105|        0.0027    |        0.3644    |    ONLY: HamamatsuR12860Tail                                                 |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  3|       111|        0.0025    |        0.3422    |    ONLY: NNVTMCPPMTsMask                                                     |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  4|       117|        0.0022    |        0.3051    |    ONLY: NNVTMCPPMTsMask_virtual                                             |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  5|         0|        0.0018    |        0.2496    |    ONLY: sTopRock_domeAir                                                    |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  6|         1|        0.0018    |        0.2474    |    ONLY: sTopRock_dome                                                       |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  7|        94|        0.0018    |        0.2406    |    ONLY: sTarget                                                             |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  8|       123|        0.0017    |        0.2392    |    ONLY: sChimneyAcrylic                                                     |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  9|       127|        0.0017    |        0.2378    |    ONLY: sInnerWater                                                         |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    | 10|       128|        0.0017    |        0.2366    |    ONLY: sReflectorInCD                                                      |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    | 11|        95|        0.0017    |        0.2363    |    ONLY: sAcrylic                                                            |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    | 12|        14|        0.0016    |        0.2160    |    ONLY: sAirTT                                                              |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    | 13|        15|        0.0016    |        0.2142    |    ONLY: sExpHall                                                            |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    | 14|       109|        0.0015    |        0.2025    |    ONLY: HamamatsuR12860_PMT_20inch_pmt_solid_1_4                            |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    | 15|       104|        0.0013    |        0.1847    |    ONLY: HamamatsuR12860sMask                                                |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-
-::
-
-    SNAP_LIMIT=16 ./grabsnap.sh --reverse --selectspec not_elv_t --jpg --out
-    ./image_grid.sh  ; ./pub1.sh path-returned-by-above
-
-
-.. s5_talk::
-
-   Use dynamic geometry to look for the slow Prim, these are geometries with single Prim selected.
-   Here are the slowest 16
-
-
-
-``image_grid_elv_scan_dyn_prim_scan.jpg``    
--------------------------------------------
-
-.. raw:: html
-
-    <p style="margin-bottom:14cm;" />
-
-.. class:: normal 
-
-    ``Slowest 16 single selected solid renders``
-         ``the worst solidXJfixture gives a blank render``  
-
-
-
-.. s5_talk::
-
-   These are the renders of the slowest 16   
-
-
-
-:small:`Dynamic Prim Selection Speed Scan : Exclude G4VSolid Geometries`
---------------------------------------------------------------------------
-
-::
-
-    cd ~/opticks/CSGOptiX
-    ./grabsnap.sh --selectspec only_elv_t --candle t103 --rst
-
-.. sidebar:: :small:`ELV excluding single Prim`
-
-     .. class:: small
-
-         * relative: cf candle t103:not-solidXJfixture
-         * TODO: scan again with solidXJfixture excluded from base geometry
-
-           * as that problem may be hiding other smaller problems 
-
-
-.. class:: tiny
-
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |idx|        -e|       time(s)    |      relative    |    enabled geometry description 41c046fe                                     |
-    +===+==========+==================+==================+==============================================================================+
-    |  0|      t103|        0.0073    |        1.0000    |    EXCL: solidXJfixture                                                      |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  1|        t1|        0.0118    |        1.6169    |    EXCL: sTopRock_dome                                                       |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  2|        t0|        0.0119    |        1.6306    |    EXCL: sTopRock_domeAir                                                    |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  3|      t112|        0.0119    |        1.6311    |    EXCL: NNVTMCPPMTTail                                                      |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  4|         t|        0.0119    |        1.6317    |    ALL                                                                       |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  5|      t127|        0.0119    |        1.6393    |    EXCL: sInnerWater                                                         |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  6|       t97|        0.0120    |        1.6488    |    EXCL: sStrut                                                              |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  7|       t29|        0.0121    |        1.6558    |    EXCL: GLw2.equ_bt01_FlangeI_Web_FlangeII                                  |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  8|      t136|        0.0121    |        1.6563    |    EXCL: sPoolLining                                                         |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    |  9|       t95|        0.0121    |        1.6576    |    EXCL: sAcrylic                                                            |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    | 10|      t128|        0.0121    |        1.6576    |    EXCL: sReflectorInCD                                                      |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    | 11|      t105|        0.0121    |        1.6657    |    EXCL: HamamatsuR12860Tail                                                 |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    | 12|       t60|        0.0121    |        1.6670    |    EXCL: GLb3.bt09_FlangeI_Web_FlangeII                                      |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    | 13|      t135|        0.0121    |        1.6673    |    EXCL: sOuterWaterPool                                                     |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    | 14|      t104|        0.0122    |        1.6684    |    EXCL: HamamatsuR12860sMask                                                |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-    | 15|      t137|        0.0122    |        1.6687    |    EXCL: sBottomRock                                                         |
-    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
-
-::
-
-    SNAP_LIMIT=16 ./grabsnap.sh --selectspec only_elv_t --jpg --out
-    ./image_grid.sh  ; ./pub1.sh  path-returned-by-above
-
-
-.. s5_talk::
-
-    This are the fastest 16 with single Prim exclusions
-
-
-``image_grid_elv_scan_exclude_grid.jpg``
------------------------------------------
-
-
-.. raw:: html
-
-    <p style="margin-bottom:14cm;" />
-
-.. class:: normal 
-
-    ``Fastest 16 single excluded solid renders``
-         ``unsuprisingly difficult to see any difference : other than performance``  
-
-
-.. s5_talk::
-
-    Renders of the fastest 16 with single Prim exclusions
 
 
 
@@ -816,783 +446,5 @@ Prediction : 2022 April
 
    Lots of scope for optimization  
 
-
-:i:`Divider`
---------------
-
-
-.. raw:: html
-
-    <p style="margin-bottom:3cm;" />
-    <h1> "Extra" Slides </h1>
-
-.. class:: normal
-
-    Following slides give background on 
-
-    * XJfixtureConstruction Solid
-    
-      * two types of spurious intersects
-      * Tree balancing  
-
-    * Review Opticks CSG Tree Intersection algorithm
-    * CSG list-nodes implementation, n-ary (not bin-ary) CSG intersection
-
-      * CSG_CONTIGUOUS Union (simular to *G4MultiUnion*)
-      * CSG_DISCONTIGUOUS Union (very fast imp for guaranteed discontiguous)
-      * CSG_OVERLAP Intersection (eg for G4Sphere with radius,phi,theta ranges) 
-    
-
-.. s5_talk::
-
-   I have presented the rest the slides already to some of you, 
-   there are here as a reference and for people who have not been 
-   following along  
-
-
-:i:`Investigate XJfixtureConstruction Solid`
-----------------------------------------------
-
-.. raw:: html
-
-    <p style="margin-bottom:3cm;" />
-    <h1> Investigate XJfixtureConstruction Solid</h1>
-
-.. class:: normal
-
-    * spurious intersects **not** all removed by coincident face avoidance
-    * :r:`reveals compatibility issue between CSG intersect alg and tree balancing`
-    * motivates development of *list-nodes* to remove need to balance
-
-      * CSG_CONTIGUOUS
-      * CSG_DISCONTIGUOUS
-      * CSG_OVERLAP
-
-    * support for *list-nodes* : :b:`major generalization of Opticks CSG`
-
-
-.. s5_talk::
-
-   XJfixtureConstruction is part of the sticks geometry 
-
-
-cxr_geochain_XJfixtureConstruction_ALL_jpg
----------------------------------------------
-
-.. raw:: html
-
-    <p style="margin-bottom:13cm;" />
-
-``EYE=3,0.5,-1 UP=0,0,1 ZOOM=4 TMIN=0 PUB=1 ./cxr_geochain.sh``
-
-``holy geometry : celtic cross (tubs + FOUR box) atop an altar (TWO box)``
-    ``union of annular tubs and SIX boxes``  
-
-
-.. s5_talk::
-
-   This solid is problematic due to the large numver of constituents 
-
-
-cxr_geochain_XJfixtureConstruction_ALL_otherside_jpg
--------------------------------------------------------
-
-.. raw:: html
-
-    <p style="margin-bottom:13cm;" />
-   
-
-``EYE=-3,0.5,-1 UP=0,0,1 ZOOM=4 TMIN=0 PUB=otherside  ./cxr_geochain.sh``
-
-
-.. s5_talk::
-
-   Otherside
-
-
-
-cxr_geochain_XJfixtureConstruction_ALL_upper_jpg
--------------------------------------------------------
-
-.. raw:: html
-
-    <p style="margin-bottom:13cm;" />
-
-``EYE=-3,0.5,1 UP=0,0,1 ZOOM=4 TMIN=0 PUB=upper ./cxr_geochain.sh`` 
-
-
-.. s5_talk::
-  
-    Upper side
-
-
-cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
--------------------------------------------------------
-
-.. raw:: html
-
-    <p style="margin-bottom:13cm;" />
-
-``EYE=-3,0.5,0.8 UP=0,0,1 ZOOM=4 TMIN=2.7 CAM=0 PUB=speckle ./cxr_geochain.sh``
-
-
-.. s5_talk::
-
-    This concidence speckle is the easy one to fix : by removing coincidences
-
-
-
-:small:`XJfixtureConstruction CSG Tree (Geant4 Height 5, Opticks Height 6)`
-----------------------------------------------------------------------------
-
-.. class:: small
-
-    * Geant4 : 6 G4Box, 1 G4Tubs with inner, 6 G4UnionSolid 
-    * Opticks : G4Tubs with inner => 2 Cylinder + Difference 
-     
-
-.. raw:: html
-
-    <pre class="mypre11">
-    NODE:13 PRIM:7
-
-                                                                            Uni                                     
-                                                                            U                                       
-                                                                            9                                       
-                                                                                                                    
-                                                                                                                    
-                                                            Uni                             Uni                     
-                                                            U                               U                       
-                                                            7                               11                      
-                                                                                                                    
-                                                                                                                    
-                                            Uni                     Box             Box             Box             
-                                            U                       U               U               U               
-                                            5                       8               10              12              
-                                                                                                                    
-                                                                                                                    
-                            Uni                     Box                                                             
-                            U                       U                                                               
-                            3                       6                                                               
-                                                                                                                    
-                                                                                                                    
-            Uni                     Box                                                                             
-            U                       U                                                                               
-            1                       4                                                                               
-                                                                                                                    
-                                                                                                                    
-    Tub             Box                                                                                             
-    U               U                                                                                               
-    0               2                                                                                               
-                                                                                                                    
-                                                                                                                    
-    0                  0.00            0.00           50.00          -50.00            0.00            0.00 zdelta  
-                                                                                                                    
-    6                 11.50           11.50           65.00          -35.00           40.00           65.00 az1     
-    -6               -11.50          -11.50           35.00          -65.00          -40.00          -65.00 az0     
-
-    </pre>
-
-
-.. s5_talk::
-
-    Unbalanced tree is too deep 
-
-
-
-:small:`XJfixtureConstruction CSG Tree After Balancing (Height 3)`
--------------------------------------------------------------------
-
-.. raw:: html
-
-    <pre class="mypre11">
-
-                                                                           un                                                                                                 
-                                                                          1                                                                                                   
-                                                                             0.00                                                                                             
-                                                                            -0.00                                                                                             
-                                                                                                                                                                              
-                                   un                                                                              un                                                         
-                                  2                                                                               3                                                           
-                                     0.00                                                                            0.00                                                     
-                                    -0.00                                                                           -0.00                                                     
-                                                                                                                                                                              
-               un                                      un                                      in                                      un                                     
-              4                                       5                                       6                                       7                                       
-                 0.00                                    0.00                                    0.00                                    0.00                                 
-                -0.00                                   -0.00                                   -0.00                                   -0.00                                 
-                                                                                                                                                                              
-     bo                  bo                  bo                  bo                  cy                 !cy                  bo                  bo                           
-    8                   9                   10                  11                  12                  13                  14                  15                            
-       6.50                6.50                6.50                6.50                6.50                6.57              -16.50               -6.50                       
-      -6.50               -6.50               -6.50               -6.50               -6.50               -6.57              -33.50              -16.50                       
-                                                                                                                                                                              
-    </pre>
-                                                                                                                                                                          
-
-
-.. s5_talk::
-
-    Balancing reduces the depth, BUT 
-
-
-
-:i:`cxs_custom_XJfixtureConstructionXY`
------------------------------------------
-
-``COMP=custom_XY ./cxs_solidXJfixture.sh``
-    ``cross section view of standalone solidXJfixture``
-
-``All interior red intersects are spurious : not easy to fix.``
-     ``probable cause of history discrepancy`` 
-    
-
-
-.. raw:: html
-
-    <p style="margin-bottom:8cm;" />
-
-.. class:: normal
-
-    :r:`So many spurious intersects : Easier to start over with fewer constituent solids`
-
-
-.. s5_talk::
-
-   Looking at 2D Opticks cross section shows exceptionally large number of spurious intersects
-
-
-
-
-``XJfixtureConstruction_YZ_two_types_of_spurious.jpg0``
----------------------------------------------------------
-
-
-.. s5_talk::
-
-    A new type of spurious intersect 
-
-
-
-``XJfixtureConstruction_YZ_two_types_of_spurious.jpg1``
----------------------------------------------------------
-
-.. sidebar:: :small:`Two types of spurious`
-
-    .. class:: small
-
-        White internal intersects : **sd ~ 0**
-
-        * CSG constituents with coincident faces  
-        * often easy to fix : not in this case (G4 RHS tran)
-
-          * start again => **AltXJfixtureConstruction**
-
-        Yellow internal intersects : **abs(sd) > epsilon**
-
-        * incompatibility between CSG and tree balancing
-        * :r:`forces unbalanced` => **performance problem**  
-
-
-.. s5_talk::
-
-    Two types of spurious
-
-
-
-``XJfixtureConstruction_XY_spurious_internal.jpg0``
----------------------------------------------------------
-
-
-.. raw:: html
-
-    <p style="margin-bottom:14cm;" />
-
-.. class:: normal 
- 
-    ``rays generated in XY plane from genstep positions (yellow dots)``
-        ``yellow lines and arrows : rays and spurious internal intersects``
-
-
-.. s5_talk::
-
-    CPU test of GPU code
-
-
-
-``XJfixtureConstruction_XY_spurious_internal.jpg1``
----------------------------------------------------------
-
-.. sidebar:: :small:`Balanced tree spurious intersects`
-
-   .. class:: small 
-
-       * "sd" signed distance,  **abs(sd) > epsilon** 
-       * yellow : rays with spurious intersects 
-       * incompatibility of CSG alg with balanced trees ?
-
-       **Fix attempts, so far unsuccessful**
-
-       * change CSG intersection alg
-       * change balancing to preserve postorder sequence 
-
-
-       **Single hit CSG intersection Alg**
-
-       Postorder sequence binary choice of intersects:
-
-       0. entire tree prior to "this" constituent 
-       1. "this" constituent 
-
-       Sometimes alg needs to "LOOP" to find "otherside"
-       
-       * Balancing => incomplete prior tree => spurious internal intersects 
-
-
-.. s5_talk::
-
-    Non-zero signed distance identifies the new type of spurious, not the old
-
-
-:small:`Algorithm for Ray Intersection onto Shape defined by CSG Tree`
--------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Constituent Intersect Classification`
-
-    .. class:: small
-
-        Enter
-            **dot(ray_direction, surface_normal) < 0**  against normal
-        Exit 
-            **dot(ray_direction, surface_normal) > 0**  with normal
-        Miss
-            no intersect 
-
-
-.. class:: small
-
-    Tree intersect is constituent node intersect, which depends on:
-
-    * CSG operators (UNION, INTERSECTION, DIFFERENCE)
-    * comparison of distances to the constituent intersects
-
-    Algorithm:
-
-    1. classify constituent intersects Enter/Exit/Miss
-    2. determine action combining classifications using six lookup tables for UNION, INTERSECTION and DIFFERENCE operators
-       and which intersect is closer.
-    3. actions RETURN_A RETURN_B RETURN_MISS push binary decision onto stack for use at higher level of tree
-    4. actions LOOP_A LOOP_B advance t_min for one constituent to get otherside and compare again
-
-
-    :r:`Surface-centric CSG` (Opticks)
-         no use of "is this point inside the shape" queries
-
-         * LOW RESOURCE USAGE : **small stack of ~4*float4 isect**  
-
-
-    :b:`Volume-centric CSG` (Geant4)
-         always asking "is this point inside the shape"
-
-
-.. s5_talk::
-
-   Reviewing CSG intersection alg 
-
-
-:small:`CSG Intersection Algorithm : UNION Lookup Table and Examples`
--------------------------------------------------------------------------------
-
-.. raw:: html
-
-    <pre class="mypre12">
-    +-----------------+-----------------+-----------------+-----------------+       UX1 : UNION FROM INSIDE ONE                     UX2 : UNION FROM OUTSIDE 0,1,2              
-    | UNION           |                 |                 |                 |                                                       UX3 : UNION FROM INSIDE BOTH 3,4,5          
-    |                 | B Enter         | B Exit          | B Miss          |                                                                                                   
-    | A Closer        |                 |                 |                 |                    +-----------------------+                     +-----------------------+        
-    | B Closer        |                 |                 |                 |                    |                     B |                     |                     B |        
-    |                 |                 |                 |                 |         +------------------+               |          +------------------+               |        
-    +-----------------+-----------------+-----------------+-----------------+         | A        |       |               |          | A        |       |               |        
-    |                 |                 |                 |                 |         |          |       |               |          |          |       |               |        
-    | A Enter         |                 |                 |                 |         |          |       |               |          |          |       |               |        
-    |                 | RETURN_A        | LOOP_A          | RETURN_A        |         |   0- - - 1 - - - 2 - - - - - - -[3]     0 -[1]- - - -  2       |               |        
-    |                 | RETURN_B        | RETURN_B        | RETURN_A        |         |          E       X               X          E          E   3 - 4 - - - - - - -[5]       
-    |                 |                 |                 |                 |         |          |       |               |          |          |       X               X        
-    +-----------------+-----------------+-----------------+-----------------+         |          +-------|---------------+          |          +-------|---------------+        
-    |                 |                 |                 |                 |         |                  |                          |                  |                        
-    | A Exit          |                 |                 |                 |         |                  |                          |                  |                        
-    |                 | RETURN_A        | RETURN_B        | RETURN_A        |         +------------------+                          +------------------+                        
-    |                 | LOOP_B          | RETURN_A        | RETURN_A        |                                                                                                   
-    |                 |                 |                 |                 |                                                                                                   
-    +-----------------+-----------------+-----------------+-----------------+       0: origin                                     0: origin                                     
-    |                 |                 |                 |                 |       1: B Enter                                    1: A Enter                                    
-    | A Miss          |                 |                 |                 |       2: A Exit                                     2: B Enter                                    
-    |                 | RETURN_B        | RETURN_B        | RETURN_MISS     |       1,2: B Closer        ==> LOOP_B               1,2: A Closer        ==> RETURN_A             
-    |                 | RETURN_B        | RETURN_B        | RETURN_MISS     |       3: B Exit                                                                                   
-    |                 |                 |                 |                 |       2,3: A closer        ==> RETURN_B             3: origin                                     
-    +-----------------+-----------------+-----------------+-----------------+                                                     4: A Exit                                     
-                                                                                                                                  5: B Exit                                     
-    Ordering states (Closer,Further)                                                                                              4,5 A Closer         ==> RETURN_B             
-                                                                                    
-    (A Enter, B Enter)                                                                    UX4 : DISJOINT UNION  0,[1],2                                   
-        origin outside both -> return closest                                                                                                             
-                                                                                            +---------------------+                +---------------------+
-    (A Exit, B Exit)                                                                        | A                   |                |                   B |
-        origin inside both  -> return furthest                                              |                     |                |                     |
-                                                                                            |                     |                |                     |
-    (A Exit, B Enter)                                                                       |                     |                |                     |
-        origin inside A                                                                     |                     |                |                     |
-                                                                                            |         0- - - - - [1] -  - - - - - -2                     |
-        * if A closer return A (means disjoint)                                             |                     X                E                     |
-        * if B closer loop B (find otherside of B, then compare again)                      |                     |                |                     |
-                                                                                            |                     |                |                     |
-                                                                                            |                     |                |                     |
-                                                                                            +---------------------+                +---------------------+
-                                                                                                                                                          
-                                                                                        0: origin   1: A Exit   2: B Enter    1,2: A Closer => RETURN_A [1]                                                         
-    </pre>
-
-
-.. s5_talk::
-
-    UNION LUT
-
-
-
-:small:`CSG Intersection Algorithm : INTERSECTION Lookup Table and Examples`
--------------------------------------------------------------------------------
-
-.. raw:: html
-
-    <pre class="mypre12">
-    +-----------------+-----------------+-----------------+-----------------+        Ordering states (Closer,Further)                                                              
-    | INTERSECTION    |                 |                 |                 |                                                                                                      
-    |                 | B Enter         | B Exit          | B Miss          |        (Enter, Exit) -> Return Closer One : the Enter                                                
-    | A Closer        |                 |                 |                 |                                                                                                      
-    | B Closer        |                 |                 |                 |        (Exit, Exit) -> Return Closer Exit                                                            
-    |                 |                 |                 |                 |                                                                                                      
-    +-----------------+-----------------+-----------------+-----------------+        (Exit, Enter) -> Loop Closer (the Exit)                                                       
-    |                 |                 |                 |                 |            One might first imagine that having just exited so there will be no otherside ?           
-    | A Enter         |                 |                 |                 |            But that assumes simple convex constituent shapes whereas the alg needs to                
-    |                 | LOOP_A          | RETURN_A        | RETURN_MISS     |            handle less simple shapes like torus or annulus                                           
-    |                 | LOOP_B          | LOOP_B          | RETURN_MISS     |                                                                                                      
-    |                 |                 |                 |                 |        (Enter, Enter) -> Loop Closer                                                                 
-    +-----------------+-----------------+-----------------+-----------------+            Find otherside of Closer Enter                                                            
-    |                 |                 |                 |                 |            (by advancing t_min, intersecting that constituent again, comparing again)                
-    | A Exit          |                 |                 |                 |                                                                                                      
-    |                 | LOOP_A          | RETURN_A        | RETURN_MISS     |                                                                                                      
-    |                 | RETURN_B        | RETURN_B        | RETURN_MISS     |                    +-------------+                                                                   
-    |                 |                 |                 |                 |                    | A           |                                                                   
-    +-----------------+-----------------+-----------------+-----------------+                    |      +------|-------+      0:Origin                                             
-    |                 |                 |                 |                 |                    |      |      |     B |      1:A_Enter                                            
-    | A Miss          |                 |                 |                 |              0- - -1 - - [2]- - -3       |      2:B_Enter                                            
-    |                 | RETURN_MISS     | RETURN_MISS     | RETURN_MISS     |                    E      E      X       |      (1:A_Enter,2:B_Enter) => A_Closer => LOOP_A => 3     
-    |                 | RETURN_MISS     | RETURN_MISS     | RETURN_MISS     |                    |      |      |       |      3:A Exit                                             
-    |                 |                 |                 |                 |                    +------|------+       |      (2:B Enter,3:A Exit) => RETURN_B 2:B_Enter           
-    +-----------------+-----------------+-----------------+-----------------+                           |              |                                                           
-                                                                                                        +--------------+                                                           
-    </pre>
-
-
-
-.. s5_talk::
-
-    INTERSECTION LUT
-
-
-
-``XJfixtureConstructionUnbalanced_XY_unbalanced_ok.jpg0``
--------------------------------------------------------------------
-
-
-.. s5_talk::
-
-    Not balancing the tree  avoids the problem 
-
-
-
-
-
-``XJfixtureConstructionUnbalanced_XY_unbalanced_ok.jpg1``
--------------------------------------------------------------------
-
-
-.. sidebar:: :small:`Proceed with Unbalanced Trees ?`
-
-   .. class:: small 
-
-       * avoids the spurious internal intersects 
-       * BUT : very bad for performance  
-
-         * => developed **list nodes**  
-
-       **Speedup Unbalanced ?**
-
-       * "postorder next node" offsets ? TODO: try
-
-
-
-.. s5_talk::
-
-    BUT : Not balancing the tree has big performance effect 
-
-
-
-.. comment
-
-    XJfixtureConstruction CSG Model
-    ---------------------------------
-
-    .. raw:: html
-
-        <pre class="mypretiny">
-           Unexpected spurious vertical at 35          In Y box is at 50 +- 15   
-           (only appears with 4 box, not 2)                35    50     65        
-                                                            :  
-                                                            :     :     :                            altar frame      fixture frame 
-                                                            :
-             -------------+                             +---+---+-+-----+        - - - - - - - - - - 18.5+13  = 31.5          6.5  
-             |            |                             |   :   |      13/2=6.5                                       
-             +            +                             +   :   + :     :         - - - - - - - - -  18.5+6.5 = 25            0.0           
-             |            |                             |   :   |       :
-             +------------+----------------+-----25-----+---20--+-+-----+         - - - - - - -       8.5+10 =  18.5         -6.5  
-             |                                                          |
-             +    up2                      +                            +       - - - - - - - - - -   8.5+5  = 13.5         -11.5
-             |                                                          |               
-             +---------+^^^^^^^^^^^^^^^^^^^+^^^^^^^^^^^^^^^^^^+---------+       - - - - - - - - - -             8.5         -16.5
-                       |                                      |         
-                       |                                     17/2=8.5        
-                       +  up1                                 +                - - - - - - - - - -              0.0         -25.0
-                       |                                      |
-                       |                                      |
-                       +-------------------+-------40---------+            - - - - - - - - - - - - -           -8.5         -33.5
-
-                                           |            |    :   |
-                Z                          0            25   35  45
-                |                                       |    :   | 
-                |                                       |    :   |
-                +-- Y                                   |    :   outer tubs
-               /                                        |    :
-              X                                         |    spurious vertical from box edge (why? it is within the tubs ring) 
-                                                        inner tubs
-        </pre>
-
-    .. class:: small
-
-        :r:`Due to construction technique and Geant4 limitations : simple anti-coincidence tricks cannot be used`
-
-
-    .. s5_talk::
-
-        Applicaility of anti-coincidence tricks depend on the way the CSG is modelled.
-        In this case they cannot be used at Geant4 level without totally starting again with the geometry. 
-
-
-
-
-:small:`CSG Compound "List-Nodes" => Much Smaller CSG trees`
----------------------------------------------------------------
-
-.. class:: small
-
-   * compound list nodes (references sub-node sequence by **subNum** **subOffset**)
-   * greatly reduces size of tree
-
-   CSG_CONTIGUOUS Union
-      similar to *G4MultiUnion* : n-ary CSG intersection (needs distance sorting)
-
-   CSG_DISCONTIGUOUS Union
-      user guarantees no overlaps 
-
-    
-   CSG_OVERLAP Intersection
-      user guarantees overlap,  aims to handle general G4Sphere with inner radius, thetacut and phicut 
-
-   :r:`Communicating shape more precisely => better suited alg => less resources => faster` 
-
-
-   Generalized Opticks CSG into three levels : tree < node < leaf 
-
-   :b:`Three levels avoids recursion in intersect (disallowed by NVIDIA OptiX)`
-
-
-   * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_tree.h
-   * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_node.h
-   * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_leaf.h
-
-
-
-.. s5_talk::
-
-   Generalize Opticks CSG beyond trees
-
-
-:small:`CSG_CONTIGUOUS Union : n-ary (not bin-ary) CSG intersection`
------------------------------------------------------------------------
-
-.. class:: small
-
-    * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_node.h :r:`intersect_node_contiguous`
-
-.. sidebar:: :small:`Alg works : but many TODOs`
-
-    .. class:: small
-
-       * integer templating : suit resources to shape
-       * try sort networks, bitonic sort, ...
-       * compare performance with unbalanced trees
-       * iterate implementation whilst measuring perf.
-
-
-.. class:: small
-
-    1. *zeroth pass* : find **nearest_enter** and count exits
-    2. zero exits => outside compound => return **nearest_enter**
-    3. *first pass* : collect enter distances, **farthest_exit**
-    4. order enter indices making **enter** distances ascend
-
-       * :r:`n-ary : store, sort enters` :b:`(cf bin-ary : compare two)`
-       * :b:`no tree overheads, but must store+sort distances`
-
-    5. *2nd pass* : loop over enters in distance order 
-
-       * contiguous requirement : **tminAdvanced < farthest_exit**  
-       * find Exits for Enters that qualify as contiguous
-
-    6. return **farthest_exit** that qualifies as contiguous
-
-
-.. raw:: html
-
-    <pre class="mypre15">
-             +----------------+     +-------------------+                  DISJOINT MUST BE DISQUALIFIED
-             |B               |     |D                  |                   
-        +----|----+      +----|-----|----+       +------|----------+             +-----------+
-        |A   |    |      |C   |     |    |       |E     |          |             |           |
-        |    |    |      |    |     |    |       |      |          |             |           |
-        | 0 E1    X2     E3  X4    E5   X6      E7     X8        [X9]           E10         X11
-        |    |    |      |    |     |    |       |      |          |             |           |
-        |    |    |      |    |     |    |       |      |          |             |           |
-        +----|----+      +----|-----|----+       +------|----------+             +-----------+
-             |                |     |                   |
-             +----------------+     +-------------------+
-
-             E           E          E            E                               E 
-                  X           X          X              X          X                         X
-     </pre>
-
-
-
-.. s5_talk::
-
-   Generalize Opticks CSG beyond trees
-
-
-
-
-
-:small:`CSG_DISCONTIGUOUS Union : CSG intersection`
----------------------------------------------------------------
-
-.. class:: small
-
-    * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_node.h :r:`intersect_node_discontiguous`
-
-    :r:`User guarantees : absolutely no overlapping between constituents`
-
-.. raw:: html
-
-    <pre class="mypre15">
-     +-------+          +-------+          +-------+          +-------+         +-------+      
-     |       |          |       |          |       |          |       |         |       |      
-     |       |          |       |          |       |          |       |         |       |      
-     +-------+          +-------+          +-------+          +-------+         +-------+       
-
-     +-------+          +-------+          +-------+          +-------+         +-------+      
-     |       |          |       |          |       |          |       |         |       |      
-     |       |          |       |          |       |          |       |         |       |      
-     +-------+          +-------+          +-------+          +-------+         +-------+       
-
-     </pre>
-
-
-.. class:: small
-
-    * => very simple low resource intersection : **closest Enter or Exit**
-
-    * :b:`More closely suiting algorithm to geometry => better performance`
-    * this can help with "holes" subtracted from another solid : the "holes" usually do not overlap 
-
-.. s5_talk::
-
-   More precise communication of intent for geometry -> better performance
-
-
-
-
-:small:`CSG_OVERLAP Intersection : CSG intersection`
----------------------------------------------------------------
-
-.. class:: small
-
-    * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_node.h :r:`intersect_node_overlap`
-
-    :r:`User guarantees : all constituents overlap` => ( farthest_enter or nearest_exit ) with all overlap requirement:
-
-    ``farthest_enter < nearest_exit and max(enter_count, exit_count) == num_sub``
-
-.. raw:: html
-
-    <pre class="mypre15">
-                                                       1X,2M -> MISS
-                                        +----------------1X-------------+
-                                        |               /             C |
-                                        |              0                |
-                              +---------------------------------+       |  
-                              |         |                     B |       |  
-                   +----------------------------+         0- - -1 - - - 2     2X,1M -> MISS
-                   | A        |         | . ABC |               X       X  
-                   |          |         | . . . |               |       |  
-          0 - - - -1- - - - - 2- - - - [3]- - - 4               |       |  
-                   E          E         E . . . X               |       |  
-                   |          |         | . . . |               |       |  
-                   |          |         | .0- -[1]- - - - - - - 2 - - - 3 - - 
-                   |          |         | . . . X               X       X  
-                   |          |         +-------------------------------+  
-                   |          |                 |               |          
-             0 - - 1 - - - - -2 - - - - - - - - 3 - - - - - - - 4          
-                   E          E   (2E,1M)-> M   X               X   (2X,1M) -> M
-                   |          +---------------------------------+          
-                   |                            |                          
-                   +----------------------------+                          
-     </pre>
-
-.. class:: small
-
-     :r:`Avoid tree overheads for suitable shapes (eg general sphere:inner-radius,phicut,thetacut)`
-
-
-.. s5_talk::
-
-    Overlap
-
-
-
-``AltXJfixtureConstruction_XY_internal_spurious.jpg``
-------------------------------------------------------
-
-.. s5_talk::
-
-    Internal Spurious XY view : without sorting enter
-
-
-``AltXJfixtureConstruction_XY_sorted_enter_fix.jpg``
-------------------------------------------------------
-
-
-
-.. s5_talk::
-
-    Fixed by sorting enter 
 
 
