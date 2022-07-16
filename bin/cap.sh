@@ -24,6 +24,36 @@ For example::
     ./cxs_debug.sh pvcap 
     ./cxs_debug.sh mpcap 
 
+What the envvars are used for:
+
+CAP_BASE
+    directory in which to save the captures, 
+    typically this will be $FOLD/figs the default is /tmp/$USER/opticks
+
+CAP_REL
+    relative directory beneath CAP_BASE for organization, default "cap",
+    for example use "gxt" : the stem of the name of the driving script
+    As the captype eg "pvcap" "mpcap" "sfcap" is auto-included
+    do not set CAP_REL to those.  
+
+CAP_STEM
+    stem of the captured file, default cap_stem_default
+    as this stem might appear on presentation pages without the 
+    rest of the path it is useful to collect identity infomation 
+    but avoid being too long, for example summarize with : ${GEOM}_${IPSTEM} 
+
+CAP_EXT
+    extension of the capture file, default ".png", changing to ".jpg" is possible 
+
+
+Putting these together gives the path of the capture::
+
+    capdir=${CAP_BASE}/${CAP_REL}/${captype}
+    upath=${capdir}/${CAP_STEM}_uncropped${CAP_EXT}
+    cpath=${capdir}/${CAP_STEM}${CAP_EXT}
+
+
+
 On running the capture script:
 
 1. the invoking terminal window will turn blue
@@ -67,6 +97,11 @@ cpath=${capdir}/${CAP_STEM}${CAP_EXT}
 vars="BASH_SOURCE SCRIPT style stem CAP_BASE CAP_REL CAP_STEM capdir upath cpath"
 cap_dumpvars(){ for var in $vars ; do printf "%20s : %s \n" "$var" "${!var}" ; done ; }
 cap_dumpvars
+
+if [ "${cap_arg}" == "help" ]; then 
+   usage
+fi 
+
 
 if [ "${cap_arg}" == "cap" ]; then 
 

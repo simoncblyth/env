@@ -3,9 +3,9 @@
    :title: Opticks: towards production use, Simon Blyth
    :name: opticks_20220329_progress_towards_production
    :description: (July 2022)
-   :notes: 15-20 min : general status summary and highlight the work since last review
-   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?sessionid=1682
-   :date: Jul 18 and 19
+   :notes: 25 min : general status summary and highlight the work since last review : 
+   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?conferenceid=1079
+   :date: Jul 18 14:30(07:30) meeting start, talk 15:45(08:45)
 
 .. include:: my_s5defs.txt
 
@@ -46,7 +46,7 @@
 .. raw:: html
 
     <div class="mycredit">
-    <h2 style="background-color:lightgrey"> Simon C Blyth  &mdash; 18 July 2022 </h2>
+    <h2 style="background-color:lightgrey"> Simon C Blyth &mdash; IHEP, CAS  &mdash; 18 July 2022 </h2>
     </div>
 
 
@@ -352,13 +352,55 @@ Opticks Packages : :b:`Many more to be removed`
 A - B : New Systematic Random Alignment Approach
 ------------------------------------------------------
 
+.. class:: small 
+
+    * enum stag.h U4Stack.h  
+    * manual tagging 
 
 
-A : Reduce Scatter and Absorption deviation 
-----------------------------------------------
+
+A : Reduce Scatter and Absorption deviation : The logf story 
+--------------------------------------------------------------
 
 
 
+Highlight a few topics as progress examples : perhaps need to select, can push some to extras
+------------------------------------------------------------------------------------------------
+
+.. class:: small 
+
+    *raindrop geometry testing** 
+
+    * alignment match (TODO: simtrace plot, high stats comparison : easier now that have manual tagging)
+    * logf fastmath story and improvement to absorption and scatter positions
+
+    *BoxOfScintillator*
+
+    * reemission bookeeping : mocking Opticks in Geant4 code  
+
+
+* input photon running example with gxt plots and A and B points
+
+
+
+``RaindropRockAirWaterSmall_UpXZ1000_chk.png``
+------------------------------------------------
+
+
+
+Next steps
+--------------
+
+.. class:: small 
+
+   * A-B iteration will full geometry + small geometries if that 
+     proves useful to investigate issues
+
+   * update JUNO-Opticks integration to use new workflow
+
+     * additional identity info for multifilm optical model 
+
+   * performance measuments to check for bottlenecks 
 
 
 
@@ -371,80 +413,78 @@ A : Reduce Scatter and Absorption deviation
     ---------------------------------------------------------
 
 
+    Prediction : 2022 April 
+    -----------------------------------------------------
+
+    .. class:: small
+
+        Experience suggests that predictions are impossible due to:
+
+        * changing geometry + geometry issues
+
+        BUT with caveat of excluding those
+
+        * :b:`migrating existing functionality from old to new workflow is less predictable`
+
+        **Expect completed new workflow by end of April, what remains:**
+
+        * *propagate_at_surface* (the more complex *propagate_at_boundary* took 3~4 days) 
+        * photon step-by-step history recording (for A-B testing)
+
+          * not needed in production, but essential for validation 
+
+        * event handling : stream compaction for downloading hits 
+        * integrate new CSGOptiX workflow into *G4Opticks* (gensteps in, hits out)
+
+        **Towards end of April**
+
+        * New workflow performance testing 
+        * Try to integrate MultiFilm PMT model (using LUT texture approach being developed by Yuxiang)
+        * Prepare release for Installation onto GPU cluster 
 
 
-Prediction : 2022 April 
------------------------------------------------------
+    .. s5_talk::
 
-.. class:: small
-
-    Experience suggests that predictions are impossible due to:
-
-    * changing geometry + geometry issues
-
-    BUT with caveat of excluding those
-
-    * :b:`migrating existing functionality from old to new workflow is less predictable`
-
-    **Expect completed new workflow by end of April, what remains:**
-
-    * *propagate_at_surface* (the more complex *propagate_at_boundary* took 3~4 days) 
-    * photon step-by-step history recording (for A-B testing)
-
-      * not needed in production, but essential for validation 
-
-    * event handling : stream compaction for downloading hits 
-    * integrate new CSGOptiX workflow into *G4Opticks* (gensteps in, hits out)
-
-    **Towards end of April**
-
-    * New workflow performance testing 
-    * Try to integrate MultiFilm PMT model (using LUT texture approach being developed by Yuxiang)
-    * Prepare release for Installation onto GPU cluster 
+        Preditions usually impossible, BUT 
 
 
-.. s5_talk::
+    :small:`Prediction : After April : Geometry Optimization + Production Optimization`
+    -------------------------------------------------------------------------------------------
 
-    Preditions usually impossible, BUT 
+    .. class:: small
 
+        :r:`performance so far always limited by geometry`
 
-:small:`Prediction : After April : Geometry Optimization + Production Optimization`
--------------------------------------------------------------------------------------------
+        * intersecting with geometry much more resource intensive that physics simulation
+        * very sensitive to any geometry issues
+     
 
-.. class:: small
+        **Geometry Optimization : Measure Simulation+Render performance as make changes:** 
 
-    :r:`performance so far always limited by geometry`
+        Expect geometry optimization needed to maximize performance even with *XJfixtureConstruction* skipped
 
-    * intersecting with geometry much more resource intensive that physics simulation
-    * very sensitive to any geometry issues
- 
+        * adjust instancing criteria -> different geometry factorization 
 
-    **Geometry Optimization : Measure Simulation+Render performance as make changes:** 
+          * more instancing expected to be faster but there is some balancing against overheads
 
-    Expect geometry optimization needed to maximize performance even with *XJfixtureConstruction* skipped
+        * apply CSG_CONTIGUOUS list-node to slower solids
 
-    * adjust instancing criteria -> different geometry factorization 
+        * try again suggestions from NVIDIA Engineers (PRD trick, flags, stack config)
 
-      * more instancing expected to be faster but there is some balancing against overheads
+          * worthwhile to retry as bottlenecks eliminated : as differences may become visible  
 
-    * apply CSG_CONTIGUOUS list-node to slower solids
+        **Production Optimization : New Territory, Experience needed to direct expts**
 
-    * try again suggestions from NVIDIA Engineers (PRD trick, flags, stack config)
+        * Now many GPUs per node ?
+        * Split/combine events depending on GPU memory 
 
-      * worthwhile to retry as bottlenecks eliminated : as differences may become visible  
-
-    **Production Optimization : New Territory, Experience needed to direct expts**
-
-    * Now many GPUs per node ?
-    * Split/combine events depending on GPU memory 
-
-      * large launches filling GPU memory expected to make better use of GPU 
-      * BUT: what about implications for overall cluster throughput ?
+          * large launches filling GPU memory expected to make better use of GPU 
+          * BUT: what about implications for overall cluster throughput ?
 
 
-.. s5_talk::
+    .. s5_talk::
 
-   Lots of scope for optimization  
+       Lots of scope for optimization  
 
 
 

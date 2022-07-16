@@ -1274,7 +1274,7 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){  echo ${INAME:-opticks_20220307_fixed_global_leaf_placement_issue} ; }
 
 #presentation-iname(){  echo ${INAME:-opticks_20220329_progress_towards_production} ; }
-presentation-iname(){  echo ${INAME:-opticks_2022_next_progress} ; }
+presentation-iname(){  echo ${INAME:-opticks_20220718_towards_production_use_juno_collab_meeting} ; }
 
 
 collab-e(){
