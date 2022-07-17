@@ -22,7 +22,7 @@
     <div class="mytitle">
     <header>
     <h1 style="background-color:lightgrey"> 
-        JUNO+Opticks : Progress Towards Production
+        JUNO+Opticks : Progress Towards Production 
         <h2 style="background-color:lightgrey;text-align:center"> Open source, https://bitbucket.org/simoncblyth/opticks </h2>
     </h1>
     </header>
@@ -31,24 +31,23 @@
 ..
 
   *Opticks* replaces *Geant4* optical photon simulation with an **equivalent implementation** 
-  that benefits from state-of-the-art GPU ray tracing from NVIDIA OptiX. 
-  All optically relevant aspects of *Geant4* context must be translated+copied to GPU:
+  that benefits from state-of-the-art GPU ray tracing from NVIDIA OptiX, which can yield
+  :r:`performance >1000x Geant4`.
+
+  All optically relevant aspects of *Geant4* context are translated+copied to GPU:
 
   * geometry : solids, structure, material+surface properties
   * generation : Cerenkov + Scintillation (using **Gensteps** from *Geant4*) 
   * :b:`propagation : Rayleigh scattering, absorption, reemission, boundary`
 
-
-  Achieving+maintaining **equivalence** is time consuming, BUT:
-
-  * :r:`transformative performance benefits >1000x Geant4`   
-
-
+  :r:`COMPLETED : Full Simulation re-implementation for OptiX 7 API`
+    
+  * :b:`NEXT : A-B Validation iteration, geometry issue fixes`
 
 .. raw:: html
 
     <div class="mycredit">
-    <h2 style="background-color:lightgrey"> Simon C Blyth &mdash; IHEP, CAS  &mdash; 18 July 2022 </h2>
+    <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS  &mdash; 18 July 2022 </h2>
     </div>
 
 
@@ -281,6 +280,70 @@ Opticks Packages : Many Removed, Many Added
 
 
 
+
+:small:`cx/CSGOptiX7.cu:simulate  : High Level, details in qudarap+sysrap`
+------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`CSGOptiX built upon:`
+
+    .. class:: small
+
+          * **OptiX** : :b:`trace`-intersection
+          * **qudarap** : qsim.h 
+          * **sysrap** : sctx.h sphoton.h sevent.h ... 
+
+          sctx::point 
+              record ctx.p sphoton -> record/rec/seq 
+
+          :g:`Geometry + Simulation brought together here`
+
+          * :r:`red recording code` for debugging only
+
+          
+
+.. raw:: html
+
+    <pre class="mypre18"> 
+    void simulate(const uint3& idx, const uint3& dim)
+    {
+        // skip some setup 
+
+        curandState rng = sim->rngstate[idx] ; 
+        sim->generate_photon(ctx.p, rng, gs, idx, gs_idx );
+
+        int command = START ;
+        int bounce = 0 ;
+        <span class="r">ctx.point(bounce)</span>;
+
+        while( bounce < evt->max_bounce )
+        {
+            <span class="b">trace( params.handle, ctx.p.pos, ctx.p.mom, 
+                  params.tmin, params.tmax, prd)</span>; 
+            if( prd->boundary() == 0xffffu ) break ; 
+            <span class="r">ctx.trace(bounce); // record PerRayData intersect</span>
+
+            command = sim->propagate(bounce, rng, ctx);
+
+            bounce++;
+            <span class="r">ctx.point(bounce)</span> ;
+            if(command == BREAK) break ;
+        }
+        <span class="r">ctx.end();  // write seq, tag, flat </span> 
+        <span class="b">evt->photon[idx] = ctx.p ;  // final photon </span>
+    }
+    </pre>
+
+.. class:: small
+
+    https://bitbucket.org/simoncblyth/opticks/src/master/CSGOptiX/CSGOptiX7.cu
+
+.. s5_talk::
+
+    Very high level CSGOptiX7.cu brings together geometry intersection 
+    with generation and propagation which is provided by qudarap and sysrap
+
+
+
 Opticks Packages : :b:`Many more to be removed`
 -----------------------------------------------
 
@@ -418,6 +481,11 @@ Opticks Packages : :b:`Many more to be removed`
     **sysrap/stag.h/stagr** collects into **tag.npy flat.npy** : :huge:`A`-side straightforward as already control all code 
 
 
+.. s5_talk::
+
+    Already in full control of the A side code, so straightforward to tag all consumption 
+
+
 
 :small:`Systematic Approach to Random Alignment of Two Simulations : B side`
 ---------------------------------------------------------------------------------
@@ -488,8 +556,13 @@ Opticks Packages : :b:`Many more to be removed`
 
     **u4/U4Process::ClearNumberOfInteractionLengthLeft**
    
-    * makes Geant4 consumption more regular -> possible to align 
+    * makes Geant4 consumption more regular -> easier to align 
     * used from **U4Recorder::UserSteppingAction_Optical**
+
+.. s5_talk::
+
+    A bit more involved in the B side, as need to override all Geant4 code
+    that consumes randoms during the propagation. 
 
 
 
@@ -542,10 +615,23 @@ Opticks Packages : :b:`Many more to be removed`
     <span class="b"> match sequences of 64 tags by viewing as 64 char string </span> 
     </pre>
 
+.. s5_talk::
+
+    It is easy to arrange for the simulation to use the same random numbers. 
+    Its more difficult to arrange that all the millions of random numbers 
+    are being used for the same purpose in both simulations.  
+
+    The tag arrays from A and B give a systematic way to check alignment of the random consumption, 
+    can easily see when alignment is lost. 
+
 
 
 ``RaindropRockAirWaterSmall_UpXZ1000_chk.png``
 ------------------------------------------------
+
+.. s5_talk::
+
+    This shows a very simple "Raindrop" geometry : a sphere of water in air
 
 
 
@@ -591,6 +677,11 @@ Opticks Packages : :b:`Many more to be removed`
 .. class:: small 
 
     * :r:`22/1M not tag aligned, 9(466)/1M with deviation > 0.01(0.001)`    
+
+
+.. s5_talk::
+
+    Comparing the step records 
 
 
 :small:`22/1M mis-aligned : tag arrays show alignment lost at 1st BR after SC`
@@ -639,8 +730,12 @@ Opticks Packages : :b:`Many more to be removed`
    * TODO: :b:`run the non-aligned indices in debugger to understand unexpected G4 random consumption` 
 
 
+.. s5_talk::
 
+    Python machinery to compare tag arrays from A and B on left and right,
+    makes it straightforward to find consumption tag mis-alignments
 
+    Seems to be a single issue causing all 22 to get mis-aligned 
 
 
 
@@ -699,9 +794,15 @@ Opticks Packages : :b:`Many more to be removed`
     ##define KLUDGE_FASTMATH_LOGF(u) (u < 0.998f ? __logf(u) : __logf(u) - 0.46735790f*1e-7f )
     </pre>
 
+.. s5_talk::
+
+    The logf offset reduces the amount of deviation, in lower stats testing
+    it makes SC/AB position no longer the primary cause of deviation. But in 
+    large sample it still is.  
 
 
-:small:`Start A - B aligned iteration with full JUNO GDML geometry`  
+
+:small:`Started : A - B aligned iteration with full JUNO GDML geometry`  
 --------------------------------------------------------------------------------
 
 .. sidebar:: :small:`Full geom, but target single PMT`
@@ -765,6 +866,9 @@ Opticks Packages : :b:`Many more to be removed`
      ./ab.sh           # compare A and B with NumPy 
      </pre>
  
+.. s5_talk::
+
+    These are the commands to do aligned A-B comparison 
 
 
 ``J000_DownXZ1000_PMT_ellipsoid_transform_again.png``
@@ -773,6 +877,11 @@ Opticks Packages : :b:`Many more to be removed`
 .. class:: small
 
    ``"simtrace" : scatter plot of intersects, looks like missed ellipsoid transform`` 
+
+.. s5_talk::
+
+    Have seen a similar issue previously : first thing to do is to try to 
+    reproduce issue with a smaller geometry for fast iteration. 
 
 
 
@@ -797,6 +906,12 @@ Opticks Packages : :b:`Many more to be removed`
     ``A:red, B:blue : virtual Water/Water "hatbox" skipped in A``
           ``prevents alignment``    
 
+.. s5_talk::
+
+    The virtual Water///Water boundary "hatbox" is skipped 
+    in the translation : but will have to put it back in order to align. 
+
+
 
 
 
@@ -808,6 +923,10 @@ Opticks Packages : :b:`Many more to be removed`
 .. class:: small
 
    ``single PMT test : no-such missed ellipsoid transform issue`` 
+
+.. s5_talk::
+
+    A small standalone geometry does not show the issue
 
 
 
@@ -851,7 +970,9 @@ Next steps in detail
      * check performance with very large textures
 
    
+.. s5_talk::
 
+    Transitioned from developing code to testing code 
 
 
 
@@ -903,7 +1024,9 @@ Next steps in detail
    +--------------------------------------------------+-----------------------------------------+
 
 
+.. s5_talk::
 
+    Changed gears from sim development to geometry debug   
 
 
 
