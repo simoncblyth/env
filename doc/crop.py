@@ -132,7 +132,7 @@ def main():
     parser.add_argument("--height", default=d['height'], type=int)
 
 
-    d['style'] = "SAFARI"
+    d['style'] = "safari"
     d['ext'] = ".png"
     d['replace'] = False
     parser.add_argument("--style", default=d['style'] )
@@ -146,7 +146,9 @@ def main():
     logging.basicConfig(level=getattr(logging, args.level.upper()),format="%(asctime)s %(name)s %(levelname)-8s %(message)s" )
 
     styles = {"safari":SAFARI, "pyvista":PYVISTA, "matplotlib":MATPLOTLIB, "generic":GENERIC } 
-    args.style = styles.get(args.style, None)
+    style_kls = styles.get(args.style, None)
+    log.info("args.style  %s  style_kls.description  %s " % (args.style, style_kls.description ))
+    args.style = style_kls
 
     crop = Crop(args)
     log.info(crop)

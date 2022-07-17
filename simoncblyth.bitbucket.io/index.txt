@@ -125,9 +125,16 @@ Opticks Presentations
 ~~~~~
 
 
+https://simoncblyth.bitbucket.io/env/presentation/opticks_20220718_towards_production_use_juno_collab_meeting.html
+
+    JUNO Progress Towards Production : Completed OptiX 7 Simulation re-implementation 
+
+    July 18, 2022
+  
+
 https://simoncblyth.bitbucket.io/env/presentation/opticks_20220329_progress_towards_production.html
 
-    JUNO Progress Towards Production
+    JUNO Progress Towards Production : QSim WIP
    
     March 29, 2022
 

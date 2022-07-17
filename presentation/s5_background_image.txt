@@ -1760,6 +1760,15 @@
     RaindropRockAirWaterSmall_UpXZ1000_chk.png  
     /env/presentation/RaindropRockAirWaterSmall/G4CXSimtraceTest/ALL/figs/gxt/pvcap/RaindropRockAirWaterSmall_UpXZ1000_chk.png 1280px_720px
 
+    J000_DownXZ1000_PMT_ellipsoid_transform_again.png
+    /env/presentation/DetSim0Svc_pWorld_g4live/g4ok_gltf/41c046fe05b28cb70b1fc65d0e6b7749/1/CSG_GGeo/G4CXSimtraceTest/ALL/figs/gxt/pvcap/J000_DownXZ1000_PMT_ellipsoid_transform_again.png 1280px_720px
+
+    hama_body_log_DownXZ1000_no_issue_with_hama_body_log.png
+    /env/presentation/hama_body_log/G4CXSimtraceTest/ALL/figs/gxt/pvcap/hama_body_log_DownXZ1000_no_issue_with_hama_body_log.png 1280px_720px
+
+    J000_DownXZ1000_virtual_too.png
+    /env/presentation/DetSim0Svc_pWorld_g4live/g4ok_gltf/41c046fe05b28cb70b1fc65d0e6b7749/1/CSG_GGeo/G4CXSimtraceTest/ALL/figs/gxt/pvcap/J000_DownXZ1000_virtual_too.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
