@@ -1530,3 +1530,26 @@ git-export()
 }
 
 
+
+git-socks(){ socks- ;  git config --global http.proxy "socks5://127.0.0.1:$(socks-port)" ; cat $(git-config) ;  }
+git-socks-unset(){     git config --global --unset http.proxy  ; cat $(git-config) ; }
+git-config(){          echo $HOME/.gitconfig ; }
+git-e(){               vi $(git-config) ; }
+
+
+git-socks-notes(){ cat << EON
+
+Adds the below to ~/.gitconfig::
+
+    [http]
+        proxy = socks5://127.0.0.1:8080
+
+EON
+}
+
+
+
+
+
+
+
