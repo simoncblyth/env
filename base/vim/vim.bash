@@ -13,6 +13,14 @@ VIM Tips
 
 
 
+delete a range of lines by line number
+----------------------------------------
+
+::
+
+   1,10357d 
+
+
 count words
 -------------
 
