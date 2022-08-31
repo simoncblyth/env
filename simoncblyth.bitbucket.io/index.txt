@@ -125,6 +125,13 @@ Opticks Presentations
 ~~~~~
 
 
+https://simoncblyth.bitbucket.io/env/presentation/opticks_202209XX_mask_spurious_debug.html
+
+    WIP : Discussion of coincidence issuse with NNVTMaskManager
+
+    ?? Sep, 2022 
+
+
 https://simoncblyth.bitbucket.io/env/presentation/opticks_20220718_towards_production_use_juno_collab_meeting.html
 
     JUNO Progress Towards Production : Completed OptiX 7 Simulation re-implementation 

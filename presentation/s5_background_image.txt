@@ -1772,6 +1772,15 @@
     nmskSolidMask_RandomSpherical10_another_zsphere_apex_miss_perhaps.png
     /env/presentation/GeoChain/nmskSolidMask/G4CXSimtraceTest/ALL/figs/gxt/mpcap/nmskSolidMask_RandomSpherical10_another_zsphere_apex_miss_perhaps.png 1280px_720px 
 
+    nmskSolidMask__U0,nmskSolidMaskTail__U0_without_uncoincide.png
+    /env/presentation/GeoChain/nmskSolidMask__U0,nmskSolidMaskTail__U0/G4CXSimtraceTest/ALL/figs/cf_gxt/mpcap/nmskSolidMask__U0,nmskSolidMaskTail__U0_without_uncoincide.png 1280px_720px
+
+    nmskSolidMask__U1,nmskSolidMaskTail__U1_U1_NNVTMaskManager_with_uncoincide.png
+    /env/presentation/GeoChain/nmskSolidMask__U1,nmskSolidMaskTail__U1/G4CXSimtraceTest/ALL/figs/cf_gxt/mpcap/nmskSolidMask__U1,nmskSolidMaskTail__U1_U1_NNVTMaskManager_with_uncoincide.png 1280px_720px
+
+    nmskSolidMaskTail_RandomSpherical10_cehigh_problem_areas.png 
+    /env/presentation/GeoChain/nmskSolidMaskTail/G4CXSimtraceTest/ALL/figs/gxt/mpcap/nmskSolidMaskTail_RandomSpherical10_cehigh_problem_areas.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

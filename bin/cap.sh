@@ -3,15 +3,26 @@ usage(){ cat << EOU
 cap.sh : screen capture with chrome cropping tool 
 =====================================================
 
-1. Run the script producing the image to grab
+1. Run the script producing the image to grab, eg::
+
+      gx
+      ./gxt.sh ana
 
 2. Make sure the window to be captured is partially visible behind 
-   the Terminal.app window and then invoke the relevant capture script off the PATH 
-   as usually ~/env/bin is in PATH, use the one corresponding to the window type.::
+   the Terminal.app window. Simplest way to do this is open a new 
+   window and reduce its height to a few lines so it can fit beneath
+   the plot window to capture. 
+   Then invoke the relevant capture script off the PATH, for example::
 
-   source pvcap.sh ## pyvista
-   source mpcap.sh ## matplotlib
-   source sfcap.sh ## safari
+       gx
+       ./gxt.sh mpcap
+
+   Internally the gxt.sh script sources one of the below, they are 
+   all similar with slight differences for window border sizes::
+
+       source pvcap.sh ## pyvista
+       source mpcap.sh ## matplotlib
+       source sfcap.sh ## safari
 
 All those are symbolically linked to cap.sh and change the parameters of
 the crop with different crop paramters. When running the script:
