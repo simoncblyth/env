@@ -1781,6 +1781,27 @@
     nmskSolidMaskTail_RandomSpherical10_cehigh_problem_areas.png 
     /env/presentation/GeoChain/nmskSolidMaskTail/G4CXSimtraceTest/ALL/figs/gxt/mpcap/nmskSolidMaskTail_RandomSpherical10_cehigh_problem_areas.png 1280px_720px
 
+    nmskSolidMaskTail__U1_thin_lip_issue.png
+    /env/presentation/nmskSolidMaskTail__U1/X4SimtraceTest/ALL/figs/x4t/mpcap/nmskSolidMaskTail__U1_thin_lip_issue.png 1280px_720px
+
+    nmskTailOuter__U1_nmskTailInner__U1_tail_outer_inner_subtraction.png
+    /env/presentation/nmskTailOuter__U1/X4SimtraceTest/ALL/figs/cf_x4t/mpcap/nmskTailOuter__U1_nmskTailInner__U1_tail_outer_inner_subtraction.png 1280px_720px
+
+    nmskTailOuter__U1_nmskTailInner__U1_spurious_lip_halo.png
+    /env/presentation/nmskTailOuter__U1/CSGSimtraceTest/ALL/figs/cf_ct/mpcap/nmskTailOuter__U1_nmskTailInner__U1_spurious_lip_halo.png 1280px_720px
+
+    nmskTailOuterITube__U1_thin_cylinder_precision_issue.png
+    /env/presentation/GEOM/nmskTailOuterITube__U1/CSGSimtraceTest/ALL/figs/ct/mpcap/nmskTailOuterITube__U1_thin_cylinder_precision_issue.png 1280px_720px
+
+    nmskTailOuterITube__U1_thin_cylinder_spurious_intersects_from_near_axial_rays.png
+    /env/presentation/GEOM/nmskTailOuterITube__U1/CSGSimtraceTest/ALL/figs/ct/mpcap/nmskTailOuterITube__U1_thin_cylinder_spurious_intersects_from_near_axial_rays.png 1280px_720px
+
+    nmskSolidMaskTail__U1_thin_cylinder_lip_splash.png
+    /env/presentation/GEOM/nmskSolidMaskTail__U1/CSGSimtraceTest/ALL/figs/ct/mpcap/nmskSolidMaskTail__U1_thin_cylinder_lip_splash.png 1280px_720px
+
+    nmskSolidMaskTail__U1_new_cylinder_impl_avoids_precision_loss.png 
+    /env/presentation/GEOM/nmskSolidMaskTail__U1/CSGSimtraceTest/ALL/figs/ct/mpcap/nmskSolidMaskTail__U1_new_cylinder_impl_avoids_precision_loss.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

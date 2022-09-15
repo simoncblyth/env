@@ -129,3 +129,183 @@
 
 
 
+``nmskSolidMaskTail__U1_thin_lip_issue.png``
+----------------------------------------------
+
+.. raw:: html
+
+   <pre>
+   
+
+
+
+   </pre>
+
+ 
+.. class:: small
+
+   ``extg4/x4t.sh : Geant4 reference intersects`` 
+
+
+``nmskTailOuter__U1_nmskTailInner__U1_tail_outer_inner_subtraction.png``
+---------------------------------------------------------------------------
+
+
+
+.. raw:: html
+
+   <pre>
+   
+
+
+
+   </pre>
+
+ 
+.. class:: small
+
+   ``extg4/cf_x4t.sh : blue:nmskTailOuter orange:nmskTailInner`` 
+
+
+``nmskTailOuter__U1_nmskTailInner__U1_spurious_lip_halo.png``
+---------------------------------------------------------------------------
+
+.. raw:: html
+
+   <pre>
+   
+
+   </pre>
+
+ 
+.. class:: small
+
+   ``CSG/cf_ct.sh : Opticks CSG running on CPU`` 
+
+ 
+.. class:: small
+
+   ``Missing thin cylinder edge intersects`` 
+
+.. class:: small
+
+   ``CAUSED : by mis-translation of very thin cylinder as "disc" not "cylinder"`` 
+
+
+
+``nmskSolidMaskTail__U1_thin_cylinder_lip_splash.png``
+--------------------------------------------------------
+
+
+.. raw:: html
+
+   <pre>
+   
+
+   </pre>
+
+ 
+.. class:: small
+
+   ``CSG/ct.sh : PMT mask "lip" reveals issue with thin cylinder (hz 0.15 mm)``
+
+
+
+
+``nmskTailOuterITube__U1_thin_cylinder_precision_issue.png``
+-----------------------------------------------------------------
+
+
+.. raw:: html
+
+   <pre>
+   
+
+   </pre>
+
+ 
+.. class:: small
+
+   ``CSG/ct.sh : hz 0.15 mm thin cylinder precision loss issue`` 
+
+
+
+``nmskTailOuterITube__U1_thin_cylinder_spurious_intersects_from_near_axial_rays.png``
+----------------------------------------------------------------------------------------
+
+.. class:: small
+
+    ``cd ~/opticks/CSG ; UNEXPECTED=1 NOLEGEND=1 ./ct.sh ana``
+
+
+
+.. raw:: html
+
+   <pre>
+   
+
+   </pre>
+
+ 
+.. class:: small
+
+   ``near axial rays suffer precision loss -> spurious`` 
+
+
+
+
+:small:`FIX : reimplemented CSG_CYLINDER to avoid precision loss`
+----------------------------------------------------------------------------------- 
+
+.. class:: small
+
+     :r:`Loss of precision issue : only apparent with very thin cylinders`
+
+     **CSG_OLDCYLINDER : CSG/csg_intersect_leaf_oldcylinder.h::intersect_leaf_oldcylinder** 
+
+     * old impl adapted from pseudo-general approach from "Real Time Collision Detection" book 
+     * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_leaf_oldcylinder.h
+
+     **CSG_CYLINDER : CSG/csg_intersect_leaf.h::intersect_leaf_cylinder** 
+
+     * :r:`new impl embraces fixed z-orientation -> simpler -> less flops -> less precision loss` 
+     * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_leaf.h
+
+     **CSG/tests/CSGIntersectComparisonTest.sh**
+
+     Comparison of cylinder implementations
+
+     * new : much simpler 
+     * new : avoids spurious intersects
+     * new : improved precision (comparing surface distances of intersects)
+
+
+
+``nmskSolidMaskTail__U1_new_cylinder_impl_avoids_precision_loss.png``
+------------------------------------------------------------------------
+
+.. class:: small
+
+    ``FOCUS=-257,-39,7 ./ct.sh ana  ## using CSG/tests/CSGSimtraceTest.{cc/py}``   
+
+
+.. raw:: html
+
+   <pre>
+   
+
+
+
+
+
+
+
+   </pre>
+
+ 
+.. class:: small
+
+   ``new cylinder impl : avoids spurious + improves precision + simpler`` 
+
+
+
