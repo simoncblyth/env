@@ -1802,6 +1802,24 @@
     nmskSolidMaskTail__U1_new_cylinder_impl_avoids_precision_loss.png 
     /env/presentation/GEOM/nmskSolidMaskTail__U1/CSGSimtraceTest/ALL/figs/ct/mpcap/nmskSolidMaskTail__U1_new_cylinder_impl_avoids_precision_loss.png 1280px_720px
 
+    nmskSolidMaskVirtual_spurious_sprinkle.png 
+    /env/presentation/GEOM/nmskSolidMaskVirtual/CSGSimtraceTest/ALL/figs/ct/mpcap/nmskSolidMaskVirtual_spurious_sprinkle.png 1280px_720px
+
+    nmskSolidMaskVirtual_oops_uncoincidence_geom_change.png
+    /env/presentation/GEOM/nmskSolidMaskVirtual/CSGSimtraceTest/ALL/figs/ct/mpcap/nmskSolidMaskVirtual_oops_uncoincidence_geom_change.png 1280px_720px
+
+    nmskSolidMaskVirtual_without_uncoincidence.png
+    /env/presentation/GEOM/nmskSolidMaskVirtual/CSGSimtraceTest/ALL/figs/ct/mpcap/nmskSolidMaskVirtual_without_uncoincidence.png 1280px_720px
+
+    nmskSolidMaskVirtual_spurious_from_quadratic_precision_loss.png
+    /env/presentation/GEOM/nmskSolidMaskVirtual/CSGSimtraceTest/ALL/figs/ct/mpcap/nmskSolidMaskVirtual_spurious_from_quadratic_precision_loss.png 1280px_720px
+
+    nmskSolidMaskVirtual_apex_glancers.png
+    /env/presentation/GEOM/nmskSolidMaskVirtual/CSGSimtraceTest/ALL/figs/ct/mpcap/nmskSolidMaskVirtual_apex_glancers.png 1280px_720px
+
+    nmskSolidMaskVirtual_new_CSG_CONE_avoids_apex_and_precision_loss_issues.png 
+    /env/presentation/GEOM/nmskSolidMaskVirtual/CSGSimtraceTest/ALL/figs/ct/mpcap/nmskSolidMaskVirtual_new_CSG_CONE_avoids_apex_and_precision_loss_issues.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

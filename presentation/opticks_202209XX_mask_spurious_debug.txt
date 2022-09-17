@@ -309,3 +309,187 @@
 
 
 
+
+``nmskSolidMaskVirtual_spurious_sprinkle.png``
+-------------------------------------------------
+
+
+.. class:: small
+
+    ``Even with uncoincidence : still left with sprinkle between cylinder and cone``  
+
+
+
+``nmskSolidMaskVirtual_oops_uncoincidence_geom_change.png``
+-------------------------------------------------------------
+
+
+.. class:: small
+
+    ``Uncoincidence : expanded cylinder up, in this case changing geometry``
+
+
+``nmskSolidMaskVirtual_without_uncoincidence.png``
+-------------------------------------------------------------
+
+
+.. class:: small
+
+    ``Without Uncoincidence : clear spurious lines cyl-cyl-cone``
+
+
+``nmskSolidMaskVirtual_spurious_from_quadratic_precision_loss.png``
+----------------------------------------------------------------------
+
+
+.. class:: small
+
+    ``c2 t^2 + 2 c1 t + c0 = 0``
+
+    ``disc = c1*c1 - c0*c2,  for small c0 or c2 get precision loss in one root``
+
+
+.. raw:: html
+
+   <pre>
+   
+
+
+
+
+   </pre>
+
+
+
+.. class:: small
+
+    ``Solution : pick quadratic in t OR 1/t depending on coefficients``
+
+    ``https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_robust_quadratic_roots.h``
+
+    ``Have been using this for years, but not for CSG_CONE``
+
+
+
+
+:small:`Debug With CSG/nmskSolidMaskVirtual.sh`
+-------------------------------------------------
+
+.. class:: small
+
+    c  # cd ~/opticks/CSG
+
+    ./nmskSolidMaskVirtual.sh withnudge  # GeoChain translate
+  
+    ./nmskSolidMaskVirtual.sh ct  # intersect using ct.sh, CSGSimtraceTest.cc 
+
+    ./nmskSolidMaskVirtual.sh ana # plot with CSGSimtraceTest.py 
+
+    ./nmskSolidMaskVirtual.sh unx # select unexpected, save to array
+
+    ./nmskSolidMaskVirtual.sh sample # rerun intersect for selected, using CSGSimtraceSample.cc
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    //intersect_leaf_oldcone t_near_alt      477.8 t_far_alt  1.225e+09 t_near_alt-t_near         17 t_far_alt-t_far          0 
+    //intersect_leaf_oldcone r1   264.0500 z1    97.0000 r2   132.0250 z2   194.0500 : z0   291.1000 
+    //intersect_leaf_oldcone c2    -0.0000 c1   365.0782 c0 -348871.4688 disc 133281.9219 disc > 0.f 1 : tth    -1.3604 
+    //intersect_leaf_oldcone c0 -3.489e+05 c1      365.1 c2  -5.96e-07 t_near      460.8 t_far  1.225e+09 sdisc   365.0780 (-c1-sdisc)     -730.2 (-c1+sdisc) -0.0002747 
+    //intersect_leaf_oldcone t_near_alt      477.8 t_far_alt  1.225e+09 <span class="r">t_near_alt-t_near         17</span> t_far_alt-t_far          0 
+                                 - HIT
+                        q0 norm t (   -0.5457    0.0000    0.8380  460.8000)
+                       q1 ipos sd ( -212.8504    0.0000  114.4940    0.0000)- sd < SD_CUT :    -0.0010
+                 q2 ray_ori t_min (  158.4300    0.0000 -158.4300)
+                  q3 ray_dir gsid (   -0.8057    0.0000    0.5923 C4U (     0    0    0  255 ) )
+
+     o.x            158.4300 v.x             -0.8057 t0(-o.x/v.x)   196.6291 z0             -41.9699
+    2022-09-17 16:05:30.725 INFO  [9037364] [CSGSimtraceSample::intersect@89] CSGSimtraceSample::desc
+       
+   </pre> 
+
+.. class:: small
+
+   * :r:`Catastrophic t_near precision loss : from subtraction of two close values` 
+
+
+
+
+``nmskSolidMaskVirtual_apex_glancers.png``
+--------------------------------------------
+
+
+.. raw:: html
+
+   <pre>
+   
+
+
+
+
+
+
+
+
+   </pre>
+
+
+.. class:: small
+
+   ``18 rays with unexpected cyl-cone edge intersects`` 
+
+       ``all extend close to cone apex`` 
+
+
+
+:small:`CSG_CONE reimplemented : avoid apex issue + precision loss`
+-----------------------------------------------------------------------------------
+
+.. class:: small
+
+    ``CSG_OLDCONE`` 
+
+         makes incorrect assumption that all rays intersect infinite cone
+
+         :r:`NOT TRUE FOR RAYS CLOSE TO APEX`
+
+         https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_leaf_oldcone.h
+
+
+    ``CSG_CONE``
+
+         cap intersects indep of cone intersects + adopt robust_quadratic_roots  
+
+         https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_leaf_newcone.h
+
+
+``nmskSolidMaskVirtual_new_CSG_CONE_avoids_apex_and_precision_loss_issues.png``
+---------------------------------------------------------------------------------
+
+
+
+
+.. raw:: html
+
+   <pre>
+   
+
+
+
+
+
+
+
+
+   </pre>
+
+
+
+.. class:: small
+
+    ``New CSG_CONE avoids apex and precision loss issues in nmskSolidMaskVirtual``
+
+
+
+
+
