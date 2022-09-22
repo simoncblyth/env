@@ -12,7 +12,6 @@ VIM Tips
 * http://www.astrohandbook.com/ch20/vi_guide.html
 
 
-
 delete a range of lines by line number
 ----------------------------------------
 

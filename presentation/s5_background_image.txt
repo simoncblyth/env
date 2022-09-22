@@ -1820,6 +1820,24 @@
     nmskSolidMaskVirtual_new_CSG_CONE_avoids_apex_and_precision_loss_issues.png 
     /env/presentation/GEOM/nmskSolidMaskVirtual/CSGSimtraceTest/ALL/figs/ct/mpcap/nmskSolidMaskVirtual_new_CSG_CONE_avoids_apex_and_precision_loss_issues.png 1280px_720px
 
+    J003_DownXZ1000_before_fixes.png
+    /env/presentation/ntds3/G4CXOpticks/G4CXSimtraceTest/ALL/figs/gxt/mpcap/J003_DownXZ1000_before_fixes.png 1280px_720px
+
+    nmsk_nnvt_solids_STUVWXY_single_together_for_overlap.png
+    /env/presentation/GEOM/nmskSolidMask__U1/CSGSimtraceTest/ALL/figs/mct/mpcap/nmsk_nnvt_solids_STUVWXY_single_together_for_overlap.png 1280px_720px
+
+    nmsk_nnvt_solids_STUVWXY_nnvt_virtualMask_Mask_overlap.png
+    /env/presentation/GEOM/nmskSolidMask__U1/CSGSimtraceTest/ALL/figs/mct/mpcap/nmsk_nnvt_solids_STUVWXY_nnvt_virtualMask_Mask_overlap.png 1280px_720px
+
+    nmsk_nnvt_solids_STUVWXY_x4t_reference.png
+    /env/presentation/GEOM/nmskSolidMask__U1/X4SimtraceTest/ALL/figs/mx4t/mpcap/nmsk_nnvt_solids_STUVWXY_x4t_reference.png 1280px_720px
+
+    hmsk_hama_solids_STUVWXY_BodySolid_x_MaskTail.png
+    /env/presentation/GEOM/hmskSolidMaskVirtual__U1/CSGSimtraceTest/ALL/figs/mct/mpcap/hmsk_hama_solids_STUVWXY_BodySolid_x_MaskTail.png 1280px_720px
+
+    hmsk_hama_solids_STUVWXY_zoom_impinge.png
+    /env/presentation/GEOM/hmskSolidMaskVirtual__U1/CSGSimtraceTest/ALL/figs/mct/mpcap/hmsk_hama_solids_STUVWXY_zoom_impinge.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

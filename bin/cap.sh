@@ -105,7 +105,7 @@ upath=${capdir}/${CAP_STEM}_uncropped${CAP_EXT}
 cpath=${capdir}/${CAP_STEM}${CAP_EXT}
 
 
-vars="BASH_SOURCE SCRIPT style stem CAP_BASE CAP_REL CAP_STEM capdir upath cpath"
+vars="BASH_SOURCE SCRIPT style stem CAP_BASE CAP_REL CAP_STEM capdir upath cpath BASH_SOURCE"
 cap_dumpvars(){ for var in $vars ; do printf "%20s : %s \n" "$var" "${!var}" ; done ; }
 cap_dumpvars
 

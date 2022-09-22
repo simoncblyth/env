@@ -61,25 +61,30 @@
 ``nmskSolidMask_RandomSpherical10_another_zsphere_apex_miss_perhaps.png``
 ------------------------------------------------------------------------------
 
+
+
+
+.. raw:: html
+
+   <p style="margin-bottom:13cm;" />
+
+
 .. class:: small
 
-   ``fixed ellipsoid : rare missing apex intersect bug``   
+   ``rare close to ellipsoid "apex" rays missed : fixed with zcut+safety``   
 
 
 ``nmskSolidMask__U0,nmskSolidMaskTail__U0_without_uncoincide.png``
 --------------------------------------------------------------------
 
 
-
 .. raw:: html
 
-   <pre>
-   
+   <p style="margin-bottom:3cm;" />
 
-
-
-   </pre>
  
+
+
 
 .. class:: small
 
@@ -92,12 +97,7 @@
 
 .. raw:: html
 
-   <pre>
-   
-
-
-
-   </pre>
+   <p style="margin-bottom:3cm;" />
 
  
 .. class:: small
@@ -113,14 +113,11 @@
 ``nmskSolidMaskTail_RandomSpherical10_cehigh_problem_areas.png``
 ------------------------------------------------------------------ 
 
+
 .. raw:: html
 
-   <pre>
-   
+   <p style="margin-bottom:3cm;" />
 
-
-
-   </pre>
 
  
 .. class:: small
@@ -134,12 +131,8 @@
 
 .. raw:: html
 
-   <pre>
-   
+   <p style="margin-bottom:3cm;" />
 
-
-
-   </pre>
 
  
 .. class:: small
@@ -151,15 +144,10 @@
 ---------------------------------------------------------------------------
 
 
-
 .. raw:: html
 
-   <pre>
-   
+   <p style="margin-bottom:3cm;" />
 
-
-
-   </pre>
 
  
 .. class:: small
@@ -172,10 +160,7 @@
 
 .. raw:: html
 
-   <pre>
-   
-
-   </pre>
+   <p style="margin-bottom:3cm;" />
 
  
 .. class:: small
@@ -199,10 +184,7 @@
 
 .. raw:: html
 
-   <pre>
-   
-
-   </pre>
+   <p style="margin-bottom:3cm;" />
 
  
 .. class:: small
@@ -215,14 +197,9 @@
 ``nmskTailOuterITube__U1_thin_cylinder_precision_issue.png``
 -----------------------------------------------------------------
 
-
 .. raw:: html
 
-   <pre>
-   
-
-   </pre>
-
+   <p style="margin-bottom:3cm;" />
  
 .. class:: small
 
@@ -238,13 +215,9 @@
     ``cd ~/opticks/CSG ; UNEXPECTED=1 NOLEGEND=1 ./ct.sh ana``
 
 
-
 .. raw:: html
 
-   <pre>
-   
-
-   </pre>
+   <p style="margin-bottom:10cm;" />
 
  
 .. class:: small
@@ -288,19 +261,9 @@
 
     ``FOCUS=-257,-39,7 ./ct.sh ana  ## using CSG/tests/CSGSimtraceTest.{cc/py}``   
 
-
 .. raw:: html
 
-   <pre>
-   
-
-
-
-
-
-
-
-   </pre>
+   <p style="margin-bottom:10cm;" />
 
  
 .. class:: small
@@ -314,6 +277,11 @@
 -------------------------------------------------
 
 
+.. raw:: html
+
+   <p style="margin-bottom:2cm;" />
+
+
 .. class:: small
 
     ``Even with uncoincidence : still left with sprinkle between cylinder and cone``  
@@ -324,6 +292,12 @@
 -------------------------------------------------------------
 
 
+
+.. raw:: html
+
+   <p style="margin-bottom:2cm;" />
+
+
 .. class:: small
 
     ``Uncoincidence : expanded cylinder up, in this case changing geometry``
@@ -331,6 +305,13 @@
 
 ``nmskSolidMaskVirtual_without_uncoincidence.png``
 -------------------------------------------------------------
+
+
+
+.. raw:: html
+
+   <p style="margin-bottom:2cm;" />
+
 
 
 .. class:: small
@@ -351,29 +332,72 @@
 
 .. raw:: html
 
-   <pre>
-   
+   <p style="margin-bottom:13cm;" />
 
 
 
+:small:`csg_robust_quadratic_roots.h`
+----------------------------------------
 
-   </pre>
+.. sidebar:: :small:`Avoid precision loss subtraction`
 
+    .. raw:: html 
+
+        <pre class="mypretiny">
+        //ifdef NAIVE_QUADRATIC
+            t1 = (-b - sdisc)/d ;
+            t2 = (-b + sdisc)/d ;  // t2 >= t1
+        //else
+            // pick root depending on sign of b
+            float q = b > 0.f ? -(b + sdisc) : -(b - sdisc) ;
+            float root1 = q/d ;
+            float root2 = c/q ;
+            t1 = fminf( root1, root2 );
+            t2 = fmaxf( root1, root2 );
+        //endif
+        </pre>
+
+.. class:: small
+
+    Solution : pick t OR 1/t quadratic roots depending on coefficients : avoiding precision loss
+
+    * Been using for years, but not for CSG_CONE
+
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+
+    Normal Quadratic                    Alternative quadratic in 1/t                   
+    -----------------                   --------------------------------               
+                                                                                              
+    d t^2 + 2b t + c = 0                c (1/t)^2 + 2b (1/t) + d  = 0              
+                                                                                              
+                                                                                              
+        -2b +- sqrt((2b)^2 - 4dc )             -2b +- sqrt( (2b)^2 - 4dc )       
+    t =  --------------------------     1/t =  ----------------------------      
+                   2d                                    2c                       
+                                                                                              
+         -b +- sqrt( b^2 - d c )        1/t =  -b  +- sqrt( b^2 - d c )         
+    t =  -----------------------               -------------------------         
+                 d                                       c                        
+                                                                                              
+                                                       c                         
+                                        t =  ---------------------------         
+                                             -b  +-  sqrt( b^2 - d c )         
+                                                                                              
+                                                                                              
+    </pre>
 
 
 .. class:: small
 
-    ``Solution : pick quadratic in t OR 1/t depending on coefficients``
-
-    ``https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_robust_quadratic_roots.h``
-
-    ``Have been using this for years, but not for CSG_CONE``
+    * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_robust_quadratic_roots.h
 
 
 
-
-:small:`Debug With CSG/nmskSolidMaskVirtual.sh`
--------------------------------------------------
+:small:`Debug Precision Loss With CSG/nmskSolidMaskVirtual.sh`
+----------------------------------------------------------------
 
 .. class:: small
 
@@ -421,24 +445,12 @@
 
 .. raw:: html
 
-   <pre>
-   
-
-
-
-
-
-
-
-
-   </pre>
+   <p style="margin-bottom:15cm;" />
 
 
 .. class:: small
 
-   ``18 rays with unexpected cyl-cone edge intersects`` 
-
-       ``all extend close to cone apex`` 
+   ``18 rays with unexpected cyl-cone intersects : all extend close to cone apex`` 
 
 
 
@@ -471,18 +483,7 @@
 
 .. raw:: html
 
-   <pre>
-   
-
-
-
-
-
-
-
-
-   </pre>
-
+   <p style="margin-bottom:2cm;" />
 
 
 .. class:: small
@@ -490,6 +491,78 @@
     ``New CSG_CONE avoids apex and precision loss issues in nmskSolidMaskVirtual``
 
 
+
+
+``J003_DownXZ1000_before_fixes.png``
+--------------------------------------
+
+
+
+``nmsk_nnvt_solids_STUVWXY_single_together_for_overlap.png``
+---------------------------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:10cm;" />
+
+.. class:: small
+
+   ``NNVT : TWO overlap issues visible, one was fixed by updating to latest junosw, see next page``
+
+
+``nmsk_nnvt_solids_STUVWXY_nnvt_virtualMask_Mask_overlap.png``
+---------------------------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:10cm;" />
+
+.. class:: small
+
+   ``NNVT : ONE overlap issue visible, MaskTail impinges MaskVirtual``
+
+      ``(using ct.sh : Opticks CSG on CPU)``
+
+
+``nmsk_nnvt_solids_STUVWXY_x4t_reference.png``
+--------------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:10cm;" />
+
+.. class:: small
+
+   ``NNVT : x4t.sh Geant4 spurious intersects visible (cf prior)``
+
+      ``(using x4t.sh : Geant4 intersects)``
+
+
+``hmsk_hama_solids_STUVWXY_BodySolid_x_MaskTail.png``
+-------------------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:5cm;" />
+
+.. class:: small
+
+   ``HAMA : ONE overlap issue, BodySolid impinges MaskTail``
+
+      ``(using ct.sh : Opticks CSG on CPU)``
+
+
+``hmsk_hama_solids_STUVWXY_zoom_impinge.png``
+-----------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:5cm;" />
+
+.. class:: small
+
+   |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
+   ``HAMA : BodySolid impinges MaskTail (ct.sh)``
 
 
 

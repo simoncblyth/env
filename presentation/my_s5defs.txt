@@ -5,6 +5,11 @@
 
     https://docutils.sourceforge.io/docutils/parsers/rst/include/isogrk1.txt
 
+
+    .. raw::html
+
+         <p style="margin-bottom:13cm;" /> 
+
     .. raw:: html
 
        <span>&nbsp;</span>
@@ -44,6 +49,14 @@
 
 
 .. |CK| unicode:: U+0010C  .. https://en.wikipedia.org/wiki/Č
+
+.. |emsp| unicode:: U+2003   .. whitespace
+
+.. |nbsp10| unicode:: U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 .. 10 nbsp fail to add up  
+
+
+
+
 
 
 .. include:: s5_background_image.txt

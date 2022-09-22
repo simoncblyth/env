@@ -6,6 +6,9 @@ epub.sh
 
 This script is intended to be sourced after the CAP_ environment has been setup
 
+/Users/blyth/.opticks/ntds3/G4CXOpticks/G4CXSimtraceTest/ALL/figs/gxt/mpcap/J003_DownXZ1000.png 
+
+
 EOU
 }
 
@@ -13,12 +16,13 @@ EOU
 epub_relative_stem()
 {
    local path=$1
-   local geocache=$HOME/.opticks/geocache/
+   #local geocache=$HOME/.opticks/geocache/
+   local dotopticks=$HOME/.opticks/
    local tmpcache=/tmp/$USER/opticks/
 
    local rel  
    case $path in 
-      ${geocache}*)  rel=${path/$geocache/} ;;
+      ${dotopticks}*)  rel=${path/$dotopticks/} ;;
       ${tmpcache}*)  rel=${path/$tmpcache/} ;;
    esac 
    rel=${rel/\.jpg}
@@ -43,7 +47,7 @@ epub_pub()
     local pub=$HOME/simoncblyth.bitbucket.io$s5p
     local s5p_line="$s5p 1280px_720px"
 
-    local vars="cap_path cap_ext rel_stem PUB extra s5p pub s5p_line"
+    local vars="BASH_SOURCE FUNCNAME cap_path cap_ext rel_stem PUB extra s5p pub s5p_line"
     for var in $vars ; do printf "%20s : %s\n" $var "${!var}" ; done  
 
     mkdir -p $(dirname $pub)
