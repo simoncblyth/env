@@ -1838,6 +1838,24 @@
     hmsk_hama_solids_STUVWXY_zoom_impinge.png
     /env/presentation/GEOM/hmskSolidMaskVirtual__U1/CSGSimtraceTest/ALL/figs/mct/mpcap/hmsk_hama_solids_STUVWXY_zoom_impinge.png 1280px_720px
 
+    nmsk_nnvt_solids_STUVWXY_n_issue_mask_virtual_not_mask_solid.png
+    /env/presentation/GEOM/nmskSolidMask__U1/CSGSimtraceTest/ALL/figs/mct/mpcap/nmsk_nnvt_solids_STUVWXY_n_issue_mask_virtual_not_mask_solid.png 1280px_720px
+
+    J004_Hama:0:1000_insitu.png
+    /env/presentation/GEOM/J004/G4CXSimtraceTest/Hama:0:1000/figs/gxt/mpcap/J004_Hama:0:1000_insitu.png 1280px_720px
+
+    J004_Hama:0:1000_insitu_legend.png
+    /env/presentation/GEOM/J004/G4CXSimtraceTest/Hama:0:1000/figs/gxt/mpcap/J004_Hama:0:1000_insitu_legend.png 1280px_720px
+
+    J004_NNVT:0:1000_insitu_legend.png
+    /env/presentation/GEOM/J004/G4CXSimtraceTest/NNVT:0:1000/figs/gxt/mpcap/J004_NNVT:0:1000_insitu_legend.png 1280px_720px
+
+    J004_Hama:0:1000_mask_impinge_body.png
+    /env/presentation/GEOM/J004/G4CXSimtraceTest/Hama:0:1000/figs/gxt/mpcap/J004_Hama:0:1000_mask_impinge_body.png 1280px_720px 
+   
+    J004_NNVT:0:1000_body_solid_pmt_solid_coincide.png
+    /env/presentation/GEOM/J004/G4CXSimtraceTest/NNVT:0:1000/figs/gxt/mpcap/J004_NNVT:0:1000_body_solid_pmt_solid_coincide.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
