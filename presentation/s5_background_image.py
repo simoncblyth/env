@@ -9,6 +9,9 @@ from docutils import nodes
 urls = []  
 divs = []
 
+URLS = []
+
+
 class s5backgroundimage(nodes.General, nodes.Inline, nodes.Element):
     pass
 
@@ -43,6 +46,7 @@ class div_background(object):
     def parse_spec(self, spec_line):
         spec_elem = spec_line.split()
         nelem = len(spec_elem)
+        url = "parse_spec_FAILED"
         size, position, extra, meta = "auto_auto", "0px_0px", "", ""
         if nelem > 0:url = spec_elem[0] 
         if nelem > 1:size = spec_elem[1]
@@ -56,8 +60,13 @@ class div_background(object):
             pass
         pass
 
+        global URLS
+        URLS.append(url)
+
         if len(meta) > 0:
-            log.info("spec_line %s meta %s " % (spec_line, meta))  
+            log.info("%3d : spec_line %s meta %s " % (len(URLS), spec_line, meta))  
+        else:
+            log.debug("%3d : spec_line %s no-meta " % (len(URLS), spec_line))  
         pass
         _ = lambda _:_.replace("_"," ")
         return dict(url=url, size=_(size),position=_(position), extra=_(extra), meta=meta ) 

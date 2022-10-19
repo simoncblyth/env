@@ -1209,12 +1209,12 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_sep2017_jinan ; }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_sep2017_wollongong ; }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2018_chep ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2018_ihep ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2018_ihep ; }    ## LOTS OF ISSUES : HAS OWN s5_background_image list 
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_sep2018_qingdao ; }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_oct2018_ihep ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jan2019_sjtu ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jan2019_sjtu ; }   ## REMOVED INDIV s5_background_image list 
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2019_ihep ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_oct2019_dance ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_oct2019_dance ; }  ## NOT FOUND
 
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep ; }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep_TALK ; }
@@ -1226,21 +1226,17 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou_TALK ; }
 
 #presentation-iname(){ echo ${INAME:-opticks_may2020_hsf} ; }
-#presentation-iname(){ echo opticks_may2020_hsf_TALK ; }
 
-#presentation-iname(){ echo ${INAME:-opticks_jul2020_juno} ; }
-#presentation-iname(){ echo ${INAME:-opticks_jul2020_juno_TALK} ; }
+#presentation-iname(){ echo ${INAME:-opticks_jul2020_juno} ; }   ## PROBLEMS
 
 #presentation-iname(){ echo ${INAME:-opticks_aug2020_sjtu_neutrino_telescope_workshop} ; }
 #presentation-iname(){ echo ${INAME:-opticks_aug2020_sjtu_neutrino_telescope_workshop_TALK} ; }
 
-#presentation-iname(){ echo ${INAME:-opticks_jan2021_juno_sim_review} ; }
 # instead of manually changing to _TALK use the p2.sh script
 
-
 #presentation-iname(){ echo ${INAME:-opticks_jan2021_juno_sim_review} ; }
 
-#presentation-iname(){  echo ${INAME:-lz_opticks_optix7} ; }
+#presentation-iname(){  echo ${INAME:-lz_opticks_optix7} ; }  ## NOT FOUND
 #presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210208} ; }
 #presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210225} ; }
 
@@ -1253,7 +1249,6 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){  echo ${INAME:-juno_opticks_20210426} ; }
 #presentation-iname(){   echo ${INAME:-lz_opticks_optix7_20210504} ; }
 #presentation-iname(){   echo ${INAME:-opticks_vchep_2021_may19} ; }
-#presentation-iname(){   echo ${INAME:-opticks_vchep_2021_may19_TALK} ; }
 #presentation-iname(){   echo ${INAME:-lz_opticks_optix7_20210518} ; }
 
 

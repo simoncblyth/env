@@ -1,3 +1,9 @@
+.. meta::
+   :title: Opticks : GPU Optical Simulation via NVIDIA OptiX
+   :description: Opticks workflow, Scan 1M to 400M, Quadro RTX 8000 48G, Perf Numbers, Why Not GigaRays/s ?, How >1000x ?, NEST, Needs and Challenges
+   :note: DANCE and CHEP talks derived from the same source via FULL preprocessor macro
+
+
 .. include:: my_s5defs.txt
 
 .. comment
@@ -315,7 +321,7 @@ Outline Talk
 
 
 :small:`Optical Photon Simulation ≈ Ray Traced Image Rendering` Talk
-----------------------------------------------------------------------
+--------------------------------------------------------------------
 
 .. class:: normal
 
@@ -694,7 +700,7 @@ Outline Talk
 
 
 :small:`NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix` Talk
----------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
 
 .. class:: normal
 

@@ -154,7 +154,7 @@
 .. role:: mytitle
 
 
-.. include:: <s5defs.txt>
+.. include:: <my_s5defs.txt>
 
 .. s5_background_image::
 

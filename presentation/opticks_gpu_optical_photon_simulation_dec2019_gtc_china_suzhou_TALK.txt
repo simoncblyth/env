@@ -1,3 +1,10 @@
+
+.. meta::
+   :title: Opticks : GPU Optical Photon Simulation via NVIDIA OptiX
+   :event: GTC China December 2019, Suzhou 
+   :description: Neutrino Pauli, Usefulness of Neutrinos, IBD LS, Cherenkov, PMT, Cosmics, JUNO
+   :pages: 42
+
 .. include:: my_s5defs.txt
 
 .. include:: s5_background_image.txt
@@ -521,7 +528,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality Talk
 
 
 :small:`Optical Photon Simulation ≈ Ray Traced Image Rendering` Talk
-----------------------------------------------------------------------
+--------------------------------------------------------------------
 
 .. class:: normal
 
@@ -901,7 +908,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality Talk
 
 
 :small:`NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix` Talk
----------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
 
 .. class:: normal
 

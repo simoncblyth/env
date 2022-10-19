@@ -1,6 +1,16 @@
+
+.. meta::
+   :title: Opticks : GPU Optical Simulation via NVIDIA OptiX + A Mental Model for Effective Application of GPUs
+   :description: Drastic... how is > 1000x possible, Understanding GPU Graphical Origins, GPU optimizes throughput, CuPy, NP.hh, C Union Trick, GLSL Geom Shader, Photon History Indexing
+   :event_url: http://www.ihep.cas.cn/xwdt/xshd/201911/t20191126_5443006.html
+
 .. comment
  
    opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar.txt
+ 
+   https://indico.ihep.ac.cn/event/11006/
+
+
 
 .. include:: my_s5defs.txt
 
@@ -420,7 +430,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality Talk
 
 
 :small:`Optical Photon Simulation ≈ Ray Traced Image Rendering` Talk
-----------------------------------------------------------------------
+--------------------------------------------------------------------
 
 .. class:: normal
 
@@ -720,7 +730,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality Talk
 
 
 :small:`NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix` Talk
----------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
 
 .. class:: normal
 

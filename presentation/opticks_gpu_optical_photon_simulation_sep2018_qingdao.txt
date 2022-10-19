@@ -940,7 +940,7 @@ Outline : Tools, Techniques and Opticks
 
     <pre class="mypretiny">
 
-    #include &lt;curand_kernel.h&gt; 
+    ##include &lt;curand_kernel.h&gt; 
 
     struct estimate_pi 
     { 
@@ -982,10 +982,10 @@ Outline : Tools, Techniques and Opticks
 .. raw:: html
 
     <pre class="mypretiny">
-    #include &lt;thrust/iterator/counting_iterator.h&gt; 
-    #include &lt;thrust/transform_reduce.h&gt; 
-    #include &lt;iostream&gt; 
-    #include &lt;iomanip&gt; 
+    ##include &lt;thrust/iterator/counting_iterator.h&gt; 
+    ##include &lt;thrust/transform_reduce.h&gt; 
+    ##include &lt;iostream&gt; 
+    ##include &lt;iomanip&gt; 
 
     int main() 
     { 
@@ -1512,7 +1512,7 @@ Geant4 : Overview
 
 
 
-:small:`CSG Deep Tree : Positivize tree using De Morgan's laws`
+:small:`CSG Deep Tree : Positivize tree using De Morgans laws`
 ------------------------------------------------------------------------------------
 
 .. sidebar:: Positive form CSG Trees
@@ -1757,8 +1757,8 @@ Geant4 : Overview
 
    JUNO: ~90M --> 0.1M triangles
 
-   * 18k 20" PMTs
-   * 36k 3" PMTs
+   * 18k 20 inch PMTs
+   * 36k 3 inch PMTs
   
    **OpenGL instanced rendering** 
 
@@ -1988,7 +1988,7 @@ Geant4 : Overview
 
     <pre class="mypre">
     // EngineMinimalTest.cc : demonstrate G4UniformRand control 
-    #include "Randomize.hh"                                              $ EngineMinimalTest 
+    ##include "Randomize.hh"                                              $ EngineMinimalTest 
                                                                          0.13049
     struct MyEngine : public CLHEP::MixMaxRng  // MixMax is default      0.617751
     {                                                                    0.995947
@@ -2266,7 +2266,7 @@ Geant4 : Overview
     <b>Array-orientated is better than object-oriented.</b>
     <b>Broadcasting is a great idea -- use where possible!</b>
     <b>Vectorized is better than an explicit loop.</b>
-    Unless it's complicated -- then use Cython or numexpr.
+    Unless its complicated -- then use Cython or numexpr.
     <b>Think in higher dimensions.</b>
 
     </pre>
@@ -2366,9 +2366,9 @@ Geant4 : Overview
 
     In [5]: !xxd a.npy                  <b> # run xxd in shell to hexdump the byte contents of the file </b>  
 
-    00000000: 934e 554d 5059 0100 7600 7b27 6465 7363  .NUMPY..v.{'desc
+    00000000: 934e 554d 5059 0100 7600 7b27 6465 7363  .NUMPY..v.{ desc
     00000010: 7227 3a20 273c 6938 272c 2027 666f 7274  r': '&lt;i8', 'fort
-    00000020: 7261 6e5f 6f72 6465 7227 3a20 4661 6c73  ran_order': Fals
+    00000020: 7261 6e5f 6f72 6465 7227 3a20 4661 6c73  ran_order : Fals
     00000030: 652c 2027 7368 6170 6527 3a20 2831 302c  e, 'shape': (10,   <b><span class="alarm"> # minimal metadata : type, shape   </span></b>
     00000040: 292c 207d 2020 2020 2020 2020 2020 2020  ), }            
     00000050: 2020 2020 2020 2020 2020 2020 2020 2020                  
@@ -2403,281 +2403,6 @@ Geant4 : Overview
     * very stable 
 
 
-
-
-
-
-
-.. s5_background_image::
-
-    #
-    # slide titles and background image urls, 
-    # including server relative urls like /env/geant4/geometry/collada/daeview/20140419-170713.png
-    # and protocol relative urls like //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
-    #
-    # NB1 slide titles here must match those in body precisely, 
-    # NB2 also ensure all slide titles are unique
-    #
-    #slide0
-    #/env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
-    #/env/geant4/geometry/collada/g4daeview/20140419-170713-1024x768.png auto_auto 0px_0px
-    #
-    #   wide targetting 1280x720
-    #   
-    #
-    slide0
-    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
-
-    Opticks Benefits
-    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
-
-    Visualizing An Optical Photon Simulation
-    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 640px_360px 600px_100px
-
-    Overview
-    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
-
-    g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
-    /env/geant4/geometry/collada/g4daeview/20140419-170713.png
-
-    Cerenkov Photons Simulation - Top View
-    /env/geant4/geometry/collada/g4daeview/20141224-115923.png
-
-    Cerenkov Photons Simulation - Side View
-    /env/geant4/geometry/collada/g4daeview/20141224-115935.png
-
-    Scintillation Photons Simulation - Top View
-    /env/geant4/geometry/collada/g4daeview/20141224-121444.png
-
-    Scintillation Photons Simulation - Side View
-    /env/geant4/geometry/collada/g4daeview/20141224-121435.png
-
-    Standard Geant4 Workflow
-    /env/keynotefigs/G4DAEChroma/G4DAEChroma.001.png
-
-    External Photon Simulation Workflow
-    /env/keynotefigs/G4DAEChroma/G4DAEChroma.002.png
-
-    GGeoView
-    /env/graphics/ggeoview/ggeoview-cerenkov-001.png 1047px_795px
-
-    GGeoView M1 Points
-    /env/graphics/ggeoview/ggeoview-scintillation-points-mat1.png 1435px_848px
-
-    GGeoView Flag Selection 
-    /env/graphics/ggeoview/ggeoview-scintillation-flag-seq-select.png 1436px_842px
-
-    GGeoView Cerenkov Geom M1
-    /env/graphics/ggeoview/ggeoview-cerenkov-m1-geom.png 1416px_845px
-  
-    Detecting Neutrinos via Optical Photons 1
-    /env/presentation/dayabay-principal_half.png 1417px_830px 
-
-    Detecting Neutrinos via Optical Photons 2
-    /env/presentation/dayabay-principal_half.png 1417px_830px 
- 
-    JPMT Inside Wide 
-    /env/graphics/ggeoview/jpmt-inside-wide_half.png 1432px_844px
-
-    JPMT Wide
-    /env/graphics/ggeoview/jpmt-wide_half.png 1409px_836px
-  
-    JPMT Headview
-    /env/graphics/ggeoview/jpmt-headview_half.png 1308px_783px
- 
-    JPMT Backview
-    /env/graphics/ggeoview/jpmt-backview_half.png 1149px_794px 
- 
-    JPMT Approach 
-    /env/graphics/ggeoview/jpmt-approach_half.png 1431px_839px
-
-    JPMT Arrival 
-    /env/graphics/ggeoview/jpmt-arrival_half.png 1427px_841px 
- 
-    Optical Photon Simulation Problem...
-    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
-
-    JPMT Before Contact
-    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
-
-    JPMT Before Contact 2
-    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
-
-    JPMT Before Contact 3
-    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
-
- 
-    JPMT After Contact 
-    /env/graphics/ggeoview/jpmt-after-contact_half.png 1425px_840px 
-  
-    JPMT Inside Outside 
-    /env/graphics/ggeoview/jpmt-inside-outside_half.png 1401px_842px
-
-    NVIDIA OptiX In Action
-    /env/presentation/optix-in-action_half.png 966px_646px 100px_50px
-
-    PmtInBox approach 1
-    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
-
-    PmtInBox approach 2
-    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
-
-    PmtInBox after 1
-    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
-
-    PmtInBox after 2
-    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
-
-    Daya Bay PMT Wall Photo 1
-    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
-
-    Daya Bay PMT Wall Photo 2
-    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
-
-    Super-Kamiokande PMTs Not 16:9 
-    /env/presentation/gtc2016/sk-PH20-water-withboat-apr23-wm.png 1181px_771px
-
-    Super-Kamiokande PMTs 1
-    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
-
-    Super-Kamiokande PMTs 2
-    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
-
-    Super-Kamiokande PMTs 3
-    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
-
-    Super-Kamiokande PMTs 4
-    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
-
-    Kamiokande II 1
-    /env/presentation/1987a.png 1280px_720px
-
-    Kamiokande II 2
-    /env/presentation/1987a.png 1280px_720px
-
-    Kamiokande II 3
-    /env/presentation/1987a.png 1280px_720px
-
-
-    Fast Optical Photon Simulation
-    /env/presentation/newtons-opticks.png 374px_684px 800px_0px
-
-    Photomultiplier Tubes (PMTs)
-    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
-
-    Photomultiplier Tube Operation
-    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
-
-    Old Hamamatsu Photomultiplier Tubes (PMTs)
-    /env/presentation/hamamatsu-pmt.png 1099px_734px
-
-    Old Photomultiplier Tube Operation
-    /env/presentation/hamamatsu-pmt.png 1099px_734px
-
-
-
-
-    Jiangmen Underground Neutrino Observatory (JUNO) 
-    /env/presentation/juno-schematic-5.png 1391px_734px
-
-    Jiangmen Underground Neutrino Observatory, Goals
-    /env/presentation/juno-schematic-5.png 1391px_734px
-
-
-    Dayabay Reactor Neutrino Expt, Far Site
-    /env/presentation/DybFar_crop.png 1280px_720px
-
-    Daya Bay Far Site 2
-    /env/presentation/DybFar_crop.png 1280px_720px
-
-    Daya Bay Far Site 3
-    /env/presentation/DybFar_crop.png 1280px_720px
-
-    Geant4 : Monte Carlo Simulation Toolkit 
-    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
-
-    Geant4 : Monte Carlo Simulation Toolkit Generality
-    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
-
-    "Seeing" neutrinos via scintillation + Cherenkov light
-    /env/presentation/cherenkov.png 316px_203px 850px_400px
-
-    Large Geometry Techniques : Instancing Mandatory
-    /env/graphics/ggeoview/ggv-juno-instancing.png 852px_592px 450px_80px
-
-    NVIDIA OptiX 1
-    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px
-
-    NVIDIA OptiX 2
-    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px
-
-    OpticksDocs
-    /env/presentation/OpticksDocs.png 1280px_720px
-
-    Daya Bay Antineutrino Detection via Inverse Beta Decay 1
-    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
-
-    Daya Bay Antineutrino Detection via Inverse Beta Decay 2
-    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
-    # a = np.array([1676.0, 1192.0])
-    # .8*720.*a/1192.
-
-    Daya Bay Energy Response Model (1)
-    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
-
-    Daya Bay Energy Response Model (2)
-    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
-
-    # a = np.array([2392., 1424.]) ; .8*720*a/a[1]
-
-
-
-    Daya Bay Energy Response Model : Fit to Calibration Data 1
-    /env/presentation/EnergyResponseModel.png 693px_504px 0px_100px 
-    # a = np.array([1760., 1280.])
-    # .8*720.*a/1280.   792px_576px
-    # 693.,  504
-
-    Daya Bay Energy Response Model : Fit to Calibration Data 2
-    /env/presentation/ConstrainingNonLinearity.png 761px_553px 0px_80px
-    # a = np.array([1698., 1166.])
-    # .8*720.*a/1166. 
-    
-    Daya Bay nGd Analysis : Most Precise Theta13
-    /env/presentation/DYBZheTaup2015Theta13OscillationAnalysis.png 1057px_625px 100px_60px
-    # a = np.array([2140., 1266.])
-    # .8*720.*a/1166.
-
-
-    Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)
-    /env/presentation/op_full_raytrace_3.png 1280px_720px
-
-    Opticks Analytic Daya Bay Near Site, GPU Raytrace (1)
-    /env/presentation/op_full_raytrace_1.png 1280px_720px
-
-    Opticks Analytic Daya Bay Near Site, GPU Raytrace (0)
-    /env/presentation/op_full_raytrace_0.png 1280px_720px
-
-    Opticks Analytic Daya Bay Near Site, GPU Raytrace (2)
-    /env/presentation/op_full_raytrace_2.png 1280px_720px
-
-    Opticks Analytic JUNO Chimney, GPU Raytrace (0)
-    /env/presentation/j1707_chimney_analytic_raytrace.png 1280px_720px
-
-    Opticks Analytic JUNO PMT Snap, GPU Raytrace (1)
-    /env/presentation/j1707-okop-snap.png 1280px_720px
-
-    GPU Instance Culling with Level Of Detail
-    /env/presentation/j1707_lod_oglrap_instcull.png 1280px_720px
-
-    Opticks Export of G4 geometry to glTF 2.0
-    /env/yoctoglrap/dyb_near_venice_half.png 1020px_737px
-
-    What are NumPy Arrays
-    /env/presentation/what_are_numpy_arrays.png 1280px_720px
-
-    What are NumPy Arrays 2
-    /env/presentation/what_are_numpy_arrays.png 1280px_720px
 
 
 

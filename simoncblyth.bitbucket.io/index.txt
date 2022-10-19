@@ -1,15 +1,42 @@
-*simoncblyth.bitbucket.io*
-===========================
+*Opticks Pubications, Presentations, Notes*
+=====================================================
+
+As servers may become inaccessible 
+this content is hosted from three servers. 
+If you find access problems, try another server. 
 
 * https://simoncblyth.bitbucket.io
-* http://bitbucket.org/simoncblyth
-* https://bitbucket.org/simoncblyth/env/commits/all
+* https://simoncblyth.github.io
+* https://juno.ihep.ac.cn/~blyth/
+
+
+Day to day Opticks development is in bitbucket
+------------------------------------------------
+
+* https://bitbucket.org/simoncblyth
 * https://bitbucket.org/simoncblyth/opticks/commits/all
+
+
+Github Opticks repo is only updated infrequently, for snapshots
+-----------------------------------------------------------------
+
+* https://github.com/simoncblyth
+* https://github.com/simoncblyth/opticks
+
+Images
+-------
+
 * https://simoncblyth.bitbucket.io/images/
+* https://simoncblyth.github.io/images/
+* https://juno.ihep.ac.cn/~blyth/images/
+
 
 Opticks Documentation
+----------------------
 
 * https://simoncblyth.bitbucket.io/opticks/
+* https://simoncblyth.github.io/opticks/
+* https://juno.ihep.ac.cn/~blyth/opticks/
 
 
 Publications
@@ -52,7 +79,7 @@ https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02
 
     * https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02027/epjconf_chep2018_02027.html
 
-    * http://simoncblyth.bitbucket.io/env/report/opticks-blyth-chep2018-v1.pdf
+    * `env/report/opticks-blyth-chep2018-v1.pdf <env/report/opticks-blyth-chep2018-v1.pdf>`_
 
 
 http://iopscience.iop.org/article/10.1088/1742-6596/898/4/042001
@@ -108,6 +135,7 @@ controlled fit with NLL evaluated on the GPU using `thrust::transform_reduce`.
 
 * https://bitbucket.org/simoncblyth/intro_to_cuda/ 
 
+
 Introduction to NumPy
 ----------------------
 
@@ -125,49 +153,49 @@ Opticks Presentations
 ~~~~~
 
 
-https://simoncblyth.bitbucket.io/env/presentation/opticks_202209XX_mask_spurious_debug.html
+`env/presentation/opticks_202209XX_mask_spurious_debug.html  <env/presentation/opticks_202209XX_mask_spurious_debug.html>`_
 
-    WIP : Discussion of coincidence issuse with NNVTMaskManager
+    WIP : Discussion of coincidence issues with NNVTMaskManager, Hama
 
-    ?? Sep, 2022 
+    ?? Oct, 2022 
 
 
-https://simoncblyth.bitbucket.io/env/presentation/opticks_20220718_towards_production_use_juno_collab_meeting.html
+`env/presentation/opticks_20220718_towards_production_use_juno_collab_meeting.html <env/presentation/opticks_20220718_towards_production_use_juno_collab_meeting.html>`_
 
     JUNO Progress Towards Production : Completed OptiX 7 Simulation re-implementation 
 
     July 18, 2022
   
 
-https://simoncblyth.bitbucket.io/env/presentation/opticks_20220329_progress_towards_production.html
+`env/presentation/opticks_20220329_progress_towards_production.html <env/presentation/opticks_20220329_progress_towards_production.html>`_
 
     JUNO Progress Towards Production : QSim WIP
    
     March 29, 2022
 
 
-https://simoncblyth.bitbucket.io/env/presentation/opticks_20220307_fixed_global_leaf_placement_issue.html
+`env/presentation/opticks_20220307_fixed_global_leaf_placement_issue.html <env/presentation/opticks_20220307_fixed_global_leaf_placement_issue.html>`_
 
     JUNO Geometry Updates and Fixes 
 
     March 7, 2022 
 
 
-https://simoncblyth.bitbucket.io/env/presentation/opticks_20220227_LHCbRich_UK_GPU_HACKATHON.html
+`env/presentation/opticks_20220227_LHCbRich_UK_GPU_HACKATHON.html <env/presentation/opticks_20220227_LHCbRich_UK_GPU_HACKATHON.html>`_
 
     LHCb RICH + NVIDIA UK GPU HACKATHON 
 
     February 28, 2022 
 
 
-https://simoncblyth.bitbucket.io/env/presentation/opticks_20220118_juno_collaboration_meeting.html
+`env/presentation/opticks_20220118_juno_collaboration_meeting.html <env/presentation/opticks_20220118_juno_collaboration_meeting.html>`_
 
     JUNO+Opticks Photons : Validation and Deployment Plan
 
     January 18, 2022
 
 
-https://simoncblyth.bitbucket.io/env/presentation/opticks_20220115_innovation_in_hep_workshop_hongkong.html
+`env/presentation/opticks_20220115_innovation_in_hep_workshop_hongkong.html <env/presentation/opticks_20220115_innovation_in_hep_workshop_hongkong.html>`_
 
     IAS Program on High Energy Physics 2022 : Mini-workshop on Experiment/Detector: Innovation in HEP Detectors and Computing, January 13-14, 2022
 
@@ -179,44 +207,43 @@ https://simoncblyth.bitbucket.io/env/presentation/opticks_20220115_innovation_in
 2021
 ~~~~~
 
-
-https://simoncblyth.bitbucket.io/env/presentation/opticks_20211223_pre_xmas.html
+`env/presentation/opticks_20211223_pre_xmas.html <env/presentation/opticks_20211223_pre_xmas.html>`_
 
    JUNO Opticks : OptiX 7 Ray Trace times >100x faster following geometry fixes (December 23, 2021) 
 
-https://simoncblyth.bitbucket.io/env/presentation/opticks_20211117.html
+`env/presentation/opticks_20211117.html <env/presentation/opticks_20211117.html>`_
 
    JUNO Opticks : PMT Z-cut issue : (November 17, 2021)
 
-https://simoncblyth.bitbucket.io/env/presentation/opticks_autumn_20211019.html
+`env/presentation/opticks_autumn_20211019.html <env/presentation/opticks_autumn_20211019.html>`_
 
    Opticks Autumn : (October 19, 2021)
 
    Notes on OptiX 6->7 migration
 
-https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_cerenkov_20210902.html
+`env/presentation/juno_opticks_cerenkov_20210902.html <env/presentation/juno_opticks_cerenkov_20210902.html>`_
 
    JUNO Opticks : Summer Progress (Sep 2, 2021)
 
-https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210727.html
+`env/presentation/lz_opticks_optix7_20210727.html <env/presentation/lz_opticks_optix7_20210727.html>`_
 
     Notes on OptiX 6->7 migration : "Qudarap" pure CUDA photon generation (July 27, 2021, Virtual, H7)
 
-https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_20210712.html
+`env/presentation/juno_opticks_20210712.html <env/presentation/juno_opticks_20210712.html>`_
 
     JUNO Opticks/Geant4 Optical Photon Simulation Matching (July 12, 2021)
 
-https://simoncblyth.bitbucket.io/env/presentation/opticks_vchep_2021_may19.html 
+`env/presentation/opticks_vchep_2021_may19.html <env/presentation/opticks_vchep_2021_may19.html>`_
 
     Integration of JUNO simulation framework with *Opticks*  (May 19, 2021) vCHEP 
 
-https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210518.html
+`env/presentation/lz_opticks_optix7_20210518.html <env/presentation/lz_opticks_optix7_20210518.html>`_
 
     Notes on OptiX 6->7 migration, *CSG*, *CSG_GGeo*, *CSGOptiX* (May 18, 2021, Virtual, H6)
 
     1st full JUNO ray trace with OptiX 7 *CSGOptiX* enabled by *CSGFoundry* model
 
-https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210504.html
+`env/presentation/lz_opticks_optix7_20210504.html <env/presentation/lz_opticks_optix7_20210504.html>`_
 
     Notes on OptiX 6->7 migration, *CSG*, *CSGOptiX*, *CSGOptiXGGeo* (May 4, 2021, Virtual, H5)
  
@@ -224,42 +251,42 @@ https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210504.htm
     * https://github.com/simoncblyth/CSGOptiX/commits
     * https://github.com/simoncblyth/CSGOptiXGGeo/commits
 
-https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_20210426.html
+`env/presentation/juno_opticks_20210426.html <env/presentation/juno_opticks_20210426.html>`_
 
     JUNO-Opticks Notes, slow solids identified (April 26, 2021)
 
-https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210406.html
+`env/presentation/lz_opticks_optix7_20210406.html <env/presentation/lz_opticks_optix7_20210406.html>`_
 
     Notes on OptiX 6->7 migration, "Foundry" CSG Model (April 4, 2021, Virtual, H4)
  
     * https://github.com/simoncblyth/OptiXTest/commits
 
-https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210315.html
+`env/presentation/lz_opticks_optix7_20210315.html <env/presentation/lz_opticks_optix7_20210315.html>`_
 
     Notes on OptiX 6->7 migration, (Mar 15, 2021, Virtual, H3)
  
     * https://github.com/simoncblyth/OptiXTest/commits
 
-https://simoncblyth.bitbucket.io/env/presentation/opticks_detector_geometry_caf_mar2021.html
+`env/presentation/opticks_detector_geometry_caf_mar2021.html <env/presentation/opticks_detector_geometry_caf_mar2021.html>`_
 
     Compute Accelerator Forum (March 10, 2021, Virtual, 20+10 min)
 
-    * https://simoncblyth.bitbucket.io/env/presentation/opticks_detector_geometry_caf_mar2021.pdf  (23 MB)
+    * `env/presentation/opticks_detector_geometry_caf_mar2021.pdf <env/presentation/opticks_detector_geometry_caf_mar2021.pdf>`_ (23 MB)
     * https://indico.cern.ch/event/975008/
 
-https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210225.html
+`env/presentation/lz_opticks_optix7_20210225.html <env/presentation/lz_opticks_optix7_20210225.html>`_
 
     Notes on OptiX 6->7 migration, (Feb 25, 2021, Virtual, H2)
 
     * https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASDyn/README.rst
 
-https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210208.html
+`env/presentation/lz_opticks_optix7_20210208.html <env/presentation/lz_opticks_optix7_20210208.html>`_
 
     Notes on OptiX 6->7 migration, (Feb 8, 2021, Virtual, H1)
 
     * https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASComp/README.rst
 
-https://simoncblyth.bitbucket.io/env/presentation/opticks_jan2021_juno_sim_review.html (Feb 1, 2021, Virtual)
+`env/presentation/opticks_jan2021_juno_sim_review.html <env/presentation/opticks_jan2021_juno_sim_review.html>`_ (Feb 1, 2021, Virtual)
 
     Review JUNO + Opticks progress + plans, 20 mins
     
@@ -267,19 +294,19 @@ https://simoncblyth.bitbucket.io/env/presentation/opticks_jan2021_juno_sim_revie
 2020
 ~~~~~~~
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_aug2020_sjtu_neutrino_telescope_workshop.html (August 2020, Virtual)
+`env/presentation/opticks_aug2020_sjtu_neutrino_telescope_workshop.html <env/presentation/opticks_aug2020_sjtu_neutrino_telescope_workshop.html>`_ (August 2020, Virtual)
 
     SJTU Shanghai, Next Generation Neutrino Telescope Workshop 
 
     *Opticks : GPU photon simulation via NVIDIA® OptiX™ + GPU/Graphics background + Application to neutrino telescope simulations ?*
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_jul2020_juno.html (6 July 2020, IHEP Virtual)
+`env/presentation/opticks_jul2020_juno.html <env/presentation/opticks_jul2020_juno.html>`_ (6 July 2020, IHEP Virtual)
 
     JUNO Collaboration Meeting, Software Session
 
     *Integration of JUNO Offline + Opticks : GPU Optical Simulation with NVIDIA® OptiX™*
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_may2020_hsf.html (27 May 2020, CERN Virtual)
+`env/presentation/opticks_may2020_hsf.html <env/presentation/opticks_may2020_hsf.html>`_ (27 May 2020, CERN Virtual)
 
     HSF Simulation Working Group Meeting, 20 minutes presentation 
 
@@ -289,13 +316,13 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_may2020_hsf.html (27 Ma
 Winter 2019
 ~~~~~~~~~~~~~~
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar.html (Dec 2019, Beijing)
+`env/presentation/opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar.html <env/presentation/opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar.html>`_  (Dec 2019, Beijing)
 
     IHEP EPD/PIFI Seminar 
 
     *Opticks : GPU Optical Simulation via NVIDIA® OptiX™ + A Mental Model for Effective Application of GPUs*
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_nov2019_chep.html (Nov 2019, Adelaide)
+`env/presentation/opticks_gpu_optical_photon_simulation_nov2019_chep.html <env/presentation/opticks_gpu_optical_photon_simulation_nov2019_chep.html>`_ (Nov 2019, Adelaide)
 
     CHEP 2019 Invited Plenary 
 
@@ -305,7 +332,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 Summer 2019 : Opticks status 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_jul2019_ihep.html (July 2019, Beijing)
+`env/presentation/opticks_gpu_optical_photon_simulation_jul2019_ihep.html <env/presentation/opticks_gpu_optical_photon_simulation_jul2019_ihep.html>`_ (July 2019, Beijing)
 
     JUNO Collaboration Meeting
 
@@ -316,7 +343,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 Early 2019 : Opticks status 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_jan2019_sjtu.html (17 Jan 2019, Shanghai)
+`env/presentation/opticks_gpu_optical_photon_simulation_jan2019_sjtu.html <env/presentation/opticks_gpu_optical_photon_simulation_jan2019_sjtu.html>`_ (17 Jan 2019, Shanghai)
 
     JUNO Collaboration Meeting
 
@@ -326,7 +353,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 Autumn 2018 : Tools, Techniques and Opticks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_oct2018_ihep.html (31 Oct 2018, Beijing)
+`env/presentation/opticks_gpu_optical_photon_simulation_oct2018_ihep.html <env/presentation/opticks_gpu_optical_photon_simulation_oct2018_ihep.html>`_ (31 Oct 2018, Beijing)
 
     IHEP Seminar  
 
@@ -336,7 +363,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 Summer 2018 : Opticks Progress : Direct workflow, aligned validation  
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_jul2018_chep.html (10 July 2018, Sofia)
+`env/presentation/opticks_gpu_optical_photon_simulation_jul2018_chep.html <env/presentation/opticks_gpu_optical_photon_simulation_jul2018_chep.html>`_ (10 July 2018, Sofia)
 
     CHEP 2018 Conference
 
@@ -347,7 +374,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 Brief Opticks Introductory presentation, with many backup slides
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_sep2017_wollongong.html (Sep 2017, Wollongong)
+`env/presentation/opticks_gpu_optical_photon_simulation_sep2017_wollongong.html <env/presentation/opticks_gpu_optical_photon_simulation_sep2017_wollongong.html>`_ (Sep 2017, Wollongong)
 
     Geant4 Collaboration Meeting,  University of Wollongong, Australia
 
@@ -360,7 +387,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 Autumn 2017 : Opticks Introductory presentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_sep2017_jinan.html (Sep 2017, Jinan)
+`env/presentation/opticks_gpu_optical_photon_simulation_sep2017_jinan.html <env/presentation/opticks_gpu_optical_photon_simulation_sep2017_jinan.html>`_ (Sep 2017, Jinan)
 
     Shandong University, Physics Dept, Jinan, China
 
@@ -371,7 +398,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 Summer 2017 : moving to fully analytic geometry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_jul2017_ihep.html (July 2017, Beijing)
+`env/presentation/opticks_gpu_optical_photon_simulation_jul2017_ihep.html <env/presentation/opticks_gpu_optical_photon_simulation_jul2017_ihep.html>`_ (July 2017, Beijing)
 
     JUNO Collaboration Meeting, IHEP, Beijing, China
 
@@ -381,7 +408,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 Early 2017 : optical simulation validated
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_jan2017_psroc.html (17 Jan 2017, Taipei)
+`env/presentation/opticks_gpu_optical_photon_simulation_jan2017_psroc.html <env/presentation/opticks_gpu_optical_photon_simulation_jan2017_psroc.html>`_ (17 Jan 2017, Taipei)
 
     PSROC Annual Meeting, Tamkang University, TKU, New Taipei City, Taiwan
 
@@ -392,14 +419,14 @@ Late 2016 : optical simulation validated
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_nov2016_llr.html (2 Dec 2016, Paris)
+`env/presentation/opticks_gpu_optical_photon_simulation_nov2016_llr.html <env/presentation/opticks_gpu_optical_photon_simulation_nov2016_llr.html>`_ (2 Dec 2016, Paris)
 
     JUNO Workshop, LLR, Ecole Polytechnique 
 
     *Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
 
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_oct2016_chep.html (11 Oct 2016, CHEP Conference, San Francisco)
+`env/presentation/opticks_gpu_optical_photon_simulation_oct2016_chep.html <env/presentation/opticks_gpu_optical_photon_simulation_oct2016_chep.html>`_ (11 Oct 2016, CHEP Conference, San Francisco)
 
     CHEP 2016 Conference
 
@@ -410,7 +437,7 @@ Mid 2016
 ~~~~~~~~~~~~
 
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_jul2016_weihai.html (19 July 2016, Weihai, China)
+`env/presentation/opticks_gpu_optical_photon_simulation_jul2016_weihai.html <env/presentation/opticks_gpu_optical_photon_simulation_jul2016_weihai.html>`_ (19 July 2016, Weihai, China)
 
     Shandong University Particle Physics Summer School
 
@@ -418,7 +445,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 
 
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_may2016_lecospa.html (16 May 2016, NTU, Taipei)
+`env/presentation/opticks_gpu_optical_photon_simulation_may2016_lecospa.html <env/presentation/opticks_gpu_optical_photon_simulation_may2016_lecospa.html>`_ (16 May 2016, NTU, Taipei)
 
     Seminar, Leung Center for Cosmology and Particle Astrophysics (LeCosPA) of the National Taiwan University (NTU) 
 
@@ -428,25 +455,25 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 Early 2016
 ~~~~~~~~~~~~
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_april2016_gtc.html (April 2016, GPU Technology Conference, San Jose)
+`env/presentation/opticks_gpu_optical_photon_simulation_april2016_gtc.html <env/presentation/opticks_gpu_optical_photon_simulation_april2016_gtc.html>`_ (April 2016, GPU Technology Conference, San Jose)
 
     *Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
 
     http://on-demand.gputechconf.com/gtc/2016/video/S6320.html GTC Talk Video (25 mins) 
 
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_march2016.html (March 2016, DYB Meeting, Beijing)
+`env/presentation/opticks_gpu_optical_photon_simulation_march2016.html <env/presentation/opticks_gpu_optical_photon_simulation_march2016.html>`_ (March 2016, DYB Meeting, Beijing)
 
     *Opticks : GPU Optical Photon Simulation*
 
     Includes single PMT validation
 
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation.html (Jan 2016, JUNO Meeting, Xiamen)
+`env/presentation/opticks_gpu_optical_photon_simulation.html <env/presentation/opticks_gpu_optical_photon_simulation.html>`_ (Jan 2016, JUNO Meeting, Xiamen)
 
     *Opticks : GPU Optical Photon Simulation*
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_psroc.html (Jan 2016, PSROC Meeting, Kaoshiung)
+`env/presentation/opticks_gpu_optical_photon_simulation_psroc.html <env/presentation/opticks_gpu_optical_photon_simulation_psroc.html>`_ (Jan 2016, PSROC Meeting, Kaoshiung)
 
     *Opticks : GPU Optical Photon Simulation* 
 
@@ -456,7 +483,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 Mid 2015
 ~~~~~~~~~~~
 
-http://simoncblyth.bitbucket.io/env/presentation/optical_photon_simulation_with_nvidia_optix.html (July 2015, JUNO Meeting, Beijing)
+`env/presentation/optical_photon_simulation_with_nvidia_optix.html <env/presentation/optical_photon_simulation_with_nvidia_optix.html>`_ (July 2015, JUNO Meeting, Beijing)
 
     *Optical Photon Simulation with NVIDIA OptiX*
 
@@ -466,14 +493,14 @@ http://simoncblyth.bitbucket.io/env/presentation/optical_photon_simulation_with_
 Early 2015
 ~~~~~~~~~~~
 
-http://simoncblyth.bitbucket.io/env/presentation/gpu_optical_photon_simulation.html  (Jan 2015, JUNO Meeting, Guangzhou)
+`env/presentation/gpu_optical_photon_simulation.html <env/presentation/gpu_optical_photon_simulation.html>`_ (Jan 2015, JUNO Meeting, Guangzhou)
 
     *200x Faster Optical Photon Propagation with NuWa + Chroma ?* 
 
     Getting Chroma operational with Dayabay Geometry, Runtime bridge development
 
 
-http://simoncblyth.bitbucket.io/env/presentation/gpu_accelerated_geant4_simulation.html (Jan 2015, DYB Meeting, Hong Kong)
+`env/presentation/gpu_accelerated_geant4_simulation.html <env/presentation/gpu_accelerated_geant4_simulation.html>`_ (Jan 2015, DYB Meeting, Hong Kong)
 
     *GPU Accelerated Geant4 Simulation with G4DAE and Chroma*
 
@@ -483,7 +510,7 @@ http://simoncblyth.bitbucket.io/env/presentation/gpu_accelerated_geant4_simulati
 Late 2014
 ~~~~~~~~~~
 
-http://simoncblyth.bitbucket.io/env/presentation/g4dae_geometry_exporter.html (Sept 2014, Geant4 Meeting, Okinawa)
+`env/presentation/g4dae_geometry_exporter.html <env/presentation/g4dae_geometry_exporter.html>`_ (Sept 2014, Geant4 Meeting, Okinawa)
 
    *G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files*
      
@@ -494,35 +521,35 @@ reports
 May 2017
 ~~~~~~~~~~
 
-* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-may-2017.docx
-* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-may-2017.pdf
-* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-may-2017.rst
+* `env/report/ntu-simoncblyth-may-2017.docx <env/report/ntu-simoncblyth-may-2017.docx>`_
+* `env/report/ntu-simoncblyth-may-2017.pdf <env/report/ntu-simoncblyth-may-2017.pdf>`_
+* `env/report/ntu-simoncblyth-may-2017.rst <env/report/ntu-simoncblyth-may-2017.rst>`_
 
 Jan 2017
 ~~~~~~~~~~
 
-* http://simoncblyth.bitbucket.io/env/report/opticks-blyth-chep2016.pdf
+* `env/report/opticks-blyth-chep2016.pdf <env/report/opticks-blyth-chep2016.pdf>`_
 
 Dec 2016
 ~~~~~~~~~
 
-* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-dec-2016.docx 
-* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-dec-2016.pdf
-* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-dec-2016.rst 
+* `env/report/ntu-simoncblyth-dec-2016.docx <env/report/ntu-simoncblyth-dec-2016.docx>`_
+* `env/report/ntu-simoncblyth-dec-2016.pdf <env/report/ntu-simoncblyth-dec-2016.pdf>`_
+* `env/report/ntu-simoncblyth-dec-2016.rst <env/report/ntu-simoncblyth-dec-2016.rst>`_
 
 May 2016
 ~~~~~~~~~
 
-* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-may-2016.docx 
-* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-may-2016.pdf
-* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-may-2016.rst 
+* `env/report/ntu-simoncblyth-may-2016.docx <env/report/ntu-simoncblyth-may-2016.docx>`_
+* `env/report/ntu-simoncblyth-may-2016.pdf <env/report/ntu-simoncblyth-may-2016.pdf>`_
+* `env/report/ntu-simoncblyth-may-2016.rst <env/report/ntu-simoncblyth-may-2016.rst>`_
 
 May 2015
 ~~~~~~~~~~
 
-* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-may-2015.docx 
-* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-may-2015.pdf
-* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-may-2015.rst 
+* `env/report/ntu-simoncblyth-may-2015.docx  <env/report/ntu-simoncblyth-may-2015.docx>`_
+* `env/report/ntu-simoncblyth-may-2015.pdf  <env/report/ntu-simoncblyth-may-2015.pdf>`_
+* `env/report/ntu-simoncblyth-may-2015.rst  <env/report/ntu-simoncblyth-may-2015.rst>`_
 
 
 *g4dae : Geant4 geometry exporter*
@@ -541,7 +568,7 @@ May 2015
 -----------------------------------------------
 
 * TODO: split code from env into its own repo
-* http://simoncblyth.bitbucket.io/env/notes/geant4/geometry/collada/g4daeview/g4daeview_usage/
+* `env/notes/geant4/geometry/collada/g4daeview/g4daeview_usage/ <env/notes/geant4/geometry/collada/g4daeview/g4daeview_usage/>`_
 
 *chroma fork : GPU optical photon simulation* 
 -----------------------------------------------
@@ -554,7 +581,7 @@ May 2015
 
 * http://bitbucket.io/simoncblyth/env 
 * https://bitbucket.io/envsys/profile/members  **envsys** team members
-* http://simoncblyth.bitbucket.io/env/notes/  Development notes
+* `env/notes/ <env/notes/>`_  Development notes
 
 *Misc*
 -------

@@ -552,6 +552,24 @@
       ``(using ct.sh : Opticks CSG on CPU)``
 
 
+
+``hmsk_hama_solids_STUVWXY_fix-bug-33.png``
+--------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:5cm;" />
+
+.. class:: small
+
+   ``HAMA : following fix of bug 33 using ellipsoid shift``
+
+      ``(using ct.sh : Opticks CSG on CPU)``
+
+
+
+
+
 ``hmsk_hama_solids_STUVWXY_zoom_impinge.png``
 -----------------------------------------------
 
@@ -564,6 +582,19 @@
    |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
    ``HAMA : BodySolid impinges MaskTail (mct.sh)``
 
+
+
+``hmsk_hama_solids_STUVWXY_after_bug_33_fix.png``
+--------------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:5cm;" />
+
+.. class:: small
+
+   |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
+   ``HAMA : after bug 33 fix``
 
 
 ``nmsk_nnvt_solids_STUVWXY_n_issue_mask_virtual_not_mask_solid.png``

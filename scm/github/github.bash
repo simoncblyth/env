@@ -17,6 +17,50 @@ See Also
 * git-
 
 
+
+Github Pages
+-------------
+
+* https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages
+* https://simoncblyth.github.io/index.html
+
+* https://simoncblyth.github.io/
+
+
+    epsilon:simoncblyth.bitbucket.io blyth$ pwd
+    /Users/blyth/simoncblyth.bitbucket.io
+
+    epsilon:simoncblyth.github.io blyth$ git remote -v
+    origin	git@github.com:simoncblyth/simoncblyth.github.io.git (fetch)
+    origin	git@github.com:simoncblyth/simoncblyth.github.io.git (push)
+
+    epsilon:simoncblyth.bitbucket.io blyth$ git push github
+    Counting objects: 98, done.
+    Delta compression using up to 8 threads.
+    Compressing objects: 100% (98/98), done.
+    Writing objects: 100% (98/98), 319.56 KiB | 2.85 MiB/s, done.
+    Total 98 (delta 87), reused 0 (delta 0)
+    remote: Resolving deltas: 100% (87/87), completed with 40 local objects.
+    To github.com:simoncblyth/simoncblyth.github.io.git
+       e64e253..b54dfb1  master -> master
+    epsilon:simoncblyth.bitbucket.io blyth$ 
+
+
+IHEP "Pages"
+--------------
+
+From workstation::
+
+    ssh W
+    cd simoncblyth.bitbucket.io
+    git pull 
+
+Laptop::
+
+    open  https://juno.ihep.ac.cn/~blyth/
+
+
+
 Opticks Github
 -----------------
 

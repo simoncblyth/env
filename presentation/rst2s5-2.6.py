@@ -32,7 +32,11 @@ except:
 
 import os, sys, logging, codecs, re, textwrap
 log = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+
+
+#FMT  = '[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s'
+FMT = '{%(pathname)s:%(lineno)d} %(levelname)s - %(message)s'
+logging.basicConfig(level=logging.INFO, format=FMT)
 
 import docutils.nodes as nodes
 from docutils.core import publish_doctree
