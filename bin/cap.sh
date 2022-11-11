@@ -25,7 +25,7 @@ cap.sh : screen capture with chrome cropping tool
        source sfcap.sh ## safari
 
 All those are symbolically linked to cap.sh and change the parameters of
-the crop with different crop paramters. When running the script:
+the crop appropriately for the different creation applications. 
 
 Typically this capture script is invoked from higher level scripts that set 
 the envvars CAP_BASE CAP_REL CAP_STEM to control location and naming of captures.

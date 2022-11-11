@@ -9,6 +9,41 @@ nvidia-usage(){ cat << EOU
 NVIDIA
 ========
 
+SER : Shader Execution Reordering : via NVAPI
+-------------------------------------------------
+
+* https://developer.nvidia.com/rtx/path-tracing/nvapi/get-started
+* https://developer.nvidia.com/sites/default/files/akamai/gameworks/ser-whitepaper.pdf
+* ~/opticks_refs/nvidia-ser-whitepaper.pdf
+
+Shader Execution Reordering (SER) is a new scheduling technology introduced
+with the Ada Lovelace generation of NVIDIA GPUs. It is highly effective at
+simultaneously reducing both execution divergence and data divergence. SER
+achieves this by on-the-fly reordering threads across the GPU such that groups
+of threads perform similar work and therefore use GPU resources more
+efficiently. This happens with minimal overhead: the Ada hardware architecture
+was designed with SER in mind and includes optimizations to the SM and memory
+system specifically targeted at efficient thread reordering. Using SER, we
+observe speedups of up to 2x in raytracing regimes of real-world applications,
+achieved with only a small amount of developer effort. To applications, SER is
+exposed through a small API that gives developers new flexibility and full
+control over where in their shaders reordering will happen. This API is
+detailed in the following sections.
+
+The API concepts described above will be available for Microsoft DirectX 12
+(via NVAPI), Vulkan (via vendor extension), and OptiX. The following reference
+covers NVAPI. For Vulkan and OptiX, please refer to the respective API
+documentation once it becomes available.
+
+The SER NVAPI is supported on all raytracing-capable NVIDIA GPUs starting with
+R520 drivers. Vulkan and OptiX support will be added with later releases.
+
+
+subwarp interleaving
+---------------------
+
+* https://research.nvidia.com/publication/2022-01_GPU-Subwarp-Interleaving
+* ~/opticks_refs/Damani_Subwarp_Interleaving_HPCA_IT_2022_0.pdf
 
 
 nvcc compile hang from __forceinline__

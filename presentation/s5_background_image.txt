@@ -1862,6 +1862,21 @@
     hmsk_hama_solids_STUVWXY_after_bug_33_fix.png 
     GEOM/hmskSolidMaskVirtual__U1/CSGSimtraceTest/ALL/figs/mct/mpcap/hmsk_hama_solids_STUVWXY_after_bug_33_fix.png 1280px_720px
 
+    gpu_QPMTTest_interpolation.png
+    _gpu_QPMT_interpolation.png 1280px_720px
+
+    LayrTest_R12860_scan.png
+    LayrTest/figs/LayrTest/mpcap/LayrTest_R12860_scan.png 1280px_720px
+
+    LayrTest_NNVTMCP_scan.png   
+    LayrTest/figs/LayrTest/mpcap/LayrTest_NNVTMCP_scan.png 1280px_720px
+   
+    LayrTest_NNVTMCP_HiQE_scan.png 
+    LayrTest/figs/LayrTest/mpcap/LayrTest_NNVTMCP_HiQE_scan.png 1280px_720px
+
+    LayrTest_EGet_scan.png    
+    LayrTest/figs/LayrTest/mpcap/LayrTest_EGet_scan.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
