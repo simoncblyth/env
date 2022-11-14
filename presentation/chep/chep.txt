@@ -1,0 +1,214 @@
+CHEP Abstract Preparation 2023 : DEADLINE : 17 November 2022
+==============================================================
+
+Abstract Length : "Limit" has increased
+------------------------------------------
+
+The 2023 recommended length of your abstract is 150-250 words, but there is no hard limit.  
+
+::
+
+    epsilon:chep blyth$ chep-wc
+         136 chep2019_abstract.txt
+         166 chep2021_abstract.txt
+           0 chep2023_abstract.txt
+         302 total
+
+
+CHEP Remote ?
+----------------
+
+* https://misportal.jlab.org/Ul/conferences/generic_conference/registration.cfm?conference_id=CHEP-23
+
+Registration fee includes entrance to all sessions, coffee breaks, meeting
+materials and other related costs. All participants are required to register.
+
+NOTE: Remote Attendance options are being developed but are likely to involve
+only Plenary Sessions at this stage. Options to view breakout sessions are
+being investigated but will be limited at best. Remote Speakers/Presenters are
+not supported at this time.
+
+The Remote Attendance registration option will open on Feb 1, 2023. 
+
+
+Abstract Submission
+----------------------
+
+1. register with jlab.indico 
+
+* https://indico.jlab.org/event/459/abstracts/1356/
+
+
+Instructions to speakers
+
+Please submit your proposed presentation with an abstract for CHEP2023.
+
+Submitters of contributions are required to select the appropriate track in
+order to define the domain to which their paper corresponds. Please choose the
+track carefully as submitting to the wrong track will slow down the reviewing
+process.
+
+Please select at least one of the authors as the speaker. This can be changed later if necessary.
+
+Abstract guidelines
+
+Selection of talks and posters will be made on the basis of submitted
+abstracts. Parallel talks and posters will be organized in twelve tracks, as
+indicated in the table below. The Program Committee will decide which
+contributions will become oral presentations, and which become posters.
+Exceptional contributions may be proposed for promotion to a plenary talk by
+the Program Committee.
+
+The recommended length of your abstract is 150-250 words, but there is no hard limit.
+
+Submitters of abstracts are required to select an appropriate track;
+optionally a second choice of track can be indicated; an abstract will be
+assigned by the reviewers to only one track.
+
+Consider carefully the track to which you wish to submit your paper -
+submitting to the wrong track will slow down the process.  If you would like
+your abstract to be considered for promotion to a plenary talk, please indicate
+that.  If you have difficulty selecting a track from the list, please send an
+email to chep2023-pc-chairs@jlab.org explaining the problem.
+
+Submitters are also asked to ensure that their email addresses and those of the
+proposed presenters are their primary email addresses.
+
+
+
+
+Procedure : High Level Defocussed view of developments since last presentation
+----------------------------------------------------------------------------------
+
+Review presentations and notes:
+
+* https://simoncblyth.bitbucket.io
+* ~/opticks/notes/progress.rst 
+
+Look for "hook" items to include in abstract "update" sentences 
+
+* pick the most important three items 
+* need to cover both what is actually important and 
+  also give things that interest people
+
+
+CHEP 2023
+-----------
+
+1. Migration to the all new NVIDIA OptiX 7 API 
+
+  * from the ground up reimplementation of entire optical simulation 
+  * major code reductions, 
+
+2. Improved performance for highly complex solids using CSG list-nodes that avoid tree overheads 
+
+  * better match intersection code with the geometry 
+
+3. TMM calculations to account for interference effects in thin layers 
+
+
+HMM: the first item is far more important and is far more work that the rest 
+should reflect that in the coverage.
+Actually the infrastructure improvements have enabled the other developments. 
+
+CUDA experience : counterpart pattern 
+
+
+
+Opticks with all new : NVIDIA OptiX 7 API
+demands reimplementation of all GPU code + GPU/CPU shared geometry model
+
+
+
+Your abstract 'Opticks : GPU Optical Photon Simulation using NVIDIA OptiX 7 and
+NVIDIA CUDA' has been successfully submitted. It is registered with the number
+#90. You will be notified by email with the submission details. 
+
+
+
+chep2023::
+
+    Opticks : GPU Optical Photon Simulation using NVIDIA OptiX 7 and NVIDIA CUDA
+
+    Opticks is an open source project that accelerates optical photon simulation by
+    integrating NVIDIA GPU ray tracing, accessed via the NVIDIA OptiX 7 API, with Geant4
+    toolkit based simulations. A single NVIDIA Turing architecture GPU has been
+    measured to provide optical photon simulation speedup factors exceeding 1500
+    times single threaded Geant4 with a full JUNO analytic GPU geometry
+    automatically translated from the Geant4 geometry. Optical physics processes of
+    scattering, absorption, scintillator reemission and boundary processes are
+    implemented in CUDA based on Geant4.
+    Wavelength-dependent material and surface properties as well as inverse
+    cumulative distribution functions for reemission are interleaved into GPU
+    textures providing fast interpolated property lookup or wavelength generation.
+
+    In this work we describe the near complete re-implementation of geometry and optical simulation 
+    required to adopt the entirely new NVIDIA OptiX 7 API, with the implementation now 
+    directly CUDA based with OptiX usage restricted to providing intersects.  
+    The new Opticks features a modular many small header design that provides fine grained 
+    testing both on GPU and CPU as well as substantial code reductions from CPU/GPU sharing. 
+    Enhanced modularity has enabled CSG tree generalization to support "list-nodes", similar to G4MultiUnion, 
+    that improve performance for complex CSG solids. 
+    Recent addition of support for interference effects in boundaries with multiple thin layers, 
+    such as anti-reflection coatings and photocathodes, using CUDA compatible transfer matrix 
+    method (TMM) calculations of reflectance, transmittance and absorptance is also reported. 
+
+
+
+
+
+CHEP May 2021 : Was Just at the start of the OptiX 7 Transition
+------------------------------------------------------------------
+
+* https://simoncblyth.bitbucket.io/env/presentation/opticks_vchep_2021_may19.html
+
+* https://www.epj-conferences.org/articles/epjconf/abs/2021/05/epjconf_chep2021_03009/epjconf_chep2021_03009.html
+
+chep2021::
+
+    Opticks is an open source project that accelerates optical photon simulation by
+    integrating NVIDIA GPU ray tracing, accessed via NVIDIA OptiX, with Geant4
+    toolkit based simulations. A single NVIDIA Turing architecture GPU has been
+    measured to provide optical photon simulation speedup factors exceeding 1500
+    times single threaded Geant4 with a full JUNO analytic GPU geometry
+    automatically translated from the Geant4 geometry. Optical physics processes of
+    scattering, absorption, scintillator reemission and boundary processes are
+    implemented within CUDA OptiX programs based on the Geant4 implementations.
+    Wavelength-dependent material and surface properties as well as inverse
+    cumulative distribution functions for reemission are interleaved into GPU
+    textures providing fast interpolated property lookup or wavelength generation.
+
+    In this work we describe major recent developments to facilitate integration of
+    Opticks with the JUNO simulation framework including on GPU collection
+    efficiency hit culling which substantially reduces both the CPU memory needed
+    for photon hits and copying overheads. Also progress with the migration of
+    Opticks to the all new NVIDIA OptiX 7 API is described.
+
+
+
+CHEP 2019
+-------------
+
+* /Users/blyth/home/admin/reps/chep-2019-abstract.txt
+* https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11003/epjconf_chep2020_11003.html
+
+chep2019::
+
+    Opticks is an open source project that accelerates optical photon simulation by
+    integrating NVIDIA GPU ray tracing, accessed via NVIDIA OptiX, with Geant4
+    toolkit based simulations. A single NVIDIA Turing architecture GPU has been
+    measured to provide optical photon simulation speedup factors exceeding 1500
+    times single threaded Geant4 with a full JUNO analytic GPU geometry
+    automatically translated from the Geant4 geometry. Optical physics processes of
+    scattering, absorption, scintillator reemission and boundary processes are
+    implemented within CUDA OptiX programs based on the Geant4 implementations.
+    Wavelength-dependent material and surface properties as well as inverse
+    cumulative distribution functions for reemission are interleaved into GPU
+    textures providing fast interpolated property lookup or wavelength generation.
+
+    Major recent developments enable Opticks to benefit from ray trace dedicated RT
+    cores available in NVIDIA RTX series GPUs. Results of extensive validation
+    tests are presented.
+
+
+

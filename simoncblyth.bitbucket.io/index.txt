@@ -153,55 +153,106 @@ Opticks Presentations
 ~~~~~
 
 
-`env/presentation/opticks_202209XX_mask_spurious_debug.html  <env/presentation/opticks_202209XX_mask_spurious_debug.html>`_
+`env/presentation/opticks_20221117_mask_debug_and_tmm.html  <env/presentation/opticks_20221117_mask_debug_and_tmm.html>`_
 
-    WIP : Discussion of coincidence issues with NNVTMaskManager, Hama
+    JUNO + Opticks geometry fixes (Mask, MaskTail, MaskVirtual) (17 November 2022)
 
-    ?? Oct, 2022 
+    * Validations reveals Opticks and JUNO bugs  
+
+      * rare close to ellipsoid "apex" rays missed : fixed with zcut+safety
+      * nmskSolidMaskTail uncoincidence : still spurious intersects
+      * thin cylinder (hz 0.15 mm) "lip" issue : mis-translation + precision loss     
+      * arises from near axial rays onto very thin cylinders
+      * fixed by reimplementing CSG_CYLINDER more simply (less flops)
+      * nmskSolidMaskVirtual : fixed : CSG_CONE quadratic precision loss, close to apex issue 
+      * hama : MaskTail crosses PMT body 
+
+    * junoPMTOpticalModel TMM calc on GPU  
 
 
 `env/presentation/opticks_20220718_towards_production_use_juno_collab_meeting.html <env/presentation/opticks_20220718_towards_production_use_juno_collab_meeting.html>`_
 
-    JUNO Progress Towards Production : Completed OptiX 7 Simulation re-implementation 
+    JUNO Progress Towards Production : Completed OptiX 7 Simulation re-implementation (July 18, 2022)
 
-    July 18, 2022
+    * Validation : Opticks-Geant4 A-B testing
+    * Opticks Packages : Many Removed, Many Added
+    * Simulation : Why so much had to be re-implemented ?
+    * Opticks Packages : Many more to be removed
+    * Systematic Approach to Random Alignment of Two Simulations  
+    * NEXT : Update JUNO-Opticks integration to use new Opticks
   
 
 `env/presentation/opticks_20220329_progress_towards_production.html <env/presentation/opticks_20220329_progress_towards_production.html>`_
 
-    JUNO Progress Towards Production : QSim WIP
-   
-    March 29, 2022
+    JUNO Progress Towards Production : QSim WIP (March 29, 2022)
+
+    * January : Updating to JUNO trunk geometry
+    * February : Generalize Opticks CSG to handle "list-nodes" : n-ary (not binary) CSG
+    * March : Geometry Optimization + Migrating Sim from Old to New Workflow
+    * Big Picture of Multi Year Transition to new workflow (OptiX 7 compatible) 
+    * Standalone Geant4 Tests : Cerenkov, RayLeigh, Boundary
+    * Boundary matched QSimTest.sh and G4OpBoundaryProcessTest.sh
+    * Dynamic Prim Selection :in memory CSGCopy with selection => construct any combination of Prim
+    
+      * enables per-prim measurement : to locate source of slowdowns 
+
+    * Dynamic Prim Selection Speed Scan : One "G4VSolid" Geometries
+
 
 
 `env/presentation/opticks_20220307_fixed_global_leaf_placement_issue.html <env/presentation/opticks_20220307_fixed_global_leaf_placement_issue.html>`_
 
-    JUNO Geometry Updates and Fixes 
+    JUNO Geometry Updates and Fixes (March 7, 2022)
 
-    March 7, 2022 
+    * Investigate XJfixtureConstruction Complex CSG Solid 
+    * Reveals incompatibility of : CSG intersect alg and tree balancing
+    * develop CSG list-nodes as solution for complex CSG without balancing
+    * Algorithm for Ray Intersection onto Shape defined by CSG Tre
+    * Generalized Opticks CSG into three levels : tree < node < leaf (to support list-nodes without recursion)
+    * CSG_CONTIGUOUS Union : n-ary (not bin-ary) CSG intersection 
+    * CSG_OVERLAP Intersection : CSG intersection
+    * More closely suiting intersect algorithm to geometry => better performance
+    * transform bug from incomplete tree/node/leaf split
+    * OTracerTest debug comparing rasterized OpenGL render with raytrace render
 
 
 `env/presentation/opticks_20220227_LHCbRich_UK_GPU_HACKATHON.html <env/presentation/opticks_20220227_LHCbRich_UK_GPU_HACKATHON.html>`_
 
-    LHCb RICH + NVIDIA UK GPU HACKATHON 
+    LHCb RICH + NVIDIA UK GPU HACKATHON (February 28, 2022)
 
-    February 28, 2022 
+    * Instructions for RICH Simplified rendering with Opticks/CSGOptiX and NVIDIA OptiX 7 
 
 
 `env/presentation/opticks_20220118_juno_collaboration_meeting.html <env/presentation/opticks_20220118_juno_collaboration_meeting.html>`_
 
-    JUNO+Opticks Photons : Validation and Deployment Plan
+    JUNO+Opticks Photons : Validation and Deployment Plan (January 18, 2022)
 
-    January 18, 2022
-
+    * Geometry/Translation Issues Summary
+    * PMT Mask Modelling Fix
+    * Fastener : interfering subtraction-of-subtraction issue from daughter cavity 
+    * Opticks CSG is surface-centric : more fragile but inherently faster that Geant4 volume-centric implementation
+    * 2D Geant4 Geometry Slicing
+    * Cutdown PMT breaks Opticks translation, ZSolid fix : actually cut the tree
+    * Render Speed Check After Geometry fixes : smallish time range 
+    * History Matching Check
+    * Chi2 points to PE_PA solid discrepant => XJfixtureConstruction
+    * XJfixtureConstruction :  Complex CSG causing coincidence problems 
+    * Investigate XJfixtureConstruction Positions : geometry overlaps, mid-chimney
+    * XJanchorConstruction : spurious line associated wit big sphere subtraction
+    * SJReceiverConstruction : disjoint
 
 `env/presentation/opticks_20220115_innovation_in_hep_workshop_hongkong.html <env/presentation/opticks_20220115_innovation_in_hep_workshop_hongkong.html>`_
 
     IAS Program on High Energy Physics 2022 : Mini-workshop on Experiment/Detector: Innovation in HEP Detectors and Computing, January 13-14, 2022
 
-    Opticks : Innovation in Optical Photon Simulation via state-of-the-art GPU Ray Tracing from NVIDIA® OptiX™
+    Opticks : Innovation in Optical Photon Simulation via state-of-the-art GPU Ray Tracing from NVIDIA® OptiX™ (January 14, 2022)
 
-    January 14, 2022
+    * Movies ≈ monte carlo optical photon simulations 
+    * Fundamental "Rendering Equation" of Computer Graphics (Kajiya 1986), Neumann series solution 
+    * Monte carlo path tracing : limited by ray tracing 
+    * Optical Simulation : Computer Graphics vs Physics
+    * SIGGRAPH 2018 : NVIDIA Quadro RTX : leap in ray tracing performance
+
 
 
 2021
@@ -211,31 +262,74 @@ Opticks Presentations
 
    JUNO Opticks : OptiX 7 Ray Trace times >100x faster following geometry fixes (December 23, 2021) 
 
+   * ZSolid::ApplyZCutTree applied to both NNVT and Hama PMTs
+   * fixed base_steel G4Polycone with multiple R-inner
+   * Opticks-Offline CMake Integration
+   * subtraction of huge acrylic sphere led to huge Fastener bounding box
+     fixed by positivizing CSG tree and not including bbox of complemented
+   * render timings suggests no bad bottlenecks remaining
+   * LHCb RICH SphereWithPhiSegment : CSG_PHICUT unbounded expt
+   * NEXT : mask tail cutting across PMT bulb, integrate CSGOptiX into Opticks
+
 `env/presentation/opticks_20211117.html <env/presentation/opticks_20211117.html>`_
 
    JUNO Opticks : PMT Z-cut issue : (November 17, 2021)
+ 
+   * Hamamatsu PMT Solid breaking Opticks : CSG tree height 8 : TOO DEEP
+   * SOLUTION ACTUALLY CUT THE CSG TREE : using ZSolid.hh
+   * ZSolid::ApplyZCutTree using "placement new" trick 
+   * MAJOR SIMPLIFICATION tree cut from (node:15, prim:8, height:7) -> (node:7, prim:4, height:3)
+
 
 `env/presentation/opticks_autumn_20211019.html <env/presentation/opticks_autumn_20211019.html>`_
 
    Opticks Autumn : (October 19, 2021)
 
-   Notes on OptiX 6->7 migration
+   * Cerenkov energy sampling via ICDF lookups ?
+   * Monte Carlo "Rejection Sampling" VS "Inverse Transform Sampling"
+   * Opticks Updates for Geant4 11.beta (1100)
+   * Planar 2d ray tracing to create CSG geometry cross-sections (later known as "simtrace")
+   * AdditionAcrylicConstruction : pointless CSG subtraction of holes 
+   * CSG sub sub bug ? Subtracted subtraction yielding spurious intersects
+   * inherent CSG fragility regarding coincident faces
+   * DO NOT subtract CSG holes for daughters : not necessary, doubles expense, causes bugs
+
 
 `env/presentation/juno_opticks_cerenkov_20210902.html <env/presentation/juno_opticks_cerenkov_20210902.html>`_
 
    JUNO Opticks : Summer Progress (Sep 2, 2021)
 
+   * "s2" Cerenkov integration (HMM: does s2 impl cope with float better ?)
+   * PMTSimParamSvc::get_pmt_ce bug 
+   * New Opticks Package for NVIDIA OptiX 7.0 API  : CSG, CSGOptiX, QUDARap, (transitional: CSG_GGeo)
+   * CPU/GPU counterpart header pattern eg QSim.hh/qsim.h 
+   * NEXT : Looking for single precision Cerenkov generation solution
+ 
 `env/presentation/lz_opticks_optix7_20210727.html <env/presentation/lz_opticks_optix7_20210727.html>`_
 
     Notes on OptiX 6->7 migration : "Qudarap" pure CUDA photon generation (July 27, 2021, Virtual, H7)
+
+    * Cerenkov Matching : requires double precision rejection sampling, attempts to understand why 
+    * nascent qudarap : qctx.h(later becomes qsim.h) 
+    * NEXT : gs seeding photons, integrate CSGOptiX with qudarap
 
 `env/presentation/juno_opticks_20210712.html <env/presentation/juno_opticks_20210712.html>`_
 
     JUNO Opticks/Geant4 Optical Photon Simulation Matching (July 12, 2021)
 
+    * Tools for Optical Photon Simulation Matching
+    * JUNO Offline DsG4Scintillation : Reemission Bookkeeping
+    * Long list of fixed JUNO-Opticks material property/geometry issues
+    * Scintillation Wavelength chi2 Matching : Multi-resolution GPU texture
+    * JUNO Offline trunk G4Cerenkov_modified : BUG FIX 
+    * NEXT : Slow Fasteners CSG, Unify wit OptiX 7 "branch"
+
 `env/presentation/opticks_vchep_2021_may19.html <env/presentation/opticks_vchep_2021_may19.html>`_
 
     Integration of JUNO simulation framework with *Opticks*  (May 19, 2021) vCHEP 
+
+    * New "Foundry" Model : Shared CPU/GPU Geometry Context
+    * First OptiX 7 Renders : slow geometry found 
 
 `env/presentation/lz_opticks_optix7_20210518.html <env/presentation/lz_opticks_optix7_20210518.html>`_
 

@@ -9,6 +9,18 @@ nvidia-usage(){ cat << EOU
 NVIDIA
 ========
 
+
+nvidia-visual-profiler 
+----------------------
+
+https://developer.nvidia.com/nvidia-visual-profiler
+
+https://developer.nvidia.com/nvidia-cuda-toolkit-11_7_0-developer-tools-mac-hosts
+
+https://developer.nvidia.com/nsight-compute
+
+
+
 SER : Shader Execution Reordering : via NVAPI
 -------------------------------------------------
 
