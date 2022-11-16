@@ -2,10 +2,10 @@
 
    :title: JUNO+Opticks : PMT Mask Debug and TMM on GPU
    :name: opticks_20221117_mask_debug_and_tmm.txt
-   :description: (July 2022)
-   :notes: 
-   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?conferenceid=1079
-   :date: Jul 18 14:30(07:30) meeting start, talk 15:45(08:45)
+   :description: (Nov 2022)
+   :notes: JOC Meeting
+   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?conferenceid=1021
+   :date: Nov 17 16:00(08:00) Beijing(London) 
 
 .. include:: my_s5defs.txt
 
@@ -13,7 +13,7 @@
 
 
 
-:i:`JUNO+Opticks : PMT Mask Debug and TMM on GPU` 
+:i:`Opticks+JUNO : PMT Mask Bugs, GPU Multilayer TMM` 
 ========================================================================================
 
 .. raw:: html
@@ -22,7 +22,7 @@
     <div class="mytitle">
     <header>
     <h1 style="background-color:lightgrey"> 
-        PMT Mask Debug and TMM on GPU 
+        Opticks+JUNO : PMT Mask Bugs, GPU Multilayer TMM  
         <h2 style="background-color:lightgrey;text-align:center"> Open source, https://bitbucket.org/simoncblyth/opticks </h2>
     </h1>
     </header>
@@ -36,13 +36,13 @@
 
   All optically relevant aspects of *Geant4* context are translated+copied to GPU:
 
-  * :b:`geometry : solids, structure, material+surface properties`
+  * :b:`geometry :` :r:`solids, structure,` :b:`material+surface properties`
   * generation : Cerenkov + Scintillation (using **Gensteps** from *Geant4*) 
-  * propagation : Rayleigh scattering, absorption, reemission, boundary
+  * :b:`propagation : Rayleigh scattering, absorption, reemission, boundary,` :r:`+multi-layer TMM (WIP)`
 
-  :r:`COMPLETED : Full Simulation re-implementation for OptiX 7 API`
+  :b:`Tests Reveal : More Opticks+JUNO Geom. Issues` :r:`ALL KNOWN, FIXED`
     
-  * :b:`WIP : A-B Validation iteration, geometry issue fixes`
+  * :b:`WIP : Bringing multi-layer TMM "FastSim" into Opticks`
 
 .. raw:: html
 
@@ -56,6 +56,68 @@
     Focus of last months on simulation reinmplementation, now returning to geometry
 
     
+
+
+JUNO + Opticks : Summary of Bugs Fixed
+-----------------------------------------
+
+.. sidebar:: :b:`JUNO ISSUES`
+
+    .. class:: small
+
+       **NNVT : MaskTail impinges MaskVirtual** 
+
+       * `junosw/-/issues/32  <https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/32>`_
+       * :r:`FIXED : via gitlab MR`
+
+       **HAMA : BodySolid impinges MaskTail**
+
+       * `junosw/-/issues/33  <https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/33>`_
+       * :r:`FIXED : via gitlab MR`
+       * :b:`shifted mask, concentric with PMT ellipsoid`
+
+       **BirksConstant1 : 1,000,000x TOO BIG**
+
+       * `junosw/-/issues/24  <https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/24>`_
+       * DsG4Scintillation not yielding any photons 
+       * :r:`FIXED : typo in parameter`
+
+
+.. class:: small 
+
+    :b:`OPTICKS PRIM ISSUES`
+
+    **nmskSolidMask : ellipsoid hole at "apex" issue**
+
+    * few per million "apex" rays find hole in ellipsoid
+    * manifests as spurious "waist" intersects
+    * :r:`FIXED : add zcut safety margin to CSG_ZSPHERE` 
+
+    **nmskSolidMaskTail : very thin cylinder "lip" issues** 
+
+    * requires uncoincidence shift of subtractee 
+    * BUT : even after uncoincide some spurious remain !
+    * BUG 1 : mis-translated as CSG_DISC, not CSG_CYLINDER
+    * BUG 2 : intersect precision loss for near-axial rays
+    * :r:`FIXED : reimplement CSG_CYLINDER with less FLOPS`
+
+    **nmskSolidMaskVirtual : cone precision + near-apex issues** 
+
+    * spurious sprinkle remains after uncoincide
+    * BUG 1 : CSG_CONE precision loss in one quadratic root  
+    * BUG 2 : rays close to infinite cone apex yield spurious
+    * :r:`FIXED : CSG_CONE robust roots + fix bad assumption`   
+
+
+.. s5_talk::
+
+    Some of the issues are with the source geometry and some are with the translation to the GPU.
+    Getting JUNO onto the GPU in order to benefit from state-of-the-art GPU ray tracing
+    also improves the speed and correctness of the CPU simulation.
+
+
+
+
 
 
 ``nmskSolidMask_RandomSpherical10_another_zsphere_apex_miss_perhaps.png``
@@ -344,17 +406,17 @@
     .. raw:: html 
 
         <pre class="mypretiny">
-        //ifdef NAIVE_QUADRATIC
+        &#35;ifdef NAIVE_QUADRATIC
             t1 = (-b - sdisc)/d ;
             t2 = (-b + sdisc)/d ;  // t2 >= t1
-        //else
+        &#35;else
             // pick root depending on sign of b
             float q = b > 0.f ? -(b + sdisc) : -(b - sdisc) ;
             float root1 = q/d ;
             float root2 = c/q ;
             t1 = fminf( root1, root2 );
             t2 = fmaxf( root1, root2 );
-        //endif
+        &#35;endif
         </pre>
 
 .. class:: small
@@ -652,35 +714,83 @@
 
 
 
-``J004_Hama:0:1000_mask_impinge_body.png``
+.. comment
+
+
+    ``J004_Hama:0:1000_mask_impinge_body.png``
+    ----------------------------------------------
+
+
+    .. raw:: html
+
+       <p style="margin-bottom:8cm;" />
+
+    .. class:: small
+
+       |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
+       ``J004_Hama:0:1000 g4cx/gxt.sh``
+
+
+    ``J004_NNVT:0:1000_body_solid_pmt_solid_coincide.png``
+    -------------------------------------------------------
+
+
+    .. raw:: html
+
+       <p style="margin-bottom:8cm;" />
+
+    .. class:: small
+
+       |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
+       ``J004_NNVT:0:1000 g4cx/gxt.sh``
+
+
+
+
+Multi-Layer TMM "FastSim" with Opticks ?
 ----------------------------------------------
 
 
-.. raw:: html
+.. sidebar:: :small:`JPMT.h : header-only prop. access`
 
-   <p style="margin-bottom:8cm;" />
+   .. class:: small 
+
+       Added property file (and directory tree) loading with: 
+
+       * NPFold::LoadProp
+       * NP::LoadFromTxtFile
+       * NP::LoadFromString
+
+       NPFold.h and NP.hh are header-only impls
+
+       :tiny:`export NP_PROP_BASE=$JUNOTOP/data/Simulation/DetSim`
+
 
 .. class:: small
 
-   |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
-   ``J004_Hama:0:1000 g4cx/gxt.sh``
+   **TMM "ART" calc : complex math** 
+  
+   * https://github.com/simoncblyth/j/blob/main/Layr/Layr.h
+   * :b:`STATUS : reproduces MultiFilmSimSvc ART results` 
+     
+   **Access to thickness and energy dependent : rindex, kindex**
 
+   *CPU : using NP interpolation* : :b:`STATUS : works fine`
 
-``J004_NNVT:0:1000_body_solid_pmt_solid_coincide.png``
--------------------------------------------------------
+   * https://github.com/simoncblyth/j/blob/main/Layr/JPMT.h
 
+   *GPU : using qprop.h interpolation* : :b:`STATUS : works in isolation`
 
-.. raw:: html
+   * qudarap/QPMT.hh,qpmt.h,qprop.h 
+   * :r:`TODO : integrate with calc, perhaps into QLayr.hh/qlayr.h (?)`   
 
-   <p style="margin-bottom:8cm;" />
+   **"FastSim" integration of ART calc ?** : :b:`STATUS : Initial development of CPU test machinery`
+    
+   *Standalone test of single PMT with junoPMTOpticalModel : integrating Opticks photon history recording*
 
-.. class:: small
-
-   |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
-   ``J004_NNVT:0:1000 g4cx/gxt.sh``
-
-
-
+   * https://github.com/simoncblyth/j/tree/main/PMTFastSim 
+   * https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4PMTFastSimTest.cc
+   * https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4PMTFastSimTest.sh
 
 
 :small:`Layr.h : GPU/CPU header-only re-implementation of MultiFilmSimSvc`
@@ -727,7 +837,7 @@
     {
         Layr&lt;T&gt; ll[N] ; // <span class="r">stack of N layers   </span>
         Layr&lt;T&gt; comp ;  // <span class="r">composite for the N layers  </span>
-        ART&lt;T&gt;  art ;   // results eg A,R,T
+        ART_&lt;T&gt;  art ;  // results eg A,R,T
 
         Stack(T wl, T minus_cos_theta, const StackSpec&lt;T&gt;& ss); 
         // <span class="r">all calculations in ctor</span>
@@ -740,7 +850,7 @@
 
     * YES : struct, arrays, templates, enum, constexpr   
     * NO : std::vector std::map std::string std::cout 
-    * NO : polymorphism, virtual methods (:r:`not worth expense even if supported`) 
+    * NO : class, polymorphism, virtual methods (:r:`not worth expense even when supported`) 
 
 
 
@@ -748,11 +858,33 @@
 :small:`Complex math on GPU/CPU USING thrust::complex/std::complex`
 ---------------------------------------------------------------------------------------------
 
+
+.. sidebar:: :small:`Complex math on GPU`
+
+    .. class:: small
+
+        ``std::complex`` 
+             only works on CPU 
+
+        ``thrust::complex`` 
+             works on both GPU and CPU 
+
+        ``cuda::std::complex`` 
+             available from CUDA 11.3(?) 
+
+        * https://github.com/NVIDIA/libcudacxx
+        * https://nvidia.github.io/libcudacxx/releases.html
+
+
 .. raw:: html 
 
     <pre class="mypretiny">
 
-    template&lt;typename T, int N&gt; Stack&lt;T,N&gt;::Stack(T wl, T minus_cos_theta, const StackSpec&lt;T&gt;& ss )
+    template&lt;typename T, int N&gt; 
+    Stack&lt;T,N&gt;::Stack(
+         T wl, 
+         T minus_cos_theta, 
+         const StackSpec&lt;T&gt;& ss )
     {
         // minus_cos_theta, aka dot(mom,normal)
     &#35;ifdef WITH_THRUST
@@ -778,6 +910,7 @@
     }
     </pre>
 
+   
 
 
 

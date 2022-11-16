@@ -22,6 +22,18 @@ presentation-index
     open local index.html in browser 
 
 
+HTML Character Codes for inclusion into RST of presentations
+--------------------------------------------------------------
+
+* https://www.rapidtables.com/web/html/html-codes.html
+
+* less-than greater-than and hash are problematic within html/rst so use HTML character codes:
+
+  * less than &lt;
+  * greater than &gt;
+  * hash &#35;  
+
+
 Debug no show image : turns out to be due to case sensitivity
 -------------------------------------------------------------------
 
