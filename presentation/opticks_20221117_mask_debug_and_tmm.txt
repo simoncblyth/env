@@ -982,6 +982,66 @@ Multi-Layer TMM "FastSim" with Opticks ?
 
 
 
+
+:small:`LayrTest.{sh,cc,h,cu,py} : AOI scan with float/double on CPU/GPU ...`
+------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Impl: arrays of simple struct`
+
+    .. class:: small
+
+        * :b:`maximize CPU/GPU code sharing`
+        * persist *everything* for every (aoi, wl) into ``.npy``
+
+          * all layers, Fresnel coeff, matrix, ART
+
+        * Python/NumPy cross-comparisons, plots
+        
+        `github.com/simoncblyth/j/blob/main/Layr/LayrTest.cc <https://github.com/simoncblyth/j/blob/main/Layr/LayrTest.cc>`_
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+    epsilon:Layr blyth$ ./LayrTest.sh ana
+    CFLayrTest
+     a :            EGet : scan__EGet__cpu_thr_double 
+     b :            EGet : scan__EGet__cpu_thr_float 
+     c :            EGet : scan__EGet__gpu_thr_double 
+     d :            EGet : scan__EGet__gpu_thr_float 
+     ...
+     m :          R12860 : scan__R12860__cpu_pom_double 
+     n :          R12860 : scan__R12860__cpu_thr_double 
+     o :          R12860 : scan__R12860__cpu_thr_float 
+     p :          R12860 : scan__R12860__gpu_thr_double 
+     q :          R12860 : scan__R12860__gpu_thr_float 
+
+    In [1]: CF(m,q,0.05)
+    Out[1]: 
+    CF(m,q,0.05) : scan__R12860__cpu_pom_double vs scan__R12860__gpu_thr_float 
+           lls :   0.000442 :   0.000442 :  -0.000414
+         comps :   0.000341 :   0.000341 :  -6.17e-05
+          arts :    6.2e-05 :    6.2e-05 :   -6.2e-05
+
+    pmtcat:R12860 tt:5 lt:q : j/Layr/LayrTest scan__R12860__gpu_thr_float ni 900 wl 440 
+    +------------------------------+----------+----------+----------+----------+----------+
+    |        R12860 arts\comps 0.05|     m:cpd|     n:ctd|     o:ctf|     p:gtd|     q:gtf|
+    +==============================+==========+==========+==========+==========+==========+
+    |                         m:cpd|         0| 0.0003325|  0.000301| 0.0003325| 0.0003407|
+    +------------------------------+----------+----------+----------+----------+----------+  <span class="r"> max difference of all param between scans </span>
+    |                         n:ctd| 6.064e-05|         0| 4.829e-05| 7.445e-14| 4.829e-05|
+    +------------------------------+----------+----------+----------+----------+----------+
+    |                         o:ctf| 5.454e-05| 6.101e-06|         0| 4.829e-05| 3.977e-05|
+    +------------------------------+----------+----------+----------+----------+----------+
+    |                         p:gtd| 6.064e-05| 1.321e-14| 6.101e-06|         0| 4.829e-05|
+    +------------------------------+----------+----------+----------+----------+----------+
+    |                         q:gtf| 6.199e-05| 1.523e-06| 7.451e-06| 1.523e-06|         0|
+    +------------------------------+----------+----------+----------+----------+----------+
+
+    In [1]: ARTPlot(m, 0.05)                                                             
+   </pre>
+
+
+
 :i:`LayrTest_R12860_scan.png`
 -------------------------------
 
@@ -995,10 +1055,185 @@ Multi-Layer TMM "FastSim" with Opticks ?
 ----------------------------
 
 
+:small:`QPMT.hh/qpmt.h : CPU/GPU -> on device PMT property interpolation`
+-----------------------------------------------------------------------------------------
 
+.. class:: small
+
+    All ``LayrTest`` use **CPU** interpolated rindex, uploaded to device (OK for testing, not for production) 
+
+    * must minimize GPU<->CPU communication 
+    * :r:`->upload rindex props and do interpolation on device` 
+    * ``QPMT.hh/qpmt.h`` : does this 
+
+    1. uploads rindex, thickness arrays from JPMT.h 
+    2. on device interpolation using QProp.hh/qprop.h 
+
+    https://bitbucket.org/simoncblyth/opticks/src/master/qudarap/QPMT.hh
+    
+    https://bitbucket.org/simoncblyth/opticks/src/master/qudarap/tests/QPMTTest.sh
+  
+
+ 
 
 :i:`gpu_QPMTTest_interpolation.png`
 ------------------------------------
+
+
+
+:small:`Standalone test of single PMT with junoPMTOpticalModel`
+-----------------------------------------------------------------
+
+.. class:: small 
+
+   * https://github.com/simoncblyth/j/tree/main/PMTFastSim 
+   * https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4PMTFastSimTest.cc
+   * https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4PMTFastSimTest.sh
+
+
+:small:`Other Work : More Direct Geometry Translation + Launch Optimization`
+-------------------------------------------------------------------------------
+
+.. sidebar:: :small:`PMTSIM_STANDALONE Interface`
+
+    .. class:: small
+
+         Access to JUNO geom from Opticks via ``IGeomManager.h``
+
+         Added imps to:
+
+         * HAMA mask manager
+         * NNVT mask manager   
+
+         :r:`vital for fixing PMT Mask overlaps`
+
+.. class:: small
+
+   **Current Geometry Translation** 
+
+   * Geant4 -(extg4)-> :r:`GGeo` -(CSG_GGeo)-> CSG 
+   * One entire geometry model too many 
+
+   **More Direct Translation** :b:`Huge code reduction is feasible`
+
+   U4Tree.hh/stree.h 
+       minimal approach to geometry factorization 
+
+       * succeeds to factorize geometry 
+       * serialized n-ary tree, retains full structure info in translation 
+       * all transforms match GGeo/GInstancer 
+       * faster+simpler 
+
+   **Optimization of Initialization Time : using log parsing to find issues**
+
+   * https://bitbucket.org/simoncblyth/opticks/src/master/bin/log.py 
+
+   * shaved 21s off init : render/simulate/simtrace full geom all ``< 1s`` 
+
+   **More Detail on other work:** :r:`https://bitbucket.org/simoncblyth/opticks/src/master/notes/progress.rst`
+
+
+
+
+:i:`hmsk_hama_solids_STUVWXY_fix-bug-33.png.2`
+------------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:8cm;"/>
+
+.. class:: small
+
+   |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
+   ``Fake Vacuum/Vacuum boundary``
+
+
+.. raw:: html
+
+   <p style="margin-bottom:6.1cm;" />
+
+.. class:: small
+
+   |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp|
+   Is fake really needed ? Can easily anti-select opaque hits ? :r:`Motivation for U4PMTFastSimTest`
+
+
+:small:`Near Coincident Pyrex/Pyrex Boundary`
+-------------------------------------------------
+
+.. sidebar:: :small:`1e-3 mm : too big + too small`
+
+     .. class:: small
+
+         * too big : ~16-30x > ARC+PHC ~30-60 nm
+         * too small for reliable float intersect distinction 
+           (at least with GPU fastmath)
+
+         Yaoguang: *1e-3 chosen to make Pyrex absorption negligible in TMM calc*
+
+         Suggestion : make it zero, dont Fake 
+ 
+         * use inner Pyrex/Vacuum boundary for FastSim G4Region ?
+         * U4PMTFastSimTest.cc can help to see implications
+           
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    m_enable_optical_model == false 
+
+                                 pyrex
+                                 .
+              |                 | |       |           |
+              |                 | |       |           |
+              |                 | |       |           |
+         vac  |     pyrex       | | water |  acrylic  | water 
+              |                 | |       |           |
+              |                 | |       |           |
+              |                 | |       |           | 
+            inner            body pmt         mask 
+
+            -5 mm             0mm +1e-3mm  
+
+
+    m_enable_optical_model == true
+     
+               pyrex 
+               . 
+              | |                 |       |          |
+              | |                 |       |          |
+              | |                 |       |          |
+         vac  | |    pyrex        | water | acrylic  |  water 
+              | |                 |       |          |
+              | |                 |       |          |
+              | |                 |       |          | 
+          inner body             pmt         mask
+            -5 -5+1e-3            +1e-3  
+
+    </pre>
+
+
+
+
+Summary
+---------
+
+**Many Opticks + JUNO geometry bugs fixed** 
+
+* currently no known geometry bugs : (I did not update recently though) 
+
+**Multi-Layer TTM on GPU** 
+
+ART approaches: 
+
+1. calculation from uploaded props 
+2. lookups from multi-Gigabyte textures  
+
+* calculation more convenient : no large textures, texture preparation step 
+* :r:`TODO: performance comparisons` 
+
+
+
 
 
 
