@@ -21,7 +21,6 @@ FUNCTIONS
 presentation-index
     open local index.html in browser 
 
-
 HTML Character Codes for inclusion into RST of presentations
 --------------------------------------------------------------
 
@@ -32,7 +31,6 @@ HTML Character Codes for inclusion into RST of presentations
   * less than &lt;
   * greater than &gt;
   * hash &#35;  
-
 
 Debug no show image : turns out to be due to case sensitivity
 -------------------------------------------------------------------
@@ -68,9 +66,6 @@ fatal: not under version control, source=env/presentation/CSG/tests/CSGTargetGlo
 epsilon:presentation blyth$ 
 epsilon:presentation blyth$ 
 epsilon:presentation blyth$ git mv csg/tests/CSGTargetGlobalTest/solidXJfixture64radii.png CSGTargetGlobalTest/
-
-
-
 
 
 PP warning
