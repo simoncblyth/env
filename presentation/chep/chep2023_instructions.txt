@@ -1,3 +1,43 @@
+
+
+Hi Xingtao, Weidong, All,
+ 
+My slides are accessible as html from 
+
+https://juno.ihep.ac.cn/~blyth/env/presentation/opticks_20221117_mask_debug_and_tmm.html
+
+(after images load you can navigate with arrow keys, 
+or by entering a page number and pressing return)
+Thats listed on : https://juno.ihep.ac.cn/~blyth/
+
+Also available as PDF https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=9058
+
+   
+Regarding CHEP2023, I noticed from the registration page 
+(link and extract below) that remote presentation is not supported.   
+I had the impression that the conference was going to 
+be fully hybrid, perhaps they are backpedaling on this ?
+
+Possibly the CHEP2023 organizers need some "high level official” 
+encouragement in order to get them to arrange support for 
+remote presentations in plenary and parallel sessions ?
+
+
+https://misportal.jlab.org/Ul/conferences/generic_conference/registration.cfm?conference_id=CHEP-23
+
+Registration fee includes entrance to all sessions, coffee breaks, meeting materials
+and other related costs. All participants are required to register. 
+
+NOTE: Remote Attendance options are being developed but are likely to involve only
+Plenary Sessions at this stage. Options to view breakout sessions are being investigated
+but will be limited at best. Remote Speakers/Presenters are not supported at this time. 
+The Remote Attendance registration option will open on Feb 1, 2023. 
+
+
+Simon
+
+
+
 CHEP 2023 Instructions
 -----------------------
 
@@ -8,8 +48,6 @@ CHEP 2023 Instructions
 * 350 USD : Student or remote 
 
 * https://indico.jlab.org/event/459/attachments/8232/12291/CHEP23_Bulletin_2-final.pdf
-
-
 
 
 
