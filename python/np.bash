@@ -11,6 +11,49 @@ Plain Vanilla Usage of numpy
 See also *numpy-* for numpy development rather than usage.
 
 
+
+Ring buffer : with no.take and wrap mode
+------------------------------------------
+
+https://stackoverflow.com/questions/28398220/circular-numpy-array-indices
+
+::
+
+    In [21]: a = np.arange(30, dtype=np.float32).reshape(-1,3) ; a
+    Out[21]: 
+    array([[ 0.,  1.,  2.],
+           [ 3.,  4.,  5.],
+           [ 6.,  7.,  8.],
+           [ 9., 10., 11.],
+           [12., 13., 14.],
+           [15., 16., 17.],
+           [18., 19., 20.],
+           [21., 22., 23.],
+           [24., 25., 26.],
+           [27., 28., 29.]], dtype=float32)
+
+    In [22]: np.take( a, np.arange(15), mode='wrap', axis=0 )
+    Out[22]: 
+    array([[ 0.,  1.,  2.],
+           [ 3.,  4.,  5.],
+           [ 6.,  7.,  8.],
+           [ 9., 10., 11.],
+           [12., 13., 14.],
+           [15., 16., 17.],
+           [18., 19., 20.],
+           [21., 22., 23.],
+           [24., 25., 26.],
+           [27., 28., 29.],
+           [ 0.,  1.,  2.],
+           [ 3.,  4.,  5.],
+           [ 6.,  7.,  8.],
+           [ 9., 10., 11.],
+           [12., 13., 14.]], dtype=float32)
+
+
+
+
+
 HEP starting to see the NumPy light
 -------------------------------------
 
