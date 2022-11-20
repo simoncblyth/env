@@ -1278,7 +1278,8 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){  echo ${INAME:-opticks_20220329_progress_towards_production} ; }
 #presentation-iname(){  echo ${INAME:-opticks_20220718_towards_production_use_juno_collab_meeting} ; }
 #presentation-iname(){  echo ${INAME:-opticks_202209XX_mask_spurious_debug} ; }
-presentation-iname(){   echo ${INAME:-opticks_20221117_mask_debug_and_tmm} ; }
+#presentation-iname(){   echo ${INAME:-opticks_20221117_mask_debug_and_tmm} ; }
+presentation-iname(){   echo ${INAME:-opticks_next} ; }
 
 
 collab-e(){

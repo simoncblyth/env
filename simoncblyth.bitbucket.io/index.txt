@@ -10,6 +10,21 @@ If you find access problems, try another server.
 * https://juno.ihep.ac.cn/~blyth/
 
 
+Opticks Mailing List And Archive
+-----------------------------------
+
+To subscribe to the low volume mailing list, send an email to opticks+subscribe@groups.io 
+
+.. table::
+    :align: center
+
+    +--------------------------------------------------+-----------------------------------------+
+    | https://groups.io/g/opticks                      | forum/mailing list archive              |    
+    +--------------------------------------------------+-----------------------------------------+
+    | email:opticks+subscribe@groups.io                | subscribe to mailing list               |    
+    +--------------------------------------------------+-----------------------------------------+ 
+
+
 Day to day Opticks development is in bitbucket
 ------------------------------------------------
 

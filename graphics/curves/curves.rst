@@ -9,8 +9,6 @@ curves
 
 * https://spencermortensen.com/articles/bezier-circle/
 
-
-
 Refs
 -------
 
@@ -34,7 +32,6 @@ These curves are specified with boundary conditions, with a characterizing
 matrix or with blending function. A Bezier curve section can be filled by any
 number of control points. The number of control points to be approximated and
 their relative position determine the degree of Bezier polynomial.
-
 
 
 Catmull-Rom Spline 
