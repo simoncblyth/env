@@ -1883,6 +1883,12 @@
     hamaLogicalPMTWrapLV_orig.png
     extg4/X4IntersectVolumeTest/hamaLogicalPMTWrapLV/figs/xxv/mpcap/hamaLogicalPMTWrapLV_orig.png 1280px_720px
 
+    hamaLogicalPMTWrapLV_old.png 
+    extg4/X4IntersectVolumeTest/hamaLogicalPMTWrapLV/figs/xxv/mpcap/hamaLogicalPMTWrapLV_old.png 1280px_720px
+
+    hamaLogicalPMTWrapLV_bounce.png
+    extg4/X4IntersectVolumeTest/hamaLogicalPMTWrapLV/figs/xxv/mpcap/hamaLogicalPMTWrapLV_bounce.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

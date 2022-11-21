@@ -54,10 +54,286 @@
 
     Focus of last months on simulation reinmplementation, now returning to geometry
 
-    
+
+
+
+hamaLogicalPMTWrapLV_old.png
+--------------------------------
+
+``hama_UsePMTOpticalModel=0 REVERSE=1 NOGS=1 ~/opticks/extg4/xxv.sh``
+
+.. class:: normal
+
+   |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp|
+   :g:`body` hidden under :r:`pmt` : :huge:`WHY?`
+
+
 
 hamaLogicalPMTWrapLV_orig.png
 --------------------------------
+
+``hama_UsePMTOpticalModel=1 ~/opticks/extg4/xxv.sh``
+
+.. class:: normal
+
+   |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp|
+   :g:`body` hidden under :b:`inner1` :c:`inner2` 
+
+   |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp|
+   :g:`body` is :b:`FastSim envelope volume`
+
+ 
+
+hamaLogicalPMTWrapLV_bounce.png
+------------------------------------
+
+``~/opticks/extg4/xxv.sh # EXTRA from U4PMTFastSimTest.py``   
+
+
+
+:small:`Old PMT Optical Model : G4 Optical Surfaces photocathode, mirror`
+--------------------------------------------------------------------------- 
+
+.. sidebar:: :small:`Old Surface POM`
+
+    .. raw:: html 
+
+       <pre class="mypretiny">
+         +---------------pmt-Pyrex----------------+
+         | +-------------body-Pyrex-------------+ |
+         | |                                    | |
+         | |                                    | |
+         | |     +------------------------+     | |
+         | |     |                        |     | |
+         | |     |                        |     | |
+         | |     |        inner1-Vacuum   |     |-|
+         | |     |                        |     |1e-3
+         | |     |                        |     | |
+         | |     +~~coincident~face~~~~~~~+     | |
+         | |     |                        |     | |
+         | |     |                        |     | |
+         | |     |        inner2-Vacuum   |     | |
+         | |     |                        |     | |
+         | |     |                        |     | |
+         | |     +------------------------+     | |
+         | |                                    | |
+         | |                                    | |
+         | +------------------------------------+ |
+         +----------------------------------------+
+       </pre>
+
+    .. class:: small
+
+       :r:`photons DO NOT enter PMT vacuum`
+
+
+.. class:: small
+
+   +------------------------+----------------+
+   | m_Photocathode_opsurf  | inner1<->body  |
+   +------------------------+----------------+
+   | m_mirror_opsurf        | inner2<->body  |
+   +------------------------+----------------+
+
+   **Why pmt+body Pyrex (1e-3 mm separation) ? GUESS:** 
+
+   * realistic Pyrex thickness (~5mm) for material budget
+   * WANT: NOT-realistic Pyrex absorption, QE/CE accounted ?
+   * :r:`BUT: doesnt work : still need to cross 5mm Pyrex ?`
+   * :g:`Does anyone know why pmt+body ?`
+
+   Comment:
+
+   * expensive : extra solid+LV+PV * ~18k PMTs 
+
+   * :b:`PyrexZeroAbsorption` material could prevent ABS
+
+     * :r:`NO EXTRA GEOMETRY` 
+
+   * :b:`Use one Pyrex solid ? Avoid near coincidence`
+
+
+   **Why split vacuum inner1/inner2 ?**
+
+   * convenient for photocathode and mirror properties
+   * BUT: fake Vacuum/Vacuum coincident face inside PMT 
+   
+     * :b:`no problem, little expense : as no photon there` 
+
+    
+
+
+
+:small:`MultiLayer PMT Optical Model : Split Vacuum Complications`
+--------------------------------------------------------------------------- 
+
+.. sidebar:: :small:`Current MultiLayer POM`
+
+    .. raw:: html 
+
+       <pre class="mypretiny">
+         +---------------pmt-Pyrex----------------+
+         |                                        |
+         |                                        |
+         |     +----body-Pyrex-(FSim-env)---+     |
+         |     | +------------------------+ |     |
+         |     | |                        | |     |
+         |     | |                        | |     |
+         |     | |        inner1-Vacuum   |-|     |
+         |     | |                        |1e-3   |
+         |     | |                        | |     |
+         |     | +~~coincident~face~~~~~~~+ |     |
+         |     | |                        | |     |
+         |     | |                        | |     |
+         |     | |        inner2-Vacuum   | |     |
+         |     | |                        | |     |
+         |     | |                        | |     |
+         |     | +------------------------+ |     |
+         |     +----------------------------+     |
+         |                                        |
+         |                                        |
+         +----------------------------------------+
+       </pre>
+
+    .. class:: small
+
+       * *ModelTrigger* : unnatural trig @ Vac/Vac bnd. 
+       * *DoIt* : shift to edge, for ART calc 
+       * only *m_mirror_opsurf* (inner2<->body) "active"
+
+
+.. raw:: html
+
+   <pre class="mypretiny">
+     80 G4bool junoPMTOpticalModel::ModelTrigger(const G4FastTrack &fastTrack)
+     81 {   // <span class="r"> Contorted + Expensive due to unnatural geometry </span>
+     83     if(fastTrack.GetPrimaryTrack()->GetVolume() == _inner2_phys){
+     84         return false;
+     85     }
+     ...
+     89     pos     = fastTrack.GetPrimaryTrackLocalPosition();
+     90     dir     = fastTrack.GetPrimaryTrackLocalDirection();
+     94     
+     95     if(fastTrack.GetPrimaryTrack()->GetVolume() == _inner1_phys){
+     96         whereAmI = kInVacuum;
+     97     }else{
+     98         whereAmI = kInGlass;
+     99     }
+    100    
+    101     if(whereAmI == kInGlass){
+    102         dist1 = _inner1_solid->DistanceToIn(pos, dir);
+    103         dist2 = _inner2_solid->DistanceToIn(pos, dir);
+    104
+    105         if(dist1 == kInfinity){
+    106             return false;
+    107         }else if(dist1>dist2){
+    108             return false;
+    109         }else{
+    110             return true;
+    111         }
+    112     }else{
+    113         dist1 = _inner1_solid->DistanceToOut(pos, dir);
+    114         dist2 = _inner2_solid->DistanceToIn(pos, dir);
+    115         
+    116         if(dist2 == kInfinity){
+    117             return true;
+    118         }
+    119     }
+    120     return false;
+    121 }   
+  </pre>
+
+
+
+
+
+:small:`MultiLayer PMT Optical Model : Natural Geometry Simplification`
+--------------------------------------------------------------------------- 
+
+.. sidebar:: :small:`Simplified MultiLayer POM`
+
+    .. raw:: html 
+
+       <pre class="mypretiny">
+         +---------------pmt-Pyrex----------------+
+         |                                        |
+         |                                        |
+         |                                        |
+         |       +~inner~Vacuum~(FSim~env)+       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       +                        +       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       +------------------------+       |
+         |                                        |
+         |                                        |
+         |                                        |
+         +----------------------------------------+
+       </pre>
+
+    .. class:: small
+
+       * *ModelTrigger* : z>0 : no unnatural trig 
+       * override *mirror_opsurf* (inner<->pmt) @ z > 0 
+       * simpler *DoIt* : no geom. queries, no shifting
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    G4bool junoPMTOpticalModel::ModelTrigger(const G4FastTrack &fastTrack)
+    {
+         // <span class="r"> Simple + Cheap due to natural geometry </span>
+        return fastTrack.GetPrimaryTrackLocalPosition().z() > 0. ;
+    }
+
+    void junoPMTOpticalModel::DoIt(const G4FastTrack& fastTrack, 
+          G4FastStep &fastStep)
+    {
+        G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
+        wavelength_nm = twopi*hbarc/energy/nm ;
+
+        position = fastTrack.GetPrimaryTrackLocalPosition();
+        direction = fastTrack.GetPrimaryTrackLocalDirection();
+        polarization = fastTrack.GetPrimaryTrackLocalPolarization();
+
+        G4VSolid* envelope_solid = fastTrack.GetEnvelopeSolid();
+        surface_normal = envelope_solid->SurfaceNormal(position);
+
+        minus_cos_theta = direction*surface_normal ;
+        whereAmI = minus_cos_theta < 0. ? kInGlass : kInVacuum ;
+
+        StackSpec<double> spec ;
+        // ... skip : collect refractive indices, thickness into spec ...
+
+        Stack<double,4> stack(      wavelength_nm, minus_cos_theta, spec );
+        Stack<double,4> stackNormal(wavelength_nm, -1.            , spec );
+
+        // Skipped:
+        //
+        // 1. obtain polarization specific ART
+        // 2. use ART to reflect/refract/absorb/detect
+        // 3. update fastTrack 
+   }
+   </pre>
+        
+
+
+
+
+
 
 
 
