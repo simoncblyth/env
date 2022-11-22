@@ -96,6 +96,112 @@ hamaLogicalPMTWrapLV_bounce.png
 ``~/opticks/extg4/xxv.sh # EXTRA from U4PMTFastSimTest.py``   
 
 
+hamaLogicalPMTWrapLV_ModelTriggerYES.png
+------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:0.1cm;" />
+
+.. class:: small
+
+   |emsp| |emsp| |emsp| |emsp| |emsp| Starts at upper left, here -->  
+
+.. raw:: html
+
+   <p style="margin-bottom:14cm;" />
+
+.. class:: small
+
+   * Unnatural Geometry -> DoIt shifts position by **dist1**  -> Effectively "Pre-Triggering" : slide the red dots forwards 
+   
+
+
+Big Bouncer
+---------------
+
+.. sidebar:: :small:`SFastSim_Debug.hh`
+
+    .. raw:: html
+
+       <pre class="mypretiny">
+        struct SYSRAP_API SFastSim_Debug
+        {   
+            static std::vector&lt;SFastSim_Debug&gt; record ;   
+            static constexpr const char* NAME = "SFastSim_Debug.npy" ; 
+            static constexpr int LIMIT = 100000 ; 
+            static void Save(const char* dir); 
+            void add(); 
+
+            double posx ;  // fs[:,0,:3]
+            double posy ;
+            double posz ;
+            double time ;  // fs[:,0,3]
+
+            double dirx ;  // fs[:,1,:3]
+            double diry ;
+            double dirz ;
+            double dist1 ; // fs[:,1,3]
+
+            double polx ;  // fs[:,2,:3]
+            double poly ;
+            double polz ;
+            double dist2 ; // fs[:,2,3]
+
+            double ModelTrigger; // fs[:,3,0].astype(np.int64)
+            double whereAmI ;    // fs[:,3,1].astype(np.int64)
+            double c ;           // fs[:,3,2]
+            double PhotonId ;    // fs[:,3,3].astype(np.int64)
+       };
+       </pre>
+
+.. raw:: html
+
+   <pre class="mypre12">
+   epsilon:tests blyth$ PID=726 ./U4PMTFastSimTest.sh nana
+    In [1]: extra.shape
+    Out[1]: (14, 4, 4)
+    In [2]: extra
+    Out[2]: 
+    array([[[-112.83 ,    0.   ,  164.918,    0.164],
+            [   0.032,    0.   ,   -0.999,    0.001],    // dist1:1e-3 mm 
+            [   0.   ,   -1.   ,    0.   ,  165.005],
+            [  <span class="r"> 1.</span>   ,    1.   ,    0.   ,  726.   ]], ##<span class="r"> ModelTrigger:1 </span>
+
+           [[-112.83 ,    0.   ,  164.917,    0.164],
+            [  -0.138,    0.   ,   -0.99 ,  166.512],    // dist1 and dist2 equal
+            [   0.   ,   -1.   ,    0.   ,  166.512],
+            [  <span class="b"> 0.</span>   ,    2.   ,    0.   ,  726.   ]], ##<span class="b"> ModelTrigger:0 </span>
+
+           [[-156.577,    0.   , -148.846,    1.778],
+            [   0.81 ,    0.   ,    0.587,  253.614],
+            [   0.   ,    1.   ,    0.   ,    0.   ],
+            [   0.   ,    1.   ,    0.   ,  726.   ]],
+
+           [[ -95.   ,    0.   , -104.211,    2.166],
+            [  -0.81 ,    0.   ,    0.587,  177.561],
+            [   0.   ,   -1.   ,    0.   ,  169.042],
+            [   0.   ,    1.   ,    0.   ,  726.   ]],
+
+           [[-238.764,    0.   ,   -0.   ,    3.071],
+            [  -0.81 ,    0.   ,    0.587,   12.404],
+            [   0.   ,   -1.   ,    0.   ,   -1.   ],
+            [   1.   ,    2.   ,    0.   ,  726.   ]],
+            ...
+   </pre>
+
+.. class:: small
+
+   *ModelTrigger* "pre-triggering" *dist1* ahead as *DoIt* will shift by **dist1**   
+
+   * :r:`Complication arising from unnatural geometry`
+
+
+
+hamaLogicalPMTWrapLV_ModelTriggerNO.png
+------------------------------------------
+
+
 
 :small:`Old PMT Optical Model : G4 Optical Surfaces photocathode, mirror`
 --------------------------------------------------------------------------- 
@@ -170,8 +276,8 @@ hamaLogicalPMTWrapLV_bounce.png
 
 
 
-:small:`MultiLayer PMT Optical Model : Split Vacuum Complications`
---------------------------------------------------------------------------- 
+:small:`MultiLayer PMT Optical Model : Split Vacuum -> Contorted ModelTrigger`
+--------------------------------------------------------------------------------
 
 .. sidebar:: :small:`Current MultiLayer POM`
 
@@ -253,8 +359,60 @@ hamaLogicalPMTWrapLV_bounce.png
 
 
 
-:small:`MultiLayer PMT Optical Model : Natural Geometry Simplification`
---------------------------------------------------------------------------- 
+:small:`MultiLayer PMT Optical Model : Natural Geometry -> Simple ModelTrigger`
+--------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Simplified MultiLayer POM`
+
+    .. raw:: html 
+
+       <pre class="mypretiny">
+         +---------------pmt-Pyrex----------------+
+         |                                        |
+         |                                        |
+         |                                        |
+         |       +~inner~Vacuum~(FSim~env)+       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       +                        +       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       +------------------------+       |
+         |                                        |
+         |                                        |
+         |                                        |
+         +----------------------------------------+
+       </pre>
+
+    .. class:: small
+
+       * *ModelTrigger* : z>0 : no unnatural trig 
+       * override *mirror_opsurf* (inner<->pmt) @ z > 0 
+       * simpler *DoIt* : no geom. queries, no shifting
+
+.. raw:: html
+
+   <p style="margin-bottom:6cm;" />
+   <pre class="mypretiny">
+    G4bool junoPMTOpticalModel::ModelTrigger(const G4FastTrack &fastTrack)
+    {
+         // <span class="r"> Simple + Cheap due to natural geometry </span>
+        return fastTrack.GetPrimaryTrackLocalPosition().z() > 0. ;
+    }
+   </pre>
+        
+
+
+
+
+:small:`MultiLayer PMT Optical Model : Natural Geometry -> Simple DoIt`
+--------------------------------------------------------------------------------
 
 .. sidebar:: :small:`Simplified MultiLayer POM`
 
@@ -293,12 +451,6 @@ hamaLogicalPMTWrapLV_bounce.png
 .. raw:: html
 
    <pre class="mypretiny">
-    G4bool junoPMTOpticalModel::ModelTrigger(const G4FastTrack &fastTrack)
-    {
-         // <span class="r"> Simple + Cheap due to natural geometry </span>
-        return fastTrack.GetPrimaryTrackLocalPosition().z() > 0. ;
-    }
-
     void junoPMTOpticalModel::DoIt(const G4FastTrack& fastTrack, 
           G4FastStep &fastStep)
     {
