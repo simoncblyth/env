@@ -202,6 +202,20 @@ hamaLogicalPMTWrapLV_ModelTriggerNO.png
 ------------------------------------------
 
 
+hamaLogicalPMTWrapLV_full_history.png
+-----------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:15.5cm;" />
+
+.. class:: small
+
+   * Unnatural Geometry -> 7/19 step points are FAKE : 2,7,4,16,18,14,10
+   
+
+
+
 
 :small:`Old PMT Optical Model : G4 Optical Surfaces photocathode, mirror`
 --------------------------------------------------------------------------- 
