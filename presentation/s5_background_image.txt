@@ -1897,6 +1897,9 @@
 
     hamaLogicalPMTWrapLV_full_history.png
     extg4/X4IntersectVolumeTest/hamaLogicalPMTWrapLV/figs/xxv/mpcap/hamaLogicalPMTWrapLV_full_history.png 1280px_720px
+ 
+    hamaLogicalPMTWrapLV_natural.png 
+    extg4/X4IntersectVolumeTest/hamaLogicalPMTWrapLV/1/figs/xxv/mpcap/hamaLogicalPMTWrapLV_natural.png 1280px_720px
 
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored

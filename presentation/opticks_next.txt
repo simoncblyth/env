@@ -202,6 +202,16 @@ hamaLogicalPMTWrapLV_ModelTriggerNO.png
 ------------------------------------------
 
 
+.. raw:: html
+
+   <p style="margin-bottom:15.5cm;" />
+
+.. class:: small
+
+   * :b:`blue dots` : ModelTrigger:NO : within FastSim region, but handled by SlowSim
+
+
+
 hamaLogicalPMTWrapLV_full_history.png
 -----------------------------------------
 
@@ -209,10 +219,31 @@ hamaLogicalPMTWrapLV_full_history.png
 
    <p style="margin-bottom:15.5cm;" />
 
-.. class:: small
+.. raw:: html
 
-   * Unnatural Geometry -> 7/19 step points are FAKE : 2,7,4,16,18,14,10
-   
+   <pre class="mypre20">   
+   TO  BT  BT  BT  BT  SR  SR  BT  BR  BR  BT  SR  SR  SR  BT  BR  BT  SR  BT  SA    
+   00  01 [02] 03 [04] 05  06 [07] 08  09 [10] 11  12  13 [14] 15 [16] 17 [18] 19   (7/20 Fake)
+   </pre>
+
+
+hamaLogicalPMTWrapLV_natural.png
+--------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:15.0cm;" />
+
+.. raw:: html
+
+   <pre class="mypre20">   
+   TO  BT  BT  SR  SR  BR  BR  SR  SR  SR  BR  SR  BR <span class="r"> SR  SA</span>
+   00  01  02  03  04  05  06  07  08  09  10  11  12 <span class="r"> 13  14</span> 
+   00  01  03  05  06  08  09  11  12  13  15  17  19  
+   </pre>
+
+
+
 
 
 

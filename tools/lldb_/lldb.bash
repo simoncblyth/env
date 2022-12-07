@@ -9,7 +9,6 @@ LLDB Experience
 =================
 
 
-
 list more lines
 -----------------
 
@@ -18,7 +17,6 @@ list more lines
 
     (lldb) settings set stop-line-count-before 20
     (lldb) settings set stop-line-count-after 20
-
 
 
 Breakpoints
