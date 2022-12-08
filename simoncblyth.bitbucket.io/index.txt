@@ -54,6 +54,52 @@ Opticks Documentation
 * https://juno.ihep.ac.cn/~blyth/opticks/
 
 
+Note that the Opticks documentation and examples are lagging behind Opticks developments. 
+So I suggest only a cursory look at the above documentation.
+
+Any examples using G4Opticks.hh are from the old workflow and should not be followed. 
+The G4CX package is the top level package in the new workflow that replaces G4OK.
+
+A scratch document with some notes that are uptodate (as of December 2022) is available at:
+
+* https://bitbucket.org/simoncblyth/opticks/src/master/docs/integration_with_new_opticks_using_G4CXOpticks_and_U4.rst
+
+
+
+
+Opticks Transition to a the all new NVIDIA OptiX 7 API 
+----------------------------------------------------------
+
+I do not recommend the use of NVIDIA OptiX < 7 currently, 
+as all Opticks development effort is currently 
+on using the all new NVIDIA OptiX 7 API. 
+
+Note that the NVIDIA OptiX 6->7 transition is like an 
+entirely different project, practically all Opticks
+code has been changed or needs to change to accomodate 
+this API transition.
+
+The Opticks "reference" NVIDIA OptiX version is currently 7.0.0 
+so I recommend you use the first column of versions in the below. 
+
+The recommended version sets to use are driven by the OptiX version release notes. 
+They specify the development CUDA version used to build each OptiX version 
+and the minimum NVIDIA driver version.:: 
+
+   OptiX          *7.0.0*          7.5.0             7.6.0 
+   NVIDIA Driver   435.21+         515+              520+ 
+   CUDA            10.1            11.7              11.8
+
+Beyond that the CUDA version then constrains the versions 
+of gcc and c++ dialect that can be used::
+
+   CUDA            10.1            11.7              11.8
+   nvcc c++        c++03,11,14     c++03,11,14,17    ? 
+   gcc             8.3.0           11.2              ?
+
+
+
+
 Publications
 ---------------
 
