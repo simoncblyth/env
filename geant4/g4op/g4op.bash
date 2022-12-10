@@ -238,6 +238,28 @@ vector treatment of fresnel eqns with polarization
 * http://en.wikipedia.org/wiki/Stokes_parameters
 
 
+* https://scholar.harvard.edu/files/schwartz/files/lecture14-polarization.pdf
+
+
+:google:`refraction polarization vector`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://users.hep.manchester.ac.uk/u/xiaguo/waveoptics/Polarisation_supplement.pdf
+
+Brewster angle (or polarizing angle): when angle between reflected and
+refracted (transmitted) light is 90deg, the reflected light is 100% linearly polarized
+perpendicular to the plane of incidence [Sir David Brewster, 1781-1868
+
+
+For light originating in air, Brewster angle given by tan -1 (refractive index of
+reflecting medium); ~56deg for air-glass interface; ~53deg for air-water interface
+
+::
+
+    In [4]: np.arctan([1.5,1.333])/np.pi*180
+    Out[4]: array([56.31 , 53.123])
+
+
 looking for efficiency tricks in implementing fresnel eqns
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -323,6 +345,19 @@ feynmann lecture on light
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * https://www.youtube.com/watch?v=UUAG3yDInQQ&feature=youtu.be
+
+* https://www.youtube.com/watch?v=UUAG3yDInQQ
+
+Richard Feynman QED Lecture 2, Reflection and Transmission : 1/7
+
+I like the description about 7:45 of Feynman_youtube lecture_on_light where
+Feynman talks about something that 'follows the particle along changing its
+disposition to do things' - ie, it reflects or refracts depending on the phase.
+
+* https://physics.stackexchange.com/questions/76095/calculate-the-polarization-vector-on-reflection-or-refraction-from-a-dielectric
+
+
+
 
 
 fresnel eqn
