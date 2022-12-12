@@ -4,6 +4,8 @@ g4op-source(){   echo ${BASH_SOURCE:-$(env-home)/$(g4op-src)} ; }
 g4op-vi(){       vi $(g4op-source) ; }
 g4op-env(){      elocal- ; }
 g4op-news(){ open http://hypernews.slac.stanford.edu/HyperNews/geant4/get/opticalphotons.html ; }
+g4op-eoe(){ open ~/opticks_refs/fresnel-eoe.pdf ; }
+
 g4op-usage(){ cat << EOU
 
 
@@ -74,6 +76,8 @@ Detailed studies of light transport in optical components of particle detectors
 
 
 
+
+
 G4 Classes
 -----------
 
@@ -85,10 +89,15 @@ G4 Classes
 Fresnel References
 -------------------
 
-Very detailed slides, well presented, lots of derivations
+Very detailed slides, well presented, lots of derivations, 31 pages. 
 
 * http://www.patarnott.com/atms749/pdf/FresnelEquations.pdf
+
+* ~/opticks_refs/patarnott_FresnelEquations.pdf
+
 * http://www.patarnott.com/atms749/index.html
+* https://scienceworld.wolfram.com/physics/BrewstersAngle.html
+* https://scienceworld.wolfram.com/physics/FresnelEquations.html
 
 
 G4 Optical Photon Reference 
@@ -517,13 +526,13 @@ source/processes/optical/src/G4OpBoundaryProcess.cc (yuck what a tabbing mess)::
     1017                      if (sint1 > 0.0) {   // incident ray oblique
     1018 
     1019                          E2_parl   = Rindex2*E2_parl/Rindex1 - E1_parl;
-    ////
+    ///
     ////
     ////        (P-polarization: E field within plane of incidence) 
     ////         magnetic field continuity at boundary (sign from triad convention wrt field directions)
     ////
-    ////              Hi - Hr = Ht 
-    ////         n1 (Ei - Er ) = n2 Et      relating to E brings in material characteristics  (6) 
+    ////               Hi - Hr = Ht        eoe[3] 
+    ////         n1 (Ei - Er ) = n2 Et             relating to E brings in material characteristics  eoe[6] 
     ////
     ////                  Er = (n2 Et/n1) - Ei 
     ////
@@ -644,6 +653,295 @@ source/processes/optical/src/G4OpBoundaryProcess.cc (yuck what a tabbing mess)::
     1115     }
     1116 }
 
+
+
+G4OpBoundaryProcess look again : in light of TMM
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    1041 void G4OpBoundaryProcess::DielectricDielectric()
+    1042 {
+
+    1086            PdotN = OldMomentum * theFacetNormal;
+    1087            EdotN = OldPolarization * theFacetNormal;
+
+    ////            components of mom and pol in normal direction 
+
+
+    1088 
+    1089            cost1 = - PdotN;
+    1090            if (std::abs(cost1) < 1.0-kCarTolerance){
+    1091               sint1 = std::sqrt(1.-cost1*cost1);
+    1092               sint2 = sint1*Rindex1/Rindex2;     // *** Snell's Law ***
+    1093            }
+    1094            else {      
+    ////
+    ////            Handle Normal incidence where cost1 is close to -1 or 1 
+    ////
+    1095               sint1 = 0.0;
+    1096               sint2 = 0.0;
+    1097            }
+
+    1099            if (sint2 >= 1.0) {
+    1100 
+    1101               // Simulate total internal reflection
+    1104 
+    1105               theStatus = TotalInternalReflection;
+    1106 
+    1113               if ( theStatus == LambertianReflection ) {
+    1114                  DoReflection();
+    1115               }
+    1116               else if ( theStatus == BackScattering ) {
+    1117                  NewMomentum = -OldMomentum;
+    1118                  NewPolarization = -OldPolarization;
+    1119               }
+    1120               else {
+    1121 
+    1122                  PdotN = OldMomentum * theFacetNormal;
+    1123                  NewMomentum = OldMomentum - (2.*PdotN)*theFacetNormal;
+
+           
+    //         \   / 
+    //          \ /
+    //       ----+------
+    //             
+                
+
+    1124                  EdotN = OldPolarization * theFacetNormal;
+    1125                  NewPolarization = -OldPolarization + (2.*EdotN)*theFacetNormal;
+
+     //        JUSTIFICATION ?
+
+
+    1126 
+    1127               }
+    1128            }
+
+
+    1129            else if (sint2 < 1.0) {
+    1130 
+    1131               // Calculate amplitude for transmission (Q = P x N)
+    1132 
+    1133               if (cost1 > 0.0) {
+    1134                  cost2 =  std::sqrt(1.-sint2*sint2);
+    1135               }
+    1136               else {
+    1137                  cost2 = -std::sqrt(1.-sint2*sint2);
+    1138               }
+
+    ////            
+    ////      HUH: cost1 = -PdotN 
+    ////      handing -ve cost1 suggests the normal is not oriented against the incident direction ?
+    ////                             
+
+
+    1139 
+    1140               if (sint1 > 0.0) {
+    1141                  A_trans = OldMomentum.cross(theFacetNormal);
+    1142                  A_trans = A_trans.unit();
+
+    ////       A_trans : Transverse unit vector : perpendicular to the plane of incidence 
+
+    1143                  E1_perp = OldPolarization * A_trans;
+
+    ////       E1_perp scalar : fraction of polarization perpendicular to plane of incidence (S-polarized fraction) 
+
+    1144                  E1pp    = E1_perp * A_trans;
+
+    ////       E1pp vector : perpendicular component of OldPolarization (in A_trans direction, the S-polarized component)
+
+    1145                  E1pl    = OldPolarization - E1pp;
+
+    ////        E1pl vector : parallel component of OldPolarization (within plane of incidence, the P-polarized component) 
+
+    1146                  E1_parl = E1pl.mag();
+
+    ////        E1_parl scalar : fraction of polarization within plane of incidence (P-polarized fraction)      
+
+
+    1147               }
+    1148               else {
+    1149                  A_trans  = OldPolarization;
+    1150                  // Here we Follow Jackson's conventions and we set the
+    1151                  // parallel component = 1 in case of a ray perpendicular
+    1152                  // to the surface
+    1153                  E1_perp  = 0.0;
+    1154                  E1_parl  = 1.0;
+    1155               }
+
+    ////         Above handles of normal incidence where the distinction between S and P is meaningless
+
+
+    //// eoe eqn references below are to 
+    ////   http://old.rqc.ru/quantech/pubs/2013/fresnel-eoe.pdf   Encyclopedia of Optical Engineering 
+    ////   ~/opticks_refs/fresnel-eoe.pdf 
+    ////
+    ////  Google for "Encyclopedia of Optical Engineering Lvovsky pdf"
+    ////    
+    //// Fresnel Equations
+    //// Alexander I. Lvovsky
+    //// Department of Physics and Astronomy, University of Calgary, Calgary, Alberta, Canada
+    //// Published online: 27 Feb 2013
+    ////    
+
+    1156 
+    1157               s1 = Rindex1*cost1;
+    1158               E2_perp = 2.*s1*E1_perp/(Rindex1*cost1+Rindex2*cost2);  
+
+    ////    eoe[13] t_s   : Relate incident and transmitted S pol amplitudes
+
+    1159               E2_parl = 2.*s1*E1_parl/(Rindex2*cost1+Rindex1*cost2);
+   
+    ////    eoe[8]  t_p   : Relate incident and transmitted P pol amplitudes
+
+    1160               E2_total = E2_perp*E2_perp + E2_parl*E2_parl;
+    1161               s2 = Rindex2*cost2*E2_total;
+    1162 
+    1163               if (theTransmittance > 0) TransCoeff = theTransmittance;
+    1164               else if (cost1 != 0.0) TransCoeff = s2/s1;
+    1165               else TransCoeff = 0.0;
+
+    ////     eoe[24] T :  intensity transmissivity  
+
+
+    1166 
+    1167               if ( !G4BooleanRand(TransCoeff) ) {
+    1168 
+    1169                  // Simulate reflection
+    1170 
+    1171                  if (Swap) Swap = !Swap;
+    1172 
+    1173                  theStatus = FresnelReflection;
+    ....
+    1190                     PdotN = OldMomentum * theFacetNormal;
+    1191                     NewMomentum = OldMomentum - (2.*PdotN)*theFacetNormal;
+    1192 
+    1193                     if (sint1 > 0.0) {   // incident ray oblique
+    1194 
+    1195                        E2_parl   = Rindex2*E2_parl/Rindex1 - E1_parl;
+    1196                        E2_perp   = E2_perp - E1_perp;
+    1197                        E2_total  = E2_perp*E2_perp + E2_parl*E2_parl;
+
+    //// 
+    ////         E1_parl 
+    ////             incident P-pol fraction   "Ei" 
+    ////
+    ////   1195: E2_parl = Rindex2*E2_parl/Rindex1 - E1_parl; 
+    ////             here P-pol "Et" is changed to be P-pol  "Er"
+    ////             This from eoe[3] magnetic boundary condition, converted to E eoe[6] 
+    ////          
+    ////   1196: E2_perp (S-pol reflection) = E2_perp (S-pol transmission) - E1_perp (S-pol incident) 
+    ////
+    ////          eoe[10]   Ei + Er = Et  (S-pol)        
+    ////         
+
+
+    1198                        A_paral   = NewMomentum.cross(A_trans);
+    1199                        A_paral   = A_paral.unit();
+
+    ////
+    ////          A_trans vector 
+    ////              transverse unit vector, perpendicular to plane of incidence, from OldMomentum.cross(facetNormal)
+    ////
+    ////          A_paral vector
+    ////              orthogonal to both the new mom and A_trans 
+    ////              so its in the plane of incidence and its transverse to new mom
+    ////              making it the new P-polarization vector direction 
+    ////                    
+
+    1200                        E2_abs    = std::sqrt(E2_total);
+    1201                        C_parl    = E2_parl/E2_abs;
+    1202                        C_perp    = E2_perp/E2_abs;
+    1203 
+    1204                        NewPolarization = C_parl*A_paral + C_perp*A_trans;
+ 
+    ////
+    ////        C_parl 
+    ////            P-pol fraction in reflected wave
+    ////        C_perp 
+    ////            S-pol fraction in reflected wave
+    ////        NewPolarization
+    ////            addition of the S and P fraction vectors
+    ////
+    ////
+
+    1205 
+    1206                     }
+    1207 
+    1208                     else {               // incident ray perpendicular
+    1209 
+    1210                        if (Rindex2 > Rindex1) {
+    1211                           NewPolarization = - OldPolarization;
+    1212                        }
+    1213                        else {
+    1214                           NewPolarization =   OldPolarization;
+    1215                        }
+    ....
+    1220               else { // photon gets transmitted
+    1221 
+    1222                 // Simulate transmission/refraction
+    1223 
+    1224                 Inside = !Inside;
+    1225                 Through = true;
+    1226                 theStatus = FresnelRefraction;
+    1227 
+    1228                 if (sint1 > 0.0) {      // incident ray oblique
+    1229 
+    1230                    alpha = cost1 - cost2*(Rindex2/Rindex1);
+    1231                    NewMomentum = OldMomentum + alpha*theFacetNormal;
+    1232                    NewMomentum = NewMomentum.unit();
+
+    ////
+    ////  cf qsim.h:propagate_at_boundary
+    ////     t = eta i  + (eta c1 - c2 ) n      eta = n1/n2 
+    ////     t/eta = i + (c1 - c2/eta ) n 
+    ////
+    ////    Because Geant4 normalizes NewMomentum it gets away with 
+    ////    playing fast and loose with factors of 1/eta 
+    ////
+
+    1234                    A_paral = NewMomentum.cross(A_trans);
+    1235                    A_paral = A_paral.unit();
+
+    ////    A_trans
+    ////         OldMomentum.cross(normal) : perpendicular to plane of incidence : old S-pol direction 
+    ////
+    ////    A_paral
+    ////          Transmitted P-pol direction 
+    ////
+    ////
+
+    1236                    E2_abs     = std::sqrt(E2_total);
+    1237                    C_parl     = E2_parl/E2_abs;
+    1238                    C_perp     = E2_perp/E2_abs;
+    1239 
+    1240                    NewPolarization = C_parl*A_paral + C_perp*A_trans;
+
+    ////
+    ////     Use S and P fractions to construct the NewPolarization  
+    ////
+    ////
+
+
+    1241 
+    1242                 }
+    1243                 else {                  // incident ray perpendicular
+    1244 
+    1245                    NewMomentum = OldMomentum;
+    1246                    NewPolarization = OldPolarization;
+    1247 
+    1248                 }
+    1249               }
+    1250            }
+
+
+
+
+Rigorous vector wave propagation for arbitrary flat media
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Matrix methods and fresnel 
+
+* https://arxiv.org/pdf/1811.09777.pdf
 
 
 G4 tracing reflection ?
