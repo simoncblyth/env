@@ -56,6 +56,32 @@
 
 
 
+junoPMTOpticalModel Issues
+-----------------------------
+
+.. class:: small
+
+   1. overcomplex PMT geometry due to using FastSim
+
+      * using 4 volumes, when 2 are possible 
+
+   2. propagating at Pyrex speed inside inner2 
+
+      * FastSim to SlowSim transition misses the speed fixup 
+
+   3. incorrect polarization 
+
+      * needs to depend on S/P fractions
+
+   4. qe/An looks wrong, should be qe*An perhaps ? 
+
+
+
+
+
+
+
+
 
 hamaLogicalPMTWrapLV_old.png
 --------------------------------
@@ -69,6 +95,74 @@ hamaLogicalPMTWrapLV_old.png
    |emsp| |emsp|
    :g:`body` hidden under :r:`pmt` : :huge:`WHY?`
 
+
+
+
+
+
+:small:`Old PMT Optical Model : G4 Optical Surfaces photocathode, mirror`
+--------------------------------------------------------------------------- 
+
+.. sidebar:: :small:`Old Surface POM`
+
+    .. raw:: html 
+
+       <pre class="mypretiny">
+         +---------------pmt-Pyrex----------------+
+         | +-------------body-Pyrex-------------+ |
+         | |                                    | |
+         | |                                    | |
+         | |     +------------------------+     | |
+         | |     |                        |     | |
+         | |     |                        |     | |
+         | |     |        inner1-Vacuum   |     |-|
+         | |     |                        |     |1e-3
+         | |     |                        |     | |
+         | |     +~~coincident~face~~~~~~~+     | |
+         | |     |                        |     | |
+         | |     |                        |     | |
+         | |     |        inner2-Vacuum   |     | |
+         | |     |                        |     | |
+         | |     |                        |     | |
+         | |     +------------------------+     | |
+         | |                                    | |
+         | |                                    | |
+         | +------------------------------------+ |
+         +----------------------------------------+
+       </pre>
+
+    .. class:: small
+
+       :r:`photons DO NOT enter PMT vacuum`
+
+
+.. class:: small
+
+   +------------------------+----------------+
+   | m_Photocathode_opsurf  | inner1<->body  |
+   +------------------------+----------------+
+   | m_mirror_opsurf        | inner2<->body  |
+   +------------------------+----------------+
+
+   **Why pmt+body Pyrex (1e-3 mm separation) ? GUESS:** 
+
+   * coding convenience, makes PMT manager self-contained ?
+
+     * use body pv for G4LogicalBorderSurface  
+     * otherwise would have to defer surface creation
+       to caller of GetLV which creates the PV
+
+   * :r:`Extra solid+lv+pv just for code self-containment ?`
+
+     * **NOT REALLY ACCEPTABLE**
+     * :b:`Is there some other reason ?`
+
+   **Why split vacuum inner1/inner2 ?**
+
+   * convenient for photocathode and mirror properties
+   * BUT: fake Vacuum/Vacuum coincident face inside PMT 
+   
+     * :b:`no problem : as no photon enter PMT` 
 
 
 hamaLogicalPMTWrapLV_orig.png
@@ -88,12 +182,87 @@ hamaLogicalPMTWrapLV_orig.png
    |emsp| |emsp|
    :g:`body` is :b:`FastSim envelope volume`
 
- 
 
-hamaLogicalPMTWrapLV_bounce.png
-------------------------------------
 
-``~/opticks/extg4/xxv.sh # EXTRA from U4PMTFastSimTest.py``   
+:small:`MultiLayer PMT Optical Model : Split Vacuum -> Contorted ModelTrigger`
+--------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Current MultiLayer POM`
+
+    .. raw:: html 
+
+       <pre class="mypretiny">
+         +---------------pmt-Pyrex----------------+
+         |                                        |
+         |                                        |
+         |     +----body-Pyrex-(FSim-env)---+     |
+         |     | +------------------------+ |     |
+         |     | |                        | |     |
+         |     | |                        | |     |
+         |     | |        inner1-Vacuum   |-|     |
+         |     | |                        |1e-3   |
+         |     | |                        | |     |
+         |     | +~~coincident~face~~~~~~~+ |     |
+         |     | |                        | |     |
+         |     | |                        | |     |
+         |     | |        inner2-Vacuum   | |     |
+         |     | |                        | |     |
+         |     | |                        | |     |
+         |     | +------------------------+ |     |
+         |     +----------------------------+     |
+         |                                        |
+         |                                        |
+         +----------------------------------------+
+       </pre>
+
+    .. class:: small
+
+       * *ModelTrigger* : unnatural trig @ Vac/Vac bnd. 
+       * *DoIt* : shift to edge, for ART calc 
+       * only *m_mirror_opsurf* (inner2<->body) "active"
+
+
+.. raw:: html
+
+   <pre class="mypretiny">
+     80 G4bool junoPMTOpticalModel::ModelTrigger(const G4FastTrack &fastTrack)
+     81 {   // <span class="r"> Contorted as "pre-trigger" on where next </span>
+     83     if(fastTrack.GetPrimaryTrack()->GetVolume() == _inner2_phys){
+     84         return false;
+     85     }
+     ...
+     89     pos     = fastTrack.GetPrimaryTrackLocalPosition();
+     90     dir     = fastTrack.GetPrimaryTrackLocalDirection();
+     94     
+     95     if(fastTrack.GetPrimaryTrack()->GetVolume() == _inner1_phys){
+     96         whereAmI = kInVacuum;
+     97     }else{
+     98         whereAmI = kInGlass;
+     99     }
+    100    
+    101     if(whereAmI == kInGlass){
+    102         dist1 = _inner1_solid->DistanceToIn(pos, dir);
+    103         dist2 = _inner2_solid->DistanceToIn(pos, dir);
+    104
+    105         if(dist1 == kInfinity){
+    106             return false;
+    107         }else if(dist1>dist2){
+    108             return false;
+    109         }else{
+    110             return true;
+    111         }
+    112     }else{
+    113         dist1 = _inner1_solid->DistanceToOut(pos, dir);
+    114         dist2 = _inner2_solid->DistanceToIn(pos, dir);
+    115         
+    116         if(dist2 == kInfinity){
+    117             return true;
+    118         }
+    119     }
+    120     return false;
+    121 }   
+  </pre>
+
 
 
 hamaLogicalPMTWrapLV_ModelTriggerYES.png
@@ -113,8 +282,183 @@ hamaLogicalPMTWrapLV_ModelTriggerYES.png
 
 .. class:: small
 
-   * Unnatural Geometry -> DoIt shifts position by **dist1**  -> Effectively "Pre-Triggering" : slide the red dots forwards 
+   * FastSim Workaround -> DoIt **dist1** shifts -> Effectively "Pre-Triggering" : slide red dots forwards 
    
+
+
+
+
+:small:`MultiLayer PMT Optical Model : Natural Geometry -> Simple ModelTrigger`
+--------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Simplified MultiLayer POM`
+
+    .. raw:: html 
+
+       <pre class="mypretiny">
+         +---------------pmt-Pyrex----------------+
+         |                                        |
+         |                                        |
+         |                                        |
+         |       +~inner~Vacuum~(FSim~env)+       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       +                        +       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       +------------------------+       |
+         |                                        |
+         |                                        |
+         |                                        |
+         +----------------------------------------+
+       </pre>
+
+    .. class:: small
+
+       * *ModelTrigger* : z>0 : no unnatural trig 
+       * override *mirror_opsurf* (inner<->pmt) @ z > 0 
+       * simpler *DoIt* : no geom. queries, no shifting
+
+.. raw:: html
+
+   <p style="margin-bottom:6cm;" />
+   <pre class="mypretiny">
+    G4bool junoPMTOpticalModel::ModelTrigger(const G4FastTrack &fastTrack)
+    {
+         // <span class="r"> Simple + Cheap due to natural geometry </span>
+        return fastTrack.GetPrimaryTrackLocalPosition().z() > 0. ;
+    }
+   </pre>
+        
+
+
+
+:small:`MultiLayer PMT Optical Model : Natural Geometry -> Simple DoIt`
+--------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Simplified MultiLayer POM`
+
+    .. raw:: html 
+
+       <pre class="mypretiny">
+         +---------------pmt-Pyrex----------------+
+         |                                        |
+         |                                        |
+         |                                        |
+         |       +~inner~Vacuum~(FSim~env)+       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       +                        +       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       +------------------------+       |
+         |                                        |
+         |                                        |
+         |                                        |
+         +----------------------------------------+
+       </pre>
+
+    .. class:: small
+
+       * *ModelTrigger* : z>0 : no unnatural trig 
+       * override *mirror_opsurf* (inner<->pmt) @ z > 0 
+       * simpler *DoIt* : no geom. queries, no shifting
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    void junoPMTOpticalModel::DoIt(const G4FastTrack& fastTrack, 
+          G4FastStep &fastStep)
+    {
+        G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
+        wavelength_nm = twopi*hbarc/energy/nm ;
+
+        position = fastTrack.GetPrimaryTrackLocalPosition();
+        direction = fastTrack.GetPrimaryTrackLocalDirection();
+        polarization = fastTrack.GetPrimaryTrackLocalPolarization();
+
+        G4VSolid* envelope_solid = fastTrack.GetEnvelopeSolid();
+        surface_normal = envelope_solid->SurfaceNormal(position);
+
+        minus_cos_theta = direction*surface_normal ;
+        whereAmI = minus_cos_theta < 0. ? kInGlass : kInVacuum ;
+
+        StackSpec<double> spec ;
+        // ... skip : collect refractive indices, thickness into spec ...
+
+        Stack<double,4> stack(      wavelength_nm, minus_cos_theta, spec );
+        Stack<double,4> stackNormal(wavelength_nm, -1.            , spec );
+        // ...
+   }
+   </pre>
+
+
+.. class:: small
+
+   * :r:`Simple : but not workable`
+   * :b:`Cannot stop:` ``G4OpBoundaryProcess`` 
+   
+
+
+:small:`Pivot to CustomG4OpBoundaryProcess For PMTOpticalModel ?`
+-------------------------------------------------------------------
+
+.. sidebar:: :small:`Custom Boundary POM`
+
+    .. raw:: html 
+
+       <pre class="mypretiny">
+         +---------------pmt-Pyrex----------------+
+         |                                        |
+         |                                        |
+         |                                        |
+         |       +~inner~Vacuum~~~~~~~~~~~+       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       +                        +       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       +------------------------+       |
+         |                                        |
+         |                                        |
+         |                                        |
+         +----------------------------------------+
+       </pre>
+
+    .. class:: small
+
+       ``OpSurfaceName[0] == '@'``
+
+       * ``local_z>0`` : does MultiLayer ART calc 
+       * ``!(local_z>0)`` : standard *mirror_opsurf*
+
+.. class:: small
+
+   +-----------------+-----------------------+
+   | Current FastSim | 4 Solid, 4 LV, 4 PV   |
+   +-----------------+-----------------------+
+   | Custom Boundary | 2 Solid, 2 LV, 2 PV   | 
+   +-----------------+-----------------------+
+   
+ 
 
 
 Big Bouncer
@@ -245,1565 +589,186 @@ hamaLogicalPMTWrapLV_natural.png
 
 
 
+Rerunning Single Photons
+---------------------------
 
-
-
-:small:`Old PMT Optical Model : G4 Optical Surfaces photocathode, mirror`
---------------------------------------------------------------------------- 
-
-.. sidebar:: :small:`Old Surface POM`
-
-    .. raw:: html 
-
-       <pre class="mypretiny">
-         +---------------pmt-Pyrex----------------+
-         | +-------------body-Pyrex-------------+ |
-         | |                                    | |
-         | |                                    | |
-         | |     +------------------------+     | |
-         | |     |                        |     | |
-         | |     |                        |     | |
-         | |     |        inner1-Vacuum   |     |-|
-         | |     |                        |     |1e-3
-         | |     |                        |     | |
-         | |     +~~coincident~face~~~~~~~+     | |
-         | |     |                        |     | |
-         | |     |                        |     | |
-         | |     |        inner2-Vacuum   |     | |
-         | |     |                        |     | |
-         | |     |                        |     | |
-         | |     +------------------------+     | |
-         | |                                    | |
-         | |                                    | |
-         | +------------------------------------+ |
-         +----------------------------------------+
-       </pre>
+.. sidebar:: :small:`Save/Load g4state into NP array`
 
     .. class:: small
 
-       :r:`photons DO NOT enter PMT vacuum`
-
-
-.. class:: small
-
-   +------------------------+----------------+
-   | m_Photocathode_opsurf  | inner1<->body  |
-   +------------------------+----------------+
-   | m_mirror_opsurf        | inner2<->body  |
-   +------------------------+----------------+
-
-   **Why pmt+body Pyrex (1e-3 mm separation) ? GUESS:** 
-
-   * realistic Pyrex thickness (~5mm) for material budget
-   * WANT: NOT-realistic Pyrex absorption, QE/CE accounted ?
-   * :r:`BUT: doesnt work : still need to cross 5mm Pyrex ?`
-   * :g:`Does anyone know why pmt+body ?`
-
-   Comment:
-
-   * expensive : extra solid+LV+PV * ~18k PMTs 
-
-   * :b:`PyrexZeroAbsorption` material could prevent ABS
-
-     * :r:`NO EXTRA GEOMETRY` 
-
-   * :b:`Use one Pyrex solid ? Avoid near coincidence`
-
-
-   **Why split vacuum inner1/inner2 ?**
-
-   * convenient for photocathode and mirror properties
-   * BUT: fake Vacuum/Vacuum coincident face inside PMT 
-   
-     * :b:`no problem, little expense : as no photon there` 
-
-    
-
-
-
-:small:`MultiLayer PMT Optical Model : Split Vacuum -> Contorted ModelTrigger`
---------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Current MultiLayer POM`
-
-    .. raw:: html 
-
-       <pre class="mypretiny">
-         +---------------pmt-Pyrex----------------+
-         |                                        |
-         |                                        |
-         |     +----body-Pyrex-(FSim-env)---+     |
-         |     | +------------------------+ |     |
-         |     | |                        | |     |
-         |     | |                        | |     |
-         |     | |        inner1-Vacuum   |-|     |
-         |     | |                        |1e-3   |
-         |     | |                        | |     |
-         |     | +~~coincident~face~~~~~~~+ |     |
-         |     | |                        | |     |
-         |     | |                        | |     |
-         |     | |        inner2-Vacuum   | |     |
-         |     | |                        | |     |
-         |     | |                        | |     |
-         |     | +------------------------+ |     |
-         |     +----------------------------+     |
-         |                                        |
-         |                                        |
-         +----------------------------------------+
-       </pre>
+        :r:`Efficiently save/restore thousands of states` 
 
     .. class:: small
 
-       * *ModelTrigger* : unnatural trig @ Vac/Vac bnd. 
-       * *DoIt* : shift to edge, for ART calc 
-       * only *m_mirror_opsurf* (inner2<->body) "active"
-
-
-.. raw:: html
-
-   <pre class="mypretiny">
-     80 G4bool junoPMTOpticalModel::ModelTrigger(const G4FastTrack &fastTrack)
-     81 {   // <span class="r"> Contorted + Expensive due to unnatural geometry </span>
-     83     if(fastTrack.GetPrimaryTrack()->GetVolume() == _inner2_phys){
-     84         return false;
-     85     }
-     ...
-     89     pos     = fastTrack.GetPrimaryTrackLocalPosition();
-     90     dir     = fastTrack.GetPrimaryTrackLocalDirection();
-     94     
-     95     if(fastTrack.GetPrimaryTrack()->GetVolume() == _inner1_phys){
-     96         whereAmI = kInVacuum;
-     97     }else{
-     98         whereAmI = kInGlass;
-     99     }
-    100    
-    101     if(whereAmI == kInGlass){
-    102         dist1 = _inner1_solid->DistanceToIn(pos, dir);
-    103         dist2 = _inner2_solid->DistanceToIn(pos, dir);
-    104
-    105         if(dist1 == kInfinity){
-    106             return false;
-    107         }else if(dist1>dist2){
-    108             return false;
-    109         }else{
-    110             return true;
-    111         }
-    112     }else{
-    113         dist1 = _inner1_solid->DistanceToOut(pos, dir);
-    114         dist2 = _inner2_solid->DistanceToIn(pos, dir);
-    115         
-    116         if(dist2 == kInfinity){
-    117             return true;
-    118         }
-    119     }
-    120     return false;
-    121 }   
-  </pre>
-
-
-
-
-
-:small:`MultiLayer PMT Optical Model : Natural Geometry -> Simple ModelTrigger`
---------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Simplified MultiLayer POM`
-
-    .. raw:: html 
-
-       <pre class="mypretiny">
-         +---------------pmt-Pyrex----------------+
-         |                                        |
-         |                                        |
-         |                                        |
-         |       +~inner~Vacuum~(FSim~env)+       |
-         |       !                        !       |
-         |       !                        !       |
-         |       !                        !       |
-         |       !                        !       |
-         |       !                        !       |
-         |       +                        +       |
-         |       |                        |       |
-         |       |                        |       |
-         |       |                        |       |
-         |       |                        |       |
-         |       |                        |       |
-         |       +------------------------+       |
-         |                                        |
-         |                                        |
-         |                                        |
-         +----------------------------------------+
-       </pre>
-
-    .. class:: small
-
-       * *ModelTrigger* : z>0 : no unnatural trig 
-       * override *mirror_opsurf* (inner<->pmt) @ z > 0 
-       * simpler *DoIt* : no geom. queries, no shifting
-
-.. raw:: html
-
-   <p style="margin-bottom:6cm;" />
-   <pre class="mypretiny">
-    G4bool junoPMTOpticalModel::ModelTrigger(const G4FastTrack &fastTrack)
-    {
-         // <span class="r"> Simple + Cheap due to natural geometry </span>
-        return fastTrack.GetPrimaryTrackLocalPosition().z() > 0. ;
-    }
-   </pre>
-        
-
-
-
-
-:small:`MultiLayer PMT Optical Model : Natural Geometry -> Simple DoIt`
---------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Simplified MultiLayer POM`
-
-    .. raw:: html 
-
-       <pre class="mypretiny">
-         +---------------pmt-Pyrex----------------+
-         |                                        |
-         |                                        |
-         |                                        |
-         |       +~inner~Vacuum~(FSim~env)+       |
-         |       !                        !       |
-         |       !                        !       |
-         |       !                        !       |
-         |       !                        !       |
-         |       !                        !       |
-         |       +                        +       |
-         |       |                        |       |
-         |       |                        |       |
-         |       |                        |       |
-         |       |                        |       |
-         |       |                        |       |
-         |       +------------------------+       |
-         |                                        |
-         |                                        |
-         |                                        |
-         +----------------------------------------+
-       </pre>
-
-    .. class:: small
-
-       * *ModelTrigger* : z>0 : no unnatural trig 
-       * override *mirror_opsurf* (inner<->pmt) @ z > 0 
-       * simpler *DoIt* : no geom. queries, no shifting
-
-.. raw:: html
-
-   <pre class="mypretiny">
-    void junoPMTOpticalModel::DoIt(const G4FastTrack& fastTrack, 
-          G4FastStep &fastStep)
-    {
-        G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
-        wavelength_nm = twopi*hbarc/energy/nm ;
-
-        position = fastTrack.GetPrimaryTrackLocalPosition();
-        direction = fastTrack.GetPrimaryTrackLocalDirection();
-        polarization = fastTrack.GetPrimaryTrackLocalPolarization();
-
-        G4VSolid* envelope_solid = fastTrack.GetEnvelopeSolid();
-        surface_normal = envelope_solid->SurfaceNormal(position);
-
-        minus_cos_theta = direction*surface_normal ;
-        whereAmI = minus_cos_theta < 0. ? kInGlass : kInVacuum ;
-
-        StackSpec<double> spec ;
-        // ... skip : collect refractive indices, thickness into spec ...
-
-        Stack<double,4> stack(      wavelength_nm, minus_cos_theta, spec );
-        Stack<double,4> stackNormal(wavelength_nm, -1.            , spec );
-
-        // Skipped:
-        //
-        // 1. obtain polarization specific ART
-        // 2. use ART to reflect/refract/absorb/detect
-        // 3. update fastTrack 
-   }
-   </pre>
-        
-
-
-
-
-
-
-
-
-JUNO + Opticks : Summary of Bugs Fixed
------------------------------------------
-
-.. sidebar:: :b:`JUNO ISSUES`
-
-    .. class:: small
-
-       **NNVT : MaskTail impinges MaskVirtual** 
-
-       * `junosw/-/issues/32  <https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/32>`_
-       * :r:`FIXED : via gitlab MR`
-
-       **HAMA : BodySolid impinges MaskTail**
-
-       * `junosw/-/issues/33  <https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/33>`_
-       * :r:`FIXED : via gitlab MR`
-       * :b:`shifted mask, concentric with PMT ellipsoid`
-
-       **BirksConstant1 : 1,000,000x TOO BIG**
-
-       * `junosw/-/issues/24  <https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/24>`_
-       * DsG4Scintillation not yielding any photons 
-       * :r:`FIXED : typo in parameter`
-
-
-.. class:: small 
-
-    :b:`OPTICKS PRIM ISSUES`
-
-    **nmskSolidMask : ellipsoid hole at "apex" issue**
-
-    * few per million "apex" rays find hole in ellipsoid
-    * manifests as spurious "waist" intersects
-    * :r:`FIXED : add zcut safety margin to CSG_ZSPHERE` 
-
-    **nmskSolidMaskTail : very thin cylinder "lip" issues** 
-
-    * requires uncoincidence shift of subtractee 
-    * BUT : even after uncoincide some spurious remain !
-    * BUG 1 : mis-translated as CSG_DISC, not CSG_CYLINDER
-    * BUG 2 : intersect precision loss for near-axial rays
-    * :r:`FIXED : reimplement CSG_CYLINDER with less FLOPS`
-
-    **nmskSolidMaskVirtual : cone precision + near-apex issues** 
-
-    * spurious sprinkle remains after uncoincide
-    * BUG 1 : CSG_CONE precision loss in one quadratic root  
-    * BUG 2 : rays close to infinite cone apex yield spurious
-    * :r:`FIXED : CSG_CONE robust roots + fix bad assumption`   
-
-
-.. s5_talk::
-
-    Some of the issues are with the source geometry and some are with the translation to the GPU.
-    Getting JUNO onto the GPU in order to benefit from state-of-the-art GPU ray tracing
-    also improves the speed and correctness of the CPU simulation.
-
-
-
-
-
-
-``nmskSolidMask_RandomSpherical10_another_zsphere_apex_miss_perhaps.png``
-------------------------------------------------------------------------------
-
-
-
-
-.. raw:: html
-
-   <p style="margin-bottom:13cm;" />
-
-
-.. class:: small
-
-   ``rare close to ellipsoid "apex" rays missed : fixed with zcut+safety``   
-
-
-``nmskSolidMask__U0,nmskSolidMaskTail__U0_without_uncoincide.png``
---------------------------------------------------------------------
-
-
-.. raw:: html
-
-   <p style="margin-bottom:3cm;" />
-
- 
-
-
-
-.. class:: small
-
-   ``without uncoincidence the subtraction has coincident edge``   
-
-
-``nmskSolidMask__U1,nmskSolidMaskTail__U1_U1_NNVTMaskManager_with_uncoincide.png``
---------------------------------------------------------------------------------------
-
-
-.. raw:: html
-
-   <p style="margin-bottom:3cm;" />
-
- 
-.. class:: small
-
-
-   ``much better after uncoinciding, but upper lip still has small issue`` 
-
-   ``some spurious intersects in center and at the edge``
-
-
-
-
-``nmskSolidMaskTail_RandomSpherical10_cehigh_problem_areas.png``
------------------------------------------------------------------- 
-
-
-.. raw:: html
-
-   <p style="margin-bottom:3cm;" />
-
-
- 
-.. class:: small
-
-   ``illuminate problem areas with more gensteps, issues all in plane Z=-39 mm`` 
-
-
-
-``nmskSolidMaskTail__U1_thin_lip_issue.png``
-----------------------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:3cm;" />
-
-
- 
-.. class:: small
-
-   ``extg4/x4t.sh : Geant4 reference intersects`` 
-
-
-``nmskTailOuter__U1_nmskTailInner__U1_tail_outer_inner_subtraction.png``
----------------------------------------------------------------------------
-
-
-.. raw:: html
-
-   <p style="margin-bottom:3cm;" />
-
-
- 
-.. class:: small
-
-   ``extg4/cf_x4t.sh : blue:nmskTailOuter orange:nmskTailInner`` 
-
-
-``nmskTailOuter__U1_nmskTailInner__U1_spurious_lip_halo.png``
----------------------------------------------------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:3cm;" />
-
- 
-.. class:: small
-
-   ``CSG/cf_ct.sh : Opticks CSG running on CPU`` 
-
- 
-.. class:: small
-
-   ``Missing thin cylinder edge intersects`` 
-
-.. class:: small
-
-   ``CAUSED : by mis-translation of very thin cylinder as "disc" not "cylinder"`` 
-
-
-
-``nmskSolidMaskTail__U1_thin_cylinder_lip_splash.png``
---------------------------------------------------------
-
-
-.. raw:: html
-
-   <p style="margin-bottom:3cm;" />
-
- 
-.. class:: small
-
-   ``CSG/ct.sh : PMT mask "lip" reveals issue with thin cylinder (hz 0.15 mm)``
-
-
-
-
-``nmskTailOuterITube__U1_thin_cylinder_precision_issue.png``
------------------------------------------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:3cm;" />
- 
-.. class:: small
-
-   ``CSG/ct.sh : hz 0.15 mm thin cylinder precision loss issue`` 
-
-
-
-``nmskTailOuterITube__U1_thin_cylinder_spurious_intersects_from_near_axial_rays.png``
-----------------------------------------------------------------------------------------
-
-.. class:: small
-
-    ``cd ~/opticks/CSG ; UNEXPECTED=1 NOLEGEND=1 ./ct.sh ana``
-
-
-.. raw:: html
-
-   <p style="margin-bottom:10cm;" />
-
- 
-.. class:: small
-
-   ``near axial rays suffer precision loss -> spurious`` 
-
-
-
-
-:small:`FIX : reimplemented CSG_CYLINDER to avoid precision loss`
------------------------------------------------------------------------------------ 
-
-.. class:: small
-
-     :r:`Loss of precision issue : only apparent with very thin cylinders`
-
-     **CSG_OLDCYLINDER : CSG/csg_intersect_leaf_oldcylinder.h::intersect_leaf_oldcylinder** 
-
-     * old impl adapted from pseudo-general approach from "Real Time Collision Detection" book 
-     * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_leaf_oldcylinder.h
-
-     **CSG_CYLINDER : CSG/csg_intersect_leaf.h::intersect_leaf_cylinder** 
-
-     * :r:`new impl embraces fixed z-orientation -> simpler -> less flops -> less precision loss` 
-     * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_leaf.h
-
-     **CSG/tests/CSGIntersectComparisonTest.sh**
-
-     Comparison of cylinder implementations
-
-     * new : much simpler 
-     * new : avoids spurious intersects
-     * new : improved precision (comparing surface distances of intersects)
-
-
-
-``nmskSolidMaskTail__U1_new_cylinder_impl_avoids_precision_loss.png``
-------------------------------------------------------------------------
-
-.. class:: small
-
-    ``FOCUS=-257,-39,7 ./ct.sh ana  ## using CSG/tests/CSGSimtraceTest.{cc/py}``   
-
-.. raw:: html
-
-   <p style="margin-bottom:10cm;" />
-
- 
-.. class:: small
-
-   ``new cylinder impl : avoids spurious + improves precision + simpler`` 
-
-
-
-
-``nmskSolidMaskVirtual_spurious_sprinkle.png``
--------------------------------------------------
-
-
-.. raw:: html
-
-   <p style="margin-bottom:2cm;" />
-
-
-.. class:: small
-
-    ``Even with uncoincidence : still left with sprinkle between cylinder and cone``  
-
-
-
-``nmskSolidMaskVirtual_oops_uncoincidence_geom_change.png``
--------------------------------------------------------------
-
-
-
-.. raw:: html
-
-   <p style="margin-bottom:2cm;" />
-
-
-.. class:: small
-
-    ``Uncoincidence : expanded cylinder up, in this case changing geometry``
-
-
-``nmskSolidMaskVirtual_without_uncoincidence.png``
--------------------------------------------------------------
-
-
-
-.. raw:: html
-
-   <p style="margin-bottom:2cm;" />
-
-
-
-.. class:: small
-
-    ``Without Uncoincidence : clear spurious lines cyl-cyl-cone``
-
-
-``nmskSolidMaskVirtual_spurious_from_quadratic_precision_loss.png``
-----------------------------------------------------------------------
-
-
-.. class:: small
-
-    ``c2 t^2 + 2 c1 t + c0 = 0``
-
-    ``disc = c1*c1 - c0*c2,  for small c0 or c2 get precision loss in one root``
-
-
-.. raw:: html
-
-   <p style="margin-bottom:13cm;" />
-
-
-
-:small:`csg_robust_quadratic_roots.h`
-----------------------------------------
-
-.. sidebar:: :small:`Avoid precision loss subtraction`
-
-    .. raw:: html 
-
-        <pre class="mypretiny">
-        &#35;ifdef NAIVE_QUADRATIC
-            t1 = (-b - sdisc)/d ;
-            t2 = (-b + sdisc)/d ;  // t2 >= t1
-        &#35;else
-            // pick root depending on sign of b
-            float q = b > 0.f ? -(b + sdisc) : -(b - sdisc) ;
-            float root1 = q/d ;
-            float root2 = c/q ;
-            t1 = fminf( root1, root2 );
-            t2 = fmaxf( root1, root2 );
-        &#35;endif
-        </pre>
-
-.. class:: small
-
-    Solution : pick t OR 1/t quadratic roots depending on coefficients : avoiding precision loss
-
-    * Been using for years, but not for CSG_CONE
-
-
-.. raw:: html 
-
-    <pre class="mypretiny">
-
-    Normal Quadratic                    Alternative quadratic in 1/t                   
-    -----------------                   --------------------------------               
-                                                                                              
-    d t^2 + 2b t + c = 0                c (1/t)^2 + 2b (1/t) + d  = 0              
-                                                                                              
-                                                                                              
-        -2b +- sqrt((2b)^2 - 4dc )             -2b +- sqrt( (2b)^2 - 4dc )       
-    t =  --------------------------     1/t =  ----------------------------      
-                   2d                                    2c                       
-                                                                                              
-         -b +- sqrt( b^2 - d c )        1/t =  -b  +- sqrt( b^2 - d c )         
-    t =  -----------------------               -------------------------         
-                 d                                       c                        
-                                                                                              
-                                                       c                         
-                                        t =  ---------------------------         
-                                             -b  +-  sqrt( b^2 - d c )         
-                                                                                              
-                                                                                              
-    </pre>
-
-
-.. class:: small
-
-    * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_robust_quadratic_roots.h
-
-
-
-:small:`Debug Precision Loss With CSG/nmskSolidMaskVirtual.sh`
-----------------------------------------------------------------
-
-.. class:: small
-
-    c  # cd ~/opticks/CSG
-
-    ./nmskSolidMaskVirtual.sh withnudge  # GeoChain translate
-  
-    ./nmskSolidMaskVirtual.sh ct  # intersect using ct.sh, CSGSimtraceTest.cc 
-
-    ./nmskSolidMaskVirtual.sh ana # plot with CSGSimtraceTest.py 
-
-    ./nmskSolidMaskVirtual.sh unx # select unexpected, save to array
-
-    ./nmskSolidMaskVirtual.sh sample # rerun intersect for selected, using CSGSimtraceSample.cc
-
-.. raw:: html
-
-   <pre class="mypretiny">
-    //intersect_leaf_oldcone t_near_alt      477.8 t_far_alt  1.225e+09 t_near_alt-t_near         17 t_far_alt-t_far          0 
-    //intersect_leaf_oldcone r1   264.0500 z1    97.0000 r2   132.0250 z2   194.0500 : z0   291.1000 
-    //intersect_leaf_oldcone c2    -0.0000 c1   365.0782 c0 -348871.4688 disc 133281.9219 disc > 0.f 1 : tth    -1.3604 
-    //intersect_leaf_oldcone c0 -3.489e+05 c1      365.1 c2  -5.96e-07 t_near      460.8 t_far  1.225e+09 sdisc   365.0780 (-c1-sdisc)     -730.2 (-c1+sdisc) -0.0002747 
-    //intersect_leaf_oldcone t_near_alt      477.8 t_far_alt  1.225e+09 <span class="r">t_near_alt-t_near         17</span> t_far_alt-t_far          0 
-                                 - HIT
-                        q0 norm t (   -0.5457    0.0000    0.8380  460.8000)
-                       q1 ipos sd ( -212.8504    0.0000  114.4940    0.0000)- sd < SD_CUT :    -0.0010
-                 q2 ray_ori t_min (  158.4300    0.0000 -158.4300)
-                  q3 ray_dir gsid (   -0.8057    0.0000    0.5923 C4U (     0    0    0  255 ) )
-
-     o.x            158.4300 v.x             -0.8057 t0(-o.x/v.x)   196.6291 z0             -41.9699
-    2022-09-17 16:05:30.725 INFO  [9037364] [CSGSimtraceSample::intersect@89] CSGSimtraceSample::desc
-       
-   </pre> 
-
-.. class:: small
-
-   * :r:`Catastrophic t_near precision loss : from subtraction of two close values` 
-
-
-
-
-``nmskSolidMaskVirtual_apex_glancers.png``
---------------------------------------------
-
-
-.. raw:: html
-
-   <p style="margin-bottom:15cm;" />
-
-
-.. class:: small
-
-   ``18 rays with unexpected cyl-cone intersects : all extend close to cone apex`` 
-
-
-
-:small:`CSG_CONE reimplemented : avoid apex issue + precision loss`
------------------------------------------------------------------------------------
-
-.. class:: small
-
-    ``CSG_OLDCONE`` 
-
-         makes incorrect assumption that all rays intersect infinite cone
-
-         :r:`NOT TRUE FOR RAYS CLOSE TO APEX`
-
-         https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_leaf_oldcone.h
-
-
-    ``CSG_CONE``
-
-         cap intersects indep of cone intersects + adopt robust_quadratic_roots  
-
-         https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_leaf_newcone.h
-
-
-``nmskSolidMaskVirtual_new_CSG_CONE_avoids_apex_and_precision_loss_issues.png``
----------------------------------------------------------------------------------
-
-
-
-
-.. raw:: html
-
-   <p style="margin-bottom:2cm;" />
-
-
-.. class:: small
-
-    ``New CSG_CONE avoids apex and precision loss issues in nmskSolidMaskVirtual``
-
-
-
-
-``J003_DownXZ1000_before_fixes.png``
---------------------------------------
-
-
-
-``nmsk_nnvt_solids_STUVWXY_single_together_for_overlap.png``
----------------------------------------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:10cm;" />
-
-.. class:: small
-
-   ``NNVT : TWO overlap issues visible, one was fixed by updating to latest junosw, see next page``
-
-
-``nmsk_nnvt_solids_STUVWXY_nnvt_virtualMask_Mask_overlap.png``
----------------------------------------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:10cm;" />
-
-.. class:: small
-
-   ``NNVT : ONE overlap issue visible, MaskTail impinges MaskVirtual``
-
-      ``(using ct.sh : Opticks CSG on CPU)``
-
-
-``nmsk_nnvt_solids_STUVWXY_x4t_reference.png``
---------------------------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:10cm;" />
-
-.. class:: small
-
-   ``NNVT : x4t.sh Geant4 spurious intersects visible (cf prior)``
-
-      ``(using x4t.sh : Geant4 intersects)``
-
-
-``hmsk_hama_solids_STUVWXY_BodySolid_x_MaskTail.png``
--------------------------------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:5cm;" />
-
-.. class:: small
-
-   ``HAMA : ONE overlap issue, BodySolid impinges MaskTail``
-
-      ``(using ct.sh : Opticks CSG on CPU)``
-
-
-
-``hmsk_hama_solids_STUVWXY_fix-bug-33.png``
---------------------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:5cm;" />
-
-.. class:: small
-
-   ``HAMA : following fix of bug 33 using ellipsoid shift``
-
-      ``(using ct.sh : Opticks CSG on CPU)``
-
-
-
-
-
-``hmsk_hama_solids_STUVWXY_zoom_impinge.png``
------------------------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:5cm;" />
-
-.. class:: small
-
-   |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
-   ``HAMA : BodySolid impinges MaskTail (mct.sh)``
-
-
-
-``hmsk_hama_solids_STUVWXY_after_bug_33_fix.png``
---------------------------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:5cm;" />
-
-.. class:: small
-
-   |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
-   ``HAMA : after bug 33 fix``
-
-
-``nmsk_nnvt_solids_STUVWXY_n_issue_mask_virtual_not_mask_solid.png``
-----------------------------------------------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:5cm;" />
-
-.. class:: small
-
-   |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
-   ``NNVT : MaskTail impinges MaskVirtual (mct.sh)``
-
-
-``J004_Hama:0:1000_insitu.png``
-----------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:13cm;" />
-
-.. class:: small
-
-   |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
-   ``J004_Hama:0:1000 g4cx/gxt.sh``
-
-
-
-``J004_Hama:0:1000_insitu_legend.png``
-----------------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:13cm;" />
-
-.. class:: small
-
-   |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
-   ``J004_Hama:0:1000 g4cx/gxt.sh``
-
-
-
-``J004_NNVT:0:1000_insitu_legend.png``
----------------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:13cm;" />
-
-.. class:: small
-
-   |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
-   ``J004_NNVT:0:1000 g4cx/gxt.sh``
-
-
-
-.. comment
-
-
-    ``J004_Hama:0:1000_mask_impinge_body.png``
-    ----------------------------------------------
-
+        **MixMaxRng (G4 1042 random engine)**
+      
+        State of engine : 38*uint32 
 
     .. raw:: html
 
-       <p style="margin-bottom:8cm;" />
+        <pre class="mypretiny">
+        U4Engine::SaveState(    NP* states, int idx );
+        U4Engine::RestoreState( NP* states, int idx );
+        </pre>
+
 
     .. class:: small
 
-       |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
-       ``J004_Hama:0:1000 g4cx/gxt.sh``
-
-
-    ``J004_NNVT:0:1000_body_solid_pmt_solid_coincide.png``
-    -------------------------------------------------------
-
+        **Rerun "big bouncer" photon**
 
     .. raw:: html
 
-       <p style="margin-bottom:8cm;" />
-
-    .. class:: small
-
-       |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
-       ``J004_NNVT:0:1000 g4cx/gxt.sh``
-
-
-
-
-Multi-Layer TMM "FastSim" with Opticks ?
-----------------------------------------------
-
-
-.. sidebar:: :small:`JPMT.h : header-only prop. access`
-
-   .. class:: small 
-
-       Added property file (and directory tree) loading with: 
-
-       * NPFold::LoadProp
-       * NP::LoadFromTxtFile
-       * NP::LoadFromString
-
-       NPFold.h and NP.hh are header-only impls
-
-       :tiny:`export NP_PROP_BASE=$JUNOTOP/data/Simulation/DetSim`
-
-
-.. class:: small
-
-   **TMM "ART" calc : complex math** 
-  
-   * https://github.com/simoncblyth/j/blob/main/Layr/Layr.h
-   * :b:`STATUS : reproduces MultiFilmSimSvc ART results` 
-     
-   **Access to thickness and energy dependent : rindex, kindex**
-
-   *CPU : using NP interpolation* : :b:`STATUS : works fine`
-
-   * https://github.com/simoncblyth/j/blob/main/Layr/JPMT.h
-
-   *GPU : using qprop.h interpolation* : :b:`STATUS : works in isolation`
-
-   * qudarap/QPMT.hh,qpmt.h,qprop.h 
-   * :r:`TODO : integrate with calc, perhaps into QLayr.hh/qlayr.h (?)`   
-
-   **"FastSim" integration of ART calc ?** : :b:`STATUS : Initial development of CPU test machinery`
+        <pre class="mypretiny">
+        vi U4SimulateTest.sh    # SRM_G4STATE_SAVE
+        N=0 ./U4SimulateTest.sh # save g4state into ALL0
+        vi U4SimulateTest.sh    # SRM_G4STATE_RERUN
+        N=1 ./U4SimulateTest.sh # load ALL0, save SEL1
+        </pre>
     
-   *Standalone test of single PMT with junoPMTOpticalModel : integrating Opticks photon history recording*
-
-   * https://github.com/simoncblyth/j/tree/main/PMTFastSim 
-   * https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4PMTFastSimTest.cc
-   * https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4PMTFastSimTest.sh
 
 
-:small:`Layr.h : GPU/CPU header-only re-implementation of MultiFilmSimSvc`
----------------------------------------------------------------------------------------------
+* save g4state before sim each photon 
+* :r:`enables re-simulation of single photons`
+* compare between geometry versions
+* add random "burns" matching consumption
 
-.. sidebar:: :tiny:`junosw/Simulation/SimSvc/MultiFilmSimSvc`  
-
-    .. raw:: html 
-
-        <pre class="mypretiny">
-        epsilon:MultiFilmSimSvc blyth$ find . -type f
-        ./CMakeLists.txt
-        ./python/MultiFilmSimSvc/__init__.py
-        ./MultiFilmSimSvc/MultiFilmModel.h
-        ./src/OpticalSystem.h
-        ./src/Layer.h          
-        ./src/Material.h
-        ./src/Layer.cc   ## Layer, ThickLayer, ThinLayer
-        ./src/Matrix.h
-        ./src/OpticalSystem.cc
-        ./src/MultiFilmModel.cc
-        ./src/Material.cc
-        ./src/Matrix.cc
-        </pre>
+  * :b:`manual fixup, only for debug`
 
 
-.. raw:: html 
+
+
+
+:small:`Compare "big bouncer" position, time between N=0,1 (1)`
+------------------------------------------------------------------
+
+.. raw:: html
 
     <pre class="mypretiny">
-    template&lt;typename T&gt; struct Layr
-    {
-        T  d   ; // <span class="r">thickness : zero means incoherent</span>
-        T  pad ;
+    u4t ; ./U4SimulateTest.sh cf
 
-    &#35;ifdef WITH_THRUST 
-        thrust::complex<T>  n, st, ct, rs, rp, ts, tp ;
-    &#35;else
-        std::complex<T>     n, st, ct, rs, rp, ts, tp ;
-    &#35;endif
-        Matx<T> S, P ;
-    };
+    In [12]: np.c_[ar[:,0],np.arange(len(ar)),br[:,0]]
+    Out[12]: 
+    array([[-113.   ,    0.   ,  200.   ,    0.   ,    0.   , -113.   ,    0.   ,  200.   ,    0.   ],
+           [-113.   ,    0.   ,  170.163,    0.137,    1.   , -113.   ,    0.   ,  170.163,    0.137],
+           [-112.83 ,    0.   ,  164.918,    0.164,    2.   , -112.83 ,    0.   ,  164.917,    0.164],
+           [-112.83 ,    0.   ,  164.917,    0.164,    3.   , -156.577,    0.   , -148.846,    1.22 ],
+           [-135.824,    0.   ,    0.   ,    1.012,    4.   ,  -95.   ,    0.   , -104.211,    1.474],
+           [-156.577,    0.   , -148.846,    1.778,    5.   , -248.807,    0.   ,    7.28 ,    2.108],
+           [ -95.   ,    0.   , -104.211,    2.166,    6.   ,   53.206,    0.   ,  180.727,    3.269],
+           [-238.764,    0.   ,   -0.   ,    3.071,    7.   ,  245.605,    0.   ,  -35.443,    4.235],
+           [-248.807,    0.   ,    7.28 ,    3.112,    8.   ,   95.   ,    0.   ,  -99.428,    4.781],
+           [  53.205,    0.   ,  180.727,    4.274,    9.   ,  177.724,    0.   , -134.574,    5.08 ],
+           [ 214.06 ,    0.   ,    0.   ,    5.507,   10.   ,  141.059,    0.   ,  152.451,    6.046],
+           [ 245.605,    0.   ,  -35.443,    5.749,   11.   , -239.66 ,    0.   ,  -55.195,    7.492],
+           [  95.   ,    0.   ,  -99.428,    6.583,   12.   ,  237.91 ,    0.   ,   54.597,    9.127],
+           [ 177.724,    0.   , -134.574,    7.041,   13.   ,   50.   ,    0.   ,  -63.74 ,    9.867],
+           [ 160.533,    0.   ,    0.   ,    7.732,   14.   ,   58.352,    0.   ,  -69.   ,    9.9  ],
+           [ 141.059,    0.   ,  152.451,    8.245,   15.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [-138.46 ,    0.   ,    0.   ,    9.867,   16.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [-239.66 ,    0.   ,  -55.195,   10.455,   17.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [   0.427,    0.   ,    0.   ,   11.71 ,   18.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [ 237.91 ,    0.   ,   54.596,   12.523,   19.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [   0.   ,    0.   ,    0.   ,    0.   ,   20.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [   0.   ,    0.   ,    0.   ,    0.   ,   21.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [   0.   ,    0.   ,    0.   ,    0.   ,   22.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [   0.   ,    0.   ,    0.   ,    0.   ,   23.   ,    0.   ,    0.   ,    0.   ,    0.   ],
 
-    template &lt;typename T, int N&gt; struct Stack 
-    {
-        Layr&lt;T&gt; ll[N] ; // <span class="r">stack of N layers   </span>
-        Layr&lt;T&gt; comp ;  // <span class="r">composite for the N layers  </span>
-        ART_&lt;T&gt;  art ;  // results eg A,R,T
-
-        Stack(T wl, T minus_cos_theta, const StackSpec&lt;T&gt;& ss); 
-        // <span class="r">all calculations in ctor</span>
-    };
     </pre>
-
+    
 .. class:: small
 
-    https://github.com/simoncblyth/j/blob/main/Layr/Layr.h :b:`Implemented simply : compiles with nvcc/gcc for GPU/CPU`  
+    +----+-----------------+------------------+---------------------------------------+
+    | ar | a.record[PID]   | N=0 current geom | degenerate and fake intersect points  |
+    +----+-----------------+------------------+---------------------------------------+
+    | bb | b.record[PID]   | N=1 natural geom | less points, simpler history          |
+    +----+-----------------+------------------+---------------------------------------+
 
-    * YES : struct, arrays, templates, enum, constexpr   
-    * NO : std::vector std::map std::string std::cout 
-    * NO : class, polymorphism, virtual methods (:r:`not worth expense even when supported`) 
-
-
-
-
-:small:`Complex math on GPU/CPU USING thrust::complex/std::complex`
----------------------------------------------------------------------------------------------
+    :r:`Need point-to-point mapping to compare`
 
 
-.. sidebar:: :small:`Complex math on GPU`
-
-    .. class:: small
-
-        ``std::complex`` 
-             only works on CPU 
-
-        ``thrust::complex`` 
-             works on both GPU and CPU 
-
-        ``cuda::std::complex`` 
-             available from CUDA 11.3(?) 
-
-        * https://github.com/NVIDIA/libcudacxx
-        * https://nvidia.github.io/libcudacxx/releases.html
 
 
-.. raw:: html 
+
+:small:`Compare "big bouncer" position, time between N=0,1 (2)`
+------------------------------------------------------------------
+
+.. raw:: html
 
     <pre class="mypretiny">
+    u4t ; ./U4SimulateTest.sh cf
 
-    template&lt;typename T, int N&gt; 
-    Stack&lt;T,N&gt;::Stack(
-         T wl, 
-         T minus_cos_theta, 
-         const StackSpec&lt;T&gt;& ss )
-    {
-        // minus_cos_theta, aka dot(mom,normal)
-    &#35;ifdef WITH_THRUST
-        using thrust::complex ;
-        using thrust::norm ;
-        using thrust::conj ;
-        using thrust::exp ;
-        using thrust::sqrt ;
-        using thrust::sin ;
-        using thrust::cos ;
-    &#35;else
-        using std::complex ;
-        using std::norm ;
-        using std::conj ;
-        using std::exp ;
-        using std::sqrt ;
-        using std::sin ;
-        using std::cos ;
-    &#35;endif
+    In [2]: b2a  ## point-to-point mapping to skip a fakes  
+    Out[2]: array([ 0,  1,  3,  5,  6,  8,  9, 11, 12, 13, 15, 17, 19])
 
-        // <span class="red"> same complex TMM math works on both GPU and CPU </span>
-
-    }
-    </pre>
-
-   
-
-
-
-:small:`LayrMinimal.cc : Minimal test of Layr.h on CPU`
-----------------------------------------------------------
-
-.. sidebar:: :small:`LayrMinimal output`
-
-    .. raw:: html 
-
-        <pre class="mypretiny">
-        $ name=LayrMinimal 
-        $ gcc $name.cc -std=c++11 -lstdc++ -o /tmp/$name 
-        $ /tmp/$name
-        StackSpec<float>
-        L0 (    1.4820     0.0000 ;     0.0000)
-        L1 (    1.9200     0.0000 ;    36.4900)
-        L2 (    2.4290     1.3660 ;    21.1300)
-        L3 (    1.0000     0.0000 ;     0.0000)
-        ...
-        comp
-        Layr
-          n:(    0.0000     0.0000)s  d:    0.0000
-         st:(    0.0000     0.0000)s ct:(    0.0000     0.0000)s
-         rs:(   -0.0047    -0.2114)s rp:(    0.0047     0.2114)s
-         ts:(    0.0067     0.6972)s tp:(    0.0067     0.6972)s
-        S
-        | (    0.0138    -1.4342)s (    0.1681    -0.8562)s |
-        | (   -0.3032     0.0038)s (   -0.1772     0.4389)s |
-        P
-        | (    0.0138    -1.4342)s (   -0.1681     0.8562)s |
-        | (    0.3032    -0.0038)s (   -0.1772     0.4389)s |
-        ART
-         R_s     0.0447 R_p     0.0447
-         T_s     0.3280 T_p     0.3280
-         A_s     0.6273 A_p     0.6273
-         R       0.0447 T       0.3280 A       0.6273 A_R_T     1.0000
-         wl    440.0000
-         mct    -1.0000
-        </pre>
-     
-
-.. raw:: html 
-
-    <pre class="mypretiny">
-    &#35;include "Layr.h"
-
-    //typedef double T ; 
-    typedef float T ; 
-
-    int main(int argc, char** argv)
-    {
-        T mct = argc > 1 ? std::atof(argv[1]) : -1.f  ;   
-        // minus_cos_theta
-
-        T wl  = argc > 2 ? std::atof(argv[2]) : 440.f ;   
-        // wavelength_nm
-
-        StackSpec&lt;T&gt; spec(StackSpec&lt;T&gt;::EGet()); 
-        // sensitive to L0, L1, L2, L3 envvars 
-
-        Stack&lt;T,4&gt; stack(wl, mct, spec ); 
-        // <span class="r">ART calc done in ctor</span>    
-
-        std::cout << spec << stack ; 
-        return 0 ; 
-    } 
-    </pre>
-
-
-
-
-:small:`LayrTest.{sh,cc,h,cu,py} : AOI scan with float/double on CPU/GPU ...`
-------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Impl: arrays of simple struct`
-
-    .. class:: small
-
-        * :b:`maximize CPU/GPU code sharing`
-        * persist *everything* for every (aoi, wl) into ``.npy``
-
-          * all layers, Fresnel coeff, matrix, ART
-
-        * Python/NumPy cross-comparisons, plots
-        
-        `github.com/simoncblyth/j/blob/main/Layr/LayrTest.cc <https://github.com/simoncblyth/j/blob/main/Layr/LayrTest.cc>`_
-
-.. raw:: html 
-
-    <pre class="mypretiny">
-    epsilon:Layr blyth$ ./LayrTest.sh ana
-    CFLayrTest
-     a :            EGet : scan__EGet__cpu_thr_double 
-     b :            EGet : scan__EGet__cpu_thr_float 
-     c :            EGet : scan__EGet__gpu_thr_double 
-     d :            EGet : scan__EGet__gpu_thr_float 
-     ...
-     m :          R12860 : scan__R12860__cpu_pom_double 
-     n :          R12860 : scan__R12860__cpu_thr_double 
-     o :          R12860 : scan__R12860__cpu_thr_float 
-     p :          R12860 : scan__R12860__gpu_thr_double 
-     q :          R12860 : scan__R12860__gpu_thr_float 
-
-    In [1]: CF(m,q,0.05)
-    Out[1]: 
-    CF(m,q,0.05) : scan__R12860__cpu_pom_double vs scan__R12860__gpu_thr_float 
-           lls :   0.000442 :   0.000442 :  -0.000414
-         comps :   0.000341 :   0.000341 :  -6.17e-05
-          arts :    6.2e-05 :    6.2e-05 :   -6.2e-05
-
-    pmtcat:R12860 tt:5 lt:q : j/Layr/LayrTest scan__R12860__gpu_thr_float ni 900 wl 440 
-    +------------------------------+----------+----------+----------+----------+----------+
-    |        R12860 arts\comps 0.05|     m:cpd|     n:ctd|     o:ctf|     p:gtd|     q:gtf|
-    +==============================+==========+==========+==========+==========+==========+
-    |                         m:cpd|         0| 0.0003325|  0.000301| 0.0003325| 0.0003407|
-    +------------------------------+----------+----------+----------+----------+----------+  <span class="r"> max difference of all param between scans </span>
-    |                         n:ctd| 6.064e-05|         0| 4.829e-05| 7.445e-14| 4.829e-05|
-    +------------------------------+----------+----------+----------+----------+----------+
-    |                         o:ctf| 5.454e-05| 6.101e-06|         0| 4.829e-05| 3.977e-05|
-    +------------------------------+----------+----------+----------+----------+----------+
-    |                         p:gtd| 6.064e-05| 1.321e-14| 6.101e-06|         0| 4.829e-05|
-    +------------------------------+----------+----------+----------+----------+----------+
-    |                         q:gtf| 6.199e-05| 1.523e-06| 7.451e-06| 1.523e-06|         0|
-    +------------------------------+----------+----------+----------+----------+----------+
-
-    In [1]: ARTPlot(m, 0.05)                                                             
+    In [4]: abr = np.c_[ar[b2a,0],br[:len(b2a),0],ar[b2a,0]-br[:len(b2a),0]] ; abr
+    Out[4]: 
+    array([[-113.   ,    0.   ,  200.   ,    0.   , -113.   ,    0.   ,  200.   ,    0.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [-113.   ,    0.   ,  170.163,    0.137, -113.   ,    0.   ,  170.163,    0.137,    0.   ,    0.   ,    0.   ,    0.   ],
+           [-112.83 ,    0.   ,  164.917,    0.164, -112.83 ,    0.   ,  164.917,    0.164,    0.   ,    0.   ,    0.   ,   -0.   ],
+           [-156.577,    0.   , -148.846,    1.778, -156.577,    0.   , -148.846,    1.22 ,   -0.   ,    0.   ,    0.   ,    0.558],
+           [ -95.   ,    0.   , -104.211,    2.166,  -95.   ,    0.   , -104.211,    1.474,    0.   ,    0.   ,    0.   ,    0.692],
+           [-248.807,    0.   ,    7.28 ,    3.112, -248.807,    0.   ,    7.28 ,    2.108,    0.   ,    0.   ,   -0.   ,    1.004],
+           [  53.205,    0.   ,  180.727,    4.274,   53.206,    0.   ,  180.727,    3.269,   -0.   ,    0.   ,    0.   ,    1.004],
+           [ 245.605,    0.   ,  -35.443,    5.749,  245.605,    0.   ,  -35.443,    4.235,    0.   ,    0.   ,    0.   ,    1.514],
+           [  95.   ,    0.   ,  -99.428,    6.583,   95.   ,    0.   ,  -99.428,    4.781,    0.   ,    0.   ,    0.   ,    1.802],
+           [ 177.724,    0.   , -134.574,    7.041,  177.724,    0.   , -134.574,    5.08 ,    0.   ,    0.   ,    0.   ,    1.96 ],
+           [ 141.059,    0.   ,  152.451,    8.245,  141.059,    0.   ,  152.451,    6.046,   -0.   ,    0.   ,    0.   ,    2.199],
+           [-239.66 ,    0.   ,  -55.195,   10.455, -239.66 ,    0.   ,  -55.195,    7.492,    0.   ,    0.   ,    0.   ,    2.963],
+           [ 237.91 ,    0.   ,   54.596,   12.523,  237.91 ,    0.   ,   54.597,    9.127,    0.   ,    0.   ,   -0.   ,    3.397]], dtype=float32)
    </pre>
 
-
-
-:i:`LayrTest_R12860_scan.png`
--------------------------------
-
-:i:`LayrTest_NNVTMCP_scan.png`
--------------------------------
-
-:i:`LayrTest_NNVTMCP_HiQE_scan.png`
--------------------------------------
-
-:i:`LayrTest_EGet_scan.png`
-----------------------------
-
-
-:small:`QPMT.hh/qpmt.h : CPU/GPU -> on device PMT property interpolation`
------------------------------------------------------------------------------------------
-
 .. class:: small
 
-    All ``LayrTest`` use **CPU** interpolated rindex, uploaded to device (OK for testing, not for production) 
+    Positions match closely, some times way off 
 
-    * must minimize GPU<->CPU communication 
-    * :r:`->upload rindex props and do interpolation on device` 
-    * ``QPMT.hh/qpmt.h`` : does this 
 
-    1. uploads rindex, thickness arrays from JPMT.h 
-    2. on device interpolation using QProp.hh/qprop.h 
+:small:`Compare "big bouncer" position, time, dist, speed between N=0,1`
+--------------------------------------------------------------------------
 
-    https://bitbucket.org/simoncblyth/opticks/src/master/qudarap/QPMT.hh
-    
-    https://bitbucket.org/simoncblyth/opticks/src/master/qudarap/tests/QPMTTest.sh
-  
+::
 
+    rvtime_ = lambda r:np.diff(r[:,0,3])
+    rvstep_ = lambda r:np.diff(r[:,0,:3],axis=0 )   
+    rvdist_ = lambda r:np.sqrt(np.sum(rvstep_(r)*rvstep_(r),axis=1))
+    rvspeed_ = lambda r:rvdist_(r)/rvtime_(r)
+
+    In [14]: np.c_[rvtime_(ar[b2a]), rvtime_(br[:len(b2a)]),
+                   rvdist_(ar[b2a]), rvdist_(br[:len(b2a)]),
+                  rvspeed_(ar[b2a]),rvspeed_(br[:len(b2a)])]
  
-
-:i:`gpu_QPMTTest_interpolation.png`
-------------------------------------
-
-
-
-:small:`Standalone test of single PMT with junoPMTOpticalModel`
------------------------------------------------------------------
-
-
-.. sidebar:: :small:`U4PMTFastSimTest.cc`
-
-    .. raw:: html
-
-         <pre class="mypretiny">
-         21 U4PMTFastSimTest::U4PMTFastSimTest()
-         22     :
-         23     phy((G4VUserPhysicsList*)new U4Physics),
-         24     run(InitRunManager(phy)),
-         25     rec(new U4RecorderTest(run))
-         26 {   
-         27     run->BeamOn(U::GetEnvInt("BeamOn",1)); 
-         28 }
-         29 
-         30 int main(int argc, char** argv)
-         31 {
-         32     OPTICKS_LOG(argc, argv); 
-         33 
-         34     SEvt evt ; 
-         35     SEvt::AddTorchGenstep(); 
-         36 
-         37     U4PMTFastSimTest t ;  
-         38 
-         39     return 0 ; 
-         40 }
-         </pre>
-
-
-.. class:: small 
-
-   **j/PMTFastSim**
-
-   * https://github.com/simoncblyth/j/tree/main/PMTFastSim 
-   * gather classes needed, hack them to work standalone 
-   * currently using JPMT.h
-
-   **u4/tests/U4PMTFastSimTest.sh**
-
-   * get PMT+junoPMTOpticalModel from j/PMTFastSim
-   * setup Geant4 using u4/tests/U4RecorderTest.h 
-   * insert Torch gensteps (input photons)
-
-   :r:`TODO:`
-
-   * :r:`adapt U4Recorder to work with FastSim` 
-   * :r:`check photon histories : NumPy analysis/plotting` 
-
-   * https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4PMTFastSimTest.cc
-   * https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4PMTFastSimTest.sh
-
-
-:small:`Standalone test of single PMT with junoPMTOpticalModel Output`
-------------------------------------------------------------------------
-
-.. raw:: html
-
-    <pre class="mypre15">
-
-    epsilon:~ blyth$ cd ~/opticks/u4/tests
-    epsilon:tests blyth$ ./U4PMTFastSimTest.sh 
-    ...
-    2022-11-16 19:13:45.319 INFO  [57385009] [U4Recorder::PostUserTrackingAction@85] 
-    2022-11-16 19:13:45.319 INFO  [57385009] [U4Recorder::PostUserTrackingAction_Optical@173] 
-    2022-11-16 19:13:45.319 INFO  [57385009] [U4Recorder::PreUserTrackingAction@84] 
-    2022-11-16 19:13:45.319 INFO  [57385009] [U4Recorder::PreUserTrackingAction_Optical@126] 
-    2022-11-16 19:13:45.319 INFO  [57385009] [U4Recorder::PreUserTrackingAction_Optical@141]  labelling photon spho (gs:ix:id:gn   0   0    0  0)
-    2022-11-16 19:13:45.319 INFO  [57385009] [U4Recorder::PreUserTrackingAction_Optical@155]  label.id 0
-    junoPMTOpticalModel::ModelTrigger
-    junoPMTOpticalModel::ModelTrigger WRONG VOLUME -> false 
-    2022-11-16 19:13:45.320 INFO  [57385009] [U4Recorder::UserSteppingAction_Optical@232] 
-    2022-11-16 19:13:45.320 INFO  [57385009] [U4Recorder::Check_TrackStatus_Flag@295]  step.tstat fAlive BOUNDARY_TRANSMIT
-    junoPMTOpticalModel::ModelTrigger
-    junoPMTOpticalModel::ModelTrigger ret 1
-    junoPMTOpticalModel::DoIt pmtid 0
-    junoPMTOpticalModel::DoIt dir (0.0000,0.0000,1.0000) norm (0.0131,0.0151,0.9998) _cos_theta1  0.9998 _aoi 1.1446 T 0.4088 R 0.3460 A 0.2452
-    junoPMTOpticalModel::DoIt stack 
-    Stack<double,4>
-    ...
-    comp
-    Layr
-      n:(    0.0000     0.0000)s  d:    0.0000
-     st:(    0.0000     0.0000)s ct:(    0.0000     0.0000)s
-     rs:(   -0.2237    -0.2554)s rp:(    0.2237     0.2554)s
-     ts:(    0.0587     0.7751)s tp:(    0.0587     0.7751)s
-    S
-    | (    0.0972    -1.2828)s (    0.0617    -0.7541)s |
-    | (   -0.3494     0.2621)s (   -0.1667     0.6774)s |
-    P
-    | (    0.0972    -1.2828)s (   -0.0617     0.7541)s |
-    | (    0.3494    -0.2621)s (   -0.1667     0.6774)s |
-    ART_
-     R_s     0.1153 R_p     0.1153
-     T_s     0.4089 T_p     0.4089
-     A_s     0.4759 A_p     0.4759
-     R       0.1153 T       0.4089 A       0.4759 A_R_T     1.0000
-     wl    501.0000
-     mct     0.9998
-
-    2022-11-16 19:13:45.320 INFO  [57385009] [U4Recorder::UserSteppingAction_Optical@232] 
-    </pre>
-
-
-
-:small:`Other Work : More Direct Geometry Translation + Launch Optimization`
--------------------------------------------------------------------------------
-
-.. sidebar:: :small:`PMTSIM_STANDALONE Interface`
-
-    .. class:: small
-
-         Access to JUNO geom from Opticks via ``IGeomManager.h``
-
-         Added imps to:
-
-         * HAMA mask manager
-         * NNVT mask manager   
-
-         :r:`vital for fixing PMT Mask overlaps`
-
-.. class:: small
-
-   **Current Geometry Translation** 
-
-   * Geant4 -(extg4)-> :r:`GGeo` -(CSG_GGeo)-> CSG 
-   * One entire geometry model too many 
-
-   **More Direct Translation** :b:`Huge code reduction is feasible`
-
-   U4Tree.hh/stree.h 
-       minimal approach to geometry factorization 
-
-       * succeeds to factorize geometry 
-       * serialized n-ary tree, retains full structure info in translation 
-       * all transforms match GGeo/GInstancer 
-       * faster+simpler 
-
-   **Optimization of Initialization Time : using log parsing to find issues**
-
-   * https://bitbucket.org/simoncblyth/opticks/src/master/bin/log.py 
-
-   * shaved 21s off init : render/simulate/simtrace full geom all ``< 1s`` 
-
-   **More Detail on other work:** :r:`https://bitbucket.org/simoncblyth/opticks/src/master/notes/progress.rst`
-
-
-
-
-:i:`hmsk_hama_solids_STUVWXY_fix-bug-33.png.2`
-------------------------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:8cm;"/>
-
-.. class:: small
-
-   |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
-   ``Fake Vacuum/Vacuum boundary``
-
-
-.. raw:: html
-
-   <p style="margin-bottom:6.1cm;" />
-
-.. class:: small
-
-   |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp|
-   Is fake really needed ? Can easily anti-select opaque hits ? :r:`Motivation for U4PMTFastSimTest`
-
-
-:small:`Near Coincident Pyrex/Pyrex Boundary`
--------------------------------------------------
-
-.. sidebar:: :small:`1e-3 mm : too big + too small`
-
-     .. class:: small
-
-         * too big : ~16-30x > ARC+PHC ~30-60 nm
-         * too small for reliable float intersect distinction 
-           (at least with GPU fastmath)
-
-         Yaoguang: *1e-3 chosen to make Pyrex absorption negligible in TMM calc*
-
-         Suggestion : make it zero, dont Fake 
- 
-         * use inner Pyrex/Vacuum boundary for FastSim G4Region ?
-         * U4PMTFastSimTest.cc can help to see implications
-           
-
 .. raw:: html
 
     <pre class="mypretiny">
-    m_enable_optical_model == false 
-
-                                 pyrex
-                                 .
-              |                 | |       |           |
-              |                 | |       |           |
-              |                 | |       |           |
-         vac  |     pyrex       | | water |  acrylic  | water 
-              |                 | |       |           |
-              |                 | |       |           |
-              |                 | |       |           | 
-            inner            body pmt         mask 
-
-            -5 mm             0mm +1e-3mm  
-
-
-    m_enable_optical_model == true
-     
-               pyrex 
-               . 
-              | |                 |       |          |
-              | |                 |       |          |
-              | |                 |       |          |
-         vac  | |    pyrex        | water | acrylic  |  water 
-              | |                 |       |          |
-              | |                 |       |          |
-              | |                 |       |          | 
-          inner body             pmt         mask
-            -5 -5+1e-3            +1e-3  
-
+    Out[14]: 
+    array([[  0.137,   0.137,  29.837,  29.837, 218.038, 218.038],  ## Water
+           [  0.027,   0.027,   5.249,   5.249, 196.216, 196.215],  ## Pyrex 
+           [  1.615,   1.057, 316.798, 316.798, <span class="r">196.215</span>, 299.792],  ## Vacuum
+           [  0.388,   0.254,  76.053,  76.053, <span class="r">196.215</span>, 299.792],
+           [  0.946,   0.634, 189.965, 189.965, <span class="b">200.744</span>, 299.792],  ## <span class="b">comb. of Vacuum and Pyrex speeds, split at Fake </span>
+           [  1.162,   1.162, 348.275, 348.275, 299.792, 299.792],
+           [  1.475,   0.965, 289.392, 289.392, <span class="r">196.215</span>, 299.792],
+           [  0.834,   0.546, 163.634, 163.634, <span class="r">196.215</span>, 299.792],
+           [  0.458,   0.3  ,  89.881,  89.881, <span class="r">196.215</span>, 299.792],
+           [  1.204,   0.965, 289.357, 289.357, <span class="b">240.315</span>, 299.792],  ## <span class="b">comb. of Vacuum and Pyrex speeds, split at Fake</span>  
+           [  2.21 ,   1.447, 433.663, 433.663, 196.215, 299.792],
+           [  2.068,   1.635, 490.027, 490.027, 236.919, 299.792]], dtype=float32)
     </pre>
 
+.. class:: small
+
+    +-----+--------------------------------+----------------------------------------------------------+
+    | N=0 | Pyrex speed within PMT Vacuum  | :r:`FastSim->SlowSim transitions miss speed setup ?`     |
+    +-----+--------------------------------+----------------------------------------------------------+
+    | N=1 | Always Vacuum speed in Vacuum  | All standard Geant4 with customized G4OpBoundaryProcess  |
+    +-----+--------------------------------+----------------------------------------------------------+
 
 
 
-Summary
----------
 
-**Many Opticks + JUNO geometry bugs fixed** 
 
-* currently no known geometry bugs : (I did not update recently though) 
 
-**Multi-Layer TTM on GPU** 
 
-ART approaches: 
 
-1. calculation from uploaded props 
-2. lookups from multi-Gigabyte textures  
-
-* calculation more convenient : no large textures, texture preparation step 
-* :r:`TODO: performance comparisons` 
 
 
 
