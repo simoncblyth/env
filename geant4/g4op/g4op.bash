@@ -38,6 +38,88 @@ Geant4 Optical Photon Hypernews
 * http://hypernews.slac.stanford.edu/HyperNews/geant4/get/opticalphotons.html?
 
 
+TIR polarization in G4OpBoundaryProcess Looks like a placeholder
+-------------------------------------------------------------------
+
+
+G4OpBoundaryProcess (and Opticks) special cases it, and changes p.pol rather simply (so simply it looks like a placeholder)::
+
+sysrap/sboundary.h::
+
+    144     EdotN(orient*dot(p.pol, *normal))
+    145 {
+    ...
+    155     p.pol =  normal_incidence
+    156                     ?
+    157                        ( reflect ?  p.pol*(n2>n1? -1.f:1.f) : p.pol )
+    158                     :
+    159                        ( reflect ?
+    160                                     ( tir ?  -p.pol + 2.f*EdotN*orient*(*normal) : RR.x*A_transverse + RR.y*A_parallel )
+    161                                  :
+    162                                     TT.x*A_transverse + TT.y*A_parallel
+    163                        )
+    164                     ;
+        
+
+TIR polarization : p.pol =  -p.pol + 2.f*EdotN*orient*(*normal) : what does that look like
+---------------------------------------------------------------------------------------------
+
+* see sysrap/tests/sboundary_test_critical.sh 
+
+
+      n1
+     ----------------------------+~~~~~~------------------
+      n2 (n2 > n1)       .      /:\
+                               / : \
+                         .    /  :  \
+           .                 /   :   \
+                .        .  /    :    \
+            p.pol    .     /     :     \
+                         ./      :      \
+                         i       n       r
+
+
+What should TIR polarization really be ? Selene Routely : talks about Jones/Mueller/Density approaches 
+-------------------------------------------------------------------------------------------------------
+
+* Looks hairy : so the placeholder is understandable : unless TIR is real important 
+* https://physics.stackexchange.com/questions/92874/how-does-one-calculate-the-polarization-state-of-random-light-after-total-intern
+
+
+Selene Routley : An Expert on Optics in Theory And Practice
+-------------------------------------------------------------
+
+* https://physics.stackexchange.com/questions/92874/how-does-one-calculate-the-polarization-state-of-random-light-after-total-intern
+
+When TIR happens, both linear polarisation components are fully reflected, but the phase change (the Goos-Hänchen shift) is different for the two states. 
+
+* SCB: HMM maybe the Geant4 expression is correct, when not caring about phase diffs 
+
+
+* https://physics.stackexchange.com/users/26076/selene-routley
+* https://physics.stackexchange.com/search?q=user%3A26076+polarization+total+internal+reflection
+* https://physics.stackexchange.com/questions/74046/electric-field-of-unpolarized-light-after-reflect/74074#74074
+
+Selene::
+
+    A simple quantum description is actually conceptually clearer than Born and
+    Wolf's classical one, as long as light states do not become entangled. Each
+    photon can be thought of as a perfectly coherent wave propagating following
+    Maxwell's equations. The Fresnel equations thus apply to each photon as they
+    would to a perfectly coherent wave. For each photon, therefore, you calculate
+    the intensity of reflexion and transmission, and then average this intensity
+    over all photon polarization states - we assume the source is creating "random"
+    pure states. Thus, suppose the Fresnel equations give us complex reflexion
+    co-effcients 𝑅𝑝 and 𝑅𝑠 for 𝑝- and 𝑠-polarized light: the complex amplitude
+    reflexion co-efficient for a general polarization state is then:
+
+
+* https://physics.stackexchange.com/questions/345077/what-causes-the-circular-polarization-of-light-from-outside-snells-window/345084#345084
+
+
+
+
+
 Search : optical photon simulation
 -------------------------------------
 
