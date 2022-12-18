@@ -168,7 +168,7 @@ junoPMTOpticalModel Issues : All from using FastSim
         {
         p.mom = reflect
               ?
-                 p.mom + 2.0f*c1*orient*(*normal)
+                 p.mom + 2.0f*c1*orient*normal
               :
                  eta*(p.mom) + (eta*c1 - c2)*orient*normal
               ;
@@ -229,9 +229,8 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 
 
-:small:`Illustration of Reflect/Refract/TIR Polarization`
-----------------------------------------------------------
-
+:small:`Compare Reflected Polarization Impls for Brewster Angle Incidence`
+---------------------------------------------------------------------------
 
 .. class:: small 
 
@@ -241,29 +240,80 @@ junoPMTOpticalModel Issues : All from using FastSim
 .. image:: sboundary_test/figs/sboundary_test/pvcap/AOI_BREWSTER_linear_polarization_by_reflection.png
     :width: 550px
 
-.. image:: sboundary_test/figs/sboundary_test/pvcap/AOI_CRITICAL_tir_pol.png
+.. image:: sboundary_test/figs/sboundary_test/pvcap/AOI_BREWSTER_reflect_alt_pol.png
     :width: 550px
 
 .. class:: small
 
-    +-----------------------------------------------------------------+---------------------------------------------+
-    |   Reflection at Brewster Angle : Only S-polarized survives      | Total Internal Reflection at Critical Angle |
-    +-----------------------------------------------------------------+---------------------------------------------+
+    +---------------------------------------------------------------------+------------------------------------------------+
+    | G4OpBoundaryProcess/qsim.h/sboundary.h : Only S-polarized survives  | junoPMTOpticalModel::Reflect : very different  |
+    +---------------------------------------------------------------------+------------------------------------------------+
 
     * incident from left (-X), surface normal vertically upwards (+Z), intersection point in middle, 
     * Colored lines represent polarization directions of 128 photons before and after Reflection 
-    * Reflected using ``sboundary.h`` (impl validated against ``G4OpBoundaryProcess``)
+    * Reflected using ``sboundary.h`` (validated against ``G4OpBoundaryProcess``)
+    * Compared with ``sboundary.h:alt_pol`` that duplicates ``junoPMTOpticalModel::Reflect``  
 
 
 AOI_BREWSTER_linear_polarization_by_reflection.png
 ----------------------------------------------------
 
-AOI_CRITICAL_tir_pol.png
----------------------------
+AOI_BREWSTER_reflect_alt_pol.png
+----------------------------------
+
+
+.. comment
+
+    AOI_CRITICAL_tir_pol.png
+    ---------------------------
 
 
 
+:small:`Compare Refracted Polarization Impls for Brewster Angle Incidence`
+--------------------------------------------------------------------------- 
 
+.. class:: small 
+
+   * `opticks/src/master/sysrap/tests/sboundary_test.sh <https://bitbucket.org/simoncblyth/opticks/src/master/sysrap/tests/sboundary_test.sh>`_ : build, run, plot
+
+
+.. image:: sboundary_test/figs/sboundary_test/pvcap/AOI_BREWSTER_brewster_refract.png
+    :width: 550px 
+
+.. image:: sboundary_test/figs/sboundary_test/pvcap/AOI_BREWSTER_brewster_refract_alt_pol.png
+    :width: 550px 
+
+
+.. class:: small
+
+    +-----------------------------------------------------------------+------------------------------------------------------+
+    |  G4OpBoundaryProcess/qsim.h/sboundary.h : partial pol           | junoPMTOpticalModel::Refract : not partially pol     |
+    +-----------------------------------------------------------------+------------------------------------------------------+
+
+    * incident from left (-X), surface normal vertically upwards (+Z), intersection point in middle, 
+    * Colored lines represent polarization directions of 128 photons before and after Refraction
+    * Refracted using ``sboundary.h`` (compared with **alt_pol** that duplicates junoPMTOpticalModel::Refract )
+
+
+
+AOI_BREWSTER_brewster_refract.png
+-------------------------------------
+
+AOI_BREWSTER_brewster_refract_alt_pol.png
+-------------------------------------------
+
+
+:i:`LayrTest_R12860_ARTQspx.png`
+---------------------------------
+
+:i:`LayrTest_R12860_Aspx.png` 
+------------------------------
+
+:i:`LayrTest_R12860_Rspx.png` 
+------------------------------
+
+:i:`LayrTest_R12860_Tspx.png` 
+------------------------------
 
 
 
@@ -382,6 +432,20 @@ hamaLogicalPMTWrapLV_old.png
       NOT YET IMPLEMENTED : SEEMS DOABLE 
 
 
+hamaLogicalPMT_natural.png 
+----------------------------
+
+
+.. comment
+
+    hamaLogicalPMTWrapLV_orig.png
+    --------------------------------
+
+    ``hama_UsePMTOpticalModel=1 ~/opticks/extg4/xxv.sh``
+
+
+
+
 
 hamaLogicalPMT_fake.png
 -------------------------
@@ -405,21 +469,11 @@ hamaLogicalPMT_fake.png
 
 
 
-hamaLogicalPMT_natural.png 
-----------------------------
-
-
-.. comment
-
-    hamaLogicalPMTWrapLV_orig.png
-    --------------------------------
-
-    ``hama_UsePMTOpticalModel=1 ~/opticks/extg4/xxv.sh``
 
 
 
 
-:small:`MultiLayer PMT Optical Model : Split Vacuum -> Contorted ModelTrigger`
+:small:`junoPMTOpticalModel FastSim : Fake Volumes -> Contorted ModelTrigger`
 --------------------------------------------------------------------------------
 
 .. sidebar:: :small:`Current MultiLayer POM`
@@ -499,6 +553,87 @@ hamaLogicalPMT_natural.png
   </pre>
 
 
+:small:`FastSim Big Bouncer : Collect ModelTrigger positions, decisions` 
+---------------------------------------------------------------------------
+
+.. sidebar:: :small:`SFastSim_Debug.hh`
+
+    .. raw:: html
+
+       <pre class="mypretiny">
+        struct SYSRAP_API SFastSim_Debug
+        {   
+            static std::vector&lt;SFastSim_Debug&gt; record ;   
+            static constexpr const char* NAME = "SFastSim_Debug.npy" ; 
+            static constexpr int LIMIT = 100000 ; 
+            static void Save(const char* dir); 
+            void add(); 
+
+            double posx ;  // fs[:,0,:3]
+            double posy ;
+            double posz ;
+            double time ;  // fs[:,0,3]
+
+            double dirx ;  // fs[:,1,:3]
+            double diry ;
+            double dirz ;
+            double dist1 ; // fs[:,1,3]
+
+            double polx ;  // fs[:,2,:3]
+            double poly ;
+            double polz ;
+            double dist2 ; // fs[:,2,3]
+
+            double ModelTrigger; // fs[:,3,0].astype(np.int64)
+            double whereAmI ;    // fs[:,3,1].astype(np.int64)
+            double c ;           // fs[:,3,2]
+            double PhotonId ;    // fs[:,3,3].astype(np.int64)
+       };
+       </pre>
+
+.. raw:: html
+
+   <pre class="mypre12">
+   epsilon:tests blyth$ PID=726 ./U4SimulateTest.sh nana 
+    In [1]: extra.shape
+    Out[1]: (14, 4, 4)
+    In [2]: extra
+    Out[2]: 
+    array([[[-112.83 ,    0.   ,  164.918,    0.164],
+            [   0.032,    0.   ,   -0.999,    0.001],    // dist1:1e-3 mm 
+            [   0.   ,   -1.   ,    0.   ,  165.005],
+            [  <span class="r"> 1.</span>   ,    1.   ,    0.   ,  726.   ]], ##<span class="r"> ModelTrigger:1 </span>
+
+           [[-112.83 ,    0.   ,  164.917,    0.164],
+            [  -0.138,    0.   ,   -0.99 ,  166.512],    // dist1 and dist2 equal
+            [   0.   ,   -1.   ,    0.   ,  166.512],
+            [  <span class="b"> 0.</span>   ,    2.   ,    0.   ,  726.   ]], ##<span class="b"> ModelTrigger:0 </span>
+
+           [[-156.577,    0.   , -148.846,    1.778],
+            [   0.81 ,    0.   ,    0.587,  253.614],
+            [   0.   ,    1.   ,    0.   ,    0.   ],
+            [   0.   ,    1.   ,    0.   ,  726.   ]],
+
+           [[ -95.   ,    0.   , -104.211,    2.166],
+            [  -0.81 ,    0.   ,    0.587,  177.561],
+            [   0.   ,   -1.   ,    0.   ,  169.042],
+            [   0.   ,    1.   ,    0.   ,  726.   ]],
+
+           [[-238.764,    0.   ,   -0.   ,    3.071],
+            [  -0.81 ,    0.   ,    0.587,   12.404],
+            [   0.   ,   -1.   ,    0.   ,   -1.   ],
+            [   1.   ,    2.   ,    0.   ,  726.   ]],
+            ...
+   </pre>
+
+.. class:: small
+
+   *ModelTrigger* "pre-triggering" *dist1* ahead as *DoIt* will shift by **dist1**   
+
+   * :r:`Complication arising from unnatural geometry`
+   * :b:`Workaround G4 FastSim needing Region, not boundary` 
+
+
 
 hamaLogicalPMTWrapLV_ModelTriggerYES.png
 ------------------------------------------
@@ -522,8 +657,26 @@ hamaLogicalPMTWrapLV_ModelTriggerYES.png
 
 
 
+hamaLogicalPMTWrapLV_ModelTriggerNO.png
+------------------------------------------
 
-:small:`MultiLayer PMT Optical Model : Natural Geometry -> Simple ModelTrigger`
+
+.. raw:: html
+
+   <p style="margin-bottom:15.5cm;" />
+
+.. class:: small
+
+   * :b:`blue dots` : ModelTrigger:NO : within FastSim region, but handled by SlowSim
+
+
+
+
+
+
+
+
+:small:`junoPMTOpticalModelSimple : Natural Geometry -> Simple ModelTrigger`
 --------------------------------------------------------------------------------
 
 .. sidebar:: :small:`Simplified MultiLayer POM`
@@ -564,17 +717,20 @@ hamaLogicalPMTWrapLV_ModelTriggerYES.png
 
    <p style="margin-bottom:6cm;" />
    <pre class="mypretiny">
-    G4bool junoPMTOpticalModel::ModelTrigger(const G4FastTrack &fastTrack)
+    G4bool junoPMTOpticalModelSimple::ModelTrigger(
+            const G4FastTrack &fastTrack)
     {
          // <span class="r"> Simple + Cheap due to natural geometry </span>
         return fastTrack.GetPrimaryTrackLocalPosition().z() > 0. ;
     }
    </pre>
         
+.. class:: small
 
+   https://github.com/simoncblyth/j/blob/main/PMTFastSim/junoPMTOpticalModelSimple.cc
+    
 
-
-:small:`MultiLayer PMT Optical Model : Natural Geometry -> Simple DoIt`
+:small:`junoPMTOpticalModelSimple : Natural Geometry -> Simple DoIt`
 --------------------------------------------------------------------------------
 
 .. sidebar:: :small:`Simplified MultiLayer POM`
@@ -614,7 +770,7 @@ hamaLogicalPMTWrapLV_ModelTriggerYES.png
 .. raw:: html
 
    <pre class="mypretiny">
-    void junoPMTOpticalModel::DoIt(const G4FastTrack& fastTrack, 
+    void junoPMTOpticalModelSimple::DoIt(const G4FastTrack& fastTrack, 
           G4FastStep &fastStep)
     {
         G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
@@ -642,14 +798,14 @@ hamaLogicalPMTWrapLV_ModelTriggerYES.png
 
 .. class:: small
 
-   * :r:`Simple : but not workable`
+   * :r:`Simple : BUT NOT WORKABLE`
    * :b:`Cannot stop:` ``G4OpBoundaryProcess`` 
    
      * **REAL REASON FOR THE FAKE VOLUMES** 
+     * Workaround limitations of Geant4 FastSim
 
 
-
-:small:`Pivot to CustomG4OpBoundaryProcess For PMTOpticalModel ?`
+:small:`Pivot to CustomG4OpBoundaryProcess For PMT Optical Model ?`
 -------------------------------------------------------------------
 
 .. sidebar:: :small:`Custom Boundary POM`
@@ -689,15 +845,23 @@ hamaLogicalPMTWrapLV_ModelTriggerYES.png
 
 .. class:: small
 
-   +-----------------+-----------------------+
-   | Current FastSim | 4 Solid, 4 LV, 4 PV   |
-   +-----------------+-----------------------+
-   | Custom Boundary | 2 Solid, 2 LV, 2 PV   | 
-   +-----------------+-----------------------+
-   
+  
+ 
+   * Cannot use natural geometry with FastSim
+
+     * SO: ``CustomG4OpBoundaryProcess``
+
+   * same TMM calc, less code, simpler code
+   * half the geometry objects to model PMT (4->2)
+
+   +----------------------+-----------------------+
+   | Current FastSim POM  | 4 Solid, 4 LV, 4 PV   |
+   +----------------------+-----------------------+
+   | Custom Boundary POM  | 2 Solid, 2 LV, 2 PV   | 
+   +----------------------+-----------------------+
  
 
-:small:`u4/CustomART.h : Included into CustomG4OpBoundaryProcess.cc`
+:small:`u4/CustomART.h : include into CustomG4OpBoundaryProcess.cc`
 -----------------------------------------------------------------------
 
 .. sidebar:: :small:`CustomART<J>::maybe_doIt`
@@ -778,107 +942,12 @@ hamaLogicalPMTWrapLV_ModelTriggerYES.png
 
 
 
-Big Bouncer
----------------
-
-.. sidebar:: :small:`SFastSim_Debug.hh`
-
-    .. raw:: html
-
-       <pre class="mypretiny">
-        struct SYSRAP_API SFastSim_Debug
-        {   
-            static std::vector&lt;SFastSim_Debug&gt; record ;   
-            static constexpr const char* NAME = "SFastSim_Debug.npy" ; 
-            static constexpr int LIMIT = 100000 ; 
-            static void Save(const char* dir); 
-            void add(); 
-
-            double posx ;  // fs[:,0,:3]
-            double posy ;
-            double posz ;
-            double time ;  // fs[:,0,3]
-
-            double dirx ;  // fs[:,1,:3]
-            double diry ;
-            double dirz ;
-            double dist1 ; // fs[:,1,3]
-
-            double polx ;  // fs[:,2,:3]
-            double poly ;
-            double polz ;
-            double dist2 ; // fs[:,2,3]
-
-            double ModelTrigger; // fs[:,3,0].astype(np.int64)
-            double whereAmI ;    // fs[:,3,1].astype(np.int64)
-            double c ;           // fs[:,3,2]
-            double PhotonId ;    // fs[:,3,3].astype(np.int64)
-       };
-       </pre>
+:i:`hamaLogicalPMTWrapLV_full_history.png`
+--------------------------------------------
 
 .. raw:: html
 
-   <pre class="mypre12">
-   epsilon:tests blyth$ PID=726 ./U4PMTFastSimTest.sh nana
-    In [1]: extra.shape
-    Out[1]: (14, 4, 4)
-    In [2]: extra
-    Out[2]: 
-    array([[[-112.83 ,    0.   ,  164.918,    0.164],
-            [   0.032,    0.   ,   -0.999,    0.001],    // dist1:1e-3 mm 
-            [   0.   ,   -1.   ,    0.   ,  165.005],
-            [  <span class="r"> 1.</span>   ,    1.   ,    0.   ,  726.   ]], ##<span class="r"> ModelTrigger:1 </span>
-
-           [[-112.83 ,    0.   ,  164.917,    0.164],
-            [  -0.138,    0.   ,   -0.99 ,  166.512],    // dist1 and dist2 equal
-            [   0.   ,   -1.   ,    0.   ,  166.512],
-            [  <span class="b"> 0.</span>   ,    2.   ,    0.   ,  726.   ]], ##<span class="b"> ModelTrigger:0 </span>
-
-           [[-156.577,    0.   , -148.846,    1.778],
-            [   0.81 ,    0.   ,    0.587,  253.614],
-            [   0.   ,    1.   ,    0.   ,    0.   ],
-            [   0.   ,    1.   ,    0.   ,  726.   ]],
-
-           [[ -95.   ,    0.   , -104.211,    2.166],
-            [  -0.81 ,    0.   ,    0.587,  177.561],
-            [   0.   ,   -1.   ,    0.   ,  169.042],
-            [   0.   ,    1.   ,    0.   ,  726.   ]],
-
-           [[-238.764,    0.   ,   -0.   ,    3.071],
-            [  -0.81 ,    0.   ,    0.587,   12.404],
-            [   0.   ,   -1.   ,    0.   ,   -1.   ],
-            [   1.   ,    2.   ,    0.   ,  726.   ]],
-            ...
-   </pre>
-
-.. class:: small
-
-   *ModelTrigger* "pre-triggering" *dist1* ahead as *DoIt* will shift by **dist1**   
-
-   * :r:`Complication arising from unnatural geometry`
-
-
-
-hamaLogicalPMTWrapLV_ModelTriggerNO.png
-------------------------------------------
-
-
-.. raw:: html
-
-   <p style="margin-bottom:15.5cm;" />
-
-.. class:: small
-
-   * :b:`blue dots` : ModelTrigger:NO : within FastSim region, but handled by SlowSim
-
-
-
-hamaLogicalPMTWrapLV_full_history.png
------------------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:15.5cm;" />
+   <p style="margin-bottom:16.5cm;" />
 
 .. raw:: html
 
@@ -888,12 +957,12 @@ hamaLogicalPMTWrapLV_full_history.png
    </pre>
 
 
-hamaLogicalPMTWrapLV_natural.png
+:i:`hamaLogicalPMTWrapLV_natural.png`
 --------------------------------------
 
 .. raw:: html
 
-   <p style="margin-bottom:15.0cm;" />
+   <p style="margin-bottom:16.5cm;" />
 
 .. raw:: html
 
@@ -902,54 +971,6 @@ hamaLogicalPMTWrapLV_natural.png
    00  01  02  03  04  05  06  07  08  09  10  11  12 <span class="r"> 13  14</span> 
    00  01  03  05  06  08  09  11  12  13  15  17  19  
    </pre>
-
-
-
-
-Rerunning Single Photons
----------------------------
-
-.. sidebar:: :small:`Save/Load g4state into NP array`
-
-    .. class:: small
-
-        :r:`Efficiently save/restore thousands of states` 
-
-    .. class:: small
-
-        **MixMaxRng (G4 1042 random engine)**
-      
-        State of engine : 38*uint32 
-
-    .. raw:: html
-
-        <pre class="mypretiny">
-        U4Engine::SaveState(    NP* states, int idx );
-        U4Engine::RestoreState( NP* states, int idx );
-        </pre>
-
-
-    .. class:: small
-
-        **Rerun "big bouncer" photon**
-
-    .. raw:: html
-
-        <pre class="mypretiny">
-        vi U4SimulateTest.sh    # SRM_G4STATE_SAVE
-        N=0 ./U4SimulateTest.sh # save g4state into ALL0
-        vi U4SimulateTest.sh    # SRM_G4STATE_RERUN
-        N=1 ./U4SimulateTest.sh # load ALL0, save SEL1
-        </pre>
-    
-
-
-* save g4state before sim each photon 
-* :r:`enables re-simulation of single photons`
-* compare between geometry versions
-* add random "burns" matching consumption
-
-  * :b:`manual fixup, only for debug`
 
 
 
@@ -1036,7 +1057,7 @@ Rerunning Single Photons
 
 .. class:: small
 
-    Positions match closely, some times way off 
+    :b:`Positions match closely, some times are way off` 
 
 
 :small:`Compare "big bouncer" position, time, dist, speed between N=0,1`
@@ -1082,6 +1103,54 @@ Rerunning Single Photons
 
 
 
+:small:`Rerunning Single Photons : Very Useful Debug Technique`
+-----------------------------------------------------------------
+
+.. sidebar:: :small:`Save/Load g4state into NP array`
+
+    .. class:: small
+
+        :r:`Efficiently save/restore thousands of states` 
+
+    .. class:: small
+
+        **MixMaxRng (G4 1042 random engine)**
+      
+        State of engine : 38*uint32 
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+        U4Engine::SaveState(    NP* states, int idx );
+        U4Engine::RestoreState( NP* states, int idx );
+        </pre>
+
+
+    .. class:: small
+
+        **Rerun "big bouncer" photon**
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+        vi U4SimulateTest.sh    # SRM_G4STATE_SAVE
+        N=0 ./U4SimulateTest.sh # save g4state into ALL0
+        vi U4SimulateTest.sh    # SRM_G4STATE_RERUN
+        N=1 ./U4SimulateTest.sh # load ALL0, save SEL1
+        </pre>
+    
+
+
+* save g4state before sim each photon 
+* :r:`enables re-simulation of single photons`
+* compare between geometry versions
+* add random "burns" matching consumption
+
+  * :b:`manual fixup, only for debug`
+
+
+
+
 
 
 
@@ -1101,7 +1170,115 @@ Rerunning Single Photons
 
 
 
+junoPMTOpticalModel Issues : All from using FastSim 
+----------------------------------------------------
 
+.. sidebar:: :small:`CustomG4OpBoundaryProcess ?`
+
+    .. class:: small
+
+         * simple 2 volume (Pyrex+Vacuum) geometry 
+         * standard G4OpBoundaryProcess reflect/refract/absorb/TIR 
+         * much less code : reuse of standard Geant4
+         * easier Opticks on GPU : simpler, more standard
+ 
+           * no near-degenerate 1e-3 mm boundaries
+           * allows same geometry on CPU and GPU 
+           * avoid history rewriting for comparisons 
+          
+         **BUT : need to change very nasty Geant4 impl:**
+
+         ``G4OpBoundaryProcess::PostStepDoIt``
+             ugly monolith, rats nest of nested ifs 
+
+         * Unpleasant to get familiar with 
+         * Change palatable, using : ``CustomART.h``
+         * Keep change separated, detailed validation vital 
+                
+
+.. raw:: html
+
+   <p style="margin-bottom:1cm;" />
+
+
+.. class:: small
+
+   1. :r:`Four volume PMT due to FastSim limitation`
+
+      * Two volumes (Pyrex + Vacuum) would be natural 
+
+.. raw:: html
+
+   <p style="margin-bottom:1cm;" />
+
+.. class:: small
+
+   2. Fake volumes yield many fake intersects
+
+      * Pyrex/Pyrex + Vacuum/Vacuum same material fakes
+      * :b:`complicates Geant4 step point history` 
+      * :b:`complicates comparison with Opticks`
+
+.. raw:: html
+
+   <p style="margin-bottom:1cm;" />
+
+.. class:: small
+
+   3. Non-FastSim in PMT propagates at Pyrex (not Vacuum) speed
+
+      * FastSim->SlowSim transition misses speed fixup 
+
+.. raw:: html
+
+   <p style="margin-bottom:1cm;" />
+
+.. class:: small
+
+   4. :r:`reflected + refracted polarization doesnt follow Geant4`
+
+      * should follow G4OpBoundaryProcess, depending on S/P 
+
+.. raw:: html
+
+   <p style="margin-bottom:0.1cm;" />
+
+.. class:: small
+
+   * :b:`All issues stem from using FastSim (designed for regions)`
+ 
+     * :b:`not good fit for 1 boundary (Pyrex/ARC/PHC/Vacuum)`
+
+
+.. comment
+
+    .. class:: small
+
+       6. TODO: look into _qe definition 
+
+          * justification for ``efficiency=_qe/An`` ? 
+
+
+
+
+Next Steps
+----------------------
+
+
+
+**CPU**
+
+* Extend ``JPMT.h`` to access QE + pmtcat using pmtid 
+* Extend to NNVT (currently only HAMA)
+* Compare absorption, efficiency between implementations
+
+
+**GPU**
+
+* Implement CUDA equivalent of CustomART.h 
+* Integrate wih Opticks qudarap/qsim.h 
+
+**More standard approach and simpler geometry makes it easier**   
 
 
 

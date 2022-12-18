@@ -1904,6 +1904,9 @@
     AOI_BREWSTER_linear_polarization_by_reflection.png
     sboundary_test/figs/sboundary_test/pvcap/AOI_BREWSTER_linear_polarization_by_reflection.png 1280px_720px
 
+    AOI_BREWSTER_reflect_alt_pol.png
+    sboundary_test/figs/sboundary_test/pvcap/AOI_BREWSTER_reflect_alt_pol.png 1280px_720px
+
     AOI_CRITICAL_tir_pol.png
     sboundary_test/figs/sboundary_test/pvcap/AOI_CRITICAL_tir_pol.png 1280px_720px
 
@@ -1921,6 +1924,24 @@
 
     hamaLogicalPMT_fake.png
     GEOM/hamaLogicalPMT/U4SimtraceTest/1/figs/U4SimtraceTest/mpcap/hamaLogicalPMT_fake.png 1280px_720px
+    
+    AOI_BREWSTER_brewster_refract.png
+    sboundary_test/figs/sboundary_test/pvcap/AOI_BREWSTER_brewster_refract.png 1280px_720px
+
+    AOI_BREWSTER_brewster_refract_alt_pol.png
+    sboundary_test/figs/sboundary_test/pvcap/AOI_BREWSTER_brewster_refract_alt_pol.png 1280px_720px
+
+    LayrTest_R12860_ARTQspx.png
+    LayrTest/figs/LayrTest/mpcap/LayrTest_R12860_ARTQspx.png 1280px_720px 
+
+    LayrTest_R12860_Aspx.png 
+    LayrTest/figs/LayrTest/mpcap/LayrTest_R12860_Aspx.png 1280px_720px
+
+    LayrTest_R12860_Rspx.png
+    LayrTest/figs/LayrTest/mpcap/LayrTest_R12860_Rspx.png 1280px_720px
+
+    LayrTest_R12860_Tspx.png
+    LayrTest/figs/LayrTest/mpcap/LayrTest_R12860_Tspx.png 1280px_720px
 
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
