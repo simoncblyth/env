@@ -1943,6 +1943,30 @@
     LayrTest_R12860_Tspx.png
     LayrTest/figs/LayrTest/mpcap/LayrTest_R12860_Tspx.png 1280px_720px
 
+    LayrTest_2_ARTQspx_R12860_2layer.png 
+    LayrTest/2/figs/LayrTest/mpcap/LayrTest_2_ARTQspx_R12860_2layer.png 1280px_720px
+
+    LayrTest_2_AQspx_R12860_2layer.png 
+    LayrTest/2/figs/LayrTest/mpcap/LayrTest_2_AQspx_R12860_2layer.png 1280px_720px
+
+    LayrTest_2_Rspx_R12860_2layer.png
+    LayrTest/2/figs/LayrTest/mpcap/LayrTest_2_Rspx_R12860_2layer.png 1280px_720px
+
+    LayrTest_2_Tspx_R12860_2layer.png
+    LayrTest/2/figs/LayrTest/mpcap/LayrTest_2_Tspx_R12860_2layer.png 1280px_720px
+
+    LayrTest_4_ARTQspx_R12860_4layer.png
+    LayrTest/4/figs/LayrTest/mpcap/LayrTest_4_ARTQspx_R12860_4layer.png 1280px_720px
+
+    LayrTest_4_AQspx_R12860_4layer.png
+    LayrTest/4/figs/LayrTest/mpcap/LayrTest_4_AQspx_R12860_4layer.png 1280px_720px
+
+    LayrTest_4_Rspx_R12860_4layer.png
+    LayrTest/4/figs/LayrTest/mpcap/LayrTest_4_Rspx_R12860_4layer.png 1280px_720px
+
+    LayrTest_4_Tspx_R12860_4layer.png
+    LayrTest/4/figs/LayrTest/mpcap/LayrTest_4_Tspx_R12860_4layer.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

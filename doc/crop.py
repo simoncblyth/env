@@ -96,9 +96,52 @@ class SAFARI(object):
     """
     Preview.app cropping tool gives pixel dimensions to use when 
     pulling out manual crops that can be used to set these param 
+
+    Old crop::
+
+          +-----------------------------------------+
+          |                                         |   148
+          +-----------------------------------------+
+          |                                         |
+          |                                         |
+          |                                         |
+          |                                         |
+          |                                         |
+          +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+  
+          +-----------------------------------------+    30
+           
+                                                    -----------
+                                                        178 
+                                                    -----------
+
+    **Issue : Over cropping at top of slides**
+
+    Pixel dimensions::
+
+        Original : 2560x1562
+        Cropped  : 2560x1382    # 180 pixels trimmed, more at top than bottom 
+
+    Examining uncropped using the Preview.app selection tool 
+    suggests that top crop should be 120 (not 148) and there 
+    is no longer a need for a bottom crop. However for the desired 16/9 
+    aspect its better to crop by 122, as shown below::
+
+        In [7]: 2560/(16/9)
+        Out[7]: 1440.0
+
+        In [9]: 2560/(1562-120)
+        Out[9]: 1.7753120665742026
+
+        In [10]: 2560/(1562-121)
+        Out[10]: 1.7765440666204024
+
+        In [11]: 2560/(1562-122)
+        Out[11]: 1.7777777777777777
+
     """
     description = "vertically chop the head by param[0] and tail by param[1]"
-    param = (148, 30 )
+    #param = (148, 30 )
+    param = (122, 0 )
 
 class PYVISTA(object):
     description = "vertically chop the window chrome at the top only"

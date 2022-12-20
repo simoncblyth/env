@@ -217,8 +217,11 @@ Opticks Presentations
  
     WIP : Next Presentation (Date Unknown) 
 
-    * Comparing PMTOpticalModel : geometry + approach
+`env/presentation/opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix.html <env/presentation/opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix.html>`_
 
+    *junoPMTOpticalModel* FastSim issues, and proposed fix using a *CustomG4OpBoundaryProcess* (20 December 2022)
+
+    * fixes would facilitate bringing the TMM functionality to GPU within Opticks
 
 `env/presentation/opticks_20221117_mask_debug_and_tmm.html  <env/presentation/opticks_20221117_mask_debug_and_tmm.html>`_
 

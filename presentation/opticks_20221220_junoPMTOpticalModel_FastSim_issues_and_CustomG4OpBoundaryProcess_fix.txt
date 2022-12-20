@@ -12,43 +12,40 @@
 .. include:: s5_background_image.txt
 
 
-:i:`Opticks+JUNO : junoPMTOpticalModel FastSim issues` 
-========================================================================================
+:i:`Opticks+JUNO : junoPMTOpticalModel FastSim issues and CustomG4OpBoundaryProcess fix` 
+===========================================================================================
 
 .. raw:: html
 
-    <p style="margin-bottom:4cm;" />
     <div class="mytitle">
-    <header>
-    <h1 style="background-color:lightgrey"> 
-        Opticks+JUNO : junoPMTOpticalModel FastSim issues
-        <h2 style="background-color:lightgrey;text-align:center"> Open source, https://bitbucket.org/simoncblyth/opticks </h2>
-    </h1>
-    </header>
+        <header>
+            <h1 style="background-color:lightgrey"> 
+                Opticks + JUNO : junoPMTOpticalModel FastSim issues and proposed fix using a CustomG4OpBoundaryProcess
+                <h2 style="background-color:lightgrey;text-align:center"> Open source, https://bitbucket.org/simoncblyth/opticks </h2>
+            </h1>
+        </header>
     </div>
+    <p style="margin-bottom:52mm;" />
 
-..
+.. class:: large
 
-  *Opticks* replaces *Geant4* optical photon simulation with an **equivalent implementation** 
-  that benefits from state-of-the-art GPU ray tracing from NVIDIA OptiX, which can yield
-  :r:`performance >1000x Geant4`.
+  *junoPMTOpticalModel* CPU tests reveal issues, all from FastSim use:
 
-  All optically relevant aspects of *Geant4* context are translated+copied to GPU:
+  * :r:`over complex PMT geometry and Geant4 step histories`
+  * inconsistent polarization and propagation time within PMT 
 
-  * :b:`geometry :` :r:`solids, structure,` :b:`material+surface properties`
-  * generation : Cerenkov + Scintillation (using **Gensteps** from *Geant4*) 
-  * :b:`propagation : Rayleigh scattering, absorption, reemission, boundary,` :r:`+multi-layer TMM (WIP)`
+  Replacing FastSim use with a *CustomG4OpBoundaryProcess*: 
 
-  :r:`junoPMTOpticalModel : numerous issues, all from use of "FastSim"`
-    
-  * :b:`Same TMM Multi-Layer calc using CustomG4OpBoundaryProcess ?` 
+  * fixes all issues using a more standard approach
+  * :b:`simpler geometry, simpler simulation history, less code` 
+  * would facilitate bringing PMT Optical Model to GPU within Opticks
 
-    * :r:`less code, more correct, more standard`
+    * as more standard : mostly done already
 
 .. raw:: html
 
     <div class="mycredit">
-    <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS  &mdash; 20 Dec 2022 </h2>
+       <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS  &mdash; 20 Dec 2022 </h2>
     </div>
 
 
@@ -254,6 +251,9 @@ junoPMTOpticalModel Issues : All from using FastSim
     * Reflected using ``sboundary.h`` (validated against ``G4OpBoundaryProcess``)
     * Compared with ``sboundary.h:alt_pol`` that duplicates ``junoPMTOpticalModel::Reflect``  
 
+    Brewster (or polarizing) incident angle th1 : ``tan(th1) = n2/n1  ;  th1 + th2 = pi/2``
+
+
 
 AOI_BREWSTER_linear_polarization_by_reflection.png
 ----------------------------------------------------
@@ -303,17 +303,52 @@ AOI_BREWSTER_brewster_refract_alt_pol.png
 -------------------------------------------
 
 
-:i:`LayrTest_R12860_ARTQspx.png`
----------------------------------
+.. comment
 
-:i:`LayrTest_R12860_Aspx.png` 
-------------------------------
+    :i:`LayrTest_R12860_ARTQspx.png`
+    ---------------------------------
 
-:i:`LayrTest_R12860_Rspx.png` 
-------------------------------
+    :i:`LayrTest_R12860_Aspx.png` 
+    ------------------------------
 
-:i:`LayrTest_R12860_Tspx.png` 
-------------------------------
+    :i:`LayrTest_R12860_Rspx.png` 
+    ------------------------------
+
+    :i:`LayrTest_R12860_Tspx.png` 
+    ------------------------------
+
+
+
+:i:`LayrTest_4_ARTQspx_R12860_4layer.png`
+-------------------------------------------
+
+:i:`LayrTest_4_AQspx_R12860_4layer.png`
+-----------------------------------------
+
+:i:`LayrTest_4_Rspx_R12860_4layer.png`
+-----------------------------------------
+
+:i:`LayrTest_4_Tspx_R12860_4layer.png`
+-----------------------------------------
+
+
+
+
+:i:`LayrTest_2_ARTQspx_R12860_2layer.png`
+--------------------------------------------
+
+:i:`LayrTest_2_AQspx_R12860_2layer.png`
+-----------------------------------------
+
+:i:`LayrTest_2_Rspx_R12860_2layer.png`
+-----------------------------------------
+
+:i:`LayrTest_2_Tspx_R12860_2layer.png`
+-----------------------------------------
+
+
+
+
 
 
 

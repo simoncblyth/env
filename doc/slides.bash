@@ -16,6 +16,17 @@ FIXED issue with slides-get-- : slides-crop was using python without PIL
 shift to using ${OPTICKS_PYTHON:-python} to pick the miniconda python 
 
 
+Issue : Over cropping at top of slides
+------------------------------------------
+
+Pixel dimensions::
+
+    Original : 2560x1562
+    Cropped  : 2560x1382    # 180 pixels trimmed, more at top than bottom 
+
+
+
+
 Simplify talk interleaving with p2.sh
 ---------------------------------------
 
@@ -549,20 +560,7 @@ slides-get(){
 
 }
 
-slides-get-gtc(){       slides-get 0 42 ; }
-slides-get-lecospa(){   slides-get 0 57 ; }
-slides-get-jnu-cmake-ctest(){ slides-get 0 5 ; }
-slides-get-llr(){     slides-get 0 32 ; }
-slides-get-psroc(){   slides-get 0 26 ; }
-slides-get-psroc0(){  slides-get 0 0 ; }
-slides-get-jul2017(){ slides-get 0 34 ; }
-slides-get-sdu(){ slides-get 0 64 ; }
-#slides-get-sdu(){ slides-get 0 3 ; }
-slides-get-sep2017wol(){ slides-get 0 47 ; }
-slides-get-dybdb(){ slides-get 0 15 ; }
-slides-get-sjtu(){ slides-get 0 22 ; }
-slides-get-ihep(){ slides-get 0 42 ; }
-slides-get-chep(){ slides-get 0 33 ; }
+slides-get-page-range(){       slides-get 0 42 ; }
 
 slides-get--notes(){ << EON
 
@@ -748,13 +746,34 @@ slides-crop0(){
    echo $msg cropping png
    /opt/local/bin/python $ENV_HOME/bin/crop.py ???.png
 }
+
+slides-crop-()
+{
+   ${OPTICKS_PYTHON:-python} $ENV_HOME/bin/crop.py ???.png
+}
+
 slides-crop(){
    local msg="=== $FUNCNAME "
    slides-cd
    echo $msg cropping png
-   ${OPTICKS_PYTHON:-python} $ENV_HOME/bin/crop.py ???.png
+   slides-crop- 
 }
 
+slides-crop-test-(){
+
+   [ -z "$SLIDES_CROP_TEST" ] && echo $FUNCNAME : expecting SLIDES_CROP_TEST envvar pointing to png slide to be cropped && return 
+   local fold=/tmp/$FUNCNAME
+   mkdir -p $fold
+   cd $fold
+   cp $SLIDES_CROP_TEST .
+   slides-crop-   
+}
+slides-crop-test(){
+
+   export SLIDES_CROP_TEST=/tmp/037.png
+   slides-crop-test-
+
+}
 
 
 
