@@ -15,8 +15,8 @@ presentation-
 
 #default=opticks_20211223_pre_xmas.txt
 #default=opticks_autumn_20211019.txt
-default=opticks_20220115_innovation_in_hep_workshop_hongkong.txt
-#default=$(presentation-iname).txt
+#default=opticks_20220115_innovation_in_hep_workshop_hongkong.txt
+default=$(presentation-iname).txt
 
 txt=${1:-$default}
 
@@ -26,7 +26,8 @@ if [ ! -f "$txt" ]; then
 fi 
 
 
-export PREFIX=https://simoncblyth.bitbucket.io
+#export PREFIX=https://simoncblyth.bitbucket.io
+export PREFIX=""  # have move to using relative urls so html works on three servers unchanged
 
 make_image_urls_list()
 { 

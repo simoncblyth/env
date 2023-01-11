@@ -210,13 +210,16 @@ data preparation for upload to the GPU and analysis of results.
 Opticks Presentations 
 ----------------------
 
+2023
+~~~~~~~~
+
+`env/presentation/opticks_202302XX_JUNO_PMT_Geometry_and_Optical_Model_Progress.html <env/presentation/opticks_202302XX_JUNO_PMT_Geometry_and_Optical_Model_Progress.html>`_
+ 
+    WIP : Opticks + JUNO : PMT Geometry and Optical Model Progress  (?? February 2023)
+
+
 2022
 ~~~~~
-
-`env/presentation/opticks_next.html <env/presentation/opticks_next.html>`_
- 
-    WIP : Next Presentation (Date Unknown) 
-
 `env/presentation/opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix.html <env/presentation/opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix.html>`_
 
     *junoPMTOpticalModel* FastSim issues, and proposed fix using a *CustomG4OpBoundaryProcess* (20 December 2022)

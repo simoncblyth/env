@@ -12,6 +12,14 @@ VIM Tips
 * http://www.astrohandbook.com/ch20/vi_guide.html
 
 
+
+vertical split
+----------------
+
+* ctrl-w v OR :vsplit
+
+
+
 delete a range of lines by line number
 ----------------------------------------
 

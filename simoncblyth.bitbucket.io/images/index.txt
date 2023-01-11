@@ -73,3 +73,50 @@ Feel free to use these images in your presentations, where appropriate give attr
     `JUNO : PMTs and Fasteners <../env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/NNVT:0:1000/cam_0_t0/cxr_view___eye_0,2,-4,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg>`_
 
 
+
+
+
+.. figure:: ../env/presentation/pr/Dr_Simon_C_Blyth_Presenting_Opticks_At_CHEP_2019_To_Plenary_Audience_of_500_0_thumb8.jpg
+
+    `CHEP 2019 Plenary Presentation 0 </env/presentation/pr/Dr_Simon_C_Blyth_Presenting_Opticks_At_CHEP_2019_To_Plenary_Audience_of_500_0.jpg>`_
+
+
+.. figure:: ../env/presentation/pr/Dr_Simon_C_Blyth_Presenting_Opticks_At_CHEP_2019_To_Plenary_Audience_of_500_1_thumb8.jpg
+
+    `CHEP 2019 Plenary Presentation 1 </env/presentation/pr/Dr_Simon_C_Blyth_Presenting_Opticks_At_CHEP_2019_To_Plenary_Audience_of_500_1.jpg>`_
+
+
+How to add image links with thumbnails
+----------------------------------------
+
+::
+
+   presentation-
+   presentation-e     # add meta:thumb annotation string to s5_background_image.txt of images to thumbnail
+
+   cd ~/env/presentation
+
+   ./titles.sh        # creates /tmp/thumb_urls.txt (and several other .txt with urls in them)
+
+   ./thumbnails.sh    # create any new thumbs  
+
+    cd ~/env/simoncblyth.bitbucket.io/images
+
+    vi index.txt    # add figures with thumbs and links to originals 
+    make            # update the index
+
+
+    cd ~/simoncblyth.bitbucket.io
+
+    git s
+    git commit / git push etc..
+    open https://simoncblyth.bitbucket.io/images/index.html
+
+
+    cd ~/env/presentation
+    ./thumbnails.sh 
+
+
+
+
+

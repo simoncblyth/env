@@ -12,7 +12,24 @@
 .. include:: s5_background_image.txt
 
 
-:i:`Opticks+JUNO : junoPMTOpticalModel FastSim issues and CustomG4OpBoundaryProcess fix` 
+.. comment
+
+    Hi Ziyan, 
+
+    I can give a summary of progress over the past 6 months, 
+    that will mostly cover already presented work at JOC + AFG meetings, 
+    with title:
+
+        Opticks + JUNO : PMT Geometry + Optical Model Progress
+
+    That could easily fill 30 min. But as it will be a remote presentation 
+    and hopefully many of the talks will be local I could try squeezing 
+    to 20 min if the schedule needs compression. 
+
+    Simon
+
+
+:i:`Opticks + JUNO : PMT Geometry + Optical Model Progress` 
 ===========================================================================================
 
 .. raw:: html
@@ -20,7 +37,7 @@
     <div class="mytitle">
         <header>
             <h1 style="background-color:lightgrey"> 
-                Opticks + JUNO : junoPMTOpticalModel FastSim issues and proposed fix using a CustomG4OpBoundaryProcess
+                Opticks + JUNO : PMT Geometry + Optical Model Progress
                 <h2 style="background-color:lightgrey;text-align:center"> Open source, https://bitbucket.org/simoncblyth/opticks </h2>
             </h1>
         </header>
@@ -54,11 +71,14 @@
     Focus of last months on simulation reinmplementation, now returning to geometry
 
 
-2019_CHEP_Adelaide_0.jpg
--------------------------
 
-2019_CHEP_Adelaide_1.jpg
--------------------------
+.. comment
+
+    2019_CHEP_Adelaide_0.jpg
+    -------------------------
+
+    2019_CHEP_Adelaide_1.jpg
+    -------------------------
 
 
 

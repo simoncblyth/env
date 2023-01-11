@@ -1967,6 +1967,12 @@
     LayrTest_4_Tspx_R12860_4layer.png
     LayrTest/4/figs/LayrTest/mpcap/LayrTest_4_Tspx_R12860_4layer.png 1280px_720px
 
+    2019_CHEP_Adelaide_0.jpg
+    pr/Dr_Simon_C_Blyth_Presenting_Opticks_At_CHEP_2019_To_Plenary_Audience_of_500_0.jpg 1280px_720px 0px_0px meta:thumb
+
+    2019_CHEP_Adelaide_1.jpg
+    pr/Dr_Simon_C_Blyth_Presenting_Opticks_At_CHEP_2019_To_Plenary_Audience_of_500_1.jpg 1280px_720px 0px_0px meta:thumb
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

@@ -1,14 +1,18 @@
 #!/usr/bin/env python
 """
-thumbnails.py
-===============
+How to add image links with thumbnails
+----------------------------------------
 
 ::
 
-   ./titles.sh        # update the /tmp/thumb_urls.txt according to meta:thumb additions to s5_background_image.txt
+   presentation-
+   presentation-e     # add meta:thumb annotation string to s5_background_image.txt of images to thumbnail
 
-   ./thumbnails.sh   # create any new thumbs  
+   cd ~/env/presentation
 
+   ./titles.sh        # creates /tmp/thumb_urls.txt (and several other .txt with urls in them)
+
+   ./thumbnails.sh    # create any new thumbs  
 
     cd ~/env/simoncblyth.bitbucket.io/images
 
@@ -21,6 +25,10 @@ thumbnails.py
     git s
     git commit / git push etc..
     open https://simoncblyth.bitbucket.io/images/index.html
+
+
+    cd ~/env/presentation
+    ./thumbnails.sh 
 
 
 """
@@ -61,22 +69,27 @@ if __name__ == '__main__':
     figs = []
 
     for i, url in enumerate(urls):
-        assert url.startswith("http")
+        #assert url.startswith("http")
         obj = urlparse(url) 
-        path = obj.path
-
-        stub, ext = os.path.splitext(path)
-        mkr = "_thumb4"   
-        tpath = "%s%s%s" % (stub,mkr, ext) 
+        path = os.path.join("/env/presentation", obj.path )
 
         img = Image.open(path)
         width, height = img.size
+        factor = 4
+        if width > 2560: factor = 8 
+
+        print(" url %s width %d height %d factor %d path %s " % (url, width, height, factor, path))
+
+        stub, ext = os.path.splitext(path)
+        mkr = "_thumb%d" % factor
+        tpath = "%s%s%s" % (stub,mkr, ext) 
+
 
         if not os.path.exists(tpath):
-            tsize = np.array( img.size, dtype=np.int32 )//4 
-            i4 = tuple(tsize) 
+            tsize = np.array( img.size, dtype=np.int32 )//factor
+            ithumb = tuple(tsize) 
             msg = "creating thumbnail"
-            img.thumbnail(i4)
+            img.thumbnail(ithumb)
             img.save(tpath)
         else:
             msg = "thumbnail exists already"
@@ -92,4 +105,5 @@ if __name__ == '__main__':
 
     print("\n\n".join(map(str, figs)))
 
+    print(__doc__)
 
