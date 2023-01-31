@@ -1,10 +1,10 @@
 .. meta::
 
    :title: Opticks + JUNO : PMT Geometry + Optical Model Progress
-   :name: opticks_202302XX_JUNO_PMT_Geometry_and_Optical_Model_Progress.txt
+   :name: opticks_20230206_JUNO_PMT_Geometry_and_Optical_Model_Progress.txt
    :description: (6 Feb 2023)
    :notes: Sim AFG Session 
-   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?conferenceid=1021
+   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?sessionid=2117
    :date: Sim AFS Session starts : Feb 6 19:30(11:30) Beijing(London) 
 
 .. include:: my_s5defs.txt
@@ -1564,23 +1564,121 @@ hamaLogicalPMT_fake.png
 
 
 
-STALL : AWAITING PMTSimParamSvc MERGE
----------------------------------------
-
-https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/66
-
-*PMTSimParamSvc* and *PMTParamSvc* 
-    too many dependencies for convenient use from *CustomG4OpBoundaryProcess*
+STALLED : AWAITING PMTSimParamSvc MERGE
+-----------------------------------------
 
 
-https://code.ihep.ac.cn/JUNO/offline/junosw/-/merge_requests/126
+.. sidebar:: :small:`Why Low Dependency Access ?` 
 
-:r:`STALLED SINCE : Tuesday Jan 17th`
+   .. class:: small
+
+       * CODING BEST PRACTICE
+
+         * :r:`less deps -> more useful code`
+
+       * test separate from the "monolith"
+ 
+         * development cycle < 1 s (vs minutes)
+
+       * serialization with **NP.hh,NPFold.h** 
+
+         * https://github.com/simoncblyth/np/  
+         * :b:`0-deps (hdr-only) -> PMT data anywhere`
 
 
-https://code.ihep.ac.cn/JUNO/offline/junosw/-/tree/blyth-66-low-dependency-PMT-data-access
+       **QE scan over 100 energy points, all PMTs**
+
+       ::
+
+           get_pmtid_qe( pmtid, en );   
+
+       +----------------------------------+--------------+  
+       |  IPMTSimParamSvc                 |   7.70 s     |
+       +----------------------------------+--------------+  
+       |  PMTSimParamData                 |   0.30 s     |
+       +----------------------------------+--------------+
+       |  IPMTSimParamSvc/PMTSimParamData |   26.10      | 
+       +----------------------------------+--------------+
+
+       * :r:`same results, 26x faster` 
 
 
+
+.. class:: small
+
+    :r:`STALLED SINCE : Tuesday Jan 17th`
+
+    +--------------------------------------------------------------------------------------------------------------------------------------------------------+
+    | `junosw/-/merge_requests/126 <https://code.ihep.ac.cn/JUNO/offline/junosw/-/merge_requests/126>`_                                                      |
+    +--------------------------------------------------------------------------------------------------------------------------------------------------------+
+    | `junosw/-/issues/66 <https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/66>`_                                                                        |
+    +--------------------------------------------------------------------------------------------------------------------------------------------------------+
+    | `junosw/-/tree/blyth-66-low-dependency-PMT-data-access <https://code.ihep.ac.cn/JUNO/offline/junosw/-/tree/blyth-66-low-dependency-PMT-data-access>`_  |
+    +--------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+    *PMTSimParamSvc* and *PMTParamSvc* 
+        => too many deps for *CustomG4OpBoundaryProcess*
+
+    * **hdrs for collecting data are irrelevant to access**
+    * -> separate data struct from Svc 
+
+      * header-only impl : *PMTSimParamData* *PMTParamData* 
+      * *_PMTSimParamData* : serialization save/load
+
+    * reference data struct from Svc 
+
+      * minimal changes to Svc, API
+      * consistency guaranteed
+      * no change with diff src : file, DB, Frontier
+
+    * speedup not the motivation, BUT 26x faster by:
+
+      * :r:`calc qe_scale ONCE, not for every photon`
+      * large pmtid std::map -> std::vector
+
+
+
+
+Other Work : Opticks Code Reduction
+----------------------------------------
+
+.. class:: small
+
+    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+    |                 pkg     |         hh/cc/cu/py     |                                                                       Base     |
+    +=========================+=========================+================================================================================+
+    |          :b:`sysrap`    |     :b:`197/78/1/11`    |                                           :b:`basis types, new array NP.hh`    |
+    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+    |        :r:`boostrap`    |       :r:`46/42/0/0`    |                                                            :r:`boost tools`    |
+    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+    |             :r:`npy`    |     :r:`181/165/0/6`    |                                      :r:`geo primitives, old array NPY.hpp`    |
+    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+    |     :r:`optickscore`    |       :r:`70/62/0/1`    |                                           :r:`old core, argument parsing`      |
+    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+    |            :r:`ggeo`    |       :r:`68/65/0/2`    |                         :r:`complete geometry model : no Geant4 dependency`    |
+    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+    |           :r:`extg4`    |       :r:`64/53/0/0`    |                           :r:`Geant4 geometry translation into GGeo model`     |
+    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+    |             :b:`CSG`    |       :b:`45/23/0/9`    |                                                     :b:`New geometry model`    |
+    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+    |        :r:`CSG_GGeo`    |         :r:`3/2/0/0`    |                                      :r:`GGeo to CSG geometry translation`     |
+    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+    |        :r:`GeoChain`    |         :r:`3/2/0/0`    |                                           :r:`geometry translation testing`    |
+    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+    |         :b:`qudarap`    |      :b:`47/27/15/1`    |        :b:`CUDA optical photon simulation, CUDA upload, download, textures`    |
+    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+    |        :b:`CSGOptiX`    |       :b:`20/14/4/2`    |                                         :b:`CSG intersection with OptiX 7`     |
+    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+    |              :b:`u4`    |       :b:`63/20/0/2`    |                  :b:`New Geant4 interface, genstep collection, U4Recorder`     |
+    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+    |           :b:`gdxml`    |         :b:`6/4/0/0`    |                                         :b:`GDML loaded as XML for fixups`     |
+    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+    |            :b:`g4cx`    |         :b:`3/2/0/0`    |                  :b:`New top level package integrating Geant4 and CSGOptiX`    |
+    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+
+    * :b:`blue : active development`,  :r:`red : plan to remove` : not used for simulation, only used for geometry translation
+
+      * progress with U4Material, U4Surface, U4Solid, snd, snode, stree => :b:`close to removing ~7 pkgs, hundreds of files` 
 
 
 
