@@ -1,11 +1,11 @@
 .. meta::
 
-   :title: JUNO+Opticks : PMT Mask Debug and TMM on GPU
-   :name: opticks_20221117_mask_debug_and_tmm.txt
-   :description: (Nov 2022)
-   :notes: JOC Meeting
+   :title: Opticks + JUNO : PMT Geometry + Optical Model Progress
+   :name: opticks_202302XX_JUNO_PMT_Geometry_and_Optical_Model_Progress.txt
+   :description: (6 Feb 2023)
+   :notes: Sim AFG Session 
    :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?conferenceid=1021
-   :date: Nov 17 16:00(08:00) Beijing(London) 
+   :date: Sim AFS Session starts : Feb 6 19:30(11:30) Beijing(London) 
 
 .. include:: my_s5defs.txt
 
@@ -27,6 +27,12 @@
     to 20 min if the schedule needs compression. 
 
     Simon
+
+    Simon Blyth, Opticks + JUNO : PMT Geometry + Optical Model Progress, 15 min
+
+    and the sim afg session will start at 19:30 on Feb. 6
+
+
 
 
 :i:`Opticks + JUNO : PMT Geometry + Optical Model Progress` 
@@ -62,7 +68,7 @@
 .. raw:: html
 
     <div class="mycredit">
-       <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS  &mdash; 20 Dec 2022 </h2>
+       <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS  &mdash; 6 Feb 2023 </h2>
     </div>
 
 
