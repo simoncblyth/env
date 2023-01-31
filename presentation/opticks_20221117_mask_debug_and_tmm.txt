@@ -628,9 +628,6 @@ JUNO + Opticks : Summary of Bugs Fixed
       ``(using ct.sh : Opticks CSG on CPU)``
 
 
-
-
-
 ``hmsk_hama_solids_STUVWXY_zoom_impinge.png``
 -----------------------------------------------
 
