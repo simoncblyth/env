@@ -5,6 +5,7 @@
    :description: (6 Feb 2023)
    :notes: Sim AFG Session 
    :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?sessionid=2117
+   :url2: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?conferenceid=1172
    :date: Sim AFS Session starts : Feb 6 19:30(11:30) Beijing(London) 
 
 .. include:: my_s5defs.txt
@@ -70,32 +71,46 @@
     Focus on PMT Geometry + Optical Model fixes and simplifications
 
 
-For More Detail : see Recent Presentations
----------------------------------------------
 
-**20 December 2022, AFG Sim Meeting**
+JUNO + Opticks : Timeline
+----------------------------
 
-* *junoPMTOpticalModel* FastSim issues + proposed fix : *CustomG4OpBoundaryProcess* 
+.. sidebar:: :small:`Opticks Presentations, Refs`
+
+    * https://simoncblyth.bitbucket.io
+    * https://simoncblyth.github.io
+    * https://juno.ihep.ac.cn/~blyth/
+
 
 .. class:: small
 
-    `env/presentation/opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix.html <env/presentation/opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix.html>`_
+    **2022 Aug-Sep** : Fix geometry issues:
+       * JUNO : PMT, PMTMask overlaps
+       * Opticks : ellipsoid apex hole, thin cylinder, cone apex 
+
+    **2022 Oct-Nov** : *MultiFilmSimSvc* -> GPU/CPU Layr.h
+       **17 November 2022, JOC Meeting**
+         * Show PMT geometry issues and fixes already merged
+         * Describe *MultiFilmSimSvc* -> GPU/CPU Layr.h    
+         * `opticks_20221117_mask_debug_and_tmm.html  <env/presentation/opticks_20221117_mask_debug_and_tmm.html>`_
+
+    **2022 Dec** : Standalone *junoPMTOpticalModel* test:
+       * overcomplex : PMT geometry and Geant4 histories
+       * incorrect PMT reflect/refract polarization, incorrect propagation speed in PMT  
+
+       **20 December 2022, AFG Sim Meeting**
+         * Demonstrate that *CustomG4OpBoundaryProcess* can fix issues
+         * General agreement, **Guofu convinced**
+         * `opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix.html <env/presentation/opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix.html>`_
+
+    **2023 Jan** : Start adapting above for use within "monolith"  
+       * low dependency PMT data access : *PMTSimParamData* *IPMTAccessor* *PMTAccessor* :r:`(MR STALL: Jan 17th)`
+       * more direct geometry translation : *U4Material/U4Surface/U4Solid/stree/snode/snd*
+
+    Details in above presentations + notes : https://bitbucket.org/simoncblyth/opticks/src/master/notes/progress.rst
 
 
-**17 November 2022, JOC Meeting**
 
-* JUNO + Opticks geometry fixes (Mask, MaskTail, MaskVirtual) + TMM on GPU/CPU
-
-.. class:: small
-
-    `env/presentation/opticks_20221117_mask_debug_and_tmm.html  <env/presentation/opticks_20221117_mask_debug_and_tmm.html>`_
-
-
-**Indices of Opticks Presentations and References**
-
-* https://simoncblyth.bitbucket.io
-* https://simoncblyth.github.io
-* https://juno.ihep.ac.cn/~blyth/
 
 
 
@@ -224,50 +239,52 @@ JUNO + Opticks : Summary of Geometry Bug Fixes
 
 
 
-Multi-Layer TMM "FastSim" with Opticks ?
-----------------------------------------------
+.. comment
+
+    Multi-Layer TMM "FastSim" with Opticks ?
+    ----------------------------------------------
 
 
-.. sidebar:: :small:`JPMT.h : header-only prop. access`
+    .. sidebar:: :small:`JPMT.h : header-only prop. access`
 
-   .. class:: small 
+       .. class:: small 
 
-       Added property file (and directory tree) loading with: 
+           Added property file (and directory tree) loading with: 
 
-       * NPFold::LoadProp
-       * NP::LoadFromTxtFile
-       * NP::LoadFromString
+           * NPFold::LoadProp
+           * NP::LoadFromTxtFile
+           * NP::LoadFromString
 
-       NPFold.h and NP.hh are header-only impls
+           NPFold.h and NP.hh are header-only impls
 
-       :tiny:`export NP_PROP_BASE=$JUNOTOP/data/Simulation/DetSim`
+           :tiny:`export NP_PROP_BASE=$JUNOTOP/data/Simulation/DetSim`
 
 
-.. class:: small
+    .. class:: small
 
-   **TMM "ART" calc : complex math** 
-  
-   * https://github.com/simoncblyth/j/blob/main/Layr/Layr.h
-   * :b:`STATUS : reproduces MultiFilmSimSvc ART results` 
-     
-   **Access to thickness and energy dependent : rindex, kindex**
+       **TMM "ART" calc : complex math** 
+      
+       * https://github.com/simoncblyth/j/blob/main/Layr/Layr.h
+       * :b:`STATUS : reproduces MultiFilmSimSvc ART results` 
+         
+       **Access to thickness and energy dependent : rindex, kindex**
 
-   *CPU : using NP interpolation* : :b:`STATUS : works fine`
+       *CPU : using NP interpolation* : :b:`STATUS : works fine`
 
-   * https://github.com/simoncblyth/j/blob/main/Layr/JPMT.h
+       * https://github.com/simoncblyth/j/blob/main/Layr/JPMT.h
 
-   *GPU : using qprop.h interpolation* : :b:`STATUS : works in isolation`
+       *GPU : using qprop.h interpolation* : :b:`STATUS : works in isolation`
 
-   * qudarap/QPMT.hh,qpmt.h,qprop.h 
-   * :r:`TODO : integrate with calc, perhaps into QLayr.hh/qlayr.h (?)`   
+       * qudarap/QPMT.hh,qpmt.h,qprop.h 
+       * :r:`TODO : integrate with calc, perhaps into QLayr.hh/qlayr.h (?)`   
 
-   **"FastSim" integration of ART calc ?** : :b:`STATUS : Initial development of CPU test machinery`
-    
-   *Standalone test of single PMT with junoPMTOpticalModel : integrating Opticks photon history recording*
+       **"FastSim" integration of ART calc ?** : :b:`STATUS : Initial development of CPU test machinery`
+        
+       *Standalone test of few PMT with junoPMTOpticalModel : integrating Opticks photon history recording*
 
-   * https://github.com/simoncblyth/j/tree/main/PMTFastSim 
-   * https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4PMTFastSimTest.cc
-   * https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4PMTFastSimTest.sh
+       * https://github.com/simoncblyth/j/tree/main/PMTFastSim 
+       * https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4SimulateTest.cc
+       * https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4SimulateTest.sh
 
 
 :small:`Layr.h : simple GPU/CPU header-only re-impl. of MultiFilmSimSvc`
@@ -340,7 +357,12 @@ Multi-Layer TMM "FastSim" with Opticks ?
     * NO : std::vector std::map std::string std::cout 
     * NO : class, polymorphism, virtual methods 
 
-      * (:r:`not worth expense even when supported`) 
+       
+.. class:: small
+
+    * :b:`Layr.h reproduces MultiFilmSimSvc ART results` 
+
+      * **works on both CPU and GPU** 
 
 
 
@@ -1255,13 +1277,12 @@ hamaLogicalPMT_fake.png
 :small:`u4/CustomART.h : include into CustomG4OpBoundaryProcess.cc`
 -----------------------------------------------------------------------
 
-.. sidebar:: :small:`CustomART<J>::maybe_doIt`
+.. sidebar:: :small:`CustomART::maybe_doIt`
 
     .. raw:: html
 
       <pre class="mypretiny">
-      template&lt;typename J&gt;
-      inline char CustomART&lt;J&gt;::maybe_doIt(
+      inline char CustomART::maybe_doIt(
            const char* OpticalSurfaceName, 
            const G4Track& aTrack, const G4Step& aStep )
       {   
@@ -1293,15 +1314,15 @@ hamaLogicalPMT_fake.png
 .. raw:: html
 
     <pre class="mypretiny">
-    &#35;include "JPMT.h"
+    &#35;include "IPMTAccessor.h"
     &#35;include "Layr.h"    
     &#35;include "U4Touchable.h"
 
-    template&lt;typename J&gt; struct CustomART
+    struct CustomART
     {
-        J* parameter_accessor ; 
+        <span class="r">const IPMTAccessor* accessor ; // JPMT.h OR PMTAccessor.h </span> 
         
-        <span class="b">G4double& theTransmittance ;
+        <span class="b">G4double& theTransmittance ;   // doIt sets these 
         G4double& theReflectivity ;
         G4double& theEfficiency ;</span> 
         
@@ -1312,6 +1333,7 @@ hamaLogicalPMT_fake.png
         const G4double& thePhotonMomentum ; 
         
         CustomART(
+            const IPMTAccessor* accessor,
             G4double& theTransmittance,
             G4double& theReflectivity,
             G4double& theEfficiency,
@@ -1680,6 +1702,60 @@ Other Work : Opticks Code Reduction
 
       * progress with U4Material, U4Surface, U4Solid, snd, snode, stree => :b:`close to removing ~7 pkgs, hundreds of files` 
 
+
+
+U4Tree.h/stree.h : Direct Geometry Translation
+------------------------------------------------
+
+.. sidebar:: :small:`Current Approach : extg4 translated`
+
+
+    .. class:: small
+
+        +---------------------------+
+        | Geant4 -> *GGeo* -> CSG   |
+        +---------------------------+
+        
+        :r:`Full intermediate GGeo model`
+          * GMaterial/GMaterialLib/GSurfaceLib/...
+          * GMergedMesh/GMesh
+          * nnode/NCSG/...
+          * :b:`(lots of code)` 
+
+
+.. class:: small
+
+
+   +--------------------------------------+
+   | Geant4 -> U4Tree.h/stree.h -> CSG    |
+   +--------------------------------------+
+
+   :b:`Minimal intermediate stree.h model` 
+     * stree.h : n-ary tree of snode volumes
+     * scsg.hh : n-ary trees of snd constituent solids
+     * :r:`(much less code)`
+
+
+   +----------------------------------------+
+   |                                        | 
+   | U4Tree                                 |
+   |     G4VPhysicalVolume -> stree/snode   |
+   |                                        |
+   | U4Solid                                |
+   |     G4VSolid -> scsg/snd               |
+   |                                        |
+   | U4Material                             |
+   |     G4Material -> NPFold/NP            | 
+   |                                        |
+   | U4Surface                              |
+   |     G4LogicalSurface -> NPFold/NP      |
+   |                                        |
+   +----------------------------------------+
+   
+
+   +--------------------------------------------------------------+
+   |  stree/snode/scsg/snd -> CSGFoundry/CSGSolid/CSGPrim/CSGNode | 
+   +--------------------------------------------------------------+
 
 
 
