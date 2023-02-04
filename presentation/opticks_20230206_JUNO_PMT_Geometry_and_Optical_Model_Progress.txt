@@ -19,6 +19,9 @@
 
     and the sim afg session will start at 19:30 on Feb. 6
 
+    Kaiping: 15:00-18:00  20:00-23:00
+    London:  07:00-10:00  12:00-15:00 
+
 
 
 
@@ -46,18 +49,18 @@
   * *junoPMTOpticalModel* standalone tests reveal issues, all from FastSim use:
 
     * :r:`over complex PMT geometry and Geant4 step histories`
-    * :r:`BUGS:` polarization and propagation time within PMT 
+    * :r:`LIVE BUGS:` polarization and propagation time within PMT 
 
-  * FIX : replace *junoPMTOpticalModel* FastSim with *CustomG4OpBoundaryProcess*: 
+  * PLAN FIX : replace *junoPMTOpticalModel* FastSim with *CustomG4OpBoundaryProcess*: 
 
-    * fixes all issues using a **more standard** approach
+    * can fix above issues using a **more standard** approach
     * :b:`simpler geometry, simpler simulation history, less code` 
     * facilitates bringing PMT Optical Model to GPU within Opticks
-    * :r:`PROGRESS STALLED 3 WEEKS : AWAITING PMTSimParamSvc MERGE`
+    * :r:`~3 WEEK STALL FOR PMTSimParamSvc MERGE REQUEST 126`
 
-  * OTHER WORK : **more direct** Opticks geometry translation (:b:`massive code reduction`)
+  * OTHER WORK : **more direct** Opticks geometry translation (:b:`AIM: massive code reduction`)
 
-    * profit from STALL : substantial progress U4Material/U4Surface/U4Solid/stree/snode/snd     
+    * *profit from STALL* : substantial progress U4Material/U4Surface/U4Solid/stree/snode/snd     
 
 .. raw:: html
 
@@ -68,12 +71,13 @@
 
 .. s5_talk:: 
 
-    Focus on PMT Geometry + Optical Model fixes and simplifications
+    This summarizes the primary issues I have been working on, 
+    mainly with the PMT geometry and optical model   
 
 
 
-JUNO + Opticks : Timeline
-----------------------------
+JUNO + Opticks : Timeline, see Refs for more detail
+-----------------------------------------------------
 
 .. sidebar:: :small:`Opticks Presentations, Refs`
 
@@ -84,7 +88,7 @@ JUNO + Opticks : Timeline
 
 .. class:: small
 
-    **2022 Aug-Sep** : Fix geometry issues:
+    **2022 Aug-Sep** : Fixed geometry issues:
        * JUNO : PMT, PMTMask overlaps
        * Opticks : ellipsoid apex hole, thin cylinder, cone apex 
 
@@ -94,23 +98,53 @@ JUNO + Opticks : Timeline
          * Describe *MultiFilmSimSvc* -> GPU/CPU Layr.h    
          * `opticks_20221117_mask_debug_and_tmm.html  <env/presentation/opticks_20221117_mask_debug_and_tmm.html>`_
 
-    **2022 Dec** : Standalone *junoPMTOpticalModel* test:
-       * overcomplex : PMT geometry and Geant4 histories
-       * incorrect PMT reflect/refract polarization, incorrect propagation speed in PMT  
+    **2022 Dec** : Standalone few-PMT *junoPMTOpticalModel* test:
+       * overcomplex : PMT geometry and Geant4 histories (**inappropriate FastSim**)
+       * :r:`incorrect PMT reflect/refract polarization, incorrect propagation speed in PMT`  
 
        **20 December 2022, AFG Sim Meeting**
-         * Demonstrate that *CustomG4OpBoundaryProcess* can fix issues
-         * General agreement, **Guofu convinced**
+         * Demonstrated *CustomG4OpBoundaryProcess* can fix issues (using standalone few-PMT tests)
+         * my impression: General agreement to proceed, **Guofu convinced**
          * `opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix.html <env/presentation/opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix.html>`_
 
-    **2023 Jan** : Start adapting above for use within "monolith"  
-       * low dependency PMT data access : *PMTSimParamData* *IPMTAccessor* *PMTAccessor* :r:`(MR STALL: Jan 17th)`
+    **2023 Jan** : Start adapting above for use within junosw "monolith" by **decoupling PMT data access** 
+       * low dependency PMT data access : *PMTSimParamData* :r:`(MERGE STALLED: Jan 17->Feb 3)`
        * more direct geometry translation : *U4Material/U4Surface/U4Solid/stree/snode/snd*
 
     Details in above presentations + notes : https://bitbucket.org/simoncblyth/opticks/src/master/notes/progress.rst
 
 
+.. s5_talk::
 
+    For more details you can see the prior presentations
+
+    * Updating geometry last summer, gave quite a few geometry issues
+      both in JUNO geometry and the Opticks translation of it. 
+
+    * Once I fixed all those issues, I started investigating bringing multi-layer TMM calcs to GPU. 
+      It was able to reimplement the MultiFilm calculation into a simple header that 
+      can be comiled for both CPU and GPU. 
+
+      * Actually doing the complex TMM math is the easy part. Integrating that is more involved. 
+
+    * I investigated the FastSim based *junoPMTOpticalModel* implementation 
+      using standalone few-PMT tests with full Opticks recording of photon histories. 
+
+    * Those tests revealed incorrect polarizations and propagation times within the PMT, 
+      and also my attempts to use a simpler geometry revealed the reason for the fake PMT volumes.
+
+    * FastSim is designed for parametrizing regions, not single surfaces like the cathode layers.  
+
+    * The fake volumes are hacks that allow FastSim to be used in a situation it was not designed for.  
+
+    * In a meeting just before Christmas I demonstrated that using a *CustomG4OpBoundaryProcess* would
+      allow a more natural geometry to be used, that would also naturally avoid the polarization and 
+      propagation time bugs 
+
+    * As there was general agreement at that meeting I proceeded in january to adapt that standalone
+      development to work within the monolith
+
+    
 
 
 
@@ -171,9 +205,10 @@ JUNO + Opticks : Summary of Geometry Bug Fixes
 
 .. s5_talk::
 
-    Some of the issues are with the source geometry and some are with the translation to the GPU.
-    Getting JUNO onto the GPU in order to benefit from state-of-the-art GPU ray tracing
-    also improves the speed and correctness of the CPU simulation.
+    All of these issues with the PMT geometry and the Opticks translation of it are fixed, 
+    so I will not dwell on them. 
+
+    The next few pages are a quick reminder of a few of those fixes.  
 
 
 
@@ -193,6 +228,13 @@ JUNO + Opticks : Summary of Geometry Bug Fixes
       ``(using ct.sh : Opticks CSG on CPU)``
 
 
+.. s5_talk::
+
+    Overlaps between volumes are a common problem.  
+
+    Opticks 2D slice scans make it easy to find overlaps. 
+
+
 
 ``hmsk_hama_solids_STUVWXY_BodySolid_x_MaskTail.png``
 -------------------------------------------------------
@@ -208,6 +250,9 @@ JUNO + Opticks : Summary of Geometry Bug Fixes
       ``(using ct.sh : Opticks CSG on CPU)``
 
 
+.. s5_talk::
+
+    Another overlap is not so easy to see
 
 
 ``hmsk_hama_solids_STUVWXY_zoom_impinge.png``
@@ -223,6 +268,10 @@ JUNO + Opticks : Summary of Geometry Bug Fixes
    ``HAMA : BodySolid impinges MaskTail (mct.sh)``
 
 
+.. s5_talk::
+
+    Zooming in makes the overlap clear
+
 
 ``hmsk_hama_solids_STUVWXY_after_bug_33_fix.png``
 --------------------------------------------------
@@ -235,6 +284,11 @@ JUNO + Opticks : Summary of Geometry Bug Fixes
 
    |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
    ``HAMA : after bug 33 fix``
+
+
+.. s5_talk::
+
+    The fix is apparent 
 
 
 
@@ -354,9 +408,7 @@ JUNO + Opticks : Summary of Geometry Bug Fixes
 
     * *using thrust::complex/std::complex* 
     * YES : struct, arrays, templates, enum, constexpr   
-    * NO : std::vector std::map std::string std::cout 
-    * NO : class, polymorphism, virtual methods 
-
+    * NO : std::vector std::map std::string std::cout virtual meth. 
        
 .. class:: small
 
@@ -364,6 +416,19 @@ JUNO + Opticks : Summary of Geometry Bug Fixes
 
       * **works on both CPU and GPU** 
 
+    **ALT:** multi-GB "ART" textures (Yuxiang Hu) :r:`TODO: compare`  
+
+
+
+.. s5_talk::
+
+    So after fixing all the geometry bugs I moved on to looking at the new PMT optical model.
+
+    Doing the multi-layer TMM complex math on GPU turns out to be quite straightforward. 
+
+    * previously Yuxiang has looked at doing this 
+
+    It re-implemented MultiFilmSimSvc in a single header that compiles for GPU or CPU
 
 
 :small:`LayrTest.{sh,cc,h,cu,py} : AOI scan with float/double on CPU/GPU ...`
@@ -373,14 +438,11 @@ JUNO + Opticks : Summary of Geometry Bug Fixes
 
     .. class:: small
 
-        * :b:`maximize CPU/GPU code sharing`
-        * persist *everything* for every (aoi, wl) into ``.npy``
+       * persist *everything* for every (aoi, wl) into ``.npy``
 
-          * all layers, Fresnel coeff, matrix, ART
-
-        * Python/NumPy cross-comparisons, plots
+         * all layers, Fresnel coeff, matrix, ART
         
-        `github.com/simoncblyth/j/blob/main/Layr/LayrTest.cc <https://github.com/simoncblyth/j/blob/main/Layr/LayrTest.cc>`_
+       `github.com/simoncblyth/j/blob/main/Layr/LayrTest.cc <https://github.com/simoncblyth/j/blob/main/Layr/LayrTest.cc>`_
 
 .. raw:: html 
 
@@ -424,36 +486,177 @@ JUNO + Opticks : Summary of Geometry Bug Fixes
    </pre>
 
 
+.. s5_talk::
+
+   The implementation is templated on type. So can compare a matrix of different implementations
+   with the standard one. Expected level of agreement is found. 
+
+   The deviations are dominated by glancing incidence where all the matrix values
+   shoot off to infinity.  So can reduce these numbers by cutting out that region. 
+
 
 
 :i:`LayrTest_4_ARTQspx_R12860_4layer.png`
 -------------------------------------------
 
+.. class:: small
+
+    **S/P-Pol : perp./within plane**
+
+
+.. s5_talk::
+
+    This shows the ART: Absorption, Reflection and Transmission as a function of the angle of incidence.
+
+    Below 90 degrees correspond to incidence from Pyrex towards Vacuum and above 90 is the reverse. 
+    At 90 degrees is glancing incidence where all the matrixes blow up and the Reflection goes to 1. 
+
+    One thing to notice with these is how big the difference between S and P polarization is. 
+
+    S polarization is when the 
+
+    +-------+--------------------------------------+  
+    | S-pol | perpendicular to plane of incidence  |
+    +-------+--------------------------------------+
+    | P-pol | within plane of incidence            |
+    +-------+--------------------------------------+
+
+
 :i:`LayrTest_4_AQspx_R12860_4layer.png`
 -----------------------------------------
+
+.. class:: large
+
+    **4 : A**
+
+
+.. s5_talk::
+
+   Restricting to absorption only, its very clear that the polarization 
+   has a huge effect on what happens.  
+
 
 :i:`LayrTest_4_Rspx_R12860_4layer.png`
 -----------------------------------------
 
+**4 : R**
+
+.. s5_talk::
+
+    Reflection goes to one at glancing incidence 
+
+    * huge difference between the S/P-polarizations for backwards photons
+
+
+
 :i:`LayrTest_4_Tspx_R12860_4layer.png`
 -----------------------------------------
 
+**4 : T**
+
+
+.. s5_talk::
+
+    Transmission
+    
 
 
 
-:i:`LayrTest_2_ARTQspx_R12860_2layer.png`
---------------------------------------------
-
-:i:`LayrTest_2_AQspx_R12860_2layer.png`
------------------------------------------
-
-:i:`LayrTest_2_Rspx_R12860_2layer.png`
------------------------------------------
-
-:i:`LayrTest_2_Tspx_R12860_2layer.png`
------------------------------------------
+.. comment
 
 
+    :i:`LayrTest_2_ARTQspx_R12860_2layer.png`
+    --------------------------------------------
+
+    **2 : ART**
+
+
+    .. s5_talk::
+
+        Number of layers is a templated parameter
+
+
+    :i:`LayrTest_2_AQspx_R12860_2layer.png`
+    -----------------------------------------
+
+    **2 : A = zero**
+
+
+    :i:`LayrTest_2_Rspx_R12860_2layer.png`
+    -----------------------------------------
+
+    **2 : R**
+
+
+    :i:`LayrTest_2_Tspx_R12860_2layer.png`
+    -----------------------------------------
+
+    **2 : T**
+
+
+
+
+:small:`Standalone few PMT test of Geometry and Optical Model` 
+---------------------------------------------------------------------------
+
+.. sidebar:: :small:`Standalone Advantages`
+
+    .. class:: small
+
+        * :r:`Fast development cycle`, full control:
+
+        +---------------------------------------------+
+        | https://github.com/simoncblyth/j/           |
+        +---------------------------------------------+
+        | https://bitbucket.org/simoncblyth/opticks/  | 
+        +---------------------------------------------+
+
+        **"CustomG4OpBoundaryProcess" FIX**
+
+        `opticks:u4/CustomART.h <https://bitbucket.org/simoncblyth/opticks/src/master/u4/CustomART.h>`_  
+
+        * ``Layr.h`` for TMM calcs
+        * ``JPMT.h`` parameter access (not PMTSimParamSvc, PMTParamSvc)
+
+        `opticks:u4/InstrumentedG4OpBoundaryProcess.cc <https://bitbucket.org/simoncblyth/opticks/src/master/u4/InstrumentedG4OpBoundaryProcess.cc>`_
+    
+        * Customized with *CustomART.h* 
+
+
+.. class:: small
+
+    **j:PMTFastSim Standalone PMT geometry and Optical Model** 
+
+    * https://github.com/simoncblyth/j/
+    * `j:PMTFastSim/junoPMTOpticalModel.cc <https://github.com/simoncblyth/j/blob/main/PMTFastSim/junoPMTOpticalModel.cc>`_
+    * `j:PMTFastSim/HamamatsuR12860PMTManager.cc <https://github.com/simoncblyth/j/blob/main/PMTFastSim/HamamatsuR12860PMTManager.cc>`_
+    * ``N=0/1`` **natural geometry switch**
+
+    **Optical only Geant4 simulation, with full step point recording**  
+
+    * `opticks:u4/tests/U4SimulateTest.sh <https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4SimulateTest.sh>`_
+
+    ``N=0/1 ./U4SimulateTest.sh``
+
+    **Geant4 Simtrace intersection : 2D geometry plotting**  
+
+    * `opticks:u4/tests/U4SimtraceTest.sh <https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4SimtraceTest.sh>`_
+
+    ``N=0/1 ./U4SimtraceTest.sh``
+
+
+.. s5_talk::
+
+    These links point to code within Opticks and j repositories that 
+    I used to create standalone few-PMT tests of the PMT optical model. 
+
+    The ART calculation using TMM is just complex matrix math.
+    Fairly easy to do on GPU. Integrating that calculation with the 
+    simulation is more involved. 
+
+    To investigate junoPMTOpticalModel i set up a standalone few-PMT test, 
+    using an optical only simulation and integrated that with Opticks full photon 
+    history recording.
 
 
 
@@ -468,7 +671,7 @@ junoPMTOpticalModel Issues : All from using FastSim
 
          * simple 2 volume (Pyrex+Vacuum) geometry 
          * standard G4OpBoundaryProcess reflect/refract/absorb/TIR 
-         * much less code : reuse of standard Geant4
+         * :r:`much less code : reuse of standard Geant4`
          * easier Opticks on GPU : simpler, more standard
  
            * no near-degenerate 1e-3 mm boundaries
@@ -549,6 +752,12 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 
 
+.. s5_talk::
+
+    This summarized the issues found
+
+
+
 :small:`Polarization on FresnelReflection/FresnelRefraction/TotalInternalReflection`
 ---------------------------------------------------------------------------------------
 
@@ -584,15 +793,15 @@ junoPMTOpticalModel Issues : All from using FastSim
                      )
                   :
                      TT.x*A_transverse + TT.y*A_parallel
-                )
+                )             
               ;</span>
-        }
+        }  <span class="r">// IMPL BASED ON + VALIDATED AGAINST GEANT4</span>        
         </pre>
 
 
 .. class:: small
 
-   **Reflect/Refract Polarization** 
+   **Reflect/Refract** : :r:`INCORRECT POLARIZATION` 
 
 .. raw:: html
 
@@ -600,14 +809,14 @@ junoPMTOpticalModel Issues : All from using FastSim
      void junoPMTOpticalModel::Reflect()
      {
          dir -= 2.*(dir*norm)*norm;
-         <span class="r">pol -= 2.*(pol*norm)*norm;</span> <span class="b">// similar to G4 TIR pol, NOT Fresnel </span> 
+         <span class="r">pol -= 2.*(pol*norm)*norm;</span>  
      }
      void junoPMTOpticalModel::Refract()
      {
          dir = (real(_cos_theta4) - 
                 _cos_theta1*_n1/_n4)*norm + (_n1/_n4)*dir;
          <span class="r">pol = (pol-(pol*dir)*dir).unit();</span>
-     }
+     } 
     </pre>
 
 
@@ -628,6 +837,15 @@ junoPMTOpticalModel Issues : All from using FastSim
    *Fresnel Equations, Alexander I. Lvovsky*
      *Encylopedia of Optical Engineering* (**fresnel-eoe.pdf**)
 
+
+.. s5_talk::
+
+    The juno PMT Optical Model is using an incorrect polarization 
+    calculation that does not match what Geant4 uses. 
+
+    I recommend the paper from Lvorsky to derive these expressions
+    as its approach is close to the Geant4 implementation.  
+   
 
 
 :small:`Compare Reflected Polarization Impls for Brewster Angle Incidence`
@@ -657,6 +875,12 @@ junoPMTOpticalModel Issues : All from using FastSim
 
     Brewster (or polarizing) incident angle th1 : ``tan(th1) = n2/n1  ;  th1 + th2 = pi/2``
 
+
+.. s5_talk::
+
+    The different between the polarization that is currently in 
+    use and the correct one can be seen clearly at the Brewster 
+    angle where Geant4 clearly polarizes but the one in use does not. 
 
 
 .. comment
@@ -723,137 +947,30 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 
 
+.. s5_talk::
 
+    Similarly the polarization on refraction is also wrong. 
 
-
-:small:`Standalone few PMT test : N=0/1 junoPMTOpticalModel/CustomART.h` 
----------------------------------------------------------------------------
-
-.. class:: small
-
-    **Minor changes for standalone use** ``#ifdef PMTFASTSIM_STANDALONE``
-
-    * ``JPMT.h`` parameter access (not PMTSimParamSvc, PMTParamSvc)
-    * https://github.com/simoncblyth/j/blob/main/PMTFastSim/junoPMTOpticalModel.cc
-    * https://github.com/simoncblyth/j/blob/main/PMTFastSim/HamamatsuR12860PMTManager.cc
-    * ``N=0/1`` **bool m_natural_geometry = false/true**
-
-    **Optical only Geant4 simulation, with full step point recording**  
-
-    * https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4SimulateTest.sh
-
-    ``N=0/1 ./U4SimulateTest.sh``
-
-    **Geant4 Simtrace intersection : for 2D geometry plotting**  
-
-    * https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4SimtraceTest.sh
-
-    ``N=0/1 ./U4SimtraceTest.sh``
-
-    **CustomART integrated with InstrumentedG4OpBoundaryProcess**
-
-    * https://bitbucket.org/simoncblyth/opticks/src/master/u4/CustomART.h  (uses ``Layr.h`` for TMM calcs)
-    * https://bitbucket.org/simoncblyth/opticks/src/master/u4/InstrumentedG4OpBoundaryProcess.cc
-    
-
-
-
-hamaLogicalPMTWrapLV_old.png
---------------------------------
-
-``hama_UsePMTOpticalModel=0 REVERSE=1 NOGS=1 ~/opticks/extg4/xxv.sh``
-
-.. class:: normal
-
-   |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp|
-   :g:`body` hidden under :r:`pmt` : :huge:`WHY?`
-
-
-
-:small:`Old PMT Optical Model : G4 Optical Surfaces photocathode, mirror`
---------------------------------------------------------------------------- 
-
-.. sidebar:: :small:`Old Surface POM`
-
-    .. raw:: html 
-
-       <pre class="mypretiny">
-         +---------------pmt-Pyrex----------------+
-         | +-------------body-Pyrex-------------+ |
-         | |                                    | |
-         | |                                    | |
-         | |     +------------------------+     | |
-         | |     |                        |     | |
-         | |     |                        |     | |
-         | |     |        inner1-Vacuum   |     |-|
-         | |     |                        |     |1e-3
-         | |     |                        |     | |
-         | |     +~~coincident~face~~~~~~~+     | |
-         | |     |                        |     | |
-         | |     |                        |     | |
-         | |     |        inner2-Vacuum   |     | |
-         | |     |                        |     | |
-         | |     |                        |     | |
-         | |     +------------------------+     | |
-         | |                                    | |
-         | |                                    | |
-         | +------------------------------------+ |
-         +----------------------------------------+
-       </pre>
-
-    .. class:: small
-
-       :r:`photons DO NOT enter PMT vacuum`
-
-
-.. class:: small
-
-   +------------------------+----------------+---------+
-   | m_Photocathode_opsurf  | inner1<->body  | pv<->pv |
-   +------------------------+----------------+---------+
-   | m_mirror_opsurf        | inner2<->body  | pv<->pv |
-   +------------------------+----------------+---------+
-
-   **Why pmt+body Pyrex (1e-3 mm separation) ? GUESS:** 
-
-   1. avoid G4LogicalBorderSurface for every PMT, as 1 body pv
-   2. keeps PMT manager self-contained
-
-   **Why split vacuum inner1/inner2 ?**
-
-   * convenient for photocathode and mirror properties
-   * BUT: fake Vacuum/Vacuum coincident face inside PMT 
-   
-     * :b:`no problem : as no photon enter PMT` 
-
-   **Alternatively : with CustomG4OpBoundaryProcess** 
-
-   * Two Volume PMT : Pyrex + Vacuum (Instead of Four)  
-   * mirror_opsurf G4LogicalSkinSurface 
-
-     * Skin not Border: so only need LV
-
-   * custom override to Photocathode_opsurf for local_z > 0. 
-
-   :b:`Effectively : -Z:mirror +Z:photocathode` 
-      NOT YET IMPLEMENTED : SEEMS DOABLE 
 
 
 hamaLogicalPMT_natural.png 
 ----------------------------
 
 
-.. comment
+.. raw:: html
 
-    hamaLogicalPMTWrapLV_orig.png
-    --------------------------------
-
-    ``hama_UsePMTOpticalModel=1 ~/opticks/extg4/xxv.sh``
+    <p style="margin-bottom:15.6cm;" />
 
 
+.. class:: small
 
+    Natural two volume PMT geometry (:b:`Pyrex` + :c:`Vacuum`) : :r:`NOT COMPATIBLE WITH FastSim`  
+
+
+
+.. s5_talk::
+
+    Natural geometry is not possible when using FastSim
 
 
 hamaLogicalPMT_fake.png
@@ -877,8 +994,13 @@ hamaLogicalPMT_fake.png
    :c:`body` is :r:`FastSim envelope volume`
 
 
+.. s5_talk::
 
-
+    Murky colors are because there are near degenerate Fake volumes on top of each other  
+  
+    * natural geometry is 2 volumes : but here there are 4 volumes
+    * 2 of them are workarounds that allow FastSim to be used
+      
 
 
 
@@ -961,6 +1083,11 @@ hamaLogicalPMT_fake.png
     121 }   
   </pre>
 
+
+
+.. s5_talk::
+
+    The ModelTrigger determines if the FastSim doIt runs or if standard Geant4 runs
 
 
 .. comment
@@ -1143,6 +1270,13 @@ hamaLogicalPMT_fake.png
    https://github.com/simoncblyth/j/blob/main/PMTFastSim/junoPMTOpticalModelSimple.cc
     
 
+.. s5_talk::
+
+    I tried to get FastSim to work with a natural geometry 
+
+    * ModelTrigger is much simpler when can trigger on where the photon is, not were its going next 
+
+
 :small:`junoPMTOpticalModelSimple : Natural Geometry -> Simple DoIt`
 --------------------------------------------------------------------------------
 
@@ -1218,8 +1352,13 @@ hamaLogicalPMT_fake.png
      * Workaround limitations of Geant4 FastSim
 
 
+.. s5_talk::
+
+    doIt also simple : BUT NOT WORKABLE : AS CANNOT STOP boundary process
+
+
 :small:`Pivot to CustomG4OpBoundaryProcess For PMT Optical Model ?`
--------------------------------------------------------------------
+---------------------------------------------------------------------
 
 .. sidebar:: :small:`Custom Boundary POM`
 
@@ -1257,14 +1396,18 @@ hamaLogicalPMT_fake.png
        * ``!(local_z>0)`` : standard *mirror_opsurf*
 
 .. class:: small
-
-  
  
    * Cannot use natural geometry with FastSim
 
      * SO: ``CustomG4OpBoundaryProcess``
 
-   * same TMM calc, less code, simpler code
+   **Custom Boundary Process : Advantages**
+
+   * standard Geant4 polarization, propagation
+   * less code, simpler code
+   * natural geometry, avoiding fakes
+   * simpler Geant4 step history (no fakes)
+   * same geometry on GPU+CPU, easier Opticks validation  
    * half the geometry objects to model PMT (4->2)
 
    +----------------------+-----------------------+
@@ -1272,6 +1415,23 @@ hamaLogicalPMT_fake.png
    +----------------------+-----------------------+
    | Custom Boundary POM  | 2 Solid, 2 LV, 2 PV   | 
    +----------------------+-----------------------+
+
+   **Disadvantages**
+
+   * maintain custom G4OpBoundaryProcess  
+   * updating Geant4 may require care (depending on changes)  
+
+.. raw:: html 
+
+    <p style="margin-bottom:1cm;" />
+
+.. class:: large
+
+   :r:`Advantages far outweigh disadvantages`
+
+.. s5_talk::
+
+    
  
 
 :small:`u4/CustomART.h : include into CustomG4OpBoundaryProcess.cc`
@@ -1308,7 +1468,7 @@ hamaLogicalPMT_fake.png
       *doIt* TMM calc, runs only for:
  
       * OpticalSurfaceName[0]=='@' && zlocal > 0  
-      * -> Transmittance, Reflectivity, Efficiency  
+      * -> :b:`Transmittance, Reflectivity, Efficiency`  
       * TMM calc using Layr.h multi-layer Stack 
 
 .. raw:: html
@@ -1354,6 +1514,10 @@ hamaLogicalPMT_fake.png
    `opticks/src/master/u4/CustomART.h <https://bitbucket.org/simoncblyth/opticks/src/master/u4/CustomART.h>`_
 
 
+.. s5_talk::
+
+   Customize boundary procerss with CustomART.h separate header for easier management  
+
 
 :i:`hamaLogicalPMTWrapLV_full_history.png`
 --------------------------------------------
@@ -1365,9 +1529,15 @@ hamaLogicalPMT_fake.png
 .. raw:: html
 
    <pre class="mypre20">   
-   TO  BT  BT  BT  BT  SR  SR  BT  BR  BR  BT  SR  SR  SR  BT  BR  BT  SR  BT  SA    
+   TO  BT  BT  BT  BT  SR  SR  BT  BR  BR  BT  SR  SR  SR  BT  BR  BT  SR  BT  SA   <span class="b"> Lots of fakes </span> 
    00  01 [02] 03 [04] 05  06 [07] 08  09 [10] 11  12  13 [14] 15 [16] 17 [18] 19   (7/20 Fake)
    </pre>
+
+
+.. s5_talk::
+
+   Lots of fake step points in current Geant4 histories. The ones across the 
+   middle are obvoious. There are others much closer together that are difficult to see. 
 
 
 :i:`hamaLogicalPMTWrapLV_natural.png`
@@ -1381,12 +1551,14 @@ hamaLogicalPMT_fake.png
 
    <pre class="mypre20">   
    TO  BT  BT  SR  SR  BR  BR  SR  SR  SR  BR  SR  BR <span class="r"> SR  SA</span>
-   00  01  02  03  04  05  06  07  08  09  10  11  12 <span class="r"> 13  14</span> 
+   00  01  02  03  04  05  06  07  08  09  10  11  12 <span class="r"> 13  14</span>      <span class="b"> Simpler history, no fakes </span> 
    00  01  03  05  06  08  09  11  12  13  15  17  19  
    </pre>
 
 
+.. s5_talk::
 
+    No fakes 
 
 
 :small:`Compare "big bouncer" position, time between N=0,1 (1)`
@@ -1437,7 +1609,9 @@ hamaLogicalPMT_fake.png
     :r:`Need point-to-point mapping to compare`
 
 
+.. s5_talk::
 
+    This is comparing positions and times with the un-natural and natural geometry 
 
 
 :small:`Compare "big bouncer" position, time between N=0,1 (2)`
@@ -1471,6 +1645,10 @@ hamaLogicalPMT_fake.png
 .. class:: small
 
     :b:`Positions match closely, some times are way off` 
+
+.. s5_talk::
+
+    After doing point to point mapping to skip the fakes can see that the positions closely match, but the times are ns off. 
 
 
 :small:`Compare "big bouncer" position, time, dist, speed between N=0,1`
@@ -1513,6 +1691,13 @@ hamaLogicalPMT_fake.png
     | N=1 | Always Vacuum speed in Vacuum  | All standard Geant4 with customized G4OpBoundaryProcess  |
     +-----+--------------------------------+----------------------------------------------------------+
 
+
+.. s5_talk::
+ 
+   Calculating the speed for each step you can see that the un-natural geometry 
+   also has un-natural propagation times with photons travelling at Pyrex speed 
+   within the lower hemisphere of the PMT. The natural geometry is using standard 
+   Geant4 giving the expected vacuum speed with the PMT vacuum.  
 
 
 
@@ -1573,8 +1758,17 @@ hamaLogicalPMT_fake.png
 :i:`hamaLogicalPMT_two_pmt_geom.png`
 --------------------------------------
 
+.. s5_talk::
+
+    Two PMT test.  Unnatural geometry on left, natural on right. 
+
+
 :i:`hamaLogicalPMT_two_pmt_cf.png`
 ------------------------------------
+
+.. s5_talk::
+
+    The difference between the unnatural and natural histories is clear 
 
 
 .. comment
@@ -1586,8 +1780,8 @@ hamaLogicalPMT_fake.png
 
 
 
-STALLED : AWAITING PMTSimParamSvc MERGE
------------------------------------------
+Low dependency access to PMT data :r:`(26x faster)`
+----------------------------------------------------
 
 
 .. sidebar:: :small:`Why Low Dependency Access ?` 
@@ -1600,7 +1794,7 @@ STALLED : AWAITING PMTSimParamSvc MERGE
 
        * test separate from the "monolith"
  
-         * development cycle < 1 s (vs minutes)
+         * :r:`development cycle < 1 s (vs minutes)`
 
        * serialization with **NP.hh,NPFold.h** 
 
@@ -1622,16 +1816,14 @@ STALLED : AWAITING PMTSimParamSvc MERGE
        |  IPMTSimParamSvc/PMTSimParamData |   26.10      | 
        +----------------------------------+--------------+
 
-       * :r:`same results, 26x faster` 
+       * :r:`exactly same results, 26x faster` 
 
 
 
 .. class:: small
 
-    :r:`STALLED SINCE : Tuesday Jan 17th`
-
     +--------------------------------------------------------------------------------------------------------------------------------------------------------+
-    | `junosw/-/merge_requests/126 <https://code.ihep.ac.cn/JUNO/offline/junosw/-/merge_requests/126>`_                                                      |
+    | `junosw/-/merge_requests/126 <https://code.ihep.ac.cn/JUNO/offline/junosw/-/merge_requests/126>`_   :r:`MERGED AFTER ~3 WEEKS`                         |
     +--------------------------------------------------------------------------------------------------------------------------------------------------------+
     | `junosw/-/issues/66 <https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/66>`_                                                                        |
     +--------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -1659,48 +1851,53 @@ STALLED : AWAITING PMTSimParamSvc MERGE
       * large pmtid std::map -> std::vector
 
 
+.. s5_talk::
+
+   First step is to improve access to PMT data for use from the custom boundary process   
 
 
-Other Work : Opticks Code Reduction
-----------------------------------------
+.. comment
 
-.. class:: small
+    Other Work : Opticks Code Reduction
+    ----------------------------------------
 
-    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
-    |                 pkg     |         hh/cc/cu/py     |                                                                       Base     |
-    +=========================+=========================+================================================================================+
-    |          :b:`sysrap`    |     :b:`197/78/1/11`    |                                           :b:`basis types, new array NP.hh`    |
-    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
-    |        :r:`boostrap`    |       :r:`46/42/0/0`    |                                                            :r:`boost tools`    |
-    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
-    |             :r:`npy`    |     :r:`181/165/0/6`    |                                      :r:`geo primitives, old array NPY.hpp`    |
-    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
-    |     :r:`optickscore`    |       :r:`70/62/0/1`    |                                           :r:`old core, argument parsing`      |
-    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
-    |            :r:`ggeo`    |       :r:`68/65/0/2`    |                         :r:`complete geometry model : no Geant4 dependency`    |
-    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
-    |           :r:`extg4`    |       :r:`64/53/0/0`    |                           :r:`Geant4 geometry translation into GGeo model`     |
-    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
-    |             :b:`CSG`    |       :b:`45/23/0/9`    |                                                     :b:`New geometry model`    |
-    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
-    |        :r:`CSG_GGeo`    |         :r:`3/2/0/0`    |                                      :r:`GGeo to CSG geometry translation`     |
-    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
-    |        :r:`GeoChain`    |         :r:`3/2/0/0`    |                                           :r:`geometry translation testing`    |
-    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
-    |         :b:`qudarap`    |      :b:`47/27/15/1`    |        :b:`CUDA optical photon simulation, CUDA upload, download, textures`    |
-    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
-    |        :b:`CSGOptiX`    |       :b:`20/14/4/2`    |                                         :b:`CSG intersection with OptiX 7`     |
-    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
-    |              :b:`u4`    |       :b:`63/20/0/2`    |                  :b:`New Geant4 interface, genstep collection, U4Recorder`     |
-    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
-    |           :b:`gdxml`    |         :b:`6/4/0/0`    |                                         :b:`GDML loaded as XML for fixups`     |
-    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
-    |            :b:`g4cx`    |         :b:`3/2/0/0`    |                  :b:`New top level package integrating Geant4 and CSGOptiX`    |
-    +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+    .. class:: small
 
-    * :b:`blue : active development`,  :r:`red : plan to remove` : not used for simulation, only used for geometry translation
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |                 pkg     |         hh/cc/cu/py     |                                                                       Base     |
+        +=========================+=========================+================================================================================+
+        |          :b:`sysrap`    |     :b:`197/78/1/11`    |                                           :b:`basis types, new array NP.hh`    |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |        :r:`boostrap`    |       :r:`46/42/0/0`    |                                                            :r:`boost tools`    |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |             :r:`npy`    |     :r:`181/165/0/6`    |                                      :r:`geo primitives, old array NPY.hpp`    |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |     :r:`optickscore`    |       :r:`70/62/0/1`    |                                           :r:`old core, argument parsing`      |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |            :r:`ggeo`    |       :r:`68/65/0/2`    |                         :r:`complete geometry model : no Geant4 dependency`    |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |           :r:`extg4`    |       :r:`64/53/0/0`    |                           :r:`Geant4 geometry translation into GGeo model`     |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |             :b:`CSG`    |       :b:`45/23/0/9`    |                                                     :b:`New geometry model`    |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |        :r:`CSG_GGeo`    |         :r:`3/2/0/0`    |                                      :r:`GGeo to CSG geometry translation`     |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |        :r:`GeoChain`    |         :r:`3/2/0/0`    |                                           :r:`geometry translation testing`    |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |         :b:`qudarap`    |      :b:`47/27/15/1`    |        :b:`CUDA optical photon simulation, CUDA upload, download, textures`    |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |        :b:`CSGOptiX`    |       :b:`20/14/4/2`    |                                         :b:`CSG intersection with OptiX 7`     |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |              :b:`u4`    |       :b:`63/20/0/2`    |                  :b:`New Geant4 interface, genstep collection, U4Recorder`     |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |           :b:`gdxml`    |         :b:`6/4/0/0`    |                                         :b:`GDML loaded as XML for fixups`     |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |            :b:`g4cx`    |         :b:`3/2/0/0`    |                  :b:`New top level package integrating Geant4 and CSGOptiX`    |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
 
-      * progress with U4Material, U4Surface, U4Solid, snd, snode, stree => :b:`close to removing ~7 pkgs, hundreds of files` 
+        * :b:`blue : active development`,  :r:`red : plan to remove` : not used for simulation, only used for geometry translation
+
+          * progress with U4Material, U4Surface, U4Solid, snd, snode, stree => :b:`close to removing ~7 pkgs, hundreds of files` 
 
 
 
@@ -1721,6 +1918,15 @@ U4Tree.h/stree.h : Direct Geometry Translation
           * GMergedMesh/GMesh
           * nnode/NCSG/...
           * :b:`(lots of code)` 
+
+
+
+.. sidebar:: :small:`DRASTIC CODE REDUCTION NEAR`
+
+    .. class:: small
+
+        * ~6 pkgs, literally hundreds of classes/structs
+
 
 
 .. class:: small
@@ -1758,25 +1964,37 @@ U4Tree.h/stree.h : Direct Geometry Translation
    +--------------------------------------------------------------+
 
 
+.. s5_talk::
 
-Next Steps
-----------------------
-
-
-
-**CPU**
-
-* Extend ``JPMT.h`` to access QE + pmtcat using pmtid 
-* Extend to NNVT (currently only HAMA)
-* Compare absorption, efficiency between implementations
+    Profited from the stall to work on direct geometry translation
 
 
-**GPU**
+:small:`Next Steps : Custom Boundary + Natural Geometry Branch`
+-------------------------------------------------------------------------------
 
-* Implement CUDA equivalent of CustomART.h 
-* Integrate wih Opticks qudarap/qsim.h 
+**junosw : Natural PMT Geometry Branch**
 
-**More standard approach and simpler geometry makes it easier**   
+* almost all standalone tested already, need to bring into junosw monolith
+* need switch : FastSim/standard-Sim, natural geometry, custom boundary
+
++------------------------------+---------------------------------------------+
+| Primary                      |   Support                                   |
++==============================+=============================================+
+| *CustomG4OpBoundaryProcess*  |  *PMTSimParamData* (merged in MR 126)       |
+| *CustomART.h*                |  *PMTAccessor/IPMTAccessor* (j/Layr)        | 
+| *Layr.h*                     |  *HamamatsuR12860PMTManager*                |
+|                              |  *NNVTMCPPMTManager*                        |
++------------------------------+---------------------------------------------+
 
 
+**Opticks : Custom boundary equivalent**
+
+* *PMTSimParamData* *PMTAccessor* -> GPU 
+* natural geometry => easier to validate (no fakes)
+* standard propagation + polarization => easier (already implemented qudarap/qsim.h ) 
+
+
+.. s5_talk::
+
+    Next steps 
 
