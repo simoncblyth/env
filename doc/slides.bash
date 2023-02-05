@@ -32,18 +32,6 @@ Simplify talk interleaving with p2.sh
 
 * running p2.sh avoids the need to manually change presentation-iname to _TALK 
 
-~/env/presentation/p2.sh::
-
-    #!/bin/bash -l 
-
-    name=opticks_jan2021_juno_sim_review
-
-    export INAME=$name
-    presentation-
-    INAME=${name} presentation--
-    INAME=${name}_TALK presentation--
-
-
 Running this opens two web pages in Safari, without and with the s5_talk slides.
 
 * use this whilst improving the TALK annotations
@@ -56,23 +44,23 @@ How to interleave presentation slides with s5_talk notes
    with notes for each and every slide 
 
 2. after the presentation is completed and normal PDF made using "slides-get--"
-   edit the presentation-iname to have "_TALK" appended eg::
+   use ./p2.sh generate the interleaved html.  Rerun p2.sh whilst 
+   thinking about what you are going to say and editing the annotations.  
 
-      presentation-iname(){ echo ${INAME:-opticks_jul2020_juno_TALK} ; }
-     
-3. rerun "presentation--" and check the notes pages are as intended
+   * see p2.sh for some tips on handling too much annotation with "SMALL"
 
-   * CAUTION : do not edit the derived _TALK file in which the contents    
+     * also find ways to say things in fewer words, and defer details 
+       to other slides
+
+   * CAUTION : do not edit the derived _TALK .rst file in which the contents    
      of s5_talk directives become separate pages, instead edit the 
      content of the s5_talk directives in the non-_TALK file
 
-   * note that must defer switching to iname with _TALK until when 
-     wish to create slides as need to generate the _TALK from the original 
-     after updating s5_talk directives
+4. Once have finalized the annotations, rerun "slides-get--" capture and pdf creation 
+   with iname temporarily with _TALK appended that will get  
+   exactly twice the number of pages compared to the un-annotated slides
 
-
-4. rerun the capture and pdf creation with exactly twice the number of 
-   pages compared to the un-annotated slides
+   * TODO: avoid the need to temporarily change the iname 
 
 5. to convert the PDF to a two-up form for looking at while 
    giving the presentation.
@@ -585,7 +573,8 @@ slides-dupe-cover(){
 
 slides--s(){  SMRY=1        slides-get-- $* ; }
 slides--st(){ TALK=1 SMRY=1 slides-get-- $* ; }
-slides--t(){  TALK=1        slides-get-- $* ; slides-dupe-cover ; }
+slides--td(){  TALK=1        slides-get-- $* ; slides-dupe-cover ; }
+slides--t(){  TALK=1        slides-get-- $* ; }
 slides--(){                 slides-get-- $* ; }
 
 

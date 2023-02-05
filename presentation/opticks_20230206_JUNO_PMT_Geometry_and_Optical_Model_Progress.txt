@@ -56,11 +56,10 @@
     * can fix above issues using a **more standard** approach
     * :b:`simpler geometry, simpler simulation history, less code` 
     * facilitates bringing PMT Optical Model to GPU within Opticks
-    * :r:`~3 WEEK STALL FOR PMTSimParamSvc MERGE REQUEST 126`
 
   * OTHER WORK : **more direct** Opticks geometry translation (:b:`AIM: massive code reduction`)
 
-    * *profit from STALL* : substantial progress U4Material/U4Surface/U4Solid/stree/snode/snd     
+    * substantial progress U4Material/U4Surface/U4Solid/stree/snode/snd     
 
 .. raw:: html
 
@@ -71,8 +70,8 @@
 
 .. s5_talk:: 
 
-    This summarizes the primary issues I have been working on, 
-    mainly with the PMT geometry and optical model   
+    This summarizes the primary issues I will present, 
+    mainly with the PMT geometry and optical model.   
 
 
 
@@ -100,29 +99,53 @@ JUNO + Opticks : Timeline, see Refs for more detail
 
     **2022 Dec** : Standalone few-PMT *junoPMTOpticalModel* test:
        * overcomplex : PMT geometry and Geant4 histories (**inappropriate FastSim**)
-       * :r:`incorrect PMT reflect/refract polarization, incorrect propagation speed in PMT`  
+       * :r:`LIVE BUGS : incorrect PMT reflect/refract polarization, incorrect propagation speed in PMT`  
 
        **20 December 2022, AFG Sim Meeting**
          * Demonstrated *CustomG4OpBoundaryProcess* can fix issues (using standalone few-PMT tests)
-         * my impression: General agreement to proceed, **Guofu convinced**
+         * my impression: General agreement to proceed with fix, **Guofu convinced**
          * `opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix.html <env/presentation/opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix.html>`_
 
     **2023 Jan** : Start adapting above for use within junosw "monolith" by **decoupling PMT data access** 
        * low dependency PMT data access : *PMTSimParamData* :r:`(MERGE STALLED: Jan 17->Feb 3)`
-       * more direct geometry translation : *U4Material/U4Surface/U4Solid/stree/snode/snd*
+       * OTHER WORK : more direct geometry translation : *U4Material/U4Surface/U4Solid/stree/snode/snd*
 
     Details in above presentations + notes : https://bitbucket.org/simoncblyth/opticks/src/master/notes/progress.rst
 
 
 .. s5_talk::
 
+    After geometry fixes I investigated the PMT optical model.
+
+    * re-implemented multi-layer TMM calculation in single GPU/CPU header
+
+    * then I looked into the FastSim based implmentation of the PMT optical model
+      using standalone few-PMT tests
+
+    * I found overcomplex PMT geometry and incorrect polarization and propagation 
+      time inside the PMT 
+
+    * I reported these issues in a meeting just before Christmas and
+      also reported a proposed fix for them all using a *CustomG4OpBoundaryProcess*
+   
+    * There was general agreement to proceed with this fix
+
+    * In january I started on bringing my fix into the monolith by decoupling 
+      access to PMT data
+
+    
+.. comment
+
+    SMALL
     For more details you can see the prior presentations
 
-    * Updating geometry last summer, gave quite a few geometry issues
-      both in JUNO geometry and the Opticks translation of it. 
+    * Last summer I found and fixed quite a few geometry issues
+      in the PMT and mask geometry and the Opticks translation of it. 
 
-    * Once I fixed all those issues, I started investigating bringing multi-layer TMM calcs to GPU. 
-      It was able to reimplement the MultiFilm calculation into a simple header that 
+    * Then I looked into the PMT optical model, starting with the 
+      transfer-matrix-method calculation.
+
+      * reimplement the MultiFilm calculation into a simple header that 
       can be comiled for both CPU and GPU. 
 
       * Actually doing the complex TMM math is the easy part. Integrating that is more involved. 
@@ -232,7 +255,8 @@ JUNO + Opticks : Summary of Geometry Bug Fixes
 
     Overlaps between volumes are a common problem.  
 
-    Opticks 2D slice scans make it easy to find overlaps. 
+    Opticks 2D "simtrace" slice scans make it easy to find and fix overlaps
+    because you can very clearly see the problem.
 
 
 
@@ -252,7 +276,7 @@ JUNO + Opticks : Summary of Geometry Bug Fixes
 
 .. s5_talk::
 
-    Another overlap is not so easy to see
+    Another overlap
 
 
 ``hmsk_hama_solids_STUVWXY_zoom_impinge.png``
@@ -422,13 +446,15 @@ JUNO + Opticks : Summary of Geometry Bug Fixes
 
 .. s5_talk::
 
-    So after fixing all the geometry bugs I moved on to looking at the new PMT optical model.
+    After geometry fixes I took a looking at the PMT optical model.
 
     Doing the multi-layer TMM complex math on GPU turns out to be quite straightforward. 
 
-    * previously Yuxiang has looked at doing this 
-
     It re-implemented MultiFilmSimSvc in a single header that compiles for GPU or CPU
+
+    The alternative approach looked into by Yuxiang is to create large multi-GB textures
+    on CPU and upload them to GPU.    Need to compare performance, however doing the 
+    calculation is a lot more convenient. 
 
 
 :small:`LayrTest.{sh,cc,h,cu,py} : AOI scan with float/double on CPU/GPU ...`
@@ -503,12 +529,21 @@ JUNO + Opticks : Summary of Geometry Bug Fixes
 
     **S/P-Pol : perp./within plane**
 
+.. raw:: html
+
+    <p style="margin-bottom:15.9cm;" />
+   
+.. class:: large
+
+    S/P Polarization : has huge effect on A,R,T in both directions : **AOI > 90 is reversed stack**  
+
+
 
 .. s5_talk::
 
     This shows the ART: Absorption, Reflection and Transmission as a function of the angle of incidence.
 
-    Below 90 degrees correspond to incidence from Pyrex towards Vacuum and above 90 is the reverse. 
+    Below 90 degrees correspond to incidence from Pyrex towards Vacuum and above 90 is with reversed stack. 
     At 90 degrees is glancing incidence where all the matrixes blow up and the Reflection goes to 1. 
 
     One thing to notice with these is how big the difference between S and P polarization is. 
@@ -529,17 +564,38 @@ JUNO + Opticks : Summary of Geometry Bug Fixes
 
     **4 : A**
 
+.. raw:: html
+
+    <p style="margin-bottom:15.5cm;" />
+   
+.. class:: large
+
+    Absorption : large S/P-polarization difference in both directions
+
+
+
 
 .. s5_talk::
 
    Restricting to absorption only, its very clear that the polarization 
-   has a huge effect on what happens.  
+   has a huge effect on what happens.
 
 
 :i:`LayrTest_4_Rspx_R12860_4layer.png`
 -----------------------------------------
 
 **4 : R**
+
+
+.. raw:: html
+
+    <p style="margin-bottom:15.5cm;" />
+   
+.. class:: large
+
+    Only reflection at glancing incidence (90 deg) : large S/P-pol. difference for Vacuum->Pyrex
+
+
 
 .. s5_talk::
 
@@ -553,6 +609,15 @@ JUNO + Opticks : Summary of Geometry Bug Fixes
 -----------------------------------------
 
 **4 : T**
+
+.. raw:: html
+
+    <p style="margin-bottom:15.5cm;" />
+   
+.. class:: large
+
+    Pyrex->Vacuum : Above critical angle : no transmission, only reflect or absorb 
+
 
 
 .. s5_talk::
@@ -647,17 +712,15 @@ JUNO + Opticks : Summary of Geometry Bug Fixes
 
 .. s5_talk::
 
+    The ART calculation using TMM is just complex matrix math.
+    Fairly easy to do on GPU. Integrating that calculation with the 
+    simulation is more difficult.
+
     These links point to code within Opticks and j repositories that 
     I used to create standalone few-PMT tests of the PMT optical model. 
 
-    The ART calculation using TMM is just complex matrix math.
-    Fairly easy to do on GPU. Integrating that calculation with the 
-    simulation is more involved. 
-
-    To investigate junoPMTOpticalModel i set up a standalone few-PMT test, 
-    using an optical only simulation and integrated that with Opticks full photon 
-    history recording.
-
+    The test uses an optical only simulation and is integrated 
+    with Opticks full photon recording. 
 
 
 
@@ -754,7 +817,7 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 .. s5_talk::
 
-    This summarized the issues found
+    This summarizes the issues I found
 
 
 
@@ -840,11 +903,14 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 .. s5_talk::
 
-    The juno PMT Optical Model is using an incorrect polarization 
-    calculation that does not match what Geant4 uses. 
+    junoPMTOpticalModel is using an incorrect polarization calculation.
 
-    I recommend the paper from Lvorsky to derive these expressions
-    as its approach is close to the Geant4 implementation.  
+    * it does not match what Geant4 uses. 
+
+    The actual polarization on reflection/refraction calculation is shown on the right. 
+    That implementation is based on Geant4 and has been validated against Geant4. 
+   
+
    
 
 
@@ -962,9 +1028,9 @@ hamaLogicalPMT_natural.png
     <p style="margin-bottom:15.6cm;" />
 
 
-.. class:: small
+.. class:: large
 
-    Natural two volume PMT geometry (:b:`Pyrex` + :c:`Vacuum`) : :r:`NOT COMPATIBLE WITH FastSim`  
+    Natural 2-volume PMT (:b:`Pyrex` + :c:`Vacuum`) : :r:`NOT COMPATIBLE WITH FastSim`  
 
 
 
@@ -994,13 +1060,23 @@ hamaLogicalPMT_fake.png
    :c:`body` is :r:`FastSim envelope volume`
 
 
+.. raw:: html
+
+    <p style="margin-bottom:10cm;" />
+
+
+.. class:: large
+
+    CURRENT : **Unnatural** 4-volume PMT (Pyrex+Pyrex+Vacuum+Vacuum) => :r:`Half Fake`
+
+
+
 .. s5_talk::
 
     Murky colors are because there are near degenerate Fake volumes on top of each other  
   
     * natural geometry is 2 volumes : but here there are 4 volumes
     * 2 of them are workarounds that allow FastSim to be used
-      
 
 
 
@@ -1088,6 +1164,9 @@ hamaLogicalPMT_fake.png
 .. s5_talk::
 
     The ModelTrigger determines if the FastSim doIt runs or if standard Geant4 runs
+
+    * catching photons on fake boundaries and then pre-triggering on where they go next 
+    * contorted kludge allowing inappropriate use of FastSim
 
 
 .. comment
@@ -1431,7 +1510,9 @@ hamaLogicalPMT_fake.png
 
 .. s5_talk::
 
-    
+   Customizing Geant4 boundary process does have some disadvantages but 
+   the advantages far outweigh them.  It provides a natural fix for 
+   all the problems and it requires less code. 
  
 
 :small:`u4/CustomART.h : include into CustomG4OpBoundaryProcess.cc`
@@ -1516,7 +1597,7 @@ hamaLogicalPMT_fake.png
 
 .. s5_talk::
 
-   Customize boundary procerss with CustomART.h separate header for easier management  
+   Separate header for cleaner customization. 
 
 
 :i:`hamaLogicalPMTWrapLV_full_history.png`
@@ -1537,7 +1618,7 @@ hamaLogicalPMT_fake.png
 .. s5_talk::
 
    Lots of fake step points in current Geant4 histories. The ones across the 
-   middle are obvoious. There are others much closer together that are difficult to see. 
+   middle are obvious. There are others much closer together that are difficult to see. 
 
 
 :i:`hamaLogicalPMTWrapLV_natural.png`
@@ -1901,8 +1982,8 @@ Low dependency access to PMT data :r:`(26x faster)`
 
 
 
-U4Tree.h/stree.h : Direct Geometry Translation
-------------------------------------------------
+OTHER WORK : U4Tree.h/stree.h : Direct Geometry Translation
+--------------------------------------------------------------
 
 .. sidebar:: :small:`Current Approach : extg4 translated`
 
@@ -1966,7 +2047,7 @@ U4Tree.h/stree.h : Direct Geometry Translation
 
 .. s5_talk::
 
-    Profited from the stall to work on direct geometry translation
+    While waiting for merge : worked on direct geometry translation
 
 
 :small:`Next Steps : Custom Boundary + Natural Geometry Branch`
