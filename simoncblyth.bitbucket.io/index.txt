@@ -216,9 +216,18 @@ Opticks Presentations
 
 `env/presentation/opticks_20230206_JUNO_PMT_Geometry_and_Optical_Model_Progress.html <env/presentation/opticks_20230206_JUNO_PMT_Geometry_and_Optical_Model_Progress.html>`_
  
-    WIP : Opticks + JUNO : PMT Geometry and Optical Model Progress  (6 February 2023)
+    Opticks + JUNO : PMT Geometry and Optical Model Progress  (6 February 2023)
 
-    * Summary of last 6 months 
+    Summary of last 6 months, Abstract:
+
+    PMT Geometry fixes and several bugs found with the FastSim based
+    junoPMTOpticalModel implementation are presented, including incorrect
+    polarization and propagation time.  A proposed fix using standard Geant4
+    together with customized G4OpBoundaryProcess is described. The fix has the
+    advantage of allowing a natural 2-volume PMT geometry which can also be used on
+    GPU. 
+
+
 
 2022
 ~~~~~

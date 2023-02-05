@@ -105,16 +105,41 @@ Better way to combine slides and annotations avoiding space, by combining PNG 2-
     # adjust the sort order, select and then using scripting interface to make PDF from the PNG 
 
 
-sharing PDF from macOS Preview.app over AirDrop to iOS devices
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Sharing PDF from macOS Preview.app over AirDrop to iOS devices
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* open the PDF in Preview.app
+* wake up iOS device and check it has a network connection
+* on laptop open the PDF to share in Preview.app
 * select File > Share > AirDrop : this opens the AirDrop panel 
-* get the iOS device to wake up
 * an icon for the iOS device should appear in Preview.app
 * tap the icon should cause a notification on the iOS device, 
   pick the app (eg Books) to handle the PDF then should 
   have it immediately  
+
+
+Fix iPad failing to sense landscape
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sometimes iPad is stuck in portrait.
+Need to reboot to get the rotation sensor to operate. 
+
+
+Best way to view slide with annotation page on iPad
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Readdle Documents App 
+    scroll view in portrait allows two pages to be seen together. 
+
+Files App
+    also OK 
+    
+laptop Preview.app fullscreen
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* make sure to use "View > Enter Full Screen"  : ctrl-command-F 
+
+  * DO NOT USE "View > Slideshow" : shift-command-F : AS THAT AUTO ADVANCES PAGES 
+
 
 
 PDF page size : Very large because somehow 72dpi ?
@@ -579,7 +604,7 @@ slides--(){                 slides-get-- $* ; }
 
 
 
-slides-name(){       echo $(presentation-oname) ; }
+slides-name(){       echo $(presentation-oname) ; }   # this is sensitive to TALK envvar appending _TALK when defined
 slides-branch(){    echo ${SLIDES_BRANCH:-presentation} ; }        # env relative path to where .txt sources reside
 
 #slides-host(){      echo ${SLIDES_HOST:-simoncblyth.bitbucket.io} ; }   

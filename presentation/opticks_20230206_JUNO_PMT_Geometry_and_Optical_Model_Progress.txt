@@ -22,6 +22,19 @@
     Kaiping: 15:00-18:00  20:00-23:00
     London:  07:00-10:00  12:00-15:00 
 
+    Abstract
+
+    PMT Geometry fixes and several bugs found with the FastSim based
+    junoPMTOpticalModel implementation are presented, including incorrect
+    polarization and propagation time.  A proposed fix using standard Geant4
+    together with customized G4OpBoundaryProcess is described. The fix has the
+    advantage of allowing a natural 2-volume PMT geometry which can also be used on
+    GPU. 
+
+    https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=9291
+
+    https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?sessionid=2117
+
 
 
 
