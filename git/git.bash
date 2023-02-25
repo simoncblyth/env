@@ -26,6 +26,20 @@ Reference
 Git Tags
 
 
+
+git log without paging and limiting the number of commits
+------------------------------------------------------------
+
+::
+
+    git --no-pager l -n 5
+
+
+
+
+
+
+
 ~/.gitconfig global aliases
 ------------------------------
 

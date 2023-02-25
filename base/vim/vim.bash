@@ -19,6 +19,19 @@ vertical split
 * ctrl-w v OR :vsplit
 
 
+vimdiff vertical or horizontal
+---------------------------------
+
+Change default in ~/.vimrc with diffopt::
+
+     11 " set diffopt=horizontal
+     12 set diffopt=vertical
+
+Toggle between them with:
+
+1. ctrl-w J    (NB need to press shift to get the capital J)
+2. ctrl-w H or ctrl-w L 
+
 
 delete a range of lines by line number
 ----------------------------------------
