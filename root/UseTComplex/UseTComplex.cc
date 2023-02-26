@@ -6,8 +6,11 @@
 
 int main()
 {
-    TComplex z(1., 0.); 
-   // std::cout << z << std::endl ; 
+    TComplex z(1., 1.); 
+    double x = z ;    // WOW : thats a dangerous "feature" 
+
+    std::cout << " z: " << z << std::endl ; 
+    std::cout << " x: " << x << std::endl ; 
 
     return 0 ; 
 }

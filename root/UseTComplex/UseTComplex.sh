@@ -7,25 +7,26 @@ if [ "$(uname)" == "Darwin" ]; then
    ROOT_PREFIX=$HOME/miniconda3
 else
    var=LD_LIBRARY_PATH
-   ROOT_PREFIX=$JUNOTOP/ExternalLibs/ROOT/6.22.08
+   #ROOT_PREFIX=$JUNOTOP/ExternalLibs/ROOT/6.22.08
+   ROOT_PREFIX=$JUNOTOP/ExternalLibs/ROOT/6.24.06 
 fi 
 
-gcc $name.cc \
-    -std=c++11 \
+g++ $name.cc \
     -I$HOME/np \
-    -I$ROOT_PREFIX/include \
-    -L$ROOT_PREFIX/lib \
-    -lstdc++ \
-    -lCore \
-    -lHist \
-    -lMathCore \
+    $(root-config --cflags --ldflags --libs) \
     -o /tmp/$name
 
 [ $? -ne 0 ] && echo compile error && exit 1 
 
 
+oldruncmd(){ cat << EOC
+#$var=$ROOT_PREFIX/lib /tmp/$name   # have to use jre to get a compatble env 
+/tmp/$name 
+EOC
+}
+
 runcmd(){ cat << EOC
-$var=$ROOT_PREFIX/lib /tmp/$name
+/tmp/$name 
 EOC
 }
 
