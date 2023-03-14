@@ -1,0 +1,2158 @@
+.. meta::
+
+   :title: Opticks + JUNO : PMT Geometry + Optical Model Progress
+   :name: opticks_202303XX_More_junoPMTOpticalModel_issues_and_Validation_of_CustomG4OpBoundaryProcess_fix
+   :description: (?? Mar 2023)
+   :notes: Sim AFG Session 
+
+.. include:: my_s5defs.txt
+
+.. include:: s5_background_image.txt
+
+
+.. comment
+
+   Klop
+
+
+
+:i:`Opticks + JUNO : More junoPMTOpticalModel Issues + Validation of CustomG4OpBoundaryProcess Fix` 
+=====================================================================================================
+
+.. raw:: html
+
+    <div class="mytitle">
+        <header>
+            <h1 style="background-color:lightgrey"> 
+                Opticks + JUNO : More junoPMTOpticalModel Issues + Validation of CustomG4OpBoundaryProcess Fix
+                <h2 style="background-color:lightgrey;text-align:center"> Open source, https://bitbucket.org/simoncblyth/opticks </h2>
+            </h1>
+        </header>
+    </div>
+    <p style="margin-bottom:52mm;" />
+
+.. class:: large
+
+  * *junoPMTOpticalModel* (jPOM) standalone tests reveal more bugs, all from FastSim use:
+
+    * :r:`over complex PMT geometry and Geant4 step histories`
+    * :r:`BUGS:` polarization and propagation time within PMT 
+    * :r:`MORE BUGS:` unphysical mid-vacuum reflect, refract, absorb, detect 
+
+  * reimplemented *jPOM::ModelTrigger* avoids unphysical
+
+  * statistical matching reimpl *jPOM* vs natural geometry with *CustomG4OpBoundaryProcess*: 
+
+    * fixes all above issues using a **more standard** approach
+    * :b:`simpler geometry, simpler simulation history, less code` 
+    * facilitates bringing PMT Optical Model to GPU within Opticks
+
+.. raw:: html
+
+    <div class="mycredit">
+       <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS  &mdash; ?? Mar 2023 </h2>
+    </div>
+
+
+.. s5_talk:: 
+
+    This summarizes the primary issues I will present, 
+    mainly with the PMT geometry and optical model.   
+
+
+
+Unphysical FastSim Examples
+-----------------------------
+
+.. class:: small
+
+    Commandlines to create the following plots.
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+    APID=2181 AOPT=idx N=0 SUBTITLE="9:reflect at vac/vac (but obscured)" ./U4SimtraceTest.sh ana
+
+    APID=2563 AOPT=idx N=0 SUBTITLE="7:SD at vac/vac" ./U4SimtraceTest.sh ana
+
+    APID=2912 AOPT=idx N=0 SUBTITLE="7:vac/vac refract 11:SD detect in vac" ./U4SimtraceTest.sh ana
+
+    APID=2942 AOPT=idx N=0 SUBTITLE="6->7:cross-geometry 7:vac/vac-reflect" ./U4SimtraceTest.sh ana
+
+    APID=2982 AOPT=idx N=0 SUBTITLE="7:unphysical refract" ./U4SimtraceTest.sh ana
+
+    APID=5866 AOPT=idx N=0 SUBTITLE="7:reflect at vac/vac" ./U4SimtraceTest.sh ana
+
+    APID=7625 AOPT=idx N=0 SUBTITLE="13:detect mid vacuum" ./U4SimtraceTest.sh ana
+
+    APID=8499 AOPT=idx N=0 SUBTITLE="13:detect mid vacuum" ./U4SimtraceTest.sh ana 
+    </pre>
+
+
+
+:i:`FewPMT_2563_Unphysical_SD_in_vacuum.png`
+---------------------------------------------
+
+:i:`FewPMT_2912_Unphysical_refract_and_detect.png`
+----------------------------------------------------
+
+:i:`FewPMT_2942_Unphysical_cross_geometry_vac_reflect.png`
+------------------------------------------------------------
+
+:i:`FewPMT_2982_Unphysical_vac_refract.png`
+---------------------------------------------
+
+:i:`FewPMT_5866_vac_reflect.png`
+----------------------------------
+
+:i:`FewPMT_7625_Unphysical_detect_mid_vacuum.png`
+--------------------------------------------------
+
+:i:`FewPMT_8499_Unphysical_detect_mid_vacuum.png`
+--------------------------------------------------
+
+
+
+:i:`FewPMT_ModelTriggerDebug_inner2_whereAmI_Pyrex.png`
+---------------------------------------------------------
+
+
+:small:`junoPMTOpticalModel::ModelTrigger : NNVT : ~2.5% UNPHYSICAL TRIG`
+------------------------------------------------------------------------------------------
+
+::
+
+    u4/tests/U4SimulateTest.sh 
+    u4/tests/U4SimulateTest_mt.py
+
+
+.. class:: small
+
+   Check ModelTrigger position, whereAmI : 271/11214 ~2.5% unphysical
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+    mtd_trig = mtd.trig == 1
+    mtd_upper = mtd.pos[:,2] > 1e-4
+    mtd_mid   = np.abs( mtd.pos[:,2]) < 1e-4
+    mtd_lower = mtd.pos[:,2] < -1e-4
+
+    mtd_trig_vacuum = np.logical_and(mtd.trig == 1, mtd.whereAmI_ == 2 )
+    mtd_trig_vacuum_upper = np.logical_and(mtd_trig_vacuum, mtd_upper )
+    mtd_trig_vacuum_mid   = np.logical_and(mtd_trig_vacuum, mtd_mid )
+    mtd_trig_vacuum_lower = np.logical_and(mtd_trig_vacuum, mtd_lower )
+
+    mtd_trig_pyrex  = np.logical_and(mtd.trig == 1, mtd.whereAmI_ == 1 )
+    mtd_trig_pyrex_upper = np.logical_and(mtd_trig_pyrex, mtd_upper )
+    mtd_trig_pyrex_mid   = np.logical_and(mtd_trig_pyrex, mtd_mid )
+    mtd_trig_pyrex_lower = np.logical_and(mtd_trig_pyrex, mtd_lower )
+    </pre>
+
+
+
+
+JUNO + Opticks : Timeline, see Refs for more detail
+-----------------------------------------------------
+
+.. sidebar:: :small:`Opticks Presentations, Refs`
+
+    * https://simoncblyth.bitbucket.io
+    * https://simoncblyth.github.io
+    * https://juno.ihep.ac.cn/~blyth/
+
+
+.. class:: small
+
+    **2022 Aug-Sep** : Fixed geometry issues:
+       * JUNO : PMT, PMTMask overlaps
+       * Opticks : ellipsoid apex hole, thin cylinder, cone apex 
+
+    **2022 Oct-Nov** : *MultiFilmSimSvc* -> GPU/CPU Layr.h
+       **17 November 2022, JOC Meeting**
+         * Show PMT geometry issues and fixes already merged
+         * Describe *MultiFilmSimSvc* -> GPU/CPU Layr.h    
+         * `opticks_20221117_mask_debug_and_tmm.html  <env/presentation/opticks_20221117_mask_debug_and_tmm.html>`_
+
+    **2022 Dec** : Standalone few-PMT *junoPMTOpticalModel* test:
+       * overcomplex : PMT geometry and Geant4 histories (**inappropriate FastSim**)
+       * :r:`LIVE BUGS : incorrect PMT reflect/refract polarization, incorrect propagation speed in PMT`  
+
+       **20 December 2022, AFG Sim Meeting**
+         * Demonstrated *CustomG4OpBoundaryProcess* can fix issues (using standalone few-PMT tests)
+         * my impression: General agreement to proceed with fix, **Guofu convinced**
+         * `opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix.html <env/presentation/opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix.html>`_
+
+    **2023 Jan** : Start adapting above for use within junosw "monolith" by **decoupling PMT data access** 
+       * low dependency PMT data access : *PMTSimParamData* :r:`(MERGE STALLED: Jan 17->Feb 3)`
+       * OTHER WORK : more direct geometry translation : *U4Material/U4Surface/U4Solid/stree/snode/snd*
+
+    Details in above presentations + notes : https://bitbucket.org/simoncblyth/opticks/src/master/notes/progress.rst
+
+
+.. s5_talk::
+
+    After geometry fixes I investigated the PMT optical model.
+
+    * re-implemented multi-layer TMM calculation in single GPU/CPU header
+
+    * then I looked into the FastSim based implmentation of the PMT optical model
+      using standalone few-PMT tests
+
+    * I found overcomplex PMT geometry and incorrect polarization and propagation 
+      time inside the PMT 
+
+    * I reported these issues in a meeting just before Christmas and
+      also reported a proposed fix for them all using a *CustomG4OpBoundaryProcess*
+   
+    * There was general agreement to proceed with this fix
+
+    * In january I started on bringing my fix into the monolith by decoupling 
+      access to PMT data
+
+    
+.. comment
+
+    SMALL
+    For more details you can see the prior presentations
+
+    * Last summer I found and fixed quite a few geometry issues
+      in the PMT and mask geometry and the Opticks translation of it. 
+
+    * Then I looked into the PMT optical model, starting with the 
+      transfer-matrix-method calculation.
+
+      * reimplement the MultiFilm calculation into a simple header that 
+      can be comiled for both CPU and GPU. 
+
+      * Actually doing the complex TMM math is the easy part. Integrating that is more involved. 
+
+    * I investigated the FastSim based *junoPMTOpticalModel* implementation 
+      using standalone few-PMT tests with full Opticks recording of photon histories. 
+
+    * Those tests revealed incorrect polarizations and propagation times within the PMT, 
+      and also my attempts to use a simpler geometry revealed the reason for the fake PMT volumes.
+
+    * FastSim is designed for parametrizing regions, not single surfaces like the cathode layers.  
+
+    * The fake volumes are hacks that allow FastSim to be used in a situation it was not designed for.  
+
+    * In a meeting just before Christmas I demonstrated that using a *CustomG4OpBoundaryProcess* would
+      allow a more natural geometry to be used, that would also naturally avoid the polarization and 
+      propagation time bugs 
+
+    * As there was general agreement at that meeting I proceeded in january to adapt that standalone
+      development to work within the monolith
+
+    
+
+
+
+JUNO + Opticks : Summary of Geometry Bug Fixes
+-------------------------------------------------
+
+.. sidebar:: :b:`JUNO ISSUES`
+
+    .. class:: small
+
+       **NNVT : MaskTail impinges MaskVirtual** 
+
+       * `junosw/-/issues/32  <https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/32>`_
+       * :r:`FIXED : via gitlab MR`
+
+       **HAMA : BodySolid impinges MaskTail**
+
+       * `junosw/-/issues/33  <https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/33>`_
+       * :r:`FIXED : via gitlab MR`
+       * :b:`shifted mask, concentric with PMT ellipsoid`
+
+       **BirksConstant1 : 1,000,000x TOO BIG**
+
+       * `junosw/-/issues/24  <https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/24>`_
+       * DsG4Scintillation not yielding any photons 
+       * :r:`FIXED : typo in parameter`
+
+
+.. class:: small 
+
+    :b:`OPTICKS PRIM ISSUES`
+
+    **nmskSolidMask : ellipsoid hole at "apex" issue**
+
+    * few per million "apex" rays find hole in ellipsoid
+    * manifests as spurious "waist" intersects
+    * :r:`FIXED : add zcut safety margin to CSG_ZSPHERE` 
+
+    **nmskSolidMaskTail : very thin cylinder "lip" issues** 
+
+    * requires uncoincidence shift of subtractee 
+    * BUT : even after uncoincide some spurious remain !
+    * BUG 1 : mis-translated as CSG_DISC, not CSG_CYLINDER
+    * BUG 2 : intersect precision loss for near-axial rays
+    * :r:`FIXED : reimplement CSG_CYLINDER with less FLOPS`
+
+    **nmskSolidMaskVirtual : cone precision + near-apex issues** 
+
+    * spurious sprinkle remains after uncoincide
+    * BUG 1 : CSG_CONE precision loss in one quadratic root  
+    * BUG 2 : rays close to infinite cone apex yield spurious
+    * :r:`FIXED : CSG_CONE robust roots + fix bad assumption`   
+
+.. class:: small
+
+    https://simoncblyth.bitbucket.io/env/presentation/opticks_20221117_mask_debug_and_tmm.html
+
+
+.. s5_talk::
+
+    All of these issues with the PMT geometry and the Opticks translation of it are fixed, 
+    so I will not dwell on them. 
+
+    The next few pages are a quick reminder of a few of those fixes.  
+
+
+
+
+
+``nmsk_nnvt_solids_STUVWXY_nnvt_virtualMask_Mask_overlap.png``
+---------------------------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:10cm;" />
+
+.. class:: small
+
+   ``NNVT : ONE overlap issue visible, MaskTail impinges MaskVirtual``
+
+      ``(using ct.sh : Opticks CSG on CPU)``
+
+
+.. s5_talk::
+
+    Overlaps between volumes are a common problem.  
+
+    Opticks 2D "simtrace" slice scans make it easy to find and fix overlaps
+    because you can very clearly see the problem.
+
+
+
+``hmsk_hama_solids_STUVWXY_BodySolid_x_MaskTail.png``
+-------------------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:5cm;" />
+
+.. class:: small
+
+   ``HAMA : ONE overlap issue, BodySolid impinges MaskTail``
+
+      ``(using ct.sh : Opticks CSG on CPU)``
+
+
+.. s5_talk::
+
+    Another overlap
+
+
+``hmsk_hama_solids_STUVWXY_zoom_impinge.png``
+-----------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:5cm;" />
+
+.. class:: small
+
+   |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
+   ``HAMA : BodySolid impinges MaskTail (mct.sh)``
+
+
+.. s5_talk::
+
+    Zooming in makes the overlap clear
+
+
+``hmsk_hama_solids_STUVWXY_after_bug_33_fix.png``
+--------------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:5cm;" />
+
+.. class:: small
+
+   |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| |emsp| 
+   ``HAMA : after bug 33 fix``
+
+
+.. s5_talk::
+
+    The fix is apparent 
+
+
+
+
+.. comment
+
+    Multi-Layer TMM "FastSim" with Opticks ?
+    ----------------------------------------------
+
+
+    .. sidebar:: :small:`JPMT.h : header-only prop. access`
+
+       .. class:: small 
+
+           Added property file (and directory tree) loading with: 
+
+           * NPFold::LoadProp
+           * NP::LoadFromTxtFile
+           * NP::LoadFromString
+
+           NPFold.h and NP.hh are header-only impls
+
+           :tiny:`export NP_PROP_BASE=$JUNOTOP/data/Simulation/DetSim`
+
+
+    .. class:: small
+
+       **TMM "ART" calc : complex math** 
+      
+       * https://github.com/simoncblyth/j/blob/main/Layr/Layr.h
+       * :b:`STATUS : reproduces MultiFilmSimSvc ART results` 
+         
+       **Access to thickness and energy dependent : rindex, kindex**
+
+       *CPU : using NP interpolation* : :b:`STATUS : works fine`
+
+       * https://github.com/simoncblyth/j/blob/main/Layr/JPMT.h
+
+       *GPU : using qprop.h interpolation* : :b:`STATUS : works in isolation`
+
+       * qudarap/QPMT.hh,qpmt.h,qprop.h 
+       * :r:`TODO : integrate with calc, perhaps into QLayr.hh/qlayr.h (?)`   
+
+       **"FastSim" integration of ART calc ?** : :b:`STATUS : Initial development of CPU test machinery`
+        
+       *Standalone test of few PMT with junoPMTOpticalModel : integrating Opticks photon history recording*
+
+       * https://github.com/simoncblyth/j/tree/main/PMTFastSim 
+       * https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4SimulateTest.cc
+       * https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4SimulateTest.sh
+
+
+:small:`Layr.h : simple GPU/CPU header-only re-impl. of MultiFilmSimSvc`
+---------------------------------------------------------------------------------------------
+
+.. sidebar:: :tiny:`junosw/Simulation/SimSvc/MultiFilmSimSvc`  
+
+    .. raw:: html 
+
+        <pre class="mypretiny">epsilon:MultiFilmSimSvc blyth$ find . -type f
+        ./CMakeLists.txt
+        ./python/MultiFilmSimSvc/__init__.py
+        ./MultiFilmSimSvc/MultiFilmModel.h
+        ./src/OpticalSystem.h
+        ./src/Layer.h          
+        ./src/Material.h
+        ./src/Layer.cc   ## Layer, ThickLayer, ThinLayer
+        ./src/Matrix.h
+        ./src/OpticalSystem.cc
+        ./src/MultiFilmModel.cc
+        ./src/Material.cc
+        ./src/Matrix.cc</pre>
+
+
+.. sidebar:: :small:`CPU/GPU :` *using complex* 
+
+    .. raw:: html 
+
+        <pre class="mypretiny">&#35;ifdef WITH_THRUST
+            using thrust::complex ; //<span class="red">GPU</span>
+        &#35;else
+            using std::complex ;    //<span class="red">CPU</span> 
+        &#35;endif
+            //<span class="red"> same complex TMM math on CPU/GPU </span></pre>
+
+
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+    template&lt;typename T&gt; struct Layr
+    {
+        T  d, pad   ; // <span class="r">d:thickness : zero means incoherent</span>
+    &#35;ifdef WITH_THRUST 
+        thrust::complex<T>  n, st, ct, rs, rp, ts, tp ;
+    &#35;else
+        std::complex<T>     n, st, ct, rs, rp, ts, tp ;
+    &#35;endif
+        Matx<T> S, P ;
+    };
+
+    template &lt;typename T, int N&gt; struct Stack 
+    {
+        Layr&lt;T&gt; ll[N] ; // <span class="r">stack of N layers   </span>
+        Layr&lt;T&gt; comp ;  // <span class="r">composite for the N layers  </span>
+        ART_&lt;T&gt;  art ;  // results eg A,R,T
+
+        Stack(T wl, T minus_cos_theta, const StackSpec&lt;T&gt;& ss); 
+    };
+    </pre>
+
+.. class:: small
+
+    https://github.com/simoncblyth/j/blob/main/Layr/Layr.h 
+
+    * :b:`simple impl : compiles with nvcc/gcc for GPU/CPU`  
+
+    * *using thrust::complex/std::complex* 
+    * YES : struct, arrays, templates, enum, constexpr   
+    * NO : std::vector std::map std::string std::cout virtual meth. 
+       
+.. class:: small
+
+    * :b:`Layr.h reproduces MultiFilmSimSvc ART results` 
+
+      * **works on both CPU and GPU** 
+
+    **ALT:** multi-GB "ART" textures (Yuxiang Hu) :r:`TODO: compare`  
+
+
+
+.. s5_talk::
+
+    After geometry fixes I took a looking at the PMT optical model.
+
+    Doing the multi-layer TMM complex math on GPU turns out to be quite straightforward. 
+
+    It re-implemented MultiFilmSimSvc in a single header that compiles for GPU or CPU
+
+    The alternative approach looked into by Yuxiang is to create large multi-GB textures
+    on CPU and upload them to GPU.    Need to compare performance, however doing the 
+    calculation is a lot more convenient. 
+
+
+:small:`LayrTest.{sh,cc,h,cu,py} : AOI scan with float/double on CPU/GPU ...`
+------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Impl: arrays of simple struct`
+
+    .. class:: small
+
+       * persist *everything* for every (aoi, wl) into ``.npy``
+
+         * all layers, Fresnel coeff, matrix, ART
+        
+       `github.com/simoncblyth/j/blob/main/Layr/LayrTest.cc <https://github.com/simoncblyth/j/blob/main/Layr/LayrTest.cc>`_
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+    epsilon:Layr blyth$ ./LayrTest.sh ana
+    CFLayrTest
+     a :            EGet : scan__EGet__cpu_thr_double 
+     b :            EGet : scan__EGet__cpu_thr_float 
+     c :            EGet : scan__EGet__gpu_thr_double 
+     d :            EGet : scan__EGet__gpu_thr_float 
+     ...
+     m :          R12860 : scan__R12860__cpu_pom_double 
+     n :          R12860 : scan__R12860__cpu_thr_double 
+     o :          R12860 : scan__R12860__cpu_thr_float 
+     p :          R12860 : scan__R12860__gpu_thr_double 
+     q :          R12860 : scan__R12860__gpu_thr_float 
+
+    In [1]: CF(m,q,0.05)
+    Out[1]: 
+    CF(m,q,0.05) : scan__R12860__cpu_pom_double vs scan__R12860__gpu_thr_float 
+           lls :   0.000442 :   0.000442 :  -0.000414
+         comps :   0.000341 :   0.000341 :  -6.17e-05
+          arts :    6.2e-05 :    6.2e-05 :   -6.2e-05
+
+    pmtcat:R12860 tt:5 lt:q : j/Layr/LayrTest scan__R12860__gpu_thr_float ni 900 wl 440 
+    +------------------------------+----------+----------+----------+----------+----------+
+    |        R12860 arts\comps 0.05|     m:cpd|     n:ctd|     o:ctf|     p:gtd|     q:gtf|
+    +==============================+==========+==========+==========+==========+==========+
+    |                         m:cpd|         0| 0.0003325|  0.000301| 0.0003325| 0.0003407|
+    +------------------------------+----------+----------+----------+----------+----------+  <span class="r"> max difference of all param between scans </span>
+    |                         n:ctd| 6.064e-05|         0| 4.829e-05| 7.445e-14| 4.829e-05|
+    +------------------------------+----------+----------+----------+----------+----------+
+    |                         o:ctf| 5.454e-05| 6.101e-06|         0| 4.829e-05| 3.977e-05|
+    +------------------------------+----------+----------+----------+----------+----------+
+    |                         p:gtd| 6.064e-05| 1.321e-14| 6.101e-06|         0| 4.829e-05|
+    +------------------------------+----------+----------+----------+----------+----------+
+    |                         q:gtf| 6.199e-05| 1.523e-06| 7.451e-06| 1.523e-06|         0|
+    +------------------------------+----------+----------+----------+----------+----------+
+
+    In [1]: ARTPlot(m, 0.05)                                                             
+   </pre>
+
+
+.. s5_talk::
+
+   The implementation is templated on type. So can compare a matrix of different implementations
+   with the standard one. Expected level of agreement is found. 
+
+   The deviations are dominated by glancing incidence where all the matrix values
+   shoot off to infinity.  So can reduce these numbers by cutting out that region. 
+
+
+
+:i:`LayrTest_4_ARTQspx_R12860_4layer.png`
+-------------------------------------------
+
+.. class:: small
+
+    **S/P-Pol : perp./within plane**
+
+.. raw:: html
+
+    <p style="margin-bottom:15.9cm;" />
+   
+.. class:: large
+
+    S/P Polarization : has huge effect on A,R,T in both directions : **AOI > 90 is reversed stack**  
+
+
+
+.. s5_talk::
+
+    This shows the ART: Absorption, Reflection and Transmission as a function of the angle of incidence.
+
+    Below 90 degrees correspond to incidence from Pyrex towards Vacuum and above 90 is with reversed stack. 
+    At 90 degrees is glancing incidence where all the matrixes blow up and the Reflection goes to 1. 
+
+    One thing to notice with these is how big the difference between S and P polarization is. 
+
+    S polarization is when the 
+
+    +-------+--------------------------------------+  
+    | S-pol | perpendicular to plane of incidence  |
+    +-------+--------------------------------------+
+    | P-pol | within plane of incidence            |
+    +-------+--------------------------------------+
+
+
+:i:`LayrTest_4_AQspx_R12860_4layer.png`
+-----------------------------------------
+
+.. class:: large
+
+    **4 : A**
+
+.. raw:: html
+
+    <p style="margin-bottom:15.5cm;" />
+   
+.. class:: large
+
+    Absorption : large S/P-polarization difference in both directions
+
+
+
+
+.. s5_talk::
+
+   Restricting to absorption only, its very clear that the polarization 
+   has a huge effect on what happens.
+
+
+:i:`LayrTest_4_Rspx_R12860_4layer.png`
+-----------------------------------------
+
+**4 : R**
+
+
+.. raw:: html
+
+    <p style="margin-bottom:15.5cm;" />
+   
+.. class:: large
+
+    Only reflection at glancing incidence (90 deg) : large S/P-pol. difference for Vacuum->Pyrex
+
+
+
+.. s5_talk::
+
+    Reflection goes to one at glancing incidence 
+
+    * huge difference between the S/P-polarizations for backwards photons
+
+
+
+:i:`LayrTest_4_Tspx_R12860_4layer.png`
+-----------------------------------------
+
+**4 : T**
+
+.. raw:: html
+
+    <p style="margin-bottom:15.5cm;" />
+   
+.. class:: large
+
+    Pyrex->Vacuum : Above critical angle : no transmission, only reflect or absorb 
+
+
+
+.. s5_talk::
+
+    Transmission
+    
+
+
+
+.. comment
+
+
+    :i:`LayrTest_2_ARTQspx_R12860_2layer.png`
+    --------------------------------------------
+
+    **2 : ART**
+
+
+    .. s5_talk::
+
+        Number of layers is a templated parameter
+
+
+    :i:`LayrTest_2_AQspx_R12860_2layer.png`
+    -----------------------------------------
+
+    **2 : A = zero**
+
+
+    :i:`LayrTest_2_Rspx_R12860_2layer.png`
+    -----------------------------------------
+
+    **2 : R**
+
+
+    :i:`LayrTest_2_Tspx_R12860_2layer.png`
+    -----------------------------------------
+
+    **2 : T**
+
+
+
+
+:small:`Standalone few PMT test of Geometry and Optical Model` 
+---------------------------------------------------------------------------
+
+.. sidebar:: :small:`Standalone Advantages`
+
+    .. class:: small
+
+        * :r:`Fast development cycle`, full control:
+
+        +---------------------------------------------+
+        | https://github.com/simoncblyth/j/           |
+        +---------------------------------------------+
+        | https://bitbucket.org/simoncblyth/opticks/  | 
+        +---------------------------------------------+
+
+        **"CustomG4OpBoundaryProcess" FIX**
+
+        `opticks:u4/CustomART.h <https://bitbucket.org/simoncblyth/opticks/src/master/u4/CustomART.h>`_  
+
+        * ``Layr.h`` for TMM calcs
+        * ``JPMT.h`` parameter access (not PMTSimParamSvc, PMTParamSvc)
+
+        `opticks:u4/InstrumentedG4OpBoundaryProcess.cc <https://bitbucket.org/simoncblyth/opticks/src/master/u4/InstrumentedG4OpBoundaryProcess.cc>`_
+    
+        * Customized with *CustomART.h* 
+
+
+.. class:: small
+
+    **j:PMTFastSim Standalone PMT geometry and Optical Model** 
+
+    * https://github.com/simoncblyth/j/
+    * `j:PMTFastSim/junoPMTOpticalModel.cc <https://github.com/simoncblyth/j/blob/main/PMTFastSim/junoPMTOpticalModel.cc>`_
+    * `j:PMTFastSim/HamamatsuR12860PMTManager.cc <https://github.com/simoncblyth/j/blob/main/PMTFastSim/HamamatsuR12860PMTManager.cc>`_
+    * ``N=0/1`` **natural geometry switch**
+
+    **Optical only Geant4 simulation, with full step point recording**  
+
+    * `opticks:u4/tests/U4SimulateTest.sh <https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4SimulateTest.sh>`_
+
+    ``N=0/1 ./U4SimulateTest.sh``
+
+    **Geant4 Simtrace intersection : 2D geometry plotting**  
+
+    * `opticks:u4/tests/U4SimtraceTest.sh <https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4SimtraceTest.sh>`_
+
+    ``N=0/1 ./U4SimtraceTest.sh``
+
+
+.. s5_talk::
+
+    The ART calculation using TMM is just complex matrix math.
+    Fairly easy to do on GPU. Integrating that calculation with the 
+    simulation is more difficult.
+
+    These links point to code within Opticks and j repositories that 
+    I used to create standalone few-PMT tests of the PMT optical model. 
+
+    The test uses an optical only simulation and is integrated 
+    with Opticks full photon recording. 
+
+
+
+
+junoPMTOpticalModel Issues : All from using FastSim 
+----------------------------------------------------
+
+.. sidebar:: :small:`CustomG4OpBoundaryProcess ?`
+
+    .. class:: small
+
+         * simple 2 volume (Pyrex+Vacuum) geometry 
+         * standard G4OpBoundaryProcess reflect/refract/absorb/TIR 
+         * :r:`much less code : reuse of standard Geant4`
+         * easier Opticks on GPU : simpler, more standard
+ 
+           * no near-degenerate 1e-3 mm boundaries
+           * allows same geometry on CPU and GPU 
+           * avoid history rewriting for comparisons 
+          
+         **BUT : need to change very nasty Geant4 impl:**
+
+         ``G4OpBoundaryProcess::PostStepDoIt``
+             ugly monolith, rats nest of nested ifs 
+
+         * Unpleasant to get familiar with 
+         * Change palatable, using : ``CustomART.h``
+         * Keep change separated, detailed validation vital 
+                
+
+.. raw:: html
+
+   <p style="margin-bottom:1cm;" />
+
+
+.. class:: small
+
+   1. :r:`Four volume PMT due to FastSim limitation`
+
+      * Two volumes (Pyrex + Vacuum) would be natural 
+
+.. raw:: html
+
+   <p style="margin-bottom:1cm;" />
+
+.. class:: small
+
+   2. Fake volumes yield many fake intersects
+
+      * Pyrex/Pyrex + Vacuum/Vacuum same material fakes
+      * :b:`complicates Geant4 step point history` 
+      * :b:`complicates comparison with Opticks`
+
+.. raw:: html
+
+   <p style="margin-bottom:1cm;" />
+
+.. class:: small
+
+   3. Non-FastSim in PMT propagates at Pyrex (not Vacuum) speed
+
+      * FastSim->SlowSim transition misses speed fixup 
+
+.. raw:: html
+
+   <p style="margin-bottom:1cm;" />
+
+.. class:: small
+
+   4. :r:`reflected + refracted polarization doesnt follow Geant4`
+
+      * should follow G4OpBoundaryProcess, depending on S/P 
+
+.. raw:: html
+
+   <p style="margin-bottom:0.1cm;" />
+
+.. class:: small
+
+   * :b:`All issues stem from using FastSim (designed for regions)`
+ 
+     * :b:`not good fit for 1 boundary (Pyrex/ARC/PHC/Vacuum)`
+
+
+.. comment
+
+    .. class:: small
+
+       6. TODO: look into _qe definition 
+
+          * justification for ``efficiency=_qe/An`` ? 
+
+
+
+.. s5_talk::
+
+    This summarizes the issues I found
+
+
+
+:small:`Polarization on FresnelReflection/FresnelRefraction/TotalInternalReflection`
+---------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`inline sboundary::sboundary():`
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+        _E2_t(make_float2( 2.f*n1c1/(n1c1+n2c2) , 
+                           2.f*n1c1/(n2c1+n1c2) )),// (ts,tp) 
+        _E2_r(make_float2( _E2_t.x - 1.f       , 
+                           n2*_E2_t.y/n1 - 1.f  )),// (rs,rp)
+        A_transverse(cross(p.mom, orient*normal)),
+        E1_perp(dot(p.pol, A_transverse)),
+        E1(make_float2(E1_perp,sqrtf(1.f-E1_perp*E1_perp)))),
+        E2_t(_E2_t*E1),RR(normalize(E2_r)), 
+        E2_r(_E2_r*E1),TT(normalize(E2_t)), 
+        {
+        p.mom = reflect
+              ?
+                 p.mom + 2.0f*c1*orient*normal
+              :
+                 eta*(p.mom) + (eta*c1 - c2)*orient*normal
+              ;
+        A_parallel = normalize(cross(p.mom, A_transverse));   
+
+        <span class="b">p.pol = 
+                ( reflect ?
+                     ( tir ? 
+                           -p.pol + 2.f*EdotN*orient*normal 
+                     : 
+                           RR.x*A_transverse + RR.y*A_parallel 
+                     )
+                  :
+                     TT.x*A_transverse + TT.y*A_parallel
+                )             
+              ;</span>
+        }  <span class="r">// IMPL BASED ON + VALIDATED AGAINST GEANT4</span>        
+        </pre>
+
+
+.. class:: small
+
+   **Reflect/Refract** : :r:`INCORRECT POLARIZATION` 
+
+.. raw:: html
+
+    <pre class="mypretiny">
+     void junoPMTOpticalModel::Reflect()
+     {
+         dir -= 2.*(dir*norm)*norm;
+         <span class="r">pol -= 2.*(pol*norm)*norm;</span>  
+     }
+     void junoPMTOpticalModel::Refract()
+     {
+         dir = (real(_cos_theta4) - 
+                _cos_theta1*_n1/_n4)*norm + (_n1/_n4)*dir;
+         <span class="r">pol = (pol-(pol*dir)*dir).unit();</span>
+     } 
+    </pre>
+
+
+.. class:: small
+
+   ``G4OpBoundaryProcess`` polarization from:
+
+   1. S/P Fresnel Coeff 
+   2. S/P Directions : out/in plane of incidence
+
+   **Opticks : sysrap/sboundary.h qudarap/qsim.h follows G4, ===>**
+
+   * `opticks/src/master/sysrap/sboundary.h <https://bitbucket.org/simoncblyth/opticks/src/master/sysrap/sboundary.h>`_
+
+    
+   **Derive Fresnel from Maxwell Boundary Conditions**
+
+   *Fresnel Equations, Alexander I. Lvovsky*
+     *Encylopedia of Optical Engineering* (**fresnel-eoe.pdf**)
+
+
+.. s5_talk::
+
+    junoPMTOpticalModel is using an incorrect polarization calculation.
+
+    * it does not match what Geant4 uses. 
+
+    The actual polarization on reflection/refraction calculation is shown on the right. 
+    That implementation is based on Geant4 and has been validated against Geant4. 
+   
+
+   
+
+
+:small:`Compare Reflected Polarization Impls for Brewster Angle Incidence`
+---------------------------------------------------------------------------
+
+.. class:: small 
+
+   * `opticks/src/master/sysrap/tests/sboundary_test.sh <https://bitbucket.org/simoncblyth/opticks/src/master/sysrap/tests/sboundary_test.sh>`_ : build, run, plot
+
+
+.. image:: sboundary_test/figs/sboundary_test/pvcap/AOI_BREWSTER_linear_polarization_by_reflection.png
+    :width: 550px
+
+.. image:: sboundary_test/figs/sboundary_test/pvcap/AOI_BREWSTER_reflect_alt_pol.png
+    :width: 550px
+
+.. class:: small
+
+    +---------------------------------------------------------------------+------------------------------------------------+
+    | G4OpBoundaryProcess/qsim.h/sboundary.h : Only S-polarized survives  | junoPMTOpticalModel::Reflect : very different  |
+    +---------------------------------------------------------------------+------------------------------------------------+
+
+    * incident from left (-X), surface normal vertically upwards (+Z), intersection point in middle, 
+    * Colored lines represent polarization directions of 128 photons before and after Reflection 
+    * Reflected using ``sboundary.h`` (validated against ``G4OpBoundaryProcess``)
+    * Compared with ``sboundary.h:alt_pol`` that duplicates ``junoPMTOpticalModel::Reflect``  
+
+    Brewster (or polarizing) incident angle th1 : ``tan(th1) = n2/n1  ;  th1 + th2 = pi/2``
+
+
+.. s5_talk::
+
+    The different between the polarization that is currently in 
+    use and the correct one can be seen clearly at the Brewster 
+    angle where Geant4 clearly polarizes but the one in use does not. 
+
+
+.. comment
+
+    AOI_BREWSTER_linear_polarization_by_reflection.png
+    ----------------------------------------------------
+
+    AOI_BREWSTER_reflect_alt_pol.png
+    ----------------------------------
+
+    AOI_CRITICAL_tir_pol.png
+    ---------------------------
+
+
+
+:small:`Compare Refracted Polarization Impls for Brewster Angle Incidence`
+--------------------------------------------------------------------------- 
+
+.. class:: small 
+
+   * `opticks/src/master/sysrap/tests/sboundary_test.sh <https://bitbucket.org/simoncblyth/opticks/src/master/sysrap/tests/sboundary_test.sh>`_ : build, run, plot
+
+
+.. image:: sboundary_test/figs/sboundary_test/pvcap/AOI_BREWSTER_brewster_refract.png
+    :width: 550px 
+
+.. image:: sboundary_test/figs/sboundary_test/pvcap/AOI_BREWSTER_brewster_refract_alt_pol.png
+    :width: 550px 
+
+
+.. class:: small
+
+    +-----------------------------------------------------------------+------------------------------------------------------+
+    |  G4OpBoundaryProcess/qsim.h/sboundary.h : partial pol           | junoPMTOpticalModel::Refract : not partially pol     |
+    +-----------------------------------------------------------------+------------------------------------------------------+
+
+    * incident from left (-X), surface normal vertically upwards (+Z), intersection point in middle, 
+    * Colored lines represent polarization directions of 128 photons before and after Refraction
+    * Refracted using ``sboundary.h`` (compared with **alt_pol** that duplicates junoPMTOpticalModel::Refract )
+
+
+.. comment
+
+    AOI_BREWSTER_brewster_refract.png
+    -------------------------------------
+
+    AOI_BREWSTER_brewster_refract_alt_pol.png
+    -------------------------------------------
+
+
+.. comment
+
+    :i:`LayrTest_R12860_ARTQspx.png`
+    ---------------------------------
+
+    :i:`LayrTest_R12860_Aspx.png` 
+    ------------------------------
+
+    :i:`LayrTest_R12860_Rspx.png` 
+    ------------------------------
+
+    :i:`LayrTest_R12860_Tspx.png` 
+    ------------------------------
+
+
+
+.. s5_talk::
+
+    Similarly the polarization on refraction is also wrong. 
+
+
+
+hamaLogicalPMT_natural.png 
+----------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:15.6cm;" />
+
+
+.. class:: large
+
+    Natural 2-volume PMT (:b:`Pyrex` + :c:`Vacuum`) : :r:`NOT COMPATIBLE WITH FastSim`  
+
+
+
+.. s5_talk::
+
+    Natural geometry is not possible when using FastSim
+
+
+hamaLogicalPMT_fake.png
+-------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:3cm;" />
+
+
+.. class:: normal
+
+   |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp|
+   :c:`body` hidden under :m:`inner1` :y:`inner2` 
+
+   |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp|
+   :c:`body` is :r:`FastSim envelope volume`
+
+
+.. raw:: html
+
+    <p style="margin-bottom:10cm;" />
+
+
+.. class:: large
+
+    CURRENT : **Unnatural** 4-volume PMT (Pyrex+Pyrex+Vacuum+Vacuum) => :r:`Half Fake`
+
+
+
+.. s5_talk::
+
+    Murky colors are because there are near degenerate Fake volumes on top of each other  
+  
+    * natural geometry is 2 volumes : but here there are 4 volumes
+    * 2 of them are workarounds that allow FastSim to be used
+
+
+
+:small:`junoPMTOpticalModel FastSim : Fake Volumes -> Contorted ModelTrigger`
+--------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Current MultiLayer POM`
+
+    .. raw:: html 
+
+       <pre class="mypretiny">
+         +---------------pmt-Pyrex----------------+
+         |                                        |
+         |                                        |
+         |     +----body-Pyrex-(FSim-env)---+     |
+         |     | +------------------------+ |     |
+         |     | |                        | |     |
+         |     | |                        | |     |
+         |     | |        inner1-Vacuum   |-|     |
+         |     | |                        |1e-3   |
+         |     | |                        | |     |
+         |     | +~~coincident~face~~~~~~~+ |     |
+         |     | |                        | |     |
+         |     | |                        | |     |
+         |     | |        inner2-Vacuum   | |     |
+         |     | |                        | |     |
+         |     | |                        | |     |
+         |     | +------------------------+ |     |
+         |     +----------------------------+     |
+         |                                        |
+         |                                        |
+         +----------------------------------------+
+       </pre>
+
+    .. class:: small
+
+       * *ModelTrigger* : unnatural trig @ Vac/Vac bnd. 
+       * *DoIt* : shift to edge, for ART calc 
+       * only *m_mirror_opsurf* (inner2<->body) "active"
+
+
+.. raw:: html
+
+   <pre class="mypretiny">
+     80 G4bool junoPMTOpticalModel::ModelTrigger(const G4FastTrack &fastTrack)
+     81 {   // <span class="r"> Contorted as "pre-trigger" on where next </span>
+     83     if(fastTrack.GetPrimaryTrack()->GetVolume() == _inner2_phys){
+     84         return false;
+     85     }
+     ...
+     89     pos     = fastTrack.GetPrimaryTrackLocalPosition();
+     90     dir     = fastTrack.GetPrimaryTrackLocalDirection();
+     94     
+     95     if(fastTrack.GetPrimaryTrack()->GetVolume() == _inner1_phys){
+     96         whereAmI = kInVacuum;
+     97     }else{
+     98         whereAmI = kInGlass;
+     99     }
+    100    
+    101     if(whereAmI == kInGlass){
+    102         dist1 = _inner1_solid->DistanceToIn(pos, dir);
+    103         dist2 = _inner2_solid->DistanceToIn(pos, dir);
+    104
+    105         if(dist1 == kInfinity){
+    106             return false;
+    107         }else if(dist1>dist2){
+    108             return false;
+    109         }else{
+    110             return true;
+    111         }
+    112     }else{
+    113         dist1 = _inner1_solid->DistanceToOut(pos, dir);
+    114         dist2 = _inner2_solid->DistanceToIn(pos, dir);
+    115         
+    116         if(dist2 == kInfinity){
+    117             return true;
+    118         }
+    119     }
+    120     return false;
+    121 }   
+  </pre>
+
+
+
+.. s5_talk::
+
+    The ModelTrigger determines if the FastSim doIt runs or if standard Geant4 runs
+
+    * catching photons on fake boundaries and then pre-triggering on where they go next 
+    * contorted kludge allowing inappropriate use of FastSim
+
+
+.. comment
+
+    :small:`FastSim Big Bouncer : Collect ModelTrigger positions, decisions` 
+    ---------------------------------------------------------------------------
+
+    .. sidebar:: :small:`SFastSim_Debug.hh`
+
+        .. raw:: html
+
+           <pre class="mypretiny">
+            struct SYSRAP_API SFastSim_Debug
+            {   
+                static std::vector&lt;SFastSim_Debug&gt; record ;   
+                static constexpr const char* NAME = "SFastSim_Debug.npy" ; 
+                static constexpr int LIMIT = 100000 ; 
+                static void Save(const char* dir); 
+                void add(); 
+
+                double posx ;  // fs[:,0,:3]
+                double posy ;
+                double posz ;
+                double time ;  // fs[:,0,3]
+
+                double dirx ;  // fs[:,1,:3]
+                double diry ;
+                double dirz ;
+                double dist1 ; // fs[:,1,3]
+
+                double polx ;  // fs[:,2,:3]
+                double poly ;
+                double polz ;
+                double dist2 ; // fs[:,2,3]
+
+                double ModelTrigger; // fs[:,3,0].astype(np.int64)
+                double whereAmI ;    // fs[:,3,1].astype(np.int64)
+                double c ;           // fs[:,3,2]
+                double PhotonId ;    // fs[:,3,3].astype(np.int64)
+           };
+           </pre>
+
+    .. raw:: html
+
+       <pre class="mypre12">
+       epsilon:tests blyth$ PID=726 ./U4SimulateTest.sh nana 
+        In [1]: extra.shape
+        Out[1]: (14, 4, 4)
+        In [2]: extra
+        Out[2]: 
+        array([[[-112.83 ,    0.   ,  164.918,    0.164],
+                [   0.032,    0.   ,   -0.999,    0.001],    // dist1:1e-3 mm 
+                [   0.   ,   -1.   ,    0.   ,  165.005],
+                [  <span class="r"> 1.</span>   ,    1.   ,    0.   ,  726.   ]], ##<span class="r"> ModelTrigger:1 </span>
+
+               [[-112.83 ,    0.   ,  164.917,    0.164],
+                [  -0.138,    0.   ,   -0.99 ,  166.512],    // dist1 and dist2 equal
+                [   0.   ,   -1.   ,    0.   ,  166.512],
+                [  <span class="b"> 0.</span>   ,    2.   ,    0.   ,  726.   ]], ##<span class="b"> ModelTrigger:0 </span>
+
+               [[-156.577,    0.   , -148.846,    1.778],
+                [   0.81 ,    0.   ,    0.587,  253.614],
+                [   0.   ,    1.   ,    0.   ,    0.   ],
+                [   0.   ,    1.   ,    0.   ,  726.   ]],
+
+               [[ -95.   ,    0.   , -104.211,    2.166],
+                [  -0.81 ,    0.   ,    0.587,  177.561],
+                [   0.   ,   -1.   ,    0.   ,  169.042],
+                [   0.   ,    1.   ,    0.   ,  726.   ]],
+
+               [[-238.764,    0.   ,   -0.   ,    3.071],
+                [  -0.81 ,    0.   ,    0.587,   12.404],
+                [   0.   ,   -1.   ,    0.   ,   -1.   ],
+                [   1.   ,    2.   ,    0.   ,  726.   ]],
+                ...
+       </pre>
+
+    .. class:: small
+
+       *ModelTrigger* "pre-triggering" *dist1* ahead as *DoIt* will shift by **dist1**   
+
+       * :r:`Complication arising from unnatural geometry`
+       * :b:`Workaround G4 FastSim needing Region, not boundary` 
+
+
+.. comment
+
+    hamaLogicalPMTWrapLV_ModelTriggerYES.png
+    ------------------------------------------
+
+    .. raw:: html
+
+       <p style="margin-bottom:0.1cm;" />
+
+    .. class:: small
+
+       |emsp| |emsp| |emsp| |emsp| |emsp| Starts at upper left, here -->  
+
+    .. raw:: html
+
+       <p style="margin-bottom:14cm;" />
+
+    .. class:: small
+
+       * FastSim Workaround -> DoIt **dist1** shifts -> Effectively "Pre-Triggering" : slide red dots forwards 
+       
+
+
+
+    hamaLogicalPMTWrapLV_ModelTriggerNO.png
+    ------------------------------------------
+
+
+    .. raw:: html
+
+       <p style="margin-bottom:15.5cm;" />
+
+    .. class:: small
+
+       * :b:`blue dots` : ModelTrigger:NO : within FastSim region, but handled by SlowSim
+
+
+
+
+
+
+
+
+:small:`junoPMTOpticalModelSimple : Natural Geometry -> Simple ModelTrigger`
+--------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Simplified MultiLayer POM`
+
+    .. raw:: html 
+
+       <pre class="mypretiny">
+         +---------------pmt-Pyrex----------------+
+         |                                        |
+         |                                        |
+         |                                        |
+         |       +~inner~Vacuum~(FSim~env)+       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       +                        +       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       +------------------------+       |
+         |                                        |
+         |                                        |
+         |                                        |
+         +----------------------------------------+
+       </pre>
+
+    .. class:: small
+
+       * *ModelTrigger* : z>0 : no unnatural trig 
+       * override *mirror_opsurf* (inner<->pmt) @ z > 0 
+       * simpler *DoIt* : no geom. queries, no shifting
+
+.. raw:: html
+
+   <p style="margin-bottom:6cm;" />
+   <pre class="mypretiny">
+    G4bool junoPMTOpticalModelSimple::ModelTrigger(
+            const G4FastTrack &fastTrack)
+    {
+         // <span class="r"> Simple + Cheap due to natural geometry </span>
+        return fastTrack.GetPrimaryTrackLocalPosition().z() > 0. ;
+    }
+   </pre>
+        
+.. class:: small
+
+   https://github.com/simoncblyth/j/blob/main/PMTFastSim/junoPMTOpticalModelSimple.cc
+    
+
+.. s5_talk::
+
+    I tried to get FastSim to work with a natural geometry 
+
+    * ModelTrigger is much simpler when can trigger on where the photon is, not were its going next 
+
+
+:small:`junoPMTOpticalModelSimple : Natural Geometry -> Simple DoIt`
+--------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Simplified MultiLayer POM`
+
+    .. raw:: html 
+
+       <pre class="mypretiny">
+         +---------------pmt-Pyrex----------------+
+         |                                        |
+         |                                        |
+         |                                        |
+         |       +~inner~Vacuum~(FSim~env)+       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       +                        +       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       +------------------------+       |
+         |                                        |
+         |                                        |
+         |                                        |
+         +----------------------------------------+
+       </pre>
+
+    .. class:: small
+
+       * *ModelTrigger* : z>0 : no unnatural trig 
+       * override *mirror_opsurf* (inner<->pmt) @ z > 0 
+       * simpler *DoIt* : no geom. queries, no shifting
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    void junoPMTOpticalModelSimple::DoIt(const G4FastTrack& fastTrack, 
+          G4FastStep &fastStep)
+    {
+        G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
+        wavelength_nm = twopi*hbarc/energy/nm ;
+
+        position = fastTrack.GetPrimaryTrackLocalPosition();
+        direction = fastTrack.GetPrimaryTrackLocalDirection();
+        polarization = fastTrack.GetPrimaryTrackLocalPolarization();
+
+        G4VSolid* envelope_solid = fastTrack.GetEnvelopeSolid();
+        surface_normal = envelope_solid->SurfaceNormal(position);
+
+        minus_cos_theta = direction*surface_normal ;
+        whereAmI = minus_cos_theta < 0. ? kInGlass : kInVacuum ;
+
+        StackSpec<double> spec ;
+        // ... skip : collect refractive indices, thickness into spec ...
+
+        Stack<double,4> stack(      wavelength_nm, minus_cos_theta, spec );
+        Stack<double,4> stackNormal(wavelength_nm, -1.            , spec );
+        // ...
+   }
+   </pre>
+
+
+.. class:: small
+
+   * :r:`Simple : BUT NOT WORKABLE`
+   * :b:`Cannot stop:` ``G4OpBoundaryProcess`` 
+   
+     * **REAL REASON FOR THE FAKE VOLUMES** 
+     * Workaround limitations of Geant4 FastSim
+
+
+.. s5_talk::
+
+    doIt also simple : BUT NOT WORKABLE : AS CANNOT STOP boundary process
+
+
+:small:`Pivot to CustomG4OpBoundaryProcess For PMT Optical Model ?`
+---------------------------------------------------------------------
+
+.. sidebar:: :small:`Custom Boundary POM`
+
+    .. raw:: html 
+
+       <pre class="mypretiny">
+         +---------------pmt-Pyrex----------------+
+         |                                        |
+         |                                        |
+         |                                        |
+         |       +~inner~Vacuum~~~~~~~~~~~+       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       +                        +       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       +------------------------+       |
+         |                                        |
+         |                                        |
+         |                                        |
+         +----------------------------------------+
+       </pre>
+
+    .. class:: small
+
+       ``OpSurfaceName[0] == '@'``
+
+       * ``local_z>0`` : does MultiLayer ART calc 
+       * ``!(local_z>0)`` : standard *mirror_opsurf*
+
+.. class:: small
+ 
+   * Cannot use natural geometry with FastSim
+
+     * SO: ``CustomG4OpBoundaryProcess``
+
+   **Custom Boundary Process : Advantages**
+
+   * standard Geant4 polarization, propagation
+   * less code, simpler code
+   * natural geometry, avoiding fakes
+   * simpler Geant4 step history (no fakes)
+   * same geometry on GPU+CPU, easier Opticks validation  
+   * half the geometry objects to model PMT (4->2)
+
+   +----------------------+-----------------------+
+   | Current FastSim POM  | 4 Solid, 4 LV, 4 PV   |
+   +----------------------+-----------------------+
+   | Custom Boundary POM  | 2 Solid, 2 LV, 2 PV   | 
+   +----------------------+-----------------------+
+
+   **Disadvantages**
+
+   * maintain custom G4OpBoundaryProcess  
+   * updating Geant4 may require care (depending on changes)  
+
+.. raw:: html 
+
+    <p style="margin-bottom:1cm;" />
+
+.. class:: large
+
+   :r:`Advantages far outweigh disadvantages`
+
+.. s5_talk::
+
+   Customizing Geant4 boundary process does have some disadvantages but 
+   the advantages far outweigh them.  It provides a natural fix for 
+   all the problems and it requires less code. 
+ 
+
+:small:`u4/CustomART.h : include into CustomG4OpBoundaryProcess.cc`
+-----------------------------------------------------------------------
+
+.. sidebar:: :small:`CustomART::maybe_doIt`
+
+    .. raw:: html
+
+      <pre class="mypretiny">
+      inline char CustomART::maybe_doIt(
+           const char* OpticalSurfaceName, 
+           const G4Track& aTrack, const G4Step& aStep )
+      {   
+          if( OpticalSurfaceName == nullptr || 
+              OpticalSurfaceName[0] != '@') return 'N' ;
+          
+          const G4AffineTransform& transform = 
+            aTrack.GetTouchable()
+            ->GetHistory()->GetTopTransform();
+
+          G4ThreeVector localPoint = 
+            transform.TransformPoint(theGlobalPoint);
+
+          if(localPoint.z() <= 0) return 'Z' ;
+          
+          return doIt(aTrack, aStep) ;
+      }
+      </pre>
+             
+
+    .. class:: small
+
+      *doIt* TMM calc, runs only for:
+ 
+      * OpticalSurfaceName[0]=='@' && zlocal > 0  
+      * -> :b:`Transmittance, Reflectivity, Efficiency`  
+      * TMM calc using Layr.h multi-layer Stack 
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    &#35;include "IPMTAccessor.h"
+    &#35;include "Layr.h"    
+    &#35;include "U4Touchable.h"
+
+    struct CustomART
+    {
+        <span class="r">const IPMTAccessor* accessor ; // JPMT.h OR PMTAccessor.h </span> 
+        
+        <span class="b">G4double& theTransmittance ;   // doIt sets these 
+        G4double& theReflectivity ;
+        G4double& theEfficiency ;</span> 
+        
+        const G4ThreeVector& theGlobalPoint ;
+        const G4ThreeVector& OldMomentum ;  
+        const G4ThreeVector& OldPolarization ;
+        const G4ThreeVector& theRecoveredNormal ;
+        const G4double& thePhotonMomentum ; 
+        
+        CustomART(
+            const IPMTAccessor* accessor,
+            G4double& theTransmittance,
+            G4double& theReflectivity,
+            G4double& theEfficiency,
+            const G4ThreeVector& theGlobalPoint,
+            const G4ThreeVector& OldMomentum,  
+            const G4ThreeVector& OldPolarization,
+            const G4ThreeVector& theRecoveredNormal,
+            const G4double& thePhotonMomentum
+        );  
+        char maybe_doIt(const char* OpticalSurfaceName, 
+                  const G4Track& aTrack, const G4Step& aStep );
+        char doIt(const G4Track& aTrack, const G4Step& aStep ); 
+    };  
+    </pre>
+
+.. class:: small
+
+   `opticks/src/master/u4/CustomART.h <https://bitbucket.org/simoncblyth/opticks/src/master/u4/CustomART.h>`_
+
+
+.. s5_talk::
+
+   Separate header for cleaner customization. 
+
+
+:i:`hamaLogicalPMTWrapLV_full_history.png`
+--------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:16.5cm;" />
+
+.. raw:: html
+
+   <pre class="mypre20">   
+   TO  BT  BT  BT  BT  SR  SR  BT  BR  BR  BT  SR  SR  SR  BT  BR  BT  SR  BT  SA   <span class="b"> Lots of fakes </span> 
+   00  01 [02] 03 [04] 05  06 [07] 08  09 [10] 11  12  13 [14] 15 [16] 17 [18] 19   (7/20 Fake)
+   </pre>
+
+
+.. s5_talk::
+
+   Lots of fake step points in current Geant4 histories. The ones across the 
+   middle are obvious. There are others much closer together that are difficult to see. 
+
+
+:i:`hamaLogicalPMTWrapLV_natural.png`
+--------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:16.5cm;" />
+
+.. raw:: html
+
+   <pre class="mypre20">   
+   TO  BT  BT  SR  SR  BR  BR  SR  SR  SR  BR  SR  BR <span class="r"> SR  SA</span>
+   00  01  02  03  04  05  06  07  08  09  10  11  12 <span class="r"> 13  14</span>      <span class="b"> Simpler history, no fakes </span> 
+   00  01  03  05  06  08  09  11  12  13  15  17  19  
+   </pre>
+
+
+.. s5_talk::
+
+    No fakes 
+
+
+:small:`Compare "big bouncer" position, time between N=0,1 (1)`
+------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    u4t ; ./U4SimulateTest.sh cf
+
+    In [12]: np.c_[ar[:,0],np.arange(len(ar)),br[:,0]]
+    Out[12]: 
+    array([[-113.   ,    0.   ,  200.   ,    0.   ,    0.   , -113.   ,    0.   ,  200.   ,    0.   ],
+           [-113.   ,    0.   ,  170.163,    0.137,    1.   , -113.   ,    0.   ,  170.163,    0.137],
+           [-112.83 ,    0.   ,  164.918,    0.164,    2.   , -112.83 ,    0.   ,  164.917,    0.164],
+           [-112.83 ,    0.   ,  164.917,    0.164,    3.   , -156.577,    0.   , -148.846,    1.22 ],
+           [-135.824,    0.   ,    0.   ,    1.012,    4.   ,  -95.   ,    0.   , -104.211,    1.474],
+           [-156.577,    0.   , -148.846,    1.778,    5.   , -248.807,    0.   ,    7.28 ,    2.108],
+           [ -95.   ,    0.   , -104.211,    2.166,    6.   ,   53.206,    0.   ,  180.727,    3.269],
+           [-238.764,    0.   ,   -0.   ,    3.071,    7.   ,  245.605,    0.   ,  -35.443,    4.235],
+           [-248.807,    0.   ,    7.28 ,    3.112,    8.   ,   95.   ,    0.   ,  -99.428,    4.781],
+           [  53.205,    0.   ,  180.727,    4.274,    9.   ,  177.724,    0.   , -134.574,    5.08 ],
+           [ 214.06 ,    0.   ,    0.   ,    5.507,   10.   ,  141.059,    0.   ,  152.451,    6.046],
+           [ 245.605,    0.   ,  -35.443,    5.749,   11.   , -239.66 ,    0.   ,  -55.195,    7.492],
+           [  95.   ,    0.   ,  -99.428,    6.583,   12.   ,  237.91 ,    0.   ,   54.597,    9.127],
+           [ 177.724,    0.   , -134.574,    7.041,   13.   ,   50.   ,    0.   ,  -63.74 ,    9.867],
+           [ 160.533,    0.   ,    0.   ,    7.732,   14.   ,   58.352,    0.   ,  -69.   ,    9.9  ],
+           [ 141.059,    0.   ,  152.451,    8.245,   15.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [-138.46 ,    0.   ,    0.   ,    9.867,   16.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [-239.66 ,    0.   ,  -55.195,   10.455,   17.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [   0.427,    0.   ,    0.   ,   11.71 ,   18.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [ 237.91 ,    0.   ,   54.596,   12.523,   19.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [   0.   ,    0.   ,    0.   ,    0.   ,   20.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [   0.   ,    0.   ,    0.   ,    0.   ,   21.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [   0.   ,    0.   ,    0.   ,    0.   ,   22.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [   0.   ,    0.   ,    0.   ,    0.   ,   23.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+
+    </pre>
+    
+.. class:: small
+
+    +----+-----------------+------------------+---------------------------------------+
+    | ar | a.record[PID]   | N=0 current geom | degenerate and fake intersect points  |
+    +----+-----------------+------------------+---------------------------------------+
+    | bb | b.record[PID]   | N=1 natural geom | less points, simpler history          |
+    +----+-----------------+------------------+---------------------------------------+
+
+    :r:`Need point-to-point mapping to compare`
+
+
+.. s5_talk::
+
+    This is comparing positions and times with the un-natural and natural geometry 
+
+
+:small:`Compare "big bouncer" position, time between N=0,1 (2)`
+------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    u4t ; ./U4SimulateTest.sh cf
+
+    In [2]: b2a  ## point-to-point mapping to skip a fakes  
+    Out[2]: array([ 0,  1,  3,  5,  6,  8,  9, 11, 12, 13, 15, 17, 19])
+
+    In [4]: abr = np.c_[ar[b2a,0],br[:len(b2a),0],ar[b2a,0]-br[:len(b2a),0]] ; abr
+    Out[4]: 
+    array([[-113.   ,    0.   ,  200.   ,    0.   , -113.   ,    0.   ,  200.   ,    0.   ,    0.   ,    0.   ,    0.   ,    0.   ],
+           [-113.   ,    0.   ,  170.163,    0.137, -113.   ,    0.   ,  170.163,    0.137,    0.   ,    0.   ,    0.   ,    0.   ],
+           [-112.83 ,    0.   ,  164.917,    0.164, -112.83 ,    0.   ,  164.917,    0.164,    0.   ,    0.   ,    0.   ,   -0.   ],
+           [-156.577,    0.   , -148.846,    1.778, -156.577,    0.   , -148.846,    1.22 ,   -0.   ,    0.   ,    0.   ,    0.558],
+           [ -95.   ,    0.   , -104.211,    2.166,  -95.   ,    0.   , -104.211,    1.474,    0.   ,    0.   ,    0.   ,    0.692],
+           [-248.807,    0.   ,    7.28 ,    3.112, -248.807,    0.   ,    7.28 ,    2.108,    0.   ,    0.   ,   -0.   ,    1.004],
+           [  53.205,    0.   ,  180.727,    4.274,   53.206,    0.   ,  180.727,    3.269,   -0.   ,    0.   ,    0.   ,    1.004],
+           [ 245.605,    0.   ,  -35.443,    5.749,  245.605,    0.   ,  -35.443,    4.235,    0.   ,    0.   ,    0.   ,    1.514],
+           [  95.   ,    0.   ,  -99.428,    6.583,   95.   ,    0.   ,  -99.428,    4.781,    0.   ,    0.   ,    0.   ,    1.802],
+           [ 177.724,    0.   , -134.574,    7.041,  177.724,    0.   , -134.574,    5.08 ,    0.   ,    0.   ,    0.   ,    1.96 ],
+           [ 141.059,    0.   ,  152.451,    8.245,  141.059,    0.   ,  152.451,    6.046,   -0.   ,    0.   ,    0.   ,    2.199],
+           [-239.66 ,    0.   ,  -55.195,   10.455, -239.66 ,    0.   ,  -55.195,    7.492,    0.   ,    0.   ,    0.   ,    2.963],
+           [ 237.91 ,    0.   ,   54.596,   12.523,  237.91 ,    0.   ,   54.597,    9.127,    0.   ,    0.   ,   -0.   ,    3.397]], dtype=float32)
+   </pre>
+
+.. class:: small
+
+    :b:`Positions match closely, some times are way off` 
+
+.. s5_talk::
+
+    After doing point to point mapping to skip the fakes can see that the positions closely match, but the times are ns off. 
+
+
+:small:`Compare "big bouncer" position, time, dist, speed between N=0,1`
+--------------------------------------------------------------------------
+
+::
+
+    rvtime_ = lambda r:np.diff(r[:,0,3])
+    rvstep_ = lambda r:np.diff(r[:,0,:3],axis=0 )   
+    rvdist_ = lambda r:np.sqrt(np.sum(rvstep_(r)*rvstep_(r),axis=1))
+    rvspeed_ = lambda r:rvdist_(r)/rvtime_(r)
+
+    In [14]: np.c_[rvtime_(ar[b2a]), rvtime_(br[:len(b2a)]),
+                   rvdist_(ar[b2a]), rvdist_(br[:len(b2a)]),
+                  rvspeed_(ar[b2a]),rvspeed_(br[:len(b2a)])]
+ 
+.. raw:: html
+
+    <pre class="mypretiny">
+    Out[14]: 
+    array([[  0.137,   0.137,  29.837,  29.837, 218.038, 218.038],  ## Water
+           [  0.027,   0.027,   5.249,   5.249, 196.216, 196.215],  ## Pyrex 
+           [  1.615,   1.057, 316.798, 316.798, <span class="r">196.215</span>, 299.792],  ## Vacuum
+           [  0.388,   0.254,  76.053,  76.053, <span class="r">196.215</span>, 299.792],
+           [  0.946,   0.634, 189.965, 189.965, <span class="b">200.744</span>, 299.792],  ## <span class="b">comb. of Vacuum and Pyrex speeds, split at Fake </span>
+           [  1.162,   1.162, 348.275, 348.275, 299.792, 299.792],
+           [  1.475,   0.965, 289.392, 289.392, <span class="r">196.215</span>, 299.792],
+           [  0.834,   0.546, 163.634, 163.634, <span class="r">196.215</span>, 299.792],
+           [  0.458,   0.3  ,  89.881,  89.881, <span class="r">196.215</span>, 299.792],
+           [  1.204,   0.965, 289.357, 289.357, <span class="b">240.315</span>, 299.792],  ## <span class="b">comb. of Vacuum and Pyrex speeds, split at Fake</span>  
+           [  2.21 ,   1.447, 433.663, 433.663, 196.215, 299.792],
+           [  2.068,   1.635, 490.027, 490.027, 236.919, 299.792]], dtype=float32)
+    </pre>
+
+.. class:: small
+
+    +-----+--------------------------------+----------------------------------------------------------+
+    | N=0 | Pyrex speed within PMT Vacuum  | :r:`FastSim->SlowSim transitions miss speed setup ?`     |
+    +-----+--------------------------------+----------------------------------------------------------+
+    | N=1 | Always Vacuum speed in Vacuum  | All standard Geant4 with customized G4OpBoundaryProcess  |
+    +-----+--------------------------------+----------------------------------------------------------+
+
+
+.. s5_talk::
+ 
+   Calculating the speed for each step you can see that the un-natural geometry 
+   also has un-natural propagation times with photons travelling at Pyrex speed 
+   within the lower hemisphere of the PMT. The natural geometry is using standard 
+   Geant4 giving the expected vacuum speed with the PMT vacuum.  
+
+
+
+.. comment
+
+    :small:`Rerunning Single Photons : Very Useful Debug Technique`
+    -----------------------------------------------------------------
+
+    .. sidebar:: :small:`Save/Load g4state into NP array`
+
+        .. class:: small
+
+            :r:`Efficiently save/restore thousands of states` 
+
+        .. class:: small
+
+            **MixMaxRng (G4 1042 random engine)**
+          
+            State of engine : 38*uint32 
+
+        .. raw:: html
+
+            <pre class="mypretiny">
+            U4Engine::SaveState(    NP* states, int idx );
+            U4Engine::RestoreState( NP* states, int idx );
+            </pre>
+
+
+        .. class:: small
+
+            **Rerun "big bouncer" photon**
+
+        .. raw:: html
+
+            <pre class="mypretiny">
+            vi U4SimulateTest.sh    # SRM_G4STATE_SAVE
+            N=0 ./U4SimulateTest.sh # save g4state into ALL0
+            vi U4SimulateTest.sh    # SRM_G4STATE_RERUN
+            N=1 ./U4SimulateTest.sh # load ALL0, save SEL1
+            </pre>
+        
+
+
+    * save g4state before sim each photon 
+    * :r:`enables re-simulation of single photons`
+    * compare between geometry versions
+    * add random "burns" matching consumption
+
+      * :b:`manual fixup, only for debug`
+
+
+
+
+
+
+
+
+:i:`hamaLogicalPMT_two_pmt_geom.png`
+--------------------------------------
+
+.. s5_talk::
+
+    Two PMT test.  Unnatural geometry on left, natural on right. 
+
+
+:i:`hamaLogicalPMT_two_pmt_cf.png`
+------------------------------------
+
+.. s5_talk::
+
+    The difference between the unnatural and natural histories is clear 
+
+
+.. comment
+
+    hamaLogicalPMT_two_pmt_check.png 
+    -----------------------------------
+
+
+
+
+
+Low dependency access to PMT data :r:`(26x faster)`
+----------------------------------------------------
+
+
+.. sidebar:: :small:`Why Low Dependency Access ?` 
+
+   .. class:: small
+
+       * CODING BEST PRACTICE
+
+         * :r:`less deps -> more useful code`
+
+       * test separate from the "monolith"
+ 
+         * :r:`development cycle < 1 s (vs minutes)`
+
+       * serialization with **NP.hh,NPFold.h** 
+
+         * https://github.com/simoncblyth/np/  
+         * :b:`0-deps (hdr-only) -> PMT data anywhere`
+
+
+       **QE scan over 100 energy points, all PMTs**
+
+       ::
+
+           get_pmtid_qe( pmtid, en );   
+
+       +----------------------------------+--------------+  
+       |  IPMTSimParamSvc                 |   7.70 s     |
+       +----------------------------------+--------------+  
+       |  PMTSimParamData                 |   0.30 s     |
+       +----------------------------------+--------------+
+       |  IPMTSimParamSvc/PMTSimParamData |   26.10      | 
+       +----------------------------------+--------------+
+
+       * :r:`exactly same results, 26x faster` 
+
+
+
+.. class:: small
+
+    +--------------------------------------------------------------------------------------------------------------------------------------------------------+
+    | `junosw/-/merge_requests/126 <https://code.ihep.ac.cn/JUNO/offline/junosw/-/merge_requests/126>`_   :r:`MERGED AFTER ~3 WEEKS`                         |
+    +--------------------------------------------------------------------------------------------------------------------------------------------------------+
+    | `junosw/-/issues/66 <https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/66>`_                                                                        |
+    +--------------------------------------------------------------------------------------------------------------------------------------------------------+
+    | `junosw/-/tree/blyth-66-low-dependency-PMT-data-access <https://code.ihep.ac.cn/JUNO/offline/junosw/-/tree/blyth-66-low-dependency-PMT-data-access>`_  |
+    +--------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+    *PMTSimParamSvc* and *PMTParamSvc* 
+        => too many deps for *CustomG4OpBoundaryProcess*
+
+    * **hdrs for collecting data are irrelevant to access**
+    * -> separate data struct from Svc 
+
+      * header-only impl : *PMTSimParamData* *PMTParamData* 
+      * *_PMTSimParamData* : serialization save/load
+
+    * reference data struct from Svc 
+
+      * minimal changes to Svc, API
+      * consistency guaranteed
+      * no change with diff src : file, DB, Frontier
+
+    * speedup not the motivation, BUT 26x faster by:
+
+      * :r:`calc qe_scale ONCE, not for every photon`
+      * large pmtid std::map -> std::vector
+
+
+.. s5_talk::
+
+   First step is to improve access to PMT data for use from the custom boundary process   
+
+
+.. comment
+
+    Other Work : Opticks Code Reduction
+    ----------------------------------------
+
+    .. class:: small
+
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |                 pkg     |         hh/cc/cu/py     |                                                                       Base     |
+        +=========================+=========================+================================================================================+
+        |          :b:`sysrap`    |     :b:`197/78/1/11`    |                                           :b:`basis types, new array NP.hh`    |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |        :r:`boostrap`    |       :r:`46/42/0/0`    |                                                            :r:`boost tools`    |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |             :r:`npy`    |     :r:`181/165/0/6`    |                                      :r:`geo primitives, old array NPY.hpp`    |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |     :r:`optickscore`    |       :r:`70/62/0/1`    |                                           :r:`old core, argument parsing`      |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |            :r:`ggeo`    |       :r:`68/65/0/2`    |                         :r:`complete geometry model : no Geant4 dependency`    |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |           :r:`extg4`    |       :r:`64/53/0/0`    |                           :r:`Geant4 geometry translation into GGeo model`     |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |             :b:`CSG`    |       :b:`45/23/0/9`    |                                                     :b:`New geometry model`    |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |        :r:`CSG_GGeo`    |         :r:`3/2/0/0`    |                                      :r:`GGeo to CSG geometry translation`     |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |        :r:`GeoChain`    |         :r:`3/2/0/0`    |                                           :r:`geometry translation testing`    |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |         :b:`qudarap`    |      :b:`47/27/15/1`    |        :b:`CUDA optical photon simulation, CUDA upload, download, textures`    |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |        :b:`CSGOptiX`    |       :b:`20/14/4/2`    |                                         :b:`CSG intersection with OptiX 7`     |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |              :b:`u4`    |       :b:`63/20/0/2`    |                  :b:`New Geant4 interface, genstep collection, U4Recorder`     |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |           :b:`gdxml`    |         :b:`6/4/0/0`    |                                         :b:`GDML loaded as XML for fixups`     |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+        |            :b:`g4cx`    |         :b:`3/2/0/0`    |                  :b:`New top level package integrating Geant4 and CSGOptiX`    |
+        +-------------------------+-------------------------+--------------------------------------------------------------------------------+
+
+        * :b:`blue : active development`,  :r:`red : plan to remove` : not used for simulation, only used for geometry translation
+
+          * progress with U4Material, U4Surface, U4Solid, snd, snode, stree => :b:`close to removing ~7 pkgs, hundreds of files` 
+
+
+
+OTHER WORK : U4Tree.h/stree.h : Direct Geometry Translation
+--------------------------------------------------------------
+
+.. sidebar:: :small:`Current Approach : extg4 translated`
+
+
+    .. class:: small
+
+        +---------------------------+
+        | Geant4 -> *GGeo* -> CSG   |
+        +---------------------------+
+        
+        :r:`Full intermediate GGeo model`
+          * GMaterial/GMaterialLib/GSurfaceLib/...
+          * GMergedMesh/GMesh
+          * nnode/NCSG/...
+          * :b:`(lots of code)` 
+
+
+
+.. sidebar:: :small:`DRASTIC CODE REDUCTION NEAR`
+
+    .. class:: small
+
+        * ~6 pkgs, literally hundreds of classes/structs
+
+
+
+.. class:: small
+
+
+   +--------------------------------------+
+   | Geant4 -> U4Tree.h/stree.h -> CSG    |
+   +--------------------------------------+
+
+   :b:`Minimal intermediate stree.h model` 
+     * stree.h : n-ary tree of snode volumes
+     * scsg.hh : n-ary trees of snd constituent solids
+     * :r:`(much less code)`
+
+
+   +----------------------------------------+
+   |                                        | 
+   | U4Tree                                 |
+   |     G4VPhysicalVolume -> stree/snode   |
+   |                                        |
+   | U4Solid                                |
+   |     G4VSolid -> scsg/snd               |
+   |                                        |
+   | U4Material                             |
+   |     G4Material -> NPFold/NP            | 
+   |                                        |
+   | U4Surface                              |
+   |     G4LogicalSurface -> NPFold/NP      |
+   |                                        |
+   +----------------------------------------+
+   
+
+   +--------------------------------------------------------------+
+   |  stree/snode/scsg/snd -> CSGFoundry/CSGSolid/CSGPrim/CSGNode | 
+   +--------------------------------------------------------------+
+
+
+.. s5_talk::
+
+    While waiting for merge : worked on direct geometry translation
+
+
+:small:`Next Steps : Custom Boundary + Natural Geometry Branch`
+-------------------------------------------------------------------------------
+
+**junosw : Natural PMT Geometry Branch**
+
+* almost all standalone tested already, need to bring into junosw monolith
+* need switch : FastSim/standard-Sim, natural geometry, custom boundary
+
++------------------------------+---------------------------------------------+
+| Primary                      |   Support                                   |
++==============================+=============================================+
+| *CustomG4OpBoundaryProcess*  |  *PMTSimParamData* (merged in MR 126)       |
+| *CustomART.h*                |  *PMTAccessor/IPMTAccessor* (j/Layr)        | 
+| *Layr.h*                     |  *HamamatsuR12860PMTManager*                |
+|                              |  *NNVTMCPPMTManager*                        |
++------------------------------+---------------------------------------------+
+
+
+**Opticks : Custom boundary equivalent**
+
+* *PMTSimParamData* *PMTAccessor* -> GPU 
+* natural geometry => easier to validate (no fakes)
+* standard propagation + polarization => easier (already implemented qudarap/qsim.h ) 
+
+
+.. s5_talk::
+
+    Next steps 
+
