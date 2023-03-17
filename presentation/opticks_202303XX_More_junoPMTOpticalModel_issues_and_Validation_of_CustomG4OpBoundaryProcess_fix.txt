@@ -37,7 +37,7 @@
 
     * :r:`over complex PMT geometry and Geant4 step histories`
     * :r:`BUGS:` polarization and propagation time within PMT 
-    * :r:`MORE BUGS:` unphysical mid-vacuum reflect, refract, absorb, detect 
+    * :r:`MORE BUGS:` unphysical mid-vacuum reflect, refract, absorb, detect, "tunneling" 
 
   * reimplemented *jPOM::ModelTrigger* avoids unphysical
 
@@ -60,13 +60,22 @@
     mainly with the PMT geometry and optical model.   
 
 
-
-Unphysical FastSim Examples
------------------------------
+:small:`Unphysical junoPMTOpticalModel::ModelTrigger FastSim Examples`
+--------------------------------------------------------------------------
 
 .. class:: small
 
-    Commandlines to create the following plots.
+    FastSim **junoPMTOpticalModel::ModelTrigger** should happen:
+ 
+    1. on Vac/Vac inner1/inner2 border in middle of PMT 
+    2. on Pyrex/Pyrex pmt/body border around upper hemi-ellipsoid 
+
+    When they happen elsewhere : get unphysical results, including :r:`"tunneling" through geometry`  
+
+
+    Commandlines to create plots showing : :r:`NNVT Unphysical mid-Vacuum Reflect/Refract/Detect/Absorb` 
+
+    * caused by "Undefined" behaviour of **junoPMTOpticalModel::ModelTrigger** 
 
 .. raw:: html 
 
@@ -87,7 +96,6 @@ Unphysical FastSim Examples
 
     APID=8499 AOPT=idx N=0 SUBTITLE="13:detect mid vacuum" ./U4SimtraceTest.sh ana 
     </pre>
-
 
 
 :i:`FewPMT_2563_Unphysical_SD_in_vacuum.png`
@@ -113,8 +121,23 @@ Unphysical FastSim Examples
 
 
 
-:i:`FewPMT_ModelTriggerDebug_inner2_whereAmI_Pyrex.png`
+:i:`FewPMT_NNVT_ModelTriggerBuggy_inner2_Pyrex_trig.png`
 ---------------------------------------------------------
+
+
+:i:`FewPMT_HAMA_ModelTriggerBuggy_no_inner2_Pyrex_trig.png`
+------------------------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:165mm;" />
+
+.. class:: small
+
+    :r:`Why no similar ModelTriggerBuggy problem for HAMA ?` **Undefined behaviour of G4UnionSolid::DistanceToIn from Inside** 
+
+
+
 
 
 :small:`junoPMTOpticalModel::ModelTrigger : NNVT : ~2.5% UNPHYSICAL TRIG`
@@ -149,6 +172,253 @@ Unphysical FastSim Examples
     mtd_trig_pyrex_lower = np.logical_and(mtd_trig_pyrex, mtd_lower )
     </pre>
 
+
+
+
+
+
+
+:small:`G4UnionSolid::DistanceToIn from Inside is "Undefined" and depends on CSG constituents : NNVT`
+-------------------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    &gt; u4t ; ./G4VSolid_Test.sh 
+                                                                 NNVT INNER2: Just Lower-Hemi-Ellipsoid
+            pos    INNER1  DistToIn DistToOut      Dist        INNER2  DistToIn DistToOut      Dist     trig
+       (0,0,20)   kInside  170.0000  170.0000  170.0000      kOutside kInfinity    0.0000 kInfinity      YES
+       (0,0,15)   kInside  175.0000  175.0000  175.0000      kOutside kInfinity    0.0000 kInfinity      YES
+       (0,0,10)   kInside  180.0000  180.0000  180.0000      kOutside kInfinity    0.0000 kInfinity      YES
+        (0,0,5)   kInside  185.0000  185.0000  185.0000      kOutside kInfinity    0.0000 kInfinity      YES
+        (0,0,4)   kInside  186.0000  186.0000  186.0000      kOutside kInfinity    0.0000 kInfinity      YES
+        (0,0,3)   kInside  187.0000  187.0000  187.0000      kOutside kInfinity    0.0000 kInfinity      YES
+        (0,0,2)   kInside  188.0000  188.0000  188.0000      kOutside kInfinity    0.0000 kInfinity      YES
+        (0,0,1)   kInside  189.0000  189.0000  189.0000      kOutside kInfinity    0.0000 kInfinity      YES
+        (0,0,0)  kSurface    0.0000  190.0000  190.0000      kSurface kInfinity    0.0000    0.0000      YES
+       (0,0,-1)  kOutside    1.0000  191.0000    1.0000       kInside kInfinity    1.0000    1.0000      YES
+       (0,0,-2)  kOutside    2.0000  192.0000    2.0000       kInside kInfinity    2.0000    2.0000      YES
+       (0,0,-3)  kOutside    3.0000  193.0000    3.0000       kInside kInfinity    3.0000    3.0000      YES
+       (0,0,-4)  kOutside    4.0000  194.0000    4.0000       kInside kInfinity    4.0000    4.0000      YES
+       (0,0,-5)  kOutside    5.0000  195.0000    5.0000       kInside kInfinity    5.0000    5.0000      YES
+       (0,0,-6)  kOutside    6.0000  196.0000    6.0000       kInside kInfinity    6.0000    6.0000      YES
+       (0,0,-7)  kOutside    7.0000  197.0000    7.0000       kInside kInfinity    7.0000    7.0000      YES
+       (0,0,-8)  kOutside    8.0000  198.0000    8.0000       kInside kInfinity    8.0000    8.0000      YES
+       (0,0,-9)  kOutside    9.0000  199.0000    9.0000       kInside kInfinity    9.0000    9.0000      YES
+      (0,0,-10)  kOutside   10.0000  200.0000   10.0000       kInside kInfinity   10.0000   10.0000      YES
+    </pre>
+
+.. class:: small
+
+    * DistanceToIn, DistanceToOut, Distance_ in +Z direction from points along Z axis
+    * CSG structure of NNVT inner1/inner2 yield mis-placed Pyrex triggers for Z > -185 mm
+
+::
+
+    ~/opticks/u4/tests/G4VSolid_Test.{sh,cc} 
+
+
+
+:small:`G4UnionSolid::DistanceToIn from Inside is "Undefined" and depends on CSG constituents : HAMA`
+-------------------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    &gt; u4t ; ./G4VSolid_Test.sh 
+                                                                 HAMA INNER2: Union of Polycone and Lower-Hemi-Ellipsoid
+            pos    INNER1  DistToIn DistToOut      Dist        INNER2  DistToIn DistToOut      Dist     trig
+       (0,0,20)   kInside  170.0000  170.0000  170.0000      kOutside kInfinity    0.0000 kInfinity      YES
+       (0,0,15)   kInside  175.0000  175.0000  175.0000      kOutside kInfinity    0.0000 kInfinity      YES
+       (0,0,10)   kInside  180.0000  180.0000  180.0000      kOutside kInfinity    0.0000 kInfinity      YES
+        (0,0,5)   kInside  185.0000  185.0000  185.0000      kOutside kInfinity    0.0000 kInfinity      YES
+        (0,0,4)   kInside  186.0000  186.0000  186.0000      kOutside kInfinity    0.0000 kInfinity      YES
+        (0,0,3)   kInside  187.0000  187.0000  187.0000      kOutside kInfinity    0.0000 kInfinity      YES
+        (0,0,2)   kInside  188.0000  188.0000  188.0000      kOutside kInfinity    0.0000 kInfinity      YES
+        (0,0,1)   kInside  189.0000  189.0000  189.0000      kOutside kInfinity    0.0000 kInfinity      YES
+        (0,0,0)  kSurface    0.0000  190.0000  190.0000      kSurface kInfinity    0.0000    0.0000      YES
+       (0,0,-1)  kOutside    1.0000  191.0000    1.0000       kInside kInfinity    1.0000    1.0000      YES
+       (0,0,-2)  kOutside    2.0000  192.0000    2.0000       kInside kInfinity    2.0000    2.0000      YES
+       (0,0,-3)  kOutside    3.0000  193.0000    3.0000       kInside kInfinity    3.0000    3.0000      YES
+       (0,0,-4)  kOutside    4.0000  194.0000    4.0000       kInside kInfinity    4.0000    4.0000      YES
+       (0,0,-5)  kOutside    5.0000  195.0000    5.0000       kInside    0.0000    5.0000    5.0000      NO 
+       (0,0,-6)  kOutside    6.0000  196.0000    6.0000       kInside    1.0000    6.0000    6.0000      NO 
+       (0,0,-7)  kOutside    7.0000  197.0000    7.0000       kInside    2.0000    7.0000    7.0000      NO 
+       (0,0,-8)  kOutside    8.0000  198.0000    8.0000       kInside    3.0000    8.0000    8.0000      NO 
+       (0,0,-9)  kOutside    9.0000  199.0000    9.0000       kInside    4.0000    9.0000    9.0000      NO 
+      (0,0,-10)  kOutside   10.0000  200.0000   10.0000       kInside    5.0000   10.0000   10.0000      NO 
+    </pre>
+
+
+.. class:: small
+
+    * Undefined behaviour prevents HAMA giving mis-placed Pyrex triggers from below Z=-5 mm
+
+
+
+
+
+:small:`Fixed ModelTrigger avoiding whereAmI bug, "Undefined" behaviour`
+-------------------------------------------------------------------------
+
+.. sidebar:: :small:`FIXED : ModelTrigger (ray style)`
+
+    .. raw:: html 
+
+        <pre class="mypretiny">
+        G4bool ModelTrigger(const G4FastTrack &fastTrack)
+        {
+          ...
+          bool trig = false ; 
+          dist1 = Distance( _inner1_solid, pos, dir, in1 );
+          if( dist1 != kInfinity && dist1 > EPSILON )
+          {
+            next_pos = pos + dir*dist1 ;
+            trig = next_pos.z() > EPSILON ;  
+            // disqualify flat face intersects 
+
+            next_norm = _inner1_solid->SurfaceNormal(next_pos);
+            next_mct  = next_norm * dir ; 
+            whereAmI  = next_mct < 0. ? kInGlass : kInVacuum ; 
+            // against/with normal is Glass/Vacuum
+          }
+          return trig ;
+        }
+        const G4double EPSILON = 2e-4 ;
+        </pre>
+
+    .. class:: small
+
+        :b:`Use: Distance, SurfaceNormal` -- :r:`NOT Volumes`
+
+
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    G4bool junoPMTOpticalModel::ModelTrigger(const G4FastTrack &fastTrack)
+    {   <span class="r">// BUG: GetVolume : NOT RELIABLE AT BORDERS </span> 
+      ...
+      if(fastTrack.GetPrimaryTrack()->GetVolume() == _inner2_phys){
+          return false;
+      }   <span class="r">// BUG: SIMPLISTIC VIEW OF GEOMETRY </span>
+      if(fastTrack.GetPrimaryTrack()->GetVolume() == _inner1_phys){
+          whereAmI = kInVacuum;
+      }else{
+          whereAmI = kInGlass;
+          <span class="r">// BUG: REFLECTION FROM dynode/MCP -> kInGlass </span>
+      }
+      if(whereAmI == kInGlass){ 
+          dist1 = _inner1_solid->DistanceToIn(pos, dir);
+          <span class="r">dist2 = _inner2_solid->DistanceToIn(pos, dir);</span>
+          <span class="r">// BUG: dist2 "Undefined" at reflect inside inner2</span>
+          if(dist1 == kInfinity){ return false;
+          }else if(dist1>dist2){  return false;
+          }else{                  return true;}     
+          <span class="r">// BUG: depends on "Undefined" behaviour (+CSG constituents) </span> 
+      }else{
+          dist1 = _inner1_solid->DistanceToOut(pos, dir);
+          dist2 = _inner2_solid->DistanceToIn(pos, dir);
+          if(dist2 == kInfinity){ return true;}
+          <span class="b"> // reliance on edge handling : not a good approach</span> 
+      }
+      return false;
+    }  
+ 
+  </pre>
+
+.. class:: small
+
+    * :b:`Need to fix FastSim approach : to have something to validate new natural geometry approach with`
+    * ``Simulation/DetSimV2/PMTSim/src/junoPMTOpticalModel.cc``
+
+
+
+:i:`FewPMT_NNVT_ModelTriggerSimple_avoids_issue.png`
+-----------------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:165mm;" />
+
+.. class:: small
+
+    :r:`ModelTriggerSimple` : Avoids **Undefined trig behavior** + Unphysical mid-Vacuum Reflect/Refract/Detect/Absorb, "Tunneling" 
+
+
+
+
+
+:small:`Chi2 HAMA, A:Unnatural+Fastsim B:Natural+CustomBoundary`
+-------------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    ./U4SimulateTest.sh cf ## PMT Geometry : A(N=0) Unnatural+FastSim, B(N=1) Natural+CustomBoundary  
+    GEOM/GEOMList/IMPL : FewPMT/hamaLogicalPMT/ModelTriggerSimple 
+    c2sum :    41.2803 c2n :    43.0000 c2per:     0.9600  C2CUT:   30 
+
+    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][:25]  ## A-B history frequency chi2 comparison 
+    [[' 0' 'TO BT SD                            ' ' 0' ' 37923  37958' ' 0.0161' '  1262   1274']
+     [' 1' 'TO BT SA                            ' ' 1' ' 32806  32562' ' 0.9108' '  1185   1207']
+     [' 2' 'TO BT BT SA                         ' ' 2' ' 12071  12233' ' 1.0798' ' 10532  10430']
+     [' 3' 'TO BT BT SR SA                      ' ' 3' '  3757   3741' ' 0.0341' ' 12754  12407']
+     [' 4' 'TO BT BR BT SA                      ' ' 4' '  3204   3250' ' 0.3279' '  1465   1464']
+     [' 5' 'TO SA                               ' ' 5' '  2277   2274' ' 0.0020' '     1      0']
+     [' 6' 'TO BT BT SR SR SA                   ' ' 6' '  1857   1859' ' 0.0011' ' 12391  12393']
+     [' 7' 'TO BR SA                            ' ' 7' '  1129   1215' ' 3.1553' '  1154   1154']
+     [' 8' 'TO BT BT SR SR SR BT BT SA          ' ' 8' '   613    580' ' 0.9128' ' 16112  16120']
+     [' 9' 'TO BT BT SR SR SR SA                ' ' 9' '   584    576' ' 0.0552' ' 13493  16172']
+     ['10' 'TO BT BT SR BT BT SA                ' '10' '   357    375' ' 0.4426' ' 34234  34225']
+     ['11' 'TO BT AB                            ' '11' '   356    325' ' 1.4112' '  1367   1317']
+     ['12' 'TO BT BT SR BR SA                   ' '12' '   287    305' ' 0.5473' ' 34230  34221']
+     ['13' 'TO BT BT SR SR BT BT SA             ' '13' '   243    226' ' 0.6162' ' 27497  27530']
+     ['14' 'TO BT BT SR SR SR BR SA             ' '14' '   232    206' ' 1.5434' ' 16755  16130']
+     ['15' 'TO BT BT SR SR SR BR BT BT SA       ' '15' '   200    206' ' 0.0887' ' 16715  16760']
+
+                                                             A      B    (A-B)^2   APID[0] BPID[0]
+                                                                         -------
+                                                                          (A+B)        
+   </pre>
+
+
+.. class:: small
+
+    Compare simulations by chi2 comparison of photon history counts 
+
+    * TO:Torch, BT:BoundaryTransmit, SD:SurfDetect, SA:SurfAbsorb, SR:SpecularReflect, BR:FresnelReflect, AB:BulkAbsorb
+
+
+
+:small:`Chi2 NNVT, A:Unnatural+Fastsim B:Natural+CustomBoundary`
+-------------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    ./U4SimulateTest.sh cf ## PMT Geometry : A(N=0) Unnatural+FastSim, B(N=1) Natural+CustomBoundary  
+    GEOM/GEOMList/IMPL : FewPMT/nnvtLogicalPMT/ModelTriggerSimple 
+    c2sum :    60.2333 c2n :    67.0000 c2per:     0.8990  C2CUT:   30 
+
+    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][:25]  ## A-B history frequency chi2 comparison 
+    [[' 0' 'TO BT SD                        ' ' 0' ' 37975  37525' ' 2.6821' '  1268   1268']
+     [' 1' 'TO BT SA                        ' ' 1' ' 32161  32735' ' 5.0770' '  1174   1200']
+     [' 2' 'TO BT BT SR SA                  ' ' 2' '  4980   4998' ' 0.0325' ' 11979  12125']
+     [' 3' 'TO BT BT SA                     ' ' 3' '  4392   4362' ' 0.1028' ' 10275  10285']
+     [' 4' 'TO BT BT SR BT BT SA            ' ' 4' '  4366   4366' ' 0.0000' ' 21394  21384']
+     [' 5' 'TO BT BR BT SA                  ' ' 5' '  3225   3153' ' 0.8128' '  1286   1269']
+     [' 6' 'TO SA                           ' ' 6' '  2281   2283' ' 0.0009' '     0      0']
+     [' 7' 'TO BT BT SR BR SR SA            ' ' 7' '  1185   1280' ' 3.6613' ' 22175  22191']
+     [' 8' 'TO BT BT SR BR SA               ' ' 8' '  1151   1150' ' 0.0004' ' 21484  21399']
+     [' 9' 'TO BR SA                        ' ' 9' '  1051   1091' ' 0.7470' '  1154   1154']
+     ['10' 'TO BT BT SR SR SA               ' '10' '   742    730' ' 0.0978' ' 11888  11906']
+     ['11' 'TO BT BT SR BR SR BT BT SA      ' '11' '   714    694' ' 0.2841' ' 22163  22168']
+     ['12' 'TO BT BT SR BR SR SR SA         ' '12' '   396    324' ' 7.2000' ' 22136  23759']
+     ['13' 'TO BT BT SR SR BT BT SA         ' '13' '   368    357' ' 0.1669' ' 18370  18360']
+     ['14' 'TO BT AB                        ' '14' '   341    367' ' 0.9548' '  1483   1417']
+     ['15' 'TO BT BT SR BR SR SR BT BT SA   ' '15' '   363    338' ' 0.8916' ' 22134  22135']
+   </pre>
 
 
 
