@@ -17,6 +17,74 @@ See Also
 * git-
 
 
+RSA key incident 24 March 2023
+---------------------------------
+
+* https://github.blog/2023-03-23-we-updated-our-rsa-ssh-host-key/
+
+::
+
+    epsilon:customgeant4 blyth$ git pull 
+    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    @    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+    Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+    It is also possible that a host key has just been changed.
+    The fingerprint for the RSA key sent by the remote host is
+    SHA256:uNiVztksCsDhcc0u9e8BujQXVUpKZIDTMczCvj3tD2s.
+    Please contact your system administrator.
+    Add correct host key in /Users/blyth/.ssh/known_hosts to get rid of this message.
+    Offending RSA key in /Users/blyth/.ssh/known_hosts:15
+    RSA host key for github.com has changed and you have requested strict checking.
+    Host key verification failed.
+    fatal: Could not read from remote repository.
+
+    Please make sure you have the correct access rights
+    and the repository exists.
+    epsilon:customgeant4 blyth$ 
+    epsilon:customgeant4 blyth$ 
+    epsilon:customgeant4 blyth$ grep github.com ~/.ssh/known_hosts
+    github.com,192.30.252.130 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==
+    epsilon:customgeant4 blyth$ 
+
+
+    epsilon:customgeant4 blyth$ ssh-keygen -R github.com
+    # Host github.com found: line 15
+    /Users/blyth/.ssh/known_hosts:19: invalid line
+    /Users/blyth/.ssh/known_hosts is not a valid known_hosts file.
+    Not replacing existing known_hosts file because of errors
+    epsilon:customgeant4 blyth$ 
+
+After removing line 19::
+
+    epsilon:customgeant4 blyth$ ssh-keygen -R github.com
+    # Host github.com found: line 15
+    /Users/blyth/.ssh/known_hosts updated.
+    Original contents retained as /Users/blyth/.ssh/known_hosts.old
+    epsilon:customgeant4 blyth$ 
+
+    epsilon:customgeant4 blyth$ git pull
+    Warning: the RSA host key for 'github.com' differs from the key for the IP address '140.82.121.3'
+    Offending key for IP in /Users/blyth/.ssh/known_hosts:133
+    Matching host key in /Users/blyth/.ssh/known_hosts:141
+    Are you sure you want to continue connecting (yes/no)? yes
+    Already up-to-date.
+    epsilon:customgeant4 blyth$ 
+
+Delete another offending line::
+
+    epsilon:customgeant4 blyth$ vi ~/.ssh/known_hosts
+    epsilon:customgeant4 blyth$ git pull
+    Warning: Permanently added the RSA host key for IP address '140.82.121.3' to the list of known hosts.
+    Already up-to-date.
+    epsilon:customgeant4 blyth$ git pull
+    Already up-to-date.
+    epsilon:customgeant4 blyth$ 
+    epsilon:customgeant4 blyth$ 
+
+
+
 
 Github Pages
 -------------

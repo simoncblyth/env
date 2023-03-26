@@ -13,6 +13,15 @@ VIM Tips
 
 
 
+replace spaces on line with newlines
+----------------------------------------
+
+This is very handy for making VERBOSE=1 make commands understandable:: 
+
+    :s/ /^M/g        ## enter the ^M with  ctrl-V return
+
+
+
 vertical split
 ----------------
 

@@ -712,6 +712,31 @@ Making and pushing 2nd tag
     epsilon:opticks blyth$ git push github --tags
 
 
+customgeant4 first tag
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    c4 
+
+    git tag -a v0.0.1 -m "initial tag"
+    git push --tags
+
+    curl -L -O https://github.com/simoncblyth/customgeant4/archive/refs/tags/v0.0.1.zip
+
+
+    epsilon:tmp blyth$ unzip v0.0.1.zip
+    Archive:  v0.0.1.zip
+    6c3f976abc213228307dd4d6237771bac2800458
+       creating: customgeant4-0.0.1/
+      inflating: customgeant4-0.0.1/.gitignore  
+      inflating: customgeant4-0.0.1/C4CustomART.h  
+      inflating: customgeant4-0.0.1/C4CustomART_Debug.h  
+      inflating: customgeant4-0.0.1/C4IPMTAccessor.h  
+      inflating: customgeant4-0.0.1/C4MultiLayrStack.h  
+
+
+
 
 
 Tags on Bitbucket and Github web interface
