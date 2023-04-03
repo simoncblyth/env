@@ -2030,6 +2030,27 @@
     FewPMT_demo0.png
     GEOM/FewPMT/U4SimtraceTest/1/figs/U4SimtraceTest/mpcap/FewPMT_demo0.png 1280px_720px
 
+    A_V0J008_N0_ip_MOI_Hama:0:1000_a.png
+    GEOM/V0J008/ntds2/ALL0/000/figs/ntds2/mpcap/A_V0J008_N0_ip_MOI_Hama:0:1000_a.png 1280px_720px
+
+    B_V1J008_N1_ip_MOI_Hama:0:1000_b.png
+    GEOM/V1J008/ntds2/ALL1/000/figs/ntds2/mpcap/B_V1J008_N1_ip_MOI_Hama:0:1000_b.png 1280px_720px
+
+    A_V0J008_N0_ip_MOI_Hama:0:1000_a_no_skip_fake.png
+    GEOM/V0J008/ntds2/ALL0/000/figs/ntds2/mpcap/A_V0J008_N0_ip_MOI_Hama:0:1000_a_no_skip_fake.png 1280px_720px
+
+    A_V0J008_N0_ip_MOI_NNVT:0:1000_100k.png
+    GEOM/V0J008/ntds2/ALL0/000/figs/ntds2/mpcap/A_V0J008_N0_ip_MOI_NNVT:0:1000_100k.png 1280px_720px
+
+    B_V1J008_N1_ip_MOI_NNVT:0:1000_100k.png
+    GEOM/V1J008/ntds2/ALL1/000/figs/ntds2/mpcap/B_V1J008_N1_ip_MOI_NNVT:0:1000_100k.png 1280px_720px
+
+    A_V0J008_N0_ip_MOI_NNVT:0:1000_10k.png
+    GEOM/V0J008/ntds2/ALL0/000/figs/ntds2/mpcap/A_V0J008_N0_ip_MOI_NNVT:0:1000_10k.png 1280px_720px
+
+    B_V1J008_N1_ip_MOI_NNVT:0:1000_10k.png
+    GEOM/V1J008/ntds2/ALL1/000/figs/ntds2/mpcap/B_V1J008_N1_ip_MOI_NNVT:0:1000_10k.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

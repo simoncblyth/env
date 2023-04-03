@@ -1,0 +1,34 @@
+
+Dear Oksana, 
+
+> Hi,
+>
+> Your abstract for CHEP2023
+> https://indico.jlab.org/event/459/contributions/11811/ was selected as an Oral
+> contribution to the conference.
+> 
+> The Program Committee is finalizing the conference timetable and noticed that
+> you have not yet registered for the conference.
+> 
+> Could you please confirm you’ll be giving the talk you were awarded? Also
+> please keep in mind to register for the conference, the sooner the better.
+> 
+> Many thanks in advance,
+> Oksana for the CHEP23 PC chairs
+
+
+Regarding my abstract entitled:
+"Opticks : GPU Optical Photon Simulation using NVIDIA OptiX 7 and NVIDIA CUDA"
+Thank you for selecting this for Oral presentation at the conference. 
+
+Unfortunately due to visa and travel uncertainties related to my imminent 
+return to China from the UK following re-opening and other uncertainties
+regarding the formalities of resuming work in China I will be unable to 
+travel to the US in May to attend the CHEP2023 conference. 
+
+As remote presentation is not supported I am forced to withdraw my 
+contribution to CHEP 2023.
+
+Simon
+
+

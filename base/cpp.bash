@@ -10,11 +10,26 @@ C++
 ====
 
 
+type convertor : eg root TComplex "decays" to real double
+------------------------------------------------------------
+
+See ~/env/root/UseTComplex.cc::
+
+    struct TCheck
+    {
+        double fRe ; 
+        double fIm ; 
+
+        // TComplex has a convertor like this  
+        operator double () const { return fRe; }
+    };
+
+
+
 pragma once is non-standard
 -----------------------------
 
 * https://en.wikipedia.org/wiki/Pragma_once
-
 
 curated list of header only C++ libs
 ----------------------------------------
