@@ -2051,6 +2051,15 @@
     B_V1J008_N1_ip_MOI_NNVT:0:1000_10k.png
     GEOM/V1J008/ntds2/ALL1/000/figs/ntds2/mpcap/B_V1J008_N1_ip_MOI_NNVT:0:1000_10k.png 1280px_720px
 
+    B_V1J008_N1_ip_MOI_Hama:0:1000_yy_target_frame.png
+    GEOM/V1J008/ntds2/ALL1/000/figs/ntds2/pvcap/B_V1J008_N1_ip_MOI_Hama:0:1000_yy_target_frame.png 1280px_720px
+
+    B_V1J008_N1_ip_MOI_Hama:0:1000_yy_frame_close.png
+    GEOM/V1J008/ntds2/ALL1/000/figs/ntds2/pvcap/B_V1J008_N1_ip_MOI_Hama:0:1000_yy_frame_close.png 1280px_720px
+
+    Custom4_README.png
+    Custom4/Custom4_README.png 1280px_720px 
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

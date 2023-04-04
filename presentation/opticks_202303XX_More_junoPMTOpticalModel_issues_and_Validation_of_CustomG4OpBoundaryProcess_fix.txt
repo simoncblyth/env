@@ -60,275 +60,55 @@
     mainly with the PMT geometry and optical model.   
 
 
+TODO
+-------
 
-:small:`junosw + Opticks : Input Photon Running : "gist" of ntds bash function`
---------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Opticks AnaMgr + GtOpticksTool`
-
-    .. class:: small
-
-        **js/U4RecorderAnaMgr -> ok/U4Recorder**
-
-        * G4Track, G4Step -> ok/U4Recorder -> ok/SEvt   
-        * ok/SEvt -> .npy NumPy arrays 
-        * numpy/matplotlib/pyvista analysis+plotting 
-
-        **js/GtOpticksTool : input photons via GenTool**
-
-        * ok/ana/input_photons.sh -> .npy (n,4,4) arrays
-        * targetting with Opticks frame selection 
-
-        **MOI frame targetting**
-
-        ``solidNamePrefix:ordinal:instance``
-
-        * Hama:0:1000
-        * NNVT:0:1000
+1. update pages for move to Custom4 
+2. DONE : describe Custom4 and reason for it 
+3. update description of the boundary process, it has evolved : all names changed 
+4. describe ProcessHits issue, checks, fix 
+5. POM:0 check, first standalone, then insitu 
 
 
-.. raw:: html
+:small:`Custom4 : mini-package with Geant4 customizations`
+------------------------------------------------------------
 
-    <pre class="mypretiny">
-    ntds(){
-        local opts=""
-        opts="$opts --opticks-mode 2"  # G4 with Opticks Instrumentation  
+.. sidebar:: :small:`Why Custom4 mini-package ?`
 
-        case $POM in     ## passed into UsePMTOpticalModel
-          0) opts="$opts --no-pmt-optical-model"  ;;  
-          1) opts="$opts --pmt-optical-model"     ;;  
-        esac 
+   .. class:: small
 
-        <span class="r">case $PMT in  ## passed into UsePMTNaturalGeometry
-          0) opts="$opts --pmt-unnatural-geometry" ;;  
-          1) opts="$opts --pmt-natural-geometry"   ;;  
-        esac</span>
+       * :r:`Avoid junosw-opticks circular dependency:` 
 
-        <span class="m">opts="$opts --opticks-anamgr"  ## Full Photon Point recording   
-        export OPTICKS_EVENT_MODE=StandardFullDebug
-        export OPTICKS_MAX_BOUNCE=31 
-        [ "$PMT" == "0" ] && export U4Recorder__FAKES_SKIP=1</span>
+         * by splitting off Custom4 mini-package
 
-        <span class="b">export OPTICKS_INPUT_PHOTON=RainXZ_Z230_10k_f8.npy
-        export MOI=Hama:0:1000  ## input photon frame </span>
+       * ``Custom4`` depends only on Geant4
+       * junosw depends on ``Custom4``
+       * opticks uses ``Custom4`` for detailed testing
 
-        python tut_detsim.py $opts opticks  ## GtOpticksTool 
-   }
-   </pre>
+       Added to : **junoenv/junoenv-external-libs.sh**
 
-.. class:: small
+       Auto-installed like other externals (eg Geant4), or:
 
-    Actual ntds bash function : https://github.com/simoncblyth/j/blob/main/jx.bash
+   ::
 
+       cd $JUNOTOP/junoenv
+       bash junoenv libs get custom4
+       bash junoenv libs conf custom4
+       bash junoenv libs make custom4
+       bash junoenv libs install custom4
 
-  
+       bash junoenv libs all custom4
 
-:i:`A_V0J008_N0_ip_MOI_Hama:0:1000_a_no_skip_fake.png`
--------------------------------------------------------
-
-.. class:: small
-
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   ``cd ~/j/ntds ; N=0 ./ntds.sh ana``  
-
-.. raw:: html
-
-    <p style="margin-bottom:150mm;" />
-
-.. class:: small
-
-   :r:`10k : Unnatural Pyrex+Pyrex+Vac+Vac PMT geometry, without` : ``export U4Recorder__FAKES_SKIP=1``
-    
-
-:i:`A_V0J008_N0_ip_MOI_Hama:0:1000_a.png`
--------------------------------------------
-
-.. class:: small
-
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   ``cd ~/j/ntds ; N=0 ./ntds.sh ana``  
-
-
-.. raw:: html
-
-    <p style="margin-bottom:150mm;" />
-
-.. class:: small
-
-   :r:`10k : Unnatural Pyrex+Pyrex+Vac+Vac HAMA PMT geometry, with` : ``export U4Recorder__FAKES_SKIP=1``
-    
-
-:i:`B_V1J008_N1_ip_MOI_Hama:0:1000_b.png`
--------------------------------------------
-
-.. class:: small
-
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   ``cd ~/j/ntds ; N=1 ./ntds.sh ana``  
-
-.. raw:: html
-
-    <p style="margin-bottom:150mm;" />
-
-.. class:: small
-
-   :b:`10k : Natural Pyrex+Vac HAMA PMT geometry, no fakes, no skipping needed`
+       
  
+.. image:: Custom4/Custom4_README.png
+   :width: 580px
+   :align: left
 
-
-
-:small:`100k Input Photons targetting Hama:0:1000 Chi2 History Comparison`
----------------------------------------------------------------------------
-
-.. raw:: html
-
-    <pre class="mypretiny">cd ~/j/ntds ; ./ntds.sh cf 
-    QCF qcf c2sum/c2n:c2per(C2CUT)  103.55/103:1.005 (30)
-    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][:25]  ## A-B history frequency chi2 comparison 
-    [[' 0' 'TO BT BT BT BT SA                                  ' ' 0' ' 37664  37569' ' 0.1200' '     2      1']
-     [' 1' 'TO BT BT BT BT SD                                  ' ' 1' ' 30711  30904' ' 0.6045' '     4      2']
-     [' 2' 'TO BT BT BT BT BT SA                               ' ' 2' ' 12432  12470' ' 0.0580' '  9199   8859']
-     [' 3' 'TO BT BT BT BT BT SR SA                            ' ' 3' '  3824   3761' ' 0.5233' ' 11002  11014']
-     [' 4' 'TO BT BT BT BT BT SR SR SA                         ' ' 4' '  1984   1967' ' 0.0731' ' 10886  10878']
-     [' 5' 'TO BT BT AB                                        ' ' 5' '   853    918' ' 2.3857' '     8     27']
-     [' 6' 'TO BT BT BT BT BT SR SR SR SA                      ' ' 6' '   583    609' ' 0.5671' ' 14779  14727']
-     [' 7' 'TO BT BT BT BT BR BT BT BT BT BT SA                ' ' 7' '   444    420' ' 0.6667' '  1042   1016']
-     [' 8' 'TO BT BT BT BT BR BT BT BT BT BT BT AB             ' ' 8' '   435    430' ' 0.0289' ' 10280   7615']
-     [' 9' 'TO BT BT BT BT BR BT BT BT BT BT SD                ' ' 9' '   354    328' ' 0.9912' '  5253   5256']
-     ['10' 'TO BT BT BT BT AB                                  ' '10' '   331    341' ' 0.1488' '    84    143']
-     ['11' 'TO BT BT BT BT BT SR BR SA                         ' '11' '   258    314' ' 5.4825' ' 33580  33573']
-     ['12' 'TO BT BT BR BT BT BT SA                            ' '12' '   295    250' ' 3.7156' '     0      3']
-     ['13' 'TO BT BT BT BR BT BT BT BT SA                      ' '13' '   291    259' ' 1.8618' '   213    192']
-     ['14' 'TO BT BT BT BT BR BT BT BT BT AB                   ' '14' '   289    275' ' 0.3475' '  8511   9213']
-     ['15' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT SA       ' '15' '   245    276' ' 1.8445' '  9353   9360']
-     ['16' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT SD       ' '16' '   261    246' ' 0.4438' '  9350   9416']
-     ['17' 'TO BT BT BT BT BT SR SR SR BR BT BT BT BT BT BT SA ' '17' '   247    199' ' 5.1659' ' 15391  15388']
-     ['18' 'TO BT BT BT BT BT SR SR SR BR SA                   ' '18' '   246    227' ' 0.7632' ' 14754  15177']
-     ['19' 'TO BT BT BT BT BT SR SR BT BT BT BT BT BT SA       ' '19' '   215    194' ' 1.0782' ' 26564  26588']
-    </pre>
 
 .. class:: small
 
-    https://github.com/simoncblyth/j/blob/main/ntds/ntds.sh 
-
-    Chi2 comparison of photon histories for:
-
-    A. Unnatural geometry with fakes skipped
-    B. Natural geometry  
- 
-
-
-
-.. comment
-
-    :i:`A_V0J008_N0_ip_MOI_NNVT:0:1000_100k.png`
-    -----------------------------------------------
-
-
-
-:i:`A_V0J008_N0_ip_MOI_NNVT:0:1000_10k.png`
---------------------------------------------
-
-.. class:: small
-
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   ``cd ~/j/ntds ; N=0 ./ntds.sh ana``  
-
-
-.. raw:: html
-
-    <p style="margin-bottom:150mm;" />
-
-.. class:: small
-
-   :r:`10k : Unnatural Pyrex+Pyrex+Vac+Vac NNVT PMT geometry, with` : ``export U4Recorder__FAKES_SKIP=1``
-    
-
-
-.. comment
-
-    :i:`B_V1J008_N1_ip_MOI_NNVT:0:1000_100k.png`
-    ------------------------------------------------
-
-
-:i:`B_V1J008_N1_ip_MOI_NNVT:0:1000_10k.png`
-------------------------------------------------
-
-.. class:: small
-
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   ``cd ~/j/ntds ; N=1 ./ntds.sh ana``  
-
-.. raw:: html
-
-    <p style="margin-bottom:150mm;" />
-
-.. class:: small
-
-   :b:`Natural Pyrex+Vacuum NNVT PMT geometry, no fakes, no skipping needed`
- 
-
-
-:small:`100k Input Photons targetting NNVT:0:1000 Chi2 History Comparison`
----------------------------------------------------------------------------
-
-.. raw:: html
-
-    <pre class="mypretiny">cd ~/j/ntds ; ./ntds.sh cf 
-    QCF qcf : c2sum/c2n:c2per(C2CUT)  197.53/194:1.018 (30)
-    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][:25]  ## A-B history frequency chi2 comparison 
-    [[' 0' 'TO BT BT BT BT SD                                          ' ' 0' ' 33025  33400' ' 2.1170' '     0      3']
-     [' 1' 'TO BT BT BT BT SA                                          ' ' 1' ' 28317  27980' ' 2.0173' '     3      4']
-     [' 2' 'TO BT BT BT BT BT SR SA                                    ' ' 2' '  6205   6328' ' 1.2071' ' 10427  10543']
-     [' 3' 'TO BT BT BT BT BT SA                                       ' ' 3' '  4684   4693' ' 0.0086' '  8523   8481']
-     [' 4' 'TO BT BT BT BT BT SR BR SR SA                              ' ' 4' '  1188   1174' ' 0.0830' ' 21107  21015']
-     [' 5' 'TO BT BT BT BT BR BT BT BT BT BT BT AB                     ' ' 5' '  1008    961' ' 1.1219' '  7713   9959']
-     [' 6' 'TO BT BT BT BT BT SR BR SA                                 ' ' 6' '   960    944' ' 0.1345' ' 20304  20311']
-     [' 7' 'TO BT BT BT BT BT SR SR SA                                 ' ' 7' '   951    900' ' 1.4052' ' 10387  10424']
-     [' 8' 'TO BT BT AB                                                ' ' 8' '   904    828' ' 3.3349' '    14    126']
-     [' 9' 'TO BT BT BT BT BT SR BT BT BT BT BT BT BT AB               ' ' 9' '   629    587' ' 1.4507' ' 20503  20814']
-     ['10' 'TO BT BT BT BT BR BT BT BT BT AB                           ' '10' '   590    585' ' 0.0213' '    86   8872']
-     ['11' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT SD               ' '11' '   445    462' ' 0.3186' '  9137   9101']
-     ['12' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT BT BT BT BT SD   ' '12' '   445    435' ' 0.1136' ' 11465   7184']
-     ['13' 'TO BT BT BT BT BR BT BT BT BT BT SA                        ' '13' '   445    437' ' 0.0726' '   666    675']
-     ['14' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT SA               ' '14' '   423    426' ' 0.0106' '  9090   9118']
-     ['15' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT BT BT BT BT SA   ' '15' '   387    414' ' 0.9101' ' 11478   7091']
-     ['16' 'TO BT BT BT BT BR BT BT BT BT BT BT SC BT BT BT BT BT BT SD' '16' '   381    404' ' 0.6739' ' 16538  16757']
-     ['17' 'TO BT BT BT BT BT SR BR SR SR SA                           ' '17' '   335    383' ' 3.2089' ' 22766  20996']
-     ['18' 'TO BT BT BT BT BR BT BT BT BT BT BT SC BT BT BT BT BT BT SA' '18' '   356    327' ' 1.2313' ' 16336  16142']
-     ['19' 'TO BT BT BT BT BT SR SR SR SA                              ' '19' '   354    348' ' 0.0513' ' 10746  10369']
-    </pre>
- 
-
-.. class:: small
-
-    https://github.com/simoncblyth/j/blob/main/ntds/ntds.sh 
-    
-    Chi2 comparison of photon histories for:
-
-    A. Unnatural geometry with fakes skipped
-    B. Natural geometry  
- 
+    https://github.com/simoncblyth/customgeant4/
 
 
 
@@ -931,6 +711,449 @@ Statistical Comparison of Simulation Histories
 ---------------------------------------------------------------------------
 
 
+
+:small:`Standalone then Insitu Testing`
+------------------------------------------
+
+.. sidebar:: :small:`Standalone vs Insitu Development`
+
+    .. class:: small
+
+          **Standalone**
+
+          * fully controlled environment
+          * eg: Opticks executables, scripts
+          * development cycle time :b:`< 1s` 
+
+          **Insitu**
+
+          * fit in with general code
+          * eg: run ``tut_detsim.py`` 
+          * loads of code irrelevant to what is changed
+          * long initialization times 
+          * development cycle time :r:`> 3 min` 
+        
+          **Standalone Cycles much cheaper than Insitu**
+
+          * start development standalone
+          * only when standalone succeeds -> insitu
+          * :b:`more cycles -> better code, less bugs` 
+
+
+
+.. class:: small
+
+    **Standalone Test Architecture**
+
+    * small "FewPMT" geometries 
+    * Opticks executable such as U4SimulateTest
+    
+    **j/PMTSim "virtual" package : PMT Geometry+Model**
+
+    * `github.com/simoncblyth/j/blob/main/PMTSim/CMakeLists.txt <https://github.com/simoncblyth/j/blob/main/PMTSim/CMakeLists.txt>`_
+    * ``CMakeLists.txt`` references junosw sources
+
+
+    **No Known Issues In Standalone Tests**
+ 
+    * -> move to insitu testing within junosw with tut_detsim.py 
+
+
+    **Insitu Testing with:** ``--opticks-mode 2``
+
+    * junosw Geant4 simulation
+    * integrated with Opticks Instrumentation (U4Recorder, SEvt)  
+    * no GPU usage in this mode 
+
+
+
+:small:`junosw + Opticks : Input Photon Running : "gist" of ntds bash function`
+--------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Opticks AnaMgr + GtOpticksTool`
+
+    .. class:: small
+
+        **js/U4RecorderAnaMgr -> ok/U4Recorder**
+
+        * G4Track, G4Step -> ok/U4Recorder -> ok/SEvt   
+        * ok/SEvt -> .npy NumPy arrays 
+        * numpy/matplotlib/pyvista analysis+plotting 
+
+        **js/GtOpticksTool : input photons via GenTool**
+
+        * ok/ana/input_photons.sh -> .npy (n,4,4) arrays
+        * targetting with Opticks frame selection 
+
+        **MOI frame targetting**
+
+        ``solidNamePrefix:ordinal:instance``
+
+        * Hama:0:1000
+        * NNVT:0:1000
+
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    ntds(){
+        local opts=""
+        opts="$opts --opticks-mode 2"  # G4 with Opticks Instrumentation  
+
+        case $POM in     ## passed into UsePMTOpticalModel
+          0) opts="$opts --no-pmt-optical-model"  ;;  
+          1) opts="$opts --pmt-optical-model"     ;;  
+        esac 
+
+        <span class="r">case $PMT in  ## passed into UsePMTNaturalGeometry
+          0) opts="$opts --pmt-unnatural-geometry" ;;  
+          1) opts="$opts --pmt-natural-geometry"   ;;  
+        esac</span>
+
+        <span class="m">opts="$opts --opticks-anamgr"  ## Full Photon Point recording   
+        export OPTICKS_EVENT_MODE=StandardFullDebug
+        export OPTICKS_MAX_BOUNCE=31 
+        [ "$PMT" == "0" ] && export U4Recorder__FAKES_SKIP=1</span>
+
+        <span class="b">export OPTICKS_INPUT_PHOTON=RainXZ_Z230_10k_f8.npy
+        export MOI=Hama:0:1000  ## input photon frame </span>
+
+        python tut_detsim.py $opts opticks  ## GtOpticksTool 
+   }
+   </pre>
+
+.. class:: small
+
+    Actual ntds bash function : https://github.com/simoncblyth/j/blob/main/jx.bash
+
+
+
+
+
+:small:`Opticks SEvt loaded into ipython : arrays detailing every photon point`
+---------------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    In [3]: b.f
+    Out[3]: 
+    CMDLINE:/Users/blyth/j/ntds/ntds.py
+    b.base:/tmp/blyth/opticks/GEOM/V1J008/ntds2/ALL1/000
+
+      : b.genstep                                          :            (1, 6, 4) : 14:01:49.017610 
+      : b.seq                                              :       (100000, 2, 2) : 13:59:54.715319 
+      : b.pho0                                             :          (100000, 4) : 14:01:40.913446 
+      : b.record                                           :   (100000, 32, 4, 4) : 13:59:55.174871 
+      : b.junoSD_PMT_v2                                    :                 (1,) : 14:01:44.544258 
+      : b.sframe                                           :            (4, 4, 4) : 13:59:54.714881 
+      : b.inphoton                                         :       (100000, 4, 4) : 14:01:44.544879 
+      : b.pho                                              :          (100000, 4) : 14:01:42.596733 
+      : b.flat                                             :         (100000, 64) : 14:01:49.018186 
+      : b.prd                                              :   (100000, 32, 2, 4) : 14:01:26.149970 
+      : b.photon                                           :       (100000, 4, 4) : 14:01:26.466269 
+      : b.gs                                               :               (1, 4) : 14:01:49.017187 
+      : b.aux                                              :   (100000, 32, 4, 4) : 14:01:49.191892 
+      : b.tag                                              :          (100000, 4) : 13:59:54.705722 
+   </pre>
+
+.. class:: small
+
+    +------------+------------+----------------------------------------------------+
+    |  array     | shape      |  notes                                             |  
+    +============+============+====================================================+
+    | inphoton   | (n,4,4)    | input photons                                      |
+    +------------+------------+----------------------------------------------------+
+    | photon     | (n,4,4)    | final photon positions (at AB, SA, SD)             |
+    +------------+------------+----------------------------------------------------+
+    | record     | (n,32,4,4) | photon histories (up to 32 points)                 |
+    +------------+------------+----------------------------------------------------+
+    | seq        |  (n,2,2)   | uint64 packed histories eg "TO BT BT SD"           |   
+    +------------+------------+----------------------------------------------------+
+    | aux        | (n,32,4,4) | extra step point info eg A,R,T                     |       
+    +------------+------------+----------------------------------------------------+
+    | sframe     | (4,4,4)    | target frame with M2W W2M transforms               |
+    +------------+------------+----------------------------------------------------+
+
+
+
+:i:`B_V1J008_N1_ip_MOI_Hama:0:1000_yy_target_frame.png`
+----------------------------------------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:40mm;" />
+
+.. class:: small
+
+    ``cd ~/j/ntds ; N=1 GLOBAL=1 MODE=3 ./ntds.sh ana ## interactive 3D pyvista``
+
+.. raw:: html
+
+    <p style="margin-bottom:100mm;" />
+
+.. class:: small
+
+   ``Target Frame Hama:0:1000``
+
+   ``solidName:ordinalIdx:instanceIdx``
+
+
+:i:`B_V1J008_N1_ip_MOI_Hama:0:1000_yy_frame_close.png`
+----------------------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:130mm;" />
+
+.. class:: small
+
+    ``Green : start position (100k input photons)`` 
+
+    ``Red : end position,  Cyan : other position``
+
+
+
+Transform photon points into target frame
+---------------------------------------------
+
+.. class:: small
+
+    NumPy transform all photon positions to target frame (eg Hama:0:1000)
+
+    * target frame m2w w2m transforms persisted within opticks/SEvt folder  
+
+::
+
+    w2m = evt.f.sframe.w2m          # (4,4)         : world-to-model 
+    gpos = b.f.record[:,:,0].copy() # (100000,32,4) : global (pos, time)
+    gpos[...,3] = 1   
+    lpos = np.dot( gpos, w2m )      # (100000,32,4) : local (pos, 1) 
+
+
+.. class:: small
+
+    Suitable : input photon shape, position, direction, target frame 
+
+    * -> action mostly in plane -> 2D plotting (often clearer than 3D)
+
+::
+
+    cd ~/j/ntds ; MODE=2 ./ntds.sh ana
+
+
+.. class:: small
+
+    https://github.com/simoncblyth/j/blob/main/ntds/ntds.sh
+      
+
+:i:`A_V0J008_N0_ip_MOI_Hama:0:1000_a_no_skip_fake.png`
+-------------------------------------------------------
+
+.. class:: small
+
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   ``cd ~/j/ntds ; N=0 ./ntds.sh ana``  
+
+.. raw:: html
+
+    <p style="margin-bottom:150mm;" />
+
+.. class:: small
+
+   :r:`10k : Unnatural Pyrex+Pyrex+Vac+Vac PMT geometry, without` : ``export U4Recorder__FAKES_SKIP=1``
+    
+
+:i:`A_V0J008_N0_ip_MOI_Hama:0:1000_a.png`
+-------------------------------------------
+
+.. class:: small
+
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   ``cd ~/j/ntds ; N=0 ./ntds.sh ana``  
+
+
+.. raw:: html
+
+    <p style="margin-bottom:150mm;" />
+
+.. class:: small
+
+   :r:`10k : Unnatural Pyrex+Pyrex+Vac+Vac HAMA PMT geometry, with` : ``export U4Recorder__FAKES_SKIP=1``
+    
+
+:i:`B_V1J008_N1_ip_MOI_Hama:0:1000_b.png`
+-------------------------------------------
+
+.. class:: small
+
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   ``cd ~/j/ntds ; N=1 ./ntds.sh ana``  
+
+.. raw:: html
+
+    <p style="margin-bottom:150mm;" />
+
+.. class:: small
+
+   :b:`10k : Natural Pyrex+Vac HAMA PMT geometry, no fakes, no skipping needed`
+ 
+
+
+
+:small:`100k Input Photons targetting Hama:0:1000 Chi2 History Comparison`
+---------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">cd ~/j/ntds ; ./ntds.sh cf 
+    QCF qcf c2sum/c2n:c2per(C2CUT)  <span class="r">103.55/103:1.005</span> (30)
+    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][:25]  ## A-B history frequency chi2 comparison 
+    [[' 0' 'TO BT BT BT BT SA                                  ' ' 0' ' 37664  37569'  <span class="r"> 0.1200</span> '     2      1']
+     [' 1' 'TO BT BT BT BT SD                                  ' ' 1' ' 30711  30904'  <span class="r"> 0.6045</span> '     4      2']
+     [' 2' 'TO BT BT BT BT BT SA                               ' ' 2' ' 12432  12470'  <span class="r"> 0.0580</span> '  9199   8859']
+     [' 3' 'TO BT BT BT BT BT SR SA                            ' ' 3' '  3824   3761'  <span class="r"> 0.5233</span> ' 11002  11014']
+     [' 4' 'TO BT BT BT BT BT SR SR SA                         ' ' 4' '  1984   1967'  <span class="r"> 0.0731</span> ' 10886  10878']
+     [' 5' 'TO BT BT AB                                        ' ' 5' '   853    918'  <span class="r"> 2.3857</span> '     8     27']
+     [' 6' 'TO BT BT BT BT BT SR SR SR SA                      ' ' 6' '   583    609'  <span class="r"> 0.5671</span> ' 14779  14727']
+     [' 7' 'TO BT BT BT BT BR BT BT BT BT BT SA                ' ' 7' '   444    420'  <span class="r"> 0.6667</span> '  1042   1016']
+     [' 8' 'TO BT BT BT BT BR BT BT BT BT BT BT AB             ' ' 8' '   435    430'  <span class="r"> 0.0289</span> ' 10280   7615']
+     [' 9' 'TO BT BT BT BT BR BT BT BT BT BT SD                ' ' 9' '   354    328'  <span class="r"> 0.9912</span> '  5253   5256']
+     ['10' 'TO BT BT BT BT AB                                  ' '10' '   331    341'  <span class="r"> 0.1488</span> '    84    143']
+     ['11' 'TO BT BT BT BT BT SR BR SA                         ' '11' '   258    314'  <span class="r"> 5.4825</span> ' 33580  33573']
+     ['12' 'TO BT BT BR BT BT BT SA                            ' '12' '   295    250'  <span class="r"> 3.7156</span> '     0      3']
+     ['13' 'TO BT BT BT BR BT BT BT BT SA                      ' '13' '   291    259'  <span class="r"> 1.8618</span> '   213    192']
+     ['14' 'TO BT BT BT BT BR BT BT BT BT AB                   ' '14' '   289    275'  <span class="r"> 0.3475</span> '  8511   9213']
+     ['15' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT SA       ' '15' '   245    276'  <span class="r"> 1.8445</span> '  9353   9360']
+     ['16' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT SD       ' '16' '   261    246'  <span class="r"> 0.4438</span> '  9350   9416']
+     ['17' 'TO BT BT BT BT BT SR SR SR BR BT BT BT BT BT BT SA ' '17' '   247    199'  <span class="r"> 5.1659</span> ' 15391  15388']
+     ['18' 'TO BT BT BT BT BT SR SR SR BR SA                   ' '18' '   246    227'  <span class="r"> 0.7632</span> ' 14754  15177']
+     ['19' 'TO BT BT BT BT BT SR SR BT BT BT BT BT BT SA       ' '19' '   215    194'  <span class="r"> 1.0782</span> ' 26564  26588']
+                                                                         <span class="b">  A,B counts    Chi2   A,B 1st photon idx <span> 
+    </pre>
+
+.. class:: small
+
+    https://github.com/simoncblyth/j/blob/main/ntds/ntds.sh 
+
+    Chi2 comparison of photon histories for A:Unnatural(fakes skipped) B:Natural geometry 
+ 
+    Any bug changing simulation histories -> huge Chi2 -> :b:`USEFUL METRIC` 
+
+    * BUT: does not catch all issues (eg time offsets)
+ 
+
+
+.. comment
+
+    :i:`A_V0J008_N0_ip_MOI_NNVT:0:1000_100k.png`
+    -----------------------------------------------
+
+
+
+:i:`A_V0J008_N0_ip_MOI_NNVT:0:1000_10k.png`
+--------------------------------------------
+
+.. class:: small
+
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   ``cd ~/j/ntds ; N=0 ./ntds.sh ana``  
+
+
+.. raw:: html
+
+    <p style="margin-bottom:150mm;" />
+
+.. class:: small
+
+   :r:`10k : Unnatural Pyrex+Pyrex+Vac+Vac NNVT PMT geometry, with` : ``export U4Recorder__FAKES_SKIP=1``
+    
+
+
+.. comment
+
+    :i:`B_V1J008_N1_ip_MOI_NNVT:0:1000_100k.png`
+    ------------------------------------------------
+
+
+:i:`B_V1J008_N1_ip_MOI_NNVT:0:1000_10k.png`
+------------------------------------------------
+
+.. class:: small
+
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   ``cd ~/j/ntds ; N=1 ./ntds.sh ana``  
+
+.. raw:: html
+
+    <p style="margin-bottom:150mm;" />
+
+.. class:: small
+
+   :b:`Natural Pyrex+Vacuum NNVT PMT geometry, no fakes, no skipping needed`
+ 
+
+
+:small:`100k Input Photons targetting NNVT:0:1000 Chi2 History Comparison`
+---------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">cd ~/j/ntds ; ./ntds.sh cf 
+    QCF qcf : c2sum/c2n:c2per(C2CUT) <span class="r">197.53/194:1.018</span> (30)
+    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][:25]  ## A-B history frequency chi2 comparison 
+    [[' 0' 'TO BT BT BT BT SD                                          ' ' 0' ' 33025  33400' ' 2.1170' '     0      3']
+     [' 1' 'TO BT BT BT BT SA                                          ' ' 1' ' 28317  27980' ' 2.0173' '     3      4']
+     [' 2' 'TO BT BT BT BT BT SR SA                                    ' ' 2' '  6205   6328' ' 1.2071' ' 10427  10543']
+     [' 3' 'TO BT BT BT BT BT SA                                       ' ' 3' '  4684   4693' ' 0.0086' '  8523   8481']
+     [' 4' 'TO BT BT BT BT BT SR BR SR SA                              ' ' 4' '  1188   1174' ' 0.0830' ' 21107  21015']
+     [' 5' 'TO BT BT BT BT BR BT BT BT BT BT BT AB                     ' ' 5' '  1008    961' ' 1.1219' '  7713   9959']
+     [' 6' 'TO BT BT BT BT BT SR BR SA                                 ' ' 6' '   960    944' ' 0.1345' ' 20304  20311']
+     [' 7' 'TO BT BT BT BT BT SR SR SA                                 ' ' 7' '   951    900' ' 1.4052' ' 10387  10424']
+     [' 8' 'TO BT BT AB                                                ' ' 8' '   904    828' ' 3.3349' '    14    126']
+     [' 9' 'TO BT BT BT BT BT SR BT BT BT BT BT BT BT AB               ' ' 9' '   629    587' ' 1.4507' ' 20503  20814']
+     ['10' 'TO BT BT BT BT BR BT BT BT BT AB                           ' '10' '   590    585' ' 0.0213' '    86   8872']
+     ['11' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT SD               ' '11' '   445    462' ' 0.3186' '  9137   9101']
+     ['12' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT BT BT BT BT SD   ' '12' '   445    435' ' 0.1136' ' 11465   7184']
+     ['13' 'TO BT BT BT BT BR BT BT BT BT BT SA                        ' '13' '   445    437' ' 0.0726' '   666    675']
+     ['14' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT SA               ' '14' '   423    426' ' 0.0106' '  9090   9118']
+     ['15' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT BT BT BT BT SA   ' '15' '   387    414' ' 0.9101' ' 11478   7091']
+     ['16' 'TO BT BT BT BT BR BT BT BT BT BT BT SC BT BT BT BT BT BT SD' '16' '   381    404' ' 0.6739' ' 16538  16757']
+     ['17' 'TO BT BT BT BT BT SR BR SR SR SA                           ' '17' '   335    383' ' 3.2089' ' 22766  20996']
+     ['18' 'TO BT BT BT BT BR BT BT BT BT BT BT SC BT BT BT BT BT BT SA' '18' '   356    327' ' 1.2313' ' 16336  16142']
+     ['19' 'TO BT BT BT BT BT SR SR SR SA                              ' '19' '   354    348' ' 0.0513' ' 10746  10369']
+    </pre>
+ 
+
+.. class:: small
+
+    https://github.com/simoncblyth/j/blob/main/ntds/ntds.sh 
+    
+    Chi2 comparison of photon histories for:
+
+    A. Unnatural geometry with fakes skipped
+    B. Natural geometry  
 
 
 
