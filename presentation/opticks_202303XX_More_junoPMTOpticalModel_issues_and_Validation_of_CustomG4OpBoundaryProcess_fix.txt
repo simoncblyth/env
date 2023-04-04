@@ -66,8 +66,138 @@ TODO
 1. update pages for move to Custom4 
 2. DONE : describe Custom4 and reason for it 
 3. update description of the boundary process, it has evolved : all names changed 
+ 
+   * describe how hooked up to junosw 
+
 4. describe ProcessHits issue, checks, fix 
 5. POM:0 check, first standalone, then insitu 
+6. describe PMT/POM quadrants with the CommonPMT table "jcv CommonPMTManager"
+7. add debug macro control in C4CustomART.h
+
+
+PMT/POM quadrants
+--------------------
+
+.. class:: small
+
+    +----------------------------------+-----------------------------------+----------------------------------+   
+    | 4 POM*PMT quadrants              | Unnatural PMT Impl                | Natural PMT Impl                 |
+    |                                  |                                   |                                  |
+    |                                  | *m_UsePMTNaturalGeometry:false*   | *m_UsePMTNaturalGeometry:true*   |        
+    +==================================+===================================+==================================+   
+    | **Traditional POM                |                                   |                                  |
+    | (photons stop at photocathode,   | ProcessHits QE                    | C4OpBoundaryProcess              |
+    | none enter PMT)**                |                                   |                                  |
+    |                                  |                                   |                                  |
+    |                                  | OpticalSurfaceName                | OpticalSurfaceName               |
+    |                                  | without prefix                    | starting '#'                     |
+    |                                  |                                   |                                  |
+    |                                  |                                   |                                  |
+    | *m_UsePMTOpticalModel:false*     |                                   |                                  |
+    |                                  |                                   |                                  |
+    +----------------------------------+-----------------------------------+----------------------------------+
+    | **MultiFilm POM                  |                                   |                                  |
+    | (photons refract                 | junoPMTOpticalModel.hh            | C4MultiLayrStack.h               |
+    | into PMT, complex                | FastSim in control                | C4CustomART.h                    |
+    | rindex layers)**                 | (boundary not run)                | C4OpBoundaryProcess              |
+    |                                  |                                   |                                  |
+    |                                  |                                   |                                  |
+    |                                  |                                   |                                  |
+    |                                  | OpticalSurfaceName                | OpticalSurfaceName               |
+    |                                  | without prefix                    | starting '@'                     |
+    |                                  |                                   |                                  |
+    |                                  |                                   |                                  |
+    |                                  |                                   |                                  |
+    | *m_UsePMTOpticalModel:true*      |                                   |                                  |
+    |                                  |                                   |                                  |
+    +----------------------------------+-----------------------------------+----------------------------------+
+
+
+.. class:: small
+
+    ``C4OpBoundaryProcess`` 
+          always used : but usually does exactly same as ``G4OpBoundaryProcess``  
+      
+     To activate customization
+
+     
+
+
+:small:`C4OpBoundaryProcess::PostStepDoIt : 3-way (A,R,T) Customization`
+---------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`PostStepDoIt type switch`
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+        if( <span class="r">m_custom_status == 'Y'</span> )
+        {
+            G4double rand = G4UniformRand();
+            if ( rand < theAbsorption )
+            {
+                <span class="b">DoAbsorption();     // A</span> 
+            }
+            else
+            {
+                <span class="r">DielectricDielectric();  // R or T</span>
+            }
+        }
+        else if (type == dielectric_metal) 
+        {
+              DielectricMetal();
+        }
+        ...
+        </pre>    
+
+    .. class:: small
+ 
+        Standard :b:`DoAbsorption` :r:`DielectricDielectric` reused 
+
+
+
+.. class:: small
+
+    :b:`G4OpBoundaryProcess unless OpticalSurfaceNam[0] == '@'/'#'`
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    if( OpticalSurfaceName0 == '@' || OpticalSurfaceName0 == '#' )  
+    {    
+        if( m_custom_art->local_z(aTrack) < 0. ) // <span class="b">Lower hemi : Standard</span>
+        {    
+            m_custom_status = 'Z' ;
+        }    
+        else if( OpticalSurfaceName0 == '@') // <span class="b">MultiFilm ART POM</span>
+        {    
+            <span class="r">m_custom_status = 'Y' ;</span>
+            <span class="r">m_custom_art->doIt(aTrack, aStep) ;</span> 
+
+            type = dielectric_dielectric ;
+            theModel = glisur ;
+            theFinish = polished ;  
+        }    
+        else if( OpticalSurfaceName0 == '#' ) // <span class="b">Traditional POM</span>
+        {    
+            m_custom_status = '-' ;
+
+            type = dielectric_metal ;
+            theModel = glisur ;
+            theReflectivity = 0. ;
+            theTransmittance = 0. ;
+            theEfficiency = 1. ;
+        }
+    }
+    </pre>
+
+.. class:: small
+
+    *DielectricDielectric* expects 2-way **(theReflectivity,theTransmittance)** => ``C4CustomART.h`` rescales 3-way **(A,R,T)**
+
+    ``(theAbsorption,theReflectivity,theTransmittance) = (A, R/(1-A), T/(1-A))``
+    
+
 
 
 :small:`Custom4 : mini-package with Geant4 customizations`
