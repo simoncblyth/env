@@ -75,50 +75,47 @@ TODO
 7. add debug macro control in C4CustomART.h
 
 
-PMT/POM quadrants
---------------------
+:small:`PMT/POM quadrants : choice of PMT geometry and Optical Model impl.`
+-----------------------------------------------------------------------------------------
 
 .. class:: small
 
     +----------------------------------+-----------------------------------+----------------------------------+   
     | 4 POM*PMT quadrants              | Unnatural PMT Impl                | Natural PMT Impl                 |
     |                                  |                                   |                                  |
+    |                                  | ``--pmt-unnatural-geometry``      | ``--pmt-natural-geometry``       |
     |                                  | *m_UsePMTNaturalGeometry:false*   | *m_UsePMTNaturalGeometry:true*   |        
     +==================================+===================================+==================================+   
     | **Traditional POM                |                                   |                                  |
-    | (photons stop at photocathode,   | ProcessHits QE                    | C4OpBoundaryProcess              |
+    | (photons stop at photocathode,   |                                   |                                  | 
     | none enter PMT)**                |                                   |                                  |
     |                                  |                                   |                                  |
-    |                                  | OpticalSurfaceName                | OpticalSurfaceName               |
-    |                                  | without prefix                    | starting '#'                     |
+    | PMT innards modelled with only   | OpticalSurfaceName                | OpticalSurfaceName               |
+    | (QE,CE)                          | without prefix                    | starting '#'                     |
     |                                  |                                   |                                  |
-    |                                  |                                   |                                  |
+    | ``--no-pmt-optical-model``       |                                   | :b:`C4OpBoundaryProcess active`  |
     | *m_UsePMTOpticalModel:false*     |                                   |                                  |
-    |                                  |                                   |                                  |
     +----------------------------------+-----------------------------------+----------------------------------+
     | **MultiFilm POM                  |                                   |                                  |
-    | (photons refract                 | junoPMTOpticalModel.hh            | C4MultiLayrStack.h               |
-    | into PMT, complex                | FastSim in control                | C4CustomART.h                    |
-    | rindex layers)**                 | (boundary not run)                | C4OpBoundaryProcess              |
-    |                                  |                                   |                                  |
+    | (photons refract                 | :r:`junoPMTOpticalModel           | C4MultiLayrStack.h               |
+    | into PMT, complex                | FastSim in control`               | C4CustomART.h                    |
+    | rindex layers)**                 | (boundary process not run)        |                                  | 
     |                                  |                                   |                                  |
     |                                  |                                   |                                  |
     |                                  | OpticalSurfaceName                | OpticalSurfaceName               |
     |                                  | without prefix                    | starting '@'                     |
     |                                  |                                   |                                  |
-    |                                  |                                   |                                  |
-    |                                  |                                   |                                  |
+    |                                  |                                   | :b:`C4OpBoundaryProcess Active`  |
+    | ``--pmt-optical-model``          |                                   | **DEFAULT QUADRANT**             |
     | *m_UsePMTOpticalModel:true*      |                                   |                                  |
-    |                                  |                                   |                                  |
     +----------------------------------+-----------------------------------+----------------------------------+
 
 
 .. class:: small
 
-    ``C4OpBoundaryProcess`` 
-          always used : but usually does exactly same as ``G4OpBoundaryProcess``  
-      
-     To activate customization
+    ``C4OpBoundaryProcess`` exactly same as ``G4OpBoundaryProcess``, unless:  
+       1. OpticalSurfaceName starts '@' or '#' 
+       2. intersect onto solid "upper" (local_z > 0) 
 
      
 
@@ -244,8 +241,8 @@ PMT/POM quadrants
 
 
 
-:small:`Standalone few PMT tests using junosw/blyth-88 branch + Opticks` 
---------------------------------------------------------------------------
+:small:`Standalone PMT tests : junosw extracts + Custom4 + Geant4` 
+---------------------------------------------------------------------------------------------
 
 .. sidebar:: :small:`Standalone Advantages`
 
@@ -253,22 +250,13 @@ PMT/POM quadrants
 
         * :r:`Fast development cycle`, full control:
 
-        +---------------------------------------------+
-        | https://github.com/simoncblyth/j/           |
-        +---------------------------------------------+
-        | https://bitbucket.org/simoncblyth/opticks/  | 
-        +---------------------------------------------+
-
-        **"CustomG4OpBoundaryProcess" FIX**
-
-        `opticks:u4/CustomART.h <https://bitbucket.org/simoncblyth/opticks/src/master/u4/CustomART.h>`_  
-
-        * ``Layr.h`` for TMM calcs
-        * ``JPMT.h`` parameter access (not PMTSimParamSvc, PMTParamSvc)
-
-        `opticks:u4/InstrumentedG4OpBoundaryProcess.cc <https://bitbucket.org/simoncblyth/opticks/src/master/u4/InstrumentedG4OpBoundaryProcess.cc>`_
-    
-        * Customized with *CustomART.h* 
+        +------------------------------------------------+
+        | https://github.com/simoncblyth/j/              |
+        +------------------------------------------------+
+        | https://bitbucket.org/simoncblyth/opticks/     | 
+        +------------------------------------------------+
+        | https://github.com/simoncblyth/customgeant4/   |
+        +------------------------------------------------+
 
 
 .. class:: small
@@ -277,14 +265,18 @@ PMT/POM quadrants
 
     * https://github.com/simoncblyth/j/tree/main/PMTSim
     * "virtual pkg" : :r:`reference junosw/blyth-88 branch sources`
-    * ``N=0/1`` **natural geometry switch**
-    * ``POM=0/1`` **PMT Optical Model switch**
+    * :r:`Depends on Custom4 mini-package`, Geant4, opticks/SysRap
+
+    Quadrant Controls:
+
+    * ``N=0/1`` **PMT geometry impl switch**
+    * ``POM=0/1`` **PMT Optical Model impl switch**
 
     **Optical only Geant4 simulation, with full step point recording**  
 
     * `opticks:u4/tests/U4SimulateTest.sh <https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4SimulateTest.sh>`_
 
-    ``N=0/1 ./U4SimulateTest.sh``
+    ``N=0/1 POM=0/1 ./U4SimulateTest.sh``
 
     **Geant4 Simtrace intersection : 2D geometry plotting**  
 
@@ -897,7 +889,7 @@ Statistical Comparison of Simulation Histories
 
 
 
-:small:`junosw + Opticks : Input Photon Running : "gist" of ntds bash function`
+:small:`junosw + Opticks : Input Photon Running : ntds bash function`
 --------------------------------------------------------------------------------
 
 .. sidebar:: :small:`Opticks AnaMgr + GtOpticksTool`
@@ -1241,7 +1233,7 @@ Transform photon points into target frame
 
 .. class:: small
 
-   :b:`Natural Pyrex+Vacuum NNVT PMT geometry, no fakes, no skipping needed`
+   :b:`10k : Natural Pyrex+Vacuum NNVT PMT geometry, no fakes, no skipping needed`
  
 
 
@@ -1479,112 +1471,6 @@ junoPMTOpticalModel Issues : All from using FastSim
 
    
 
-
-:small:`Compare Reflected Polarization Impls for Brewster Angle Incidence`
----------------------------------------------------------------------------
-
-.. class:: small 
-
-   * `opticks/src/master/sysrap/tests/sboundary_test.sh <https://bitbucket.org/simoncblyth/opticks/src/master/sysrap/tests/sboundary_test.sh>`_ : build, run, plot
-
-
-.. image:: sboundary_test/figs/sboundary_test/pvcap/AOI_BREWSTER_linear_polarization_by_reflection.png
-    :width: 550px
-
-.. image:: sboundary_test/figs/sboundary_test/pvcap/AOI_BREWSTER_reflect_alt_pol.png
-    :width: 550px
-
-.. class:: small
-
-    +---------------------------------------------------------------------+------------------------------------------------+
-    | G4OpBoundaryProcess/qsim.h/sboundary.h : Only S-polarized survives  | junoPMTOpticalModel::Reflect : very different  |
-    +---------------------------------------------------------------------+------------------------------------------------+
-
-    * incident from left (-X), surface normal vertically upwards (+Z), intersection point in middle, 
-    * Colored lines represent polarization directions of 128 photons before and after Reflection 
-    * Reflected using ``sboundary.h`` (validated against ``G4OpBoundaryProcess``)
-    * Compared with ``sboundary.h:alt_pol`` that duplicates ``junoPMTOpticalModel::Reflect``  
-
-    Brewster (or polarizing) incident angle th1 : ``tan(th1) = n2/n1  ;  th1 + th2 = pi/2``
-
-
-.. s5_talk::
-
-    The different between the polarization that is currently in 
-    use and the correct one can be seen clearly at the Brewster 
-    angle where Geant4 clearly polarizes but the one in use does not. 
-
-
-.. comment
-
-    AOI_BREWSTER_linear_polarization_by_reflection.png
-    ----------------------------------------------------
-
-    AOI_BREWSTER_reflect_alt_pol.png
-    ----------------------------------
-
-    AOI_CRITICAL_tir_pol.png
-    ---------------------------
-
-
-
-:small:`Compare Refracted Polarization Impls for Brewster Angle Incidence`
---------------------------------------------------------------------------- 
-
-.. class:: small 
-
-   * `opticks/src/master/sysrap/tests/sboundary_test.sh <https://bitbucket.org/simoncblyth/opticks/src/master/sysrap/tests/sboundary_test.sh>`_ : build, run, plot
-
-
-.. image:: sboundary_test/figs/sboundary_test/pvcap/AOI_BREWSTER_brewster_refract.png
-    :width: 550px 
-
-.. image:: sboundary_test/figs/sboundary_test/pvcap/AOI_BREWSTER_brewster_refract_alt_pol.png
-    :width: 550px 
-
-
-.. class:: small
-
-    +-----------------------------------------------------------------+------------------------------------------------------+
-    |  G4OpBoundaryProcess/qsim.h/sboundary.h : partial pol           | junoPMTOpticalModel::Refract : not partially pol     |
-    +-----------------------------------------------------------------+------------------------------------------------------+
-
-    * incident from left (-X), surface normal vertically upwards (+Z), intersection point in middle, 
-    * Colored lines represent polarization directions of 128 photons before and after Refraction
-    * Refracted using ``sboundary.h`` (compared with **alt_pol** that duplicates junoPMTOpticalModel::Refract )
-
-
-.. comment
-
-    AOI_BREWSTER_brewster_refract.png
-    -------------------------------------
-
-    AOI_BREWSTER_brewster_refract_alt_pol.png
-    -------------------------------------------
-
-
-.. comment
-
-    :i:`LayrTest_R12860_ARTQspx.png`
-    ---------------------------------
-
-    :i:`LayrTest_R12860_Aspx.png` 
-    ------------------------------
-
-    :i:`LayrTest_R12860_Rspx.png` 
-    ------------------------------
-
-    :i:`LayrTest_R12860_Tspx.png` 
-    ------------------------------
-
-
-
-.. s5_talk::
-
-    Similarly the polarization on refraction is also wrong. 
-
-
-
 hamaLogicalPMT_natural.png 
 ----------------------------
 
@@ -1733,130 +1619,6 @@ hamaLogicalPMT_fake.png
 
     * catching photons on fake boundaries and then pre-triggering on where they go next 
     * contorted kludge allowing inappropriate use of FastSim
-
-
-.. comment
-
-    :small:`FastSim Big Bouncer : Collect ModelTrigger positions, decisions` 
-    ---------------------------------------------------------------------------
-
-    .. sidebar:: :small:`SFastSim_Debug.hh`
-
-        .. raw:: html
-
-           <pre class="mypretiny">
-            struct SYSRAP_API SFastSim_Debug
-            {   
-                static std::vector&lt;SFastSim_Debug&gt; record ;   
-                static constexpr const char* NAME = "SFastSim_Debug.npy" ; 
-                static constexpr int LIMIT = 100000 ; 
-                static void Save(const char* dir); 
-                void add(); 
-
-                double posx ;  // fs[:,0,:3]
-                double posy ;
-                double posz ;
-                double time ;  // fs[:,0,3]
-
-                double dirx ;  // fs[:,1,:3]
-                double diry ;
-                double dirz ;
-                double dist1 ; // fs[:,1,3]
-
-                double polx ;  // fs[:,2,:3]
-                double poly ;
-                double polz ;
-                double dist2 ; // fs[:,2,3]
-
-                double ModelTrigger; // fs[:,3,0].astype(np.int64)
-                double whereAmI ;    // fs[:,3,1].astype(np.int64)
-                double c ;           // fs[:,3,2]
-                double PhotonId ;    // fs[:,3,3].astype(np.int64)
-           };
-           </pre>
-
-    .. raw:: html
-
-       <pre class="mypre12">
-       epsilon:tests blyth$ PID=726 ./U4SimulateTest.sh nana 
-        In [1]: extra.shape
-        Out[1]: (14, 4, 4)
-        In [2]: extra
-        Out[2]: 
-        array([[[-112.83 ,    0.   ,  164.918,    0.164],
-                [   0.032,    0.   ,   -0.999,    0.001],    // dist1:1e-3 mm 
-                [   0.   ,   -1.   ,    0.   ,  165.005],
-                [  <span class="r"> 1.</span>   ,    1.   ,    0.   ,  726.   ]], ##<span class="r"> ModelTrigger:1 </span>
-
-               [[-112.83 ,    0.   ,  164.917,    0.164],
-                [  -0.138,    0.   ,   -0.99 ,  166.512],    // dist1 and dist2 equal
-                [   0.   ,   -1.   ,    0.   ,  166.512],
-                [  <span class="b"> 0.</span>   ,    2.   ,    0.   ,  726.   ]], ##<span class="b"> ModelTrigger:0 </span>
-
-               [[-156.577,    0.   , -148.846,    1.778],
-                [   0.81 ,    0.   ,    0.587,  253.614],
-                [   0.   ,    1.   ,    0.   ,    0.   ],
-                [   0.   ,    1.   ,    0.   ,  726.   ]],
-
-               [[ -95.   ,    0.   , -104.211,    2.166],
-                [  -0.81 ,    0.   ,    0.587,  177.561],
-                [   0.   ,   -1.   ,    0.   ,  169.042],
-                [   0.   ,    1.   ,    0.   ,  726.   ]],
-
-               [[-238.764,    0.   ,   -0.   ,    3.071],
-                [  -0.81 ,    0.   ,    0.587,   12.404],
-                [   0.   ,   -1.   ,    0.   ,   -1.   ],
-                [   1.   ,    2.   ,    0.   ,  726.   ]],
-                ...
-       </pre>
-
-    .. class:: small
-
-       *ModelTrigger* "pre-triggering" *dist1* ahead as *DoIt* will shift by **dist1**   
-
-       * :r:`Complication arising from unnatural geometry`
-       * :b:`Workaround G4 FastSim needing Region, not boundary` 
-
-
-.. comment
-
-    hamaLogicalPMTWrapLV_ModelTriggerYES.png
-    ------------------------------------------
-
-    .. raw:: html
-
-       <p style="margin-bottom:0.1cm;" />
-
-    .. class:: small
-
-       |emsp| |emsp| |emsp| |emsp| |emsp| Starts at upper left, here -->  
-
-    .. raw:: html
-
-       <p style="margin-bottom:14cm;" />
-
-    .. class:: small
-
-       * FastSim Workaround -> DoIt **dist1** shifts -> Effectively "Pre-Triggering" : slide red dots forwards 
-       
-
-
-
-    hamaLogicalPMTWrapLV_ModelTriggerNO.png
-    ------------------------------------------
-
-
-    .. raw:: html
-
-       <p style="margin-bottom:15.5cm;" />
-
-    .. class:: small
-
-       * :b:`blue dots` : ModelTrigger:NO : within FastSim region, but handled by SlowSim
-
-
-
-
 
 
 
@@ -2081,56 +1843,38 @@ hamaLogicalPMT_fake.png
    all the problems and it requires less code. 
  
 
-:small:`u4/CustomART.h : include into CustomG4OpBoundaryProcess.cc`
+:small:`custom4/C4CustomART.h : include into C4OpBoundaryProcess.cc`
 -----------------------------------------------------------------------
 
-.. sidebar:: :small:`CustomART::maybe_doIt`
-
-    .. raw:: html
-
-      <pre class="mypretiny">
-      inline char CustomART::maybe_doIt(
-           const char* OpticalSurfaceName, 
-           const G4Track& aTrack, const G4Step& aStep )
-      {   
-          if( OpticalSurfaceName == nullptr || 
-              OpticalSurfaceName[0] != '@') return 'N' ;
-          
-          const G4AffineTransform& transform = 
-            aTrack.GetTouchable()
-            ->GetHistory()->GetTopTransform();
-
-          G4ThreeVector localPoint = 
-            transform.TransformPoint(theGlobalPoint);
-
-          if(localPoint.z() <= 0) return 'Z' ;
-          
-          return doIt(aTrack, aStep) ;
-      }
-      </pre>
-             
+.. sidebar:: :small:`C4CustomART customizations`
 
     .. class:: small
 
-      *doIt* TMM calc, runs only for:
+      *doIt* C4MultiLayrStack.h TMM calc, only for:
  
-      * OpticalSurfaceName[0]=='@' && zlocal > 0  
-      * -> :b:`Transmittance, Reflectivity, Efficiency`  
-      * TMM calc using Layr.h multi-layer Stack 
+      * OpticalSurfaceName[0]=='@' && local_z > 0  
+      * -> :b:`Absorption, Transmittance, Reflectivity, Efficiency`  
+      * changed via references collected by ctor 
+
+      :b:`reuse standard G4OpBoundaryProcess`
+
+      * standard reflect, refract, absorb 
+      * standard polarization 
+      * :r:`"inject" minimal change needed for POM`
+
 
 .. raw:: html
 
     <pre class="mypretiny">
-    &#35;include "IPMTAccessor.h"
-    &#35;include "Layr.h"    
-    &#35;include "U4Touchable.h"
+    &#35;include "C4IPMTAccessor.h"
+    &#35;include "C4MultiLayrStack.h"    
+    &#35;include "C4Touchable.h"
 
-    struct CustomART
-    {
-        <span class="r">const IPMTAccessor* accessor ; // JPMT.h OR PMTAccessor.h </span> 
-        
-        <span class="b">G4double& theTransmittance ;   // doIt sets these 
+    struct C4CustomART {
+        <span class="r">const C4IPMTAccessor* accessor ; </span> 
+        <span class="b">G4double& theAbsorption ;   // doIt sets these
         G4double& theReflectivity ;
+        G4double& theTransmittance ; 
         G4double& theEfficiency ;</span> 
         
         const G4ThreeVector& theGlobalPoint ;
@@ -2139,10 +1883,11 @@ hamaLogicalPMT_fake.png
         const G4ThreeVector& theRecoveredNormal ;
         const G4double& thePhotonMomentum ; 
         
-        CustomART(
-            const IPMTAccessor* accessor,
-            G4double& theTransmittance,
+        C4CustomART(
+            const C4IPMTAccessor* accessor,
+            G4double& theAbsorption,
             G4double& theReflectivity,
+            G4double& theTransmittance,
             G4double& theEfficiency,
             const G4ThreeVector& theGlobalPoint,
             const G4ThreeVector& OldMomentum,  
@@ -2150,21 +1895,21 @@ hamaLogicalPMT_fake.png
             const G4ThreeVector& theRecoveredNormal,
             const G4double& thePhotonMomentum
         );  
-        char maybe_doIt(const char* OpticalSurfaceName, 
-                  const G4Track& aTrack, const G4Step& aStep );
-        char doIt(const G4Track& aTrack, const G4Step& aStep ); 
+        double local_z( const G4Track& aTrack );
+        <span class="b">void doIt(const G4Track& aTrack, const G4Step& aStep ); </span>
     };  
     </pre>
 
 .. class:: small
 
-   `opticks/src/master/u4/CustomART.h <https://bitbucket.org/simoncblyth/opticks/src/master/u4/CustomART.h>`_
+   https://github.com/simoncblyth/customgeant4/blob/main/C4CustomART.h
 
 
 .. s5_talk::
 
    Separate header for cleaner customization. 
 
+   `custom4/C4CustomART.h <https://github.com/simoncblyth/customgeant4/blob/main/C4CustomART.h>`_
 
 
 
