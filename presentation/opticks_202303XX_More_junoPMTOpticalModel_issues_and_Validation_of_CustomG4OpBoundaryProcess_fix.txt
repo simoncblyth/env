@@ -81,7 +81,6 @@
 
     TODO
 
-    0. TOC update, shuffling pages, s5_talk notes 
     1. describe ProcessHits issue, checks, fix 
     2. present POM:0 standalone check
     3. insitu POM:0 test
@@ -89,6 +88,9 @@
     5. bump Custom4, checking without C4_DEBUG running 
     6. need to reference the issue, branch and merge request 
 
+    7. C+S C4Lab 
+    8. gun running test
+    9. NoOpticks compile+run test 
 
 
 junoPMTOpticalModel Issues : All from using FastSim 
@@ -1938,6 +1940,58 @@ Transform photon points into target frame
 
 
 
+
+
+
+
+
+:small:`HAMA InputPhoton Chi2  (10 evt)` ``~/j/ntds/ntds.sh cfmeta``
+-----------------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">msab.c_itab
+    array([[[15617, 15661, 15635, 15890, 15447, 15871, 15500, 15824, 15598, 15627],        0:ProcessHits_count 
+            [18490, 18210, 18490, 18174, 18467, 18069, 18608, 18198, 18291, 18284]],        
+            
+           [[ 3083,  3070,  3035,  2978,  3020,  2966,  2976,  2944,  3044,  3029],        1:ProcessHits_true 
+            [ 3042,  3001,  2904,  2958,  2925,  2996,  3023,  3007,  3068,  2991]],        
+            
+           [[12534, 12591, 12600, 12912, 12427, 12905, 12524, 12880, 12554, 12598],        2:ProcessHits_false 
+            [15448, 15209, 15586, 15216, 15542, 15073, 15585, 15191, 15223, 15293]],        
+           ...
+    msab.c_ftab
+    array([[[2.324, 2.735, 2.697, 2.702, 2.684, 2.337, 2.303, 2.334, 2.301, 2.298],        0:SEvt__TimerDone 
+            [1.952, 2.214, 2.207, 2.195, 2.228, 1.894, 1.923, 2.226, 2.222, 1.877]]])        
+
+    msab.c_itab[msab.ik.YSAVE,0].sum()/msab.c_itab[msab.ik.YSAVE,1].sum()     1.0077  # N=0/N=1 
+    msab.c_ftab[0,1].sum()/msab.c_ftab[0,0].sum()                             0.8472  # ratio of durations N=1/N=0
+    np.diff(msab.c_ttab)[0,1].sum()/np.diff(msab.c_ttab)[0,0].sum()           0.8582  # ratio of evt times N=1/N=0
+
+    np.diff(msab.c_ttab)/1e6   # seconds between event starts
+    array([[[2.589, 2.983, 3.004, 3.01 , 2.994, 2.665, 2.619, 2.641, 2.61 ],         
+            [2.304, 2.526, 2.453, 2.443, 2.495, 2.144, 2.179, 2.478, 2.531]]])
+
+    np.c_[msab.c_ttab[0].T].view('datetime64[us]') # SEvt start times (UTC)
+    array([['2023-04-15T17:35:25.726622', '2023-04-15T17:41:01.654181'],
+           ['2023-04-15T17:35:28.315248', '2023-04-15T17:41:03.957860'],
+           ...
+           ['2023-04-15T17:35:50.840385', '2023-04-15T17:41:23.207810']], dtype='datetime64[us]')
+
+    msab.c2tab  # c2sum, c2n, c2per for each event
+    array([[28.08 , 21.765, 24.036, 14.987, 12.353, 29.081, 23.99 , 18.305, 17.485, 20.135],
+           [25.   , 25.   , 26.   , 25.   , 25.   , 27.   , 25.   , 25.   , 27.   , 28.   ],
+           [ 1.123,  0.871,  0.924,  0.599,  0.494,  1.077,  0.96 ,  0.732,  0.648,  0.719]])
+
+    msab.c2tab[0,:].sum()/msab.c2tab[1,:].sum()          0.8148                      # c2per_tot
+    </pre>
+
+
+
+
+
+
+
 :i:`A_V0J008_N0_ip_MOI_NNVT:0:1000_10k.png`
 --------------------------------------------
 
@@ -2000,6 +2054,10 @@ Transform photon points into target frame
 
 
 
+
+
+
+
 :small:`100k Input Photons targetting NNVT:0:1000 Chi2 History Comparison`
 ---------------------------------------------------------------------------
 
@@ -2048,5 +2106,94 @@ Transform photon points into target frame
 
 
 
+:small:`NNVT InputPhoton Chi2  (10 evt)` ``~/j/ntds/ntds.sh cfmeta``
+-----------------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">msab.c_itab
+    array([[[22063, 22278, 21789, 21762, 21833, 22246, 21838, 21914, 22052, 21912],        0:ProcessHits_count 
+            [25986, 25956, 25693, 25834, 26009, 25528, 25944, 25642, 25787, 25522]],        
+            
+           [[ 3512,  3517,  3541,  3496,  3576,  3434,  3607,  3484,  3542,  3552],        1:ProcessHits_true 
+            [ 3541,  3529,  3510,  3535,  3491,  3534,  3601,  3506,  3562,  3529]],        
+            
+           [[18551, 18761, 18248, 18266, 18257, 18812, 18231, 18430, 18510, 18360],        2:ProcessHits_false 
+            [22445, 22427, 22183, 22299, 22518, 21994, 22343, 22136, 22225, 21993]],        
+    ...
+    msab.c_ftab
+    array([[[2.823, 3.323, 3.228, 2.768, 2.747, 2.827, 2.835, 2.879, 2.872, 2.847],        0:SEvt__TimerDone 
+            [2.617, 2.547, 2.55 , 2.548, 2.548, 2.521, 2.532, 2.531, 2.588, 2.569]]])        
+
+    msab.c_itab[msab.ik.YSAVE,0].sum()/msab.c_itab[msab.ik.YSAVE,1].sum()     0.9978       # N=0/N=1
+    msab.c_ftab[0,1].sum()/msab.c_ftab[0,0].sum()                             0.8766       # ratio of durations N=1/N=0 
+    np.diff(msab.c_ttab)[0,1].sum()/np.diff(msab.c_ttab)[0,0].sum()           0.9107       # ratio of evt times N=1/N=0 
+
+    np.diff(msab.c_ttab)/1e6   # seconds between event starts
+    array([[[3.086, 3.643, 3.474, 3.063, 3.012, 3.149, 3.164, 3.192, 3.177],
+            [2.942, 2.859, 2.8  , 2.798, 2.788, 2.827, 2.795, 2.8  , 3.767]]])
+
+    np.c_[msab.c_ttab[0].T].view('datetime64[us]') # SEvt start times (UTC)
+
+    array([['2023-04-15T19:18:04.210151', '2023-04-15T19:22:38.213798'],
+           ['2023-04-15T19:18:07.296470', '2023-04-15T19:22:41.155448'],
+           ...
+          ['2023-04-15T19:18:33.170123', '2023-04-15T19:23:04.588021']], dtype='datetime64[us]')
+
+    msab.c2tab  # c2sum, c2n, c2per for each event
+    array([[21.007, 30.807, 31.403, 33.485, 14.285, 42.094, 40.497, 21.573, 31.372, 22.241],
+           [31.   , 33.   , 33.   , 32.   , 32.   , 31.   , 30.   , 31.   , 34.   , 31.   ],
+           [ 0.678,  0.934,  0.952,  1.046,  0.446,  1.358,  1.35 ,  0.696,  0.923,  0.717]])
+
+    msab.c2tab[0,:].sum()/msab.c2tab[1,:].sum()                              0.9081         # c2per_tot 
+    </pre>
+
+
+
+
+
+
+:small:`Gun Running N=0,1 Chi2 comparison across 10 evts (opticksMode:2)`
+---------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">cd ~/j/ntds ; ./ntds.sh cfmeta 
+    c_itab
+    array([[[11274, 11012, 10851, 11422, 11372, 11151, 11535, 11250, 11123, 11001],  N=0  ProcessHits_count 
+            [13990, 13709, 13649, 13709, 14365, 14609, 13600, 13869, 14686, 14014]], N=1    
+            
+           [[ 1820,  1724,  1696,  1740,  1806,  1721,  1748,  1745,  1763,  1713],       ProcessHits_true 
+            [ 1722,  1654,  1702,  1757,  1791,  1761,  1690,  1769,  1763,  1820]],        
+           ...
+           [[ 9214,  9051,  8905,  9427,  9326,  9206,  9531,  9242,  9131,  9055],       NEDEP 
+            [11990, 11762, 11674, 11658, 12290, 12558, 11621, 11829, 12641, 11923]],        
+            
+           [[    2,     1,     1,     0,     1,     2,     3,     1,     1,     0],       NBOUND 
+            [   21,    31,    29,    28,    33,    36,    26,    34,    32,    32]], ## <span class="r"> More sensitive Acrylic with N=1 </span>       
+           ... 
+           [[ 1820,  1724,  1696,  1740,  1806,  1721,  1748,  1745,  1763,  1713],       YSAVE 
+            [ 1722,  1654,  1702,  1757,  1791,  1761,  1690,  1769,  1763,  1820]],        
+
+    c_ftab
+    array([[[2.517, 2.35 , 2.895, 2.816, 2.952, 2.344, 2.46 , 2.468, 2.845, 2.322],       SEvt__TimerDone 
+            [2.654, 2.395, 2.562, 2.537, 2.427, 2.534, 2.5  , 2.531, 2.449, 2.605]]])        
+
+    np.diff(c_ttab)/1e6   # seconds between event starts 
+    [[[2.76  2.586 3.106 3.033 3.231 2.62  2.772 2.69  3.112]  ## <span class="r"> Little difference, timings dominated by recording overheads however </span>
+      [3.026 2.71  2.858 2.842 3.094 2.874 2.836 2.841 2.708]]]
+
+    np.c_[c_ttab[0,0].view('datetime64[us]'),c_ttab[0,1].view('datetime64[us]')] # event start times (UTC)  
+    [['2023-04-14T13:16:14.802047' '2023-04-14T13:24:48.696600']
+     ['2023-04-14T13:16:17.561901' '2023-04-14T13:24:51.722786']    
+     ...
+
+    c2tab  # c2sum, c2n, c2per for each event : Chi2 comparing simulation histories 
+    array([[67.968, 54.336, 57.879, 50.578, 68.72 , 64.923, 60.431, 79.85 , 68.574, 60.395],
+           [63.   , 62.   , 63.   , 69.   , 60.   , 63.   , 62.   , 66.   , 64.   , 64.   ],
+           [ 1.079,  0.876,  0.919,  0.733,  1.145,  1.031,  0.975,  1.21 ,  1.071,  0.944]]) ## <span class="r"> Consistent histories between N=0, N=1 </span>
+
+    c2per_tot:  0.9963   ## <span class="r"> Combined Chi2 over all 10 events : close to 1. </span>
+    </pre>
 
 

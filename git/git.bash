@@ -25,6 +25,109 @@ Reference
 
 Git Tags
 
+Good Reference
+-----------------
+
+* https://www.atlassian.com/git/tutorials/using-branches/merge-conflicts
+* https://www.atlassian.com/git/tutorials/comparing-workflows
+* https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow
+
+
+
+see what you have been working on in the past 10 commits
+-----------------------------------------------------------
+
+::
+
+    epsilon:junosw blyth$ git diff --name-only @~10
+    Examples/Tutorial/python/Tutorial/JUNODetSimModule.py
+    Simulation/DetSimV2/DetSimMTUtil/src/DetFactorySvc.cc
+    Simulation/DetSimV2/DetSimOptions/include/LSExpDetectorConstruction_Opticks.hh
+    Simulation/DetSimV2/DetSimOptions/src/DetSim0Svc.cc
+    Simulation/DetSimV2/DetSimOptions/src/LSExpDetectorConstruction_Opticks.cc
+    Simulation/DetSimV2/PMTSim/PMTSim/junoSD_PMT_v2_Debug.h
+    Simulation/DetSimV2/PMTSim/include/junoPMTOpticalModel.hh
+    Simulation/DetSimV2/PMTSim/include/junoSD_PMT_v2.hh
+    Simulation/DetSimV2/PMTSim/include/junoSD_PMT_v2_Opticks.hh
+    Simulation/DetSimV2/PMTSim/src/HamamatsuR12860PMTManager.cc
+    Simulation/DetSimV2/PMTSim/src/NNVTMCPPMTManager.cc
+    Simulation/DetSimV2/PMTSim/src/PMTSDMgr.cc
+    Simulation/DetSimV2/PMTSim/src/junoPMTOpticalModel.cc
+    Simulation/DetSimV2/PMTSim/src/junoSD_PMT_v2.cc
+    Simulation/DetSimV2/PMTSim/src/junoSD_PMT_v2_Opticks.cc
+    Simulation/DetSimV2/PhysiSim/include/DsG4Scintillation.h
+    Simulation/DetSimV2/PhysiSim/include/DsPhysConsOptical.h
+    Simulation/DetSimV2/PhysiSim/src/DsG4Scintillation.cc
+    Simulation/DetSimV2/PhysiSim/src/DsPhysConsOptical.cc
+    epsilon:junosw blyth$ 
+
+
+
+
+diff between head and the prior commit
+----------------------------------------------
+
+::
+
+    epsilon:junosw blyth$ git diff @~ Simulation/SimSvc/PMTSimParamSvc/src/PMTSimParamSvc.cc
+
+
+diff between head and an earlier commit
+-----------------------------------------
+
+::
+
+    epsilon:junosw blyth$ git diff --name-status @~6
+    M       Examples/Tutorial/python/Tutorial/JUNODetSimModule.py
+    M       Simulation/DetSimV2/DetSimMTUtil/src/DetFactorySvc.cc
+    M       Simulation/DetSimV2/DetSimOptions/src/DetSim0Svc.cc
+    M       Simulation/DetSimV2/DetSimOptions/src/LSExpDetectorConstruction_Opticks.cc
+    M       Simulation/DetSimV2/PMTSim/PMTSim/junoSD_PMT_v2_Debug.h
+     
+
+
+difftool
+----------
+
+* https://borgs.cybrilla.com/tils/opendiff-as-difftool/
+
+~/.gitconfig::
+
+    [diff]
+        tool = opendiff
+
+    [difftool]
+      prompt = false
+
+    [difftool "opendiff"]
+        cmd = /usr/bin/opendiff \"$LOCAL\" \"$REMOTE\" -merge \"$MERGED\" | cat
+
+
+Unsure of the need/reason for the third stanza. 
+
+
+::
+
+    git difftool  main..$branch -- Simulation/DetSimV2/PMTSim/src/junoSD_PMT_v2.cc
+
+
+* opendiff (aka FileMerge) is macOS GUI diff tool 
+
+
+
+Getting branch uptodate
+-------------------------
+
+https://stackoverflow.com/questions/20101994/how-to-git-pull-from-master-into-the-development-branch
+
+::
+
+    git fetch origin          ## 
+    git checkout master
+    git merge --ff-only origin/master
+    git checkout dmgr2
+    git merge --no-ff origin/master
+
 
 
 git log without paging and limiting the number of commits
@@ -1591,4 +1694,4 @@ EON
 
 
 
-
+git-10(){  type $FUNCNAME ; git diff @~10 --name-status ; }

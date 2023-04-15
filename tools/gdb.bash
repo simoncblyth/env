@@ -21,7 +21,7 @@ breakpoint basics
 --------------------
 
 * add : b 101    # line num
-* listing : "i b"
+* listing : "i b" or "info b" 
 * d 1            # delete breakpoint 1 
 
 
