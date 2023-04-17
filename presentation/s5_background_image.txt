@@ -2060,6 +2060,12 @@
     Custom4_README.png
     Custom4/Custom4_README.png 1280px_720px 
 
+    B_V1J008_N1_OIPF_NNVT:0:1000_gridxy.png
+    GEOM/V1J008/ntds2/ALL1/000/figs/ntds2/pvcap/B_V1J008_N1_OIPF_NNVT:0:1000_gridxy.png 1280px_720px
+
+    B_V1J008_N1_OIPF_NNVT:0:1000_POM0.png
+    GEOM/V1J008/ntds2/ALL1/000/figs/ntds2/pvcap/B_V1J008_N1_OIPF_NNVT:0:1000_POM0.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

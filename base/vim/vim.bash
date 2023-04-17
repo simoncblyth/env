@@ -13,6 +13,16 @@ VIM Tips
 
 
 
+
+delete multiple lines
+------------------------
+
+::
+ 
+    4dd   # delete four lines starting from current one 
+
+
+
 replace spaces on line with newlines
 ----------------------------------------
 

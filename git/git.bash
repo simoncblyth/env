@@ -138,8 +138,12 @@ git log without paging and limiting the number of commits
     git --no-pager l -n 5
 
 
+git log 
+----------
 
+::
 
+    git --no-pager log 636e^.. --pretty=oneline 
 
 
 

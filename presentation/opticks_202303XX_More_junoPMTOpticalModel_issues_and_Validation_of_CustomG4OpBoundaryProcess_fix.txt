@@ -1960,9 +1960,6 @@ Transform photon points into target frame
            [[12534, 12591, 12600, 12912, 12427, 12905, 12524, 12880, 12554, 12598],        2:ProcessHits_false 
             [15448, 15209, 15586, 15216, 15542, 15073, 15585, 15191, 15223, 15293]],        
            ...
-    msab.c_ftab
-    array([[[2.324, 2.735, 2.697, 2.702, 2.684, 2.337, 2.303, 2.334, 2.301, 2.298],        0:SEvt__TimerDone 
-            [1.952, 2.214, 2.207, 2.195, 2.228, 1.894, 1.923, 2.226, 2.222, 1.877]]])        
 
     msab.c_itab[msab.ik.YSAVE,0].sum()/msab.c_itab[msab.ik.YSAVE,1].sum()     1.0077  # N=0/N=1 
     msab.c_ftab[0,1].sum()/msab.c_ftab[0,0].sum()                             0.8472  # ratio of durations N=1/N=0
@@ -1972,7 +1969,7 @@ Transform photon points into target frame
     array([[[2.589, 2.983, 3.004, 3.01 , 2.994, 2.665, 2.619, 2.641, 2.61 ],         
             [2.304, 2.526, 2.453, 2.443, 2.495, 2.144, 2.179, 2.478, 2.531]]])
 
-    np.c_[msab.c_ttab[0].T].view('datetime64[us]') # SEvt start times (UTC)
+    np.c_[msab.c_ttab[0].T].view('datetime64[us]') # SEvt start times (UTC)  <span style="font-size:25px">opticks/syrsap/stimer.h (std::chrono)</span> 
     array([['2023-04-15T17:35:25.726622', '2023-04-15T17:41:01.654181'],
            ['2023-04-15T17:35:28.315248', '2023-04-15T17:41:03.957860'],
            ...
@@ -1981,13 +1978,15 @@ Transform photon points into target frame
     msab.c2tab  # c2sum, c2n, c2per for each event
     array([[28.08 , 21.765, 24.036, 14.987, 12.353, 29.081, 23.99 , 18.305, 17.485, 20.135],
            [25.   , 25.   , 26.   , 25.   , 25.   , 27.   , 25.   , 25.   , 27.   , 28.   ],
-           [ 1.123,  0.871,  0.924,  0.599,  0.494,  1.077,  0.96 ,  0.732,  0.648,  0.719]])
+           <span class="r">[ 1.123,  0.871,  0.924,  0.599,  0.494,  1.077,  0.96 ,  0.732,  0.648,  0.719]])</span>
 
-    msab.c2tab[0,:].sum()/msab.c2tab[1,:].sum()          0.8148                      # c2per_tot
+    msab.c2tab[0,:].sum()/msab.c2tab[1,:].sum()     <span class="r"> 0.8148 </span>            # c2per_tot
     </pre>
 
 
+.. class:: small
 
+   :r:`N=0,1 History Chi2 : Consistent across 10 evt`   Overall Chi2 : 0.8148  
 
 
 
@@ -2195,5 +2194,101 @@ Transform photon points into target frame
 
     c2per_tot:  0.9963   ## <span class="r"> Combined Chi2 over all 10 events : close to 1. </span>
     </pre>
+
+
+
+
+:i:`B_V1J008_N1_OIPF_NNVT:0:1000_gridxy.png`
+----------------------------------------------
+
+
+::
+
+     export OPTICKS_INPUT_PHOTON=GridXY_X1000_Z1000_40k_f8.npy
+     export OPTICKS_INPUT_PHOTON_FRAME=NNVT:0:1000
+
+     MODE=3 EDL=1 N=0 EYE=500,0,2300 CHECK=not_first ~/j/ntds/ntds.sh ana
+
+
+
+:i:`B_V1J008_N1_OIPF_NNVT:0:1000_POM0.png`
+-------------------------------------------
+
+::
+
+    POM=0 ntds2_cf ## Check No PMT Optical model  
+
+
+
+
+:small:`Check With PMT Optical Model disabled : N=0,1 => Consistent Simulations`
+-----------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">EVT=001 ~/j/ntds/ntds.sh cf    ## Chi2 history check for 1 evt  
+    c2sum/c2n:c2per(C2CUT)  64.20/69:0.930 (30)
+
+    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][:25]  ## A-B history frequency chi2 comparison 
+    [[' 0' 'TO BT BT BT BT SD                    ' ' 0' ' 27052  27168' ' 0.2482' '     0      0']
+     [' 1' 'TO SA                                ' ' 1' '  3099   3078' ' 0.0714' '    78     77']
+     [' 2' 'TO AB                                ' ' 2' '   948    908' ' 0.8621' '    33      2']
+     [' 3' 'TO DR BT SA                          ' ' 3' '   872    929' ' 1.8040' '   132    138']
+     [' 4' 'TO BT SD                             ' ' 4' '   889    881' ' 0.0362' '  8241   8241']
+     [' 5' 'TO BT BT AB                          ' ' 5' '   343    314' ' 1.2801' '    74    223']
+     [' 6' 'TO BT BT SA                          ' ' 6' '   278    274' ' 0.0290' '   479   1032']
+     [' 7' 'TO DR BT DR BT SA                    ' ' 7' '   239    226' ' 0.3634' '   154    134']
+     [' 8' 'TO BT BT BR BT BT SA                 ' ' 8' '   200    229' ' 1.9604' '   128    176']
+     [' 9' 'TO BT SA                             ' ' 9' '   181    177' ' 0.0447' '  8439   8240']
+     ['10' 'TO DR BT BT BT BT SD                 ' '10' '   162    176' ' 0.5799' '   162    537']
+
+    NEVT=3 ~/j/ntds/ntds.sh cfmeta   ## Compare counts, chi2 for 3 events    
+                                                                                                                          
+    array([[[31967, 31903, 32017],  N=0   0:ProcessHits_count        array([[[6.679, 6.614, 6.632],        0:SEvt__TimerDone  
+            [33305, 33464, 33416]], N=1                                      [6.192, 6.146, 6.107]]])                         
+                                                                                                                              
+           [[ 8732,  8693,  8745],        1:ProcessHits_true         msab.c2tab  # c2sum, c2n, c2per for each event           
+            [ 8696,  8772,  8717]],                                                                                           
+                                                                     array([[42.234, 64.198, 51.987],                         
+           [[ 2155,  2149,  2086],        8:NEDEP                           [66.   , 69.   , 67.   ],                         
+            [ 3443,  3577,  3552]],                                         [ 0.64 ,  0.93 ,  0.776]])                        
+                                                             
+           [[  134,   114,   130],        9:NBOUND           
+            [  134,   131,   129]],                          
+    </pre>
+
+.. class:: small
+
+    * POM:0 simpler histories as photons do not enter PMT 
+    * More ProcessHits_false for N=1 (from more Sensitive volume)
+    * Consistent ProcessHits_true  
+    * N=0,1 simulation history Chi2 matching 
+
+
+
+Issue 88, Branch, Merge Request
+--------------------------------
+
+.. class:: small
+
+
+    `junosw/-/issues/88 <https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/88>`_
+
+        Geant4 FastSim based junoPMTOpticalModel implementation has incorrect polarization and propagation time within PMT and also overcomplex 4 volume PMT geometry 
+
+
+    `junosw/-/tree/blyth-88-pivot-PMT-optical-model-from-FastSim-to-CustomG4OpBoundaryProcess <https://code.ihep.ac.cn/JUNO/offline/junosw/-/tree/blyth-88-pivot-PMT-optical-model-from-FastSim-to-CustomG4OpBoundaryProcess>`_
+
+        Pivot Branch 
+
+
+    `junosw/-/merge_requests/180 <https://code.ihep.ac.cn/JUNO/offline/junosw/-/merge_requests/180>`_ 
+
+        Merge Request
+   
+
+
+
+   
 
 
