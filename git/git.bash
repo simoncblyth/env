@@ -33,6 +33,102 @@ Good Reference
 * https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow
 
 
+Git Help
+----------
+
+::
+
+    git help cli
+
+
+Git Dry Run Merge
+--------------------
+
+* https://stackoverflow.com/questions/501407/is-there-a-git-merge-dry-run-option
+* https://www.janbasktraining.com/community/devops/is-there-a-git-merge-dry-run-option
+
+
+Do the merge, but dont commit, and dont allow ff (as commit couldnt then be stopped)::
+
+    git merge --no-commit --no-ff $branch
+    ## exit status is 0 iff the merge is possible.
+
+Examine staged changes::
+
+    git diff --cached
+    ## "--cached" is synonym for "--staged"
+
+Undo merge::
+
+    git merge --abort
+
+
+
+Remove the last commit (only sensible when you did not push it yet) : git reset --hard HEAD^
+-----------------------------------------------------------------------------------------------
+
+::
+
+    epsilon:junosw_check2 blyth$ git log -n2
+    commit 50fdede6466db384a5b970bf94a0ddc44cf6ab35 (HEAD -> blyth-88-pivot-PMT-optical-model-from-FastSim-to-CustomG4OpBoundaryProcess)
+    Author: Simon C Blyth <simoncblyth@gmail.com>
+    Date:   Wed Apr 19 14:39:30 2023 +0100
+
+        relocate setup_generator_opticks in attempt to avoid merge conflict
+
+    commit 0b8f5cbf46079ac8366f687d898f760865485f44
+    Author: Simon C Blyth <simoncblyth@gmail.com>
+    Date:   Tue Apr 18 20:12:26 2023 +0100
+
+        chomp the eol at end of cmake/JUNODependencies.cmake as seems to cause merge conflict
+    epsilon:junosw_check2 blyth$ 
+    epsilon:junosw_check2 blyth$ git status 
+    On branch blyth-88-pivot-PMT-optical-model-from-FastSim-to-CustomG4OpBoundaryProcess
+    Your branch is ahead of 'origin/blyth-88-pivot-PMT-optical-model-from-FastSim-to-CustomG4OpBoundaryProcess' by 2 commits.
+      (use "git push" to publish your local commits)
+
+    nothing to commit, working tree clean
+    epsilon:junosw_check2 blyth$ 
+    epsilon:junosw_check2 blyth$ 
+    epsilon:junosw_check2 blyth$ git reset --hard HEAD^
+    HEAD is now at 0b8f5cb chomp the eol at end of cmake/JUNODependencies.cmake as seems to cause merge conflict
+    epsilon:junosw_check2 blyth$ 
+    epsilon:junosw_check2 blyth$ 
+    epsilon:junosw_check2 blyth$ git log -n2
+    commit 0b8f5cbf46079ac8366f687d898f760865485f44 (HEAD -> blyth-88-pivot-PMT-optical-model-from-FastSim-to-CustomG4OpBoundaryProcess)
+    Author: Simon C Blyth <simoncblyth@gmail.com>
+    Date:   Tue Apr 18 20:12:26 2023 +0100
+
+        chomp the eol at end of cmake/JUNODependencies.cmake as seems to cause merge conflict
+
+    commit a6cded9e334595ca47a6f878ffb100bfd45d4b3c (origin/blyth-88-pivot-PMT-optical-model-from-FastSim-to-CustomG4OpBoundaryProcess)
+    Author: Simon C Blyth <simoncblyth@gmail.com>
+    Date:   Tue Apr 18 16:34:20 2023 +0100
+
+        try changing JUNOTOP to J23.1.x in .gitlab-ci.yml in attempt to allow the CI runners to find Custom4, as suggested by Tao in MR 180
+    epsilon:junosw_check2 blyth$ 
+
+
+
+
+Rebase vs Merge
+------------------
+
+* https://www.atlassian.com/git/tutorials/merging-vs-rebasing
+
+* https://www.atlassian.com/git/tutorials/rewriting-history/git-rebase#:~:text=What%20is%20git%20rebase%3F,of%20a%20feature%20branching%20workflow.
+
+Rebase is one of two Git utilities that specializes in integrating changes from
+one branch onto another. The other change integration utility is git merge.
+Merge is always a forward moving change record. Alternatively, rebase has
+powerful history rewriting features. 
+
+
+Danger of Rebase : because its rewriting history
+--------------------------------------------------
+
+* https://medium.com/devops-with-valentine/gitlab-merge-blocked-fast-forward-merge-is-not-possible-7f86bf79e58b
+
 
 see what you have been working on in the past 10 commits
 -----------------------------------------------------------
@@ -130,6 +226,8 @@ https://stackoverflow.com/questions/20101994/how-to-git-pull-from-master-into-th
 
 
 
+
+
 git log without paging and limiting the number of commits
 ------------------------------------------------------------
 
@@ -144,6 +242,15 @@ git log
 ::
 
     git --no-pager log 636e^.. --pretty=oneline 
+
+
+
+git show : to look at a file from a different branch
+--------------------------------------------------------
+
+::
+
+    epsilon:junosw blyth$ git show main:Simulation/DetSimV2/PMTSim/src/junoSD_PMT_v2.cc > /tmp/conflict/junoSD_PMT_v2.cc 
 
 
 
@@ -1699,3 +1806,40 @@ EON
 
 
 git-10(){  type $FUNCNAME ; git diff @~10 --name-status ; }
+
+
+git-noeol-0(){ 
+   git ls-files -z | xargs -0 -L1 bash -c 'test "$(tail -c 1 "$0")" && echo $0'
+   : env/git/git.bash
+} 
+
+git-ls-files-excluding-root-png(){
+   git ls-files -- . ':!:*.png' . ':!:*.root'
+   : env/git/git.bash 
+}
+
+
+git-noeol(){
+   git ls-files -z -- . ':!:*.png' . ':!:*.root'  | xargs -0 -L1 bash -c 'test "$(tail -c 1 "$0")" && echo $0'
+   : list files in git repo excluding .png and .root which do not have an eol 
+   : env/git/git.bash 
+}
+
+git-noeol-fix(){
+   : env/git/git.bash 
+   : fix files in git repo excluding .png and .root which do not have an eol 
+
+   echo $FUNCNAME : git ls-files search excluding .root .png for files without eol beneath PWD $PWD  
+   local paths=$(git-noeol)
+
+   echo $FUNCNAME : found
+   for path in $paths ; do printf "$path\n" ; done
+ 
+   echo $FUNCNAME : fixing them with an echo 
+   for path in $paths ; do echo >> "$path" ; done 
+}
+
+
+
+
+

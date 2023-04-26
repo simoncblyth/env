@@ -82,6 +82,7 @@
         span.c { color: cyan; font-weight:bold ; }
         span.m { color: magenta; font-weight:bold ; }
         span.y { color: yellow; font-weight:bold ; }
+        span.e { color: grey; font-weight:bold ; }
 
         span.alarm { color: red; } 
         span.blue { color: blue; } 
@@ -235,6 +236,7 @@
 .. role:: c
 .. role:: m
 .. role:: y
+.. role:: e
 
 
 

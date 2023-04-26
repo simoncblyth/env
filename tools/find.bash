@@ -19,6 +19,13 @@ find-cd(){  cd $(find-dir); }
 find-mate(){ mate $(find-dir) ; }
 
 
+find-noel(){
+   find . -type f -print0 | xargs -0 -L1 bash -c 'test "$(tail -c 1 "$0")" && echo "No new line at end of $0"'
+   : env/tools/find.bash 
+   : https://stackoverflow.com/questions/4631068/how-do-i-find-files-that-do-not-end-with-a-newline-linefeed
+}
+
+
 find-tabs(){
    local typ=${1:-py}
    find . -name "*.$typ" -exec grep -l $'\t' {} \;

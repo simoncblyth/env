@@ -15,10 +15,10 @@
     ##   
     ## the title "slide0" has special meaning as a title page 
     ## to disable the title background image simply change the 
-    ## below title of "slide0" to "slide0_disabled"
+    ## below title of "slide0" to "slide0_D"
     ##
-    ##slide0
-    slide0_D
+    ##slide0_D
+    slide0
     ../graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -66,6 +66,9 @@
 
     Geant4OpticksWorkflow 2
     ../Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png 1280px_720px
+
+    Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 1280px_720px 0px_0px
 
     GGeoView
     ../graphics/ggeoview/ggeoview-cerenkov-001.png 1047px_795px
@@ -500,6 +503,9 @@
     NVIDIA OptiX 7 : Entirely new thin API
     nvidia/Introducing_OptiX_7.png 640px_360px 670px_300px
 
+    NVIDIA OptiX 7 : Entirely new thin API => Full Opticks Re-implementation
+    nvidia/Introducing_OptiX_7.png 640px_360px 670px_300px
+
     NVIDIA OptiX 7 : Entirely new thin API (Introduced Aug 2019)
     nvidia/Introducing_OptiX_7.png 640px_360px 600px_300px
 
@@ -736,6 +742,17 @@
     nvidia/nvidia_ampere_architecture_half.png  640px_360px 0px_360px
     nvidia/2nd_generation_rtx_half.png     640px_360px 640px_0px
     nvidia/2nd_generation_rt_core_half.png 640px_360px 640px_360px
+
+    NVIDIA Ada : 3rd Generation RTX 
+    nvidia/ada_lovelace/ada_lovelace_leap_in_ray_tracing_performance_19206531.jpg 640px_360px 0px_360px
+    nvidia/ada_lovelace/Ada_throughput_efficiency.png 640px_360px 640px_0px
+    nvidia/ada_lovelace/2022_Geforce_RTX_4090.png 640px_360px 640px_360px
+
+    NVIDIA OptiX 7 Programs Full
+    nvidia/optix7/relationship_of_optix_programs.png 1267px_506px 0px_100px
+
+    NVIDIA OptiX 7 Programs
+    nvidia/optix7/relationship_of_optix_programs.png 845px_337px 0px_100px
 
     CSG Examples
     csg/dyb-radial-shield.png 640px_360px 640px_360px
@@ -2065,6 +2082,12 @@
 
     B_V1J008_N1_OIPF_NNVT:0:1000_POM0.png
     GEOM/V1J008/ntds2/ALL1/000/figs/ntds2/pvcap/B_V1J008_N1_OIPF_NNVT:0:1000_POM0.png 1280px_720px
+
+    ada_lovelace_leap_in_ray_tracing_performance_19206531.jpg 
+    nvidia/ada_lovelace/ada_lovelace_leap_in_ray_tracing_performance_19206531.jpg 1280px_720px
+
+    ada_lovelace_123_RTX_generations_18976718.jpg
+    nvidia/ada_lovelace/ada_lovelace_123_RTX_generations_18976718.jpg 1280px_720px
 
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored

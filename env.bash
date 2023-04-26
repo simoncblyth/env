@@ -1274,9 +1274,12 @@ cpg-(){      . $(env-home)/cpg/cpg.bash && cpg-env $* ; }
 dj-(){         . $(env-home)/dj/dj.bash && dj-env $*  ; }
 djsa-(){      . $(env-home)/dj/djsa.bash && djsa-env $* ; }
 
+chomp(){   perl -pi -e 'chomp if eof' $* ; : env/env.bash ;  }
+
 djext-(){    . $(env-home)/dj/djext.bash && djext-env $* ; }
 nosedjango-(){      . $(env-home)/dj/nosedjango.bash && nosedjango-env $* ; }
 git-(){             . $(env-home)/git/git.bash && git-env $* ; }
+grep-(){            . $(env-home)/grep/grep.bash && grep-env $* ; }
 formalchemy-(){     . $(env-home)/sa/formalchemy.bash && formalchemy-env $* ; }
 #rum-(){             . $(env-home)/rum/rum.bash && rum-env $* ; }
 vip-(){             . $(env-home)/vip/vip.bash && vip-env $* ; }

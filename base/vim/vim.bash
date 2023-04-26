@@ -150,6 +150,10 @@ vimdiff high level tips
 3. feel free to add spaces to make the diffs line up more simply, use :diffupdate 
 
 
+4. "dp" diffput  
+5. "do" diffobtain
+
+
 
 merging files with vimdiff : worked example
 -----------------------------------------------
