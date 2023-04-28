@@ -7,10 +7,14 @@ Thumbnail captions link to larger images, mostly (1920,1080)
 Feel free to use these images in your presentations, where appropriate give attribution by mentioning **Opticks**.
 
 
+.. figure:: ../env/Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005_thumb4.png
+
+    `Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow  <../env/Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png>`_
+
 
 .. figure:: ../env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001_thumb4.png
 
-    `Opticks Hybrid Photon Simulation Workflow Compared to Geant4  <../env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png>`_
+    `OLD : Opticks Hybrid Photon Simulation Workflow Compared to Geant4  <../env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png>`_
 
 
 .. figure:: ../env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0_moi_-1_thumb4.jpg

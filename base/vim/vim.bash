@@ -12,6 +12,10 @@ VIM Tips
 * http://www.astrohandbook.com/ch20/vi_guide.html
 
 
+replace mode
+--------------
+
+* shift-r (remember as "R") and start typing, escape returns to normal insert mode
 
 
 delete multiple lines

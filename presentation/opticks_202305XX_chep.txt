@@ -411,7 +411,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
 
 .. class:: small
 
-    Opticks API : split according to dependency -- Optical photons are GPU resident, only hits need to be copied to CPU memory 
+    Opticks API : split according to dependency -- Optical photons are GPU "resident", only hits need to be copied to CPU memory 
 
 
 

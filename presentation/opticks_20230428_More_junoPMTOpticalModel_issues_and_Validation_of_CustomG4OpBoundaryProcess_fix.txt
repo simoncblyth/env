@@ -1,9 +1,9 @@
 .. meta::
 
    :title: Opticks + JUNO : PMT Geometry + Optical Model Progress
-   :name: opticks_202303XX_More_junoPMTOpticalModel_issues_and_Validation_of_CustomG4OpBoundaryProcess_fix
-   :description: (?? Mar 2023)
-   :notes: Sim AFG Session 
+   :name: opticks_20230428_More_junoPMTOpticalModel_issues_and_Validation_of_CustomG4OpBoundaryProcess_fix
+   :description: (28 April 2023)
+   :notes: sim/phys meeting
 
 .. include:: my_s5defs.txt
 
@@ -35,18 +35,18 @@
 
   * *junoPMTOpticalModel* issues: 
 
-    * :r:`OVER COMPLEX:` PMT geometry and Geant4 step histories
-    * :r:`BUGS:` polarization and propagation time within PMT 
-    * :r:`MORE BUGS:` unphysical mid-vacuum reflect, refract, absorb, detect, "tunneling" 
+    * :r:`FORCED OVERLY COMPLEX:` PMT geometry and Geant4 step histories
+    * :r:`BUGS:` polarization and propagation time within PMT are wrong
+    * :b:`NEW:` :r:`MORE BUGS:` unphysical mid-vacuum reflect, refract, absorb, detect, "tunneling" 
 
-  * Custom Boundary POM Alternative, Custom4 mimi-package
+  * Custom Boundary POM (PMT Optical Model) Alternative, Custom4 mini-package
 
     * C4OpBoundaryProcess, C4CustomART.h 
     * POM/PMT quadrant controls 
 
   * Standalone PMT tests (Custom4 + j/PMTSim + Opticks) 
 
-    * PMT=0,1 Chi2 comparision reveals ModelTrigger whereAmI bug 
+    * :b:`NEW:` :r:`PMT=0,1 Chi2 comparision reveals ModelTrigger whereAmI bug` 
     * Unphysical photon examples, mid-vacuum A,R,T,D,"Tunneling" 
     * ModelTrigger_Debug, mis-placed triggers, HAMA immunity  
     * finding and fixing junoPMTOpticalModel::ModelTrigger whereAmI bug 
@@ -61,7 +61,7 @@
 .. raw:: html
 
     <div class="mycredit">
-       <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS  &mdash; ?? April 2023 </h2>
+       <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS  &mdash; 28 April 2023 </h2>
     </div>
 
 
@@ -79,18 +79,16 @@
  
 .. comment
 
-    TODO
+    1. DONE : describe ProcessHits issue, checks, fix 
+    2. DONE : present POM:0 standalone check
+    3. DONE : insitu POM:0 test
+    4. DONE : review j1 notes, for more content 
+    5. DONE : bump Custom4, checking without C4_DEBUG running 
+    6. DONE : need to reference the issue, branch and merge request 
 
-    1. describe ProcessHits issue, checks, fix 
-    2. present POM:0 standalone check
-    3. insitu POM:0 test
-    4. review j1 notes, for more content 
-    5. bump Custom4, checking without C4_DEBUG running 
-    6. need to reference the issue, branch and merge request 
-
-    7. C+S C4Lab 
-    8. gun running test
-    9. NoOpticks compile+run test 
+    7. DONE : C+S C4Lab 
+    8. DONE : gun running test
+    9. DONE : NoOpticks compile+run test 
 
 
 junoPMTOpticalModel Issues : All from using FastSim 
@@ -271,8 +269,8 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 
 
-:small:`Pivot to Custom Boundary Process For PMT Optical Model ?`
----------------------------------------------------------------------
+:small:`FIX : Pivot to Custom Boundary Process For PMT Optical Model ?`
+-------------------------------------------------------------------------
 
 .. sidebar:: :small:`Custom Boundary POM`
 
@@ -602,6 +600,7 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 
 
+
 :small:`Standalone PMT tests : junosw extracts + Custom4 + Geant4` 
 ---------------------------------------------------------------------------------------------
 
@@ -653,6 +652,8 @@ junoPMTOpticalModel Issues : All from using FastSim
     development cycle so its advantageous to do all initial developments 
     whilst running standalone tests. 
     
+
+
 
 
 :i:`FewPMT_demo.png`
@@ -884,7 +885,7 @@ Statistical Comparison of Simulation Histories
        uint64_t whereAmI ;  // 32
        uint64_t trig ;      // 33
        ...
-    }
+    };
     </pre>   
 
 .. class:: small
@@ -981,8 +982,15 @@ Statistical Comparison of Simulation Histories
 
 
 
-:small:`G4UnionSolid::DistanceToIn from Inside is "Undefined" and depends on CSG constituents : NNVT`
+:small:`Implications of whereAmI bug for NNVT ModelTrigger results`
 -------------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+    ``~/opticks/u4/tests/G4VSolid_Test.{sh,cc}`` 
+
+    :r:`G4UnionSolid::DistanceToIn(DistanceToOut) from Inside(Outside) is "Undefined"` :b:`BUT GEANT4 DOES NOT CHECK`
+
 
 .. raw:: html
 
@@ -1014,12 +1022,8 @@ Statistical Comparison of Simulation Histories
 .. class:: small
 
     * DistanceToIn, DistanceToOut, ``Distance_`` in +Z direction from points along Z axis
-    * CSG structure of NNVT inner1/inner2 yield mis-placed Pyrex triggers for Z > -185 mm
-    * :r:`Geant4 should assert that Distance methods are used appropriately` 
+    * CSG constituent structure of NNVT inner1/inner2 yield mis-placed Pyrex triggers for Z > -185 mm
 
-::
-
-    ~/opticks/u4/tests/G4VSolid_Test.{sh,cc} 
 
 .. s5_talk::
 
@@ -1063,8 +1067,12 @@ Statistical Comparison of Simulation Histories
 
 
 
-:small:`G4UnionSolid::DistanceToIn from Inside is "Undefined" and depends on CSG constituents : HAMA`
+:small:`Implications of whereAmI bug for HAMA ModelTrigger results`
 -------------------------------------------------------------------------------------------------------
+
+.. class:: small 
+
+    * DistanceToIn, DistanceToOut, Distance in +Z direction from points along Z axis
 
 .. raw:: html
 
@@ -1096,7 +1104,9 @@ Statistical Comparison of Simulation Histories
 
 .. class:: small
 
-    * Undefined behaviour prevents HAMA giving mis-placed Pyrex triggers from below Z=-5 mm
+    * HAMA INNER2 has equatorial cylinder from Z=-5 mm to Z=0 mm (NNVT has no such cylinder) 
+    * The equatorial cylinder changes the "Undefined" behavior preventing triggers below Z=-5 mm 
+    * :r:`So ModelTrigger bug is avoided for HAMA by "Undefined" behaviour` :b:`(NOT GOOD)`
 
 
 .. s5_talk::
@@ -1146,7 +1156,7 @@ Statistical Comparison of Simulation Histories
 
    <pre class="mypretiny">
     G4bool junoPMTOpticalModel::ModelTrigger(const G4FastTrack &fastTrack)
-    {   <span class="r">// GetVolume : NOT RELIABLE AT BORDERS </span> 
+    {   <span class="r">// GetVolume : CAUTION NEEDED AT BORDERS </span> 
       ...
       if(fastTrack.GetPrimaryTrack()->GetVolume() == _inner2_phys){
           return false;
@@ -1580,7 +1590,7 @@ Statistical Comparison of Simulation Histories
 
     **No Known Issues In Standalone Tests**
  
-    * -> move to insitu testing within junosw with tut_detsim.py 
+    * => move to insitu tests with junosw ``tut_detsim.py`` 
 
 
     **Insitu Testing with:** ``--opticks-mode 2``
@@ -1616,12 +1626,13 @@ Statistical Comparison of Simulation Histories
         * ok/ana/input_photons.sh -> .npy (n,4,4) arrays
         * targetting with Opticks frame selection 
 
-        **MOI frame targetting**
+        **OPTICKS_INPUT_PHOTON_FRAME**
 
         ``solidNamePrefix:ordinal:instance``
 
-        * Hama:0:1000
-        * NNVT:0:1000
+        * eg Hama:0:1000 NNVT:0:1000
+
+        :r:`Target specific repeat/instance`
 
 
 .. raw:: html
@@ -1647,7 +1658,7 @@ Statistical Comparison of Simulation Histories
         [ "$PMT" == "0" ] && export U4Recorder__FAKES_SKIP=1</span>
 
         <span class="b">export OPTICKS_INPUT_PHOTON=RainXZ_Z230_10k_f8.npy
-        export MOI=Hama:0:1000  ## input photon frame </span>
+        export OPTICKS_INPUT_PHOTON_FRAME=Hama:0:1000 </span>
 
         python tut_detsim.py $opts opticks  ## GtOpticksTool 
    }
@@ -1662,6 +1673,38 @@ Statistical Comparison of Simulation Histories
 .. s5_talk::
 
     Switching on Opticks instrumentation within tut_detsim running 
+
+
+
+
+
+Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
+------------------------------------------------------
+
+.. s5_talk::
+
+    Full Opticks
+
+
+Geant4 + Opticks Instrumentation (no GPU usage)
+--------------------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:15cm;" />
+
+.. class:: small
+
+   ``U4Recorder`` : uses CPU Opticks to persist ``SEvt`` photons/histories/.. into NumPy .npy files for analysis 
+
+
+
+.. s5_talk::
+
+    Partial Opticks used to instrument Geant4 simulation 
+
+
+
 
 
 
@@ -1764,8 +1807,8 @@ Statistical Comparison of Simulation Histories
 
 
 
-Transform photon points into target frame
----------------------------------------------
+Transform photon history points into target frame
+---------------------------------------------------
 
 .. class:: small
 
@@ -1777,7 +1820,7 @@ Transform photon points into target frame
 
     w2m = evt.f.sframe.w2m          # (4,4)         : world-to-model 
     gpos = b.f.record[:,:,0].copy() # (100000,32,4) : global (pos, time)
-    gpos[...,3] = 1   
+    gpos[...,3] = 1.                # use 1. : to transform as position  
     lpos = np.dot( gpos, w2m )      # (100000,32,4) : local (pos, 1) 
 
 
@@ -1940,8 +1983,86 @@ Transform photon points into target frame
 
 
 
+:small:`Instrument junoSD_PMT_v2::ProcessHits : Compare N=0,1 enum counts`
+--------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Enumerate all returns, Collect`
+
+    .. raw:: html
+
+         <pre class="mypretiny">
+         359 #ifdef WITH_G4CXOPTICKS
+         360 G4bool junoSD_PMT_v2::ProcessHits(G4Step* step,...)
+         361 {   
+         362     G4bool is_hit = ProcessHits_(step, nullptr) ;
+         363     m_jpmt_dbg->add( m_eph, is_hit );
+         373     return is_hit ;
+         374 }
+         382 #endif
+         384 #ifdef WITH_G4CXOPTICKS
+         385 G4bool junoSD_PMT_v2::ProcessHits_(G4Step* step,...)
+         386 #else
+         387 G4bool junoSD_PMT_v2::ProcessHits(G4Step* step,...)
+         388 #endif
+         389 {
+         390     if (m_disable) {
+         391 #ifdef WITH_G4CXOPTICKS
+         392         m_eph = EPH::NDIS ;
+         393 #endif
+         394         return false;
+         395     }
+         ...
+         </pre>
+
+    .. class:: small
+
+         :r:`Counts stored into SEvt metadata`
 
 
+.. raw:: html
+
+    <pre class="mypretiny">cd ~/j/ntds ; NEVT=3 ./ntds.sh cfmeta 
+    array([[[31967, 31903, 32017],  N=0   0:ProcessHits_count 
+            [33305, 33464, 33416]], N=1    
+            
+           [[ 8732,  8693,  8745],        1:ProcessHits_true 
+            [ 8696,  8772,  8717]],        
+            
+           [[23235, 23210, 23272],        2:ProcessHits_false 
+            [24609, 24692, 24699]],        
+            
+           [[ 8732,  8693,  8745],        3:SaveNormHit_count 
+            [ 8696,  8772,  8717]],        
+          ...
+
+           [[ 2155,  2149,  2086],        8:NEDEP 
+            [ 3443,  3577,  3552]],        
+            
+           [[  134,   114,   130],        9:NBOUND 
+            [  134,   131,   129]],        
+           ...
+
+           [[20946, 20947, 21056],       12:NDECULL 
+            [21032, 20984, 21018]],        
+           ...
+            
+           [[ 8732,  8693,  8745],       14:YSAVE 
+            [ 8696,  8772,  8717]],        
+            
+           [[    2,     2,     2],       15:opticksMode 
+            [    2,     2,     2]],        
+            
+           [[    0,     1,     2],       16:eventID 
+            [    0,     1,     2]],        
+            
+           [[    0,     0,     0],       17:VERSION 
+            [    1,     1,     1]]], dtype=uint64)        
+     </pre>
+
+    
+.. s5_talk::
+
+    N=1 geometry has more 0:ProcessHits_count but consistent 1:ProcessHits_true 
 
 
 
@@ -1951,8 +2072,8 @@ Transform photon points into target frame
 .. raw:: html
 
     <pre class="mypretiny">msab.c_itab
-    array([[[15617, 15661, 15635, 15890, 15447, 15871, 15500, 15824, 15598, 15627],        0:ProcessHits_count 
-            [18490, 18210, 18490, 18174, 18467, 18069, 18608, 18198, 18291, 18284]],        
+    array([[[15617, 15661, 15635, 15890, 15447, 15871, 15500, 15824, 15598, 15627],        0:ProcessHits_count  <span class="b">N=0 </span>
+            [18490, 18210, 18490, 18174, 18467, 18069, 18608, 18198, 18291, 18284]],                            <span class="b">N=1 </span>
             
            [[ 3083,  3070,  3035,  2978,  3020,  2966,  2976,  2944,  3044,  3029],        1:ProcessHits_true 
             [ 3042,  3001,  2904,  2958,  2925,  2996,  3023,  3007,  3068,  2991]],        
@@ -1961,15 +2082,15 @@ Transform photon points into target frame
             [15448, 15209, 15586, 15216, 15542, 15073, 15585, 15191, 15223, 15293]],        
            ...
 
-    msab.c_itab[msab.ik.YSAVE,0].sum()/msab.c_itab[msab.ik.YSAVE,1].sum()     1.0077  # N=0/N=1 
-    msab.c_ftab[0,1].sum()/msab.c_ftab[0,0].sum()                             0.8472  # ratio of durations N=1/N=0
-    np.diff(msab.c_ttab)[0,1].sum()/np.diff(msab.c_ttab)[0,0].sum()           0.8582  # ratio of evt times N=1/N=0
+    msab.c_itab[msab.ik.YSAVE,0].sum()/msab.c_itab[msab.ik.YSAVE,1].sum()   <span class="b">  1.0077  # ratio of YSAVE counts N=0/N=1  </span>
+    msab.c_ftab[0,1].sum()/msab.c_ftab[0,0].sum()                           <span class="b">  0.8472  # ratio of durations N=1/N=0  </span>
+    np.diff(msab.c_ttab)[0,1].sum()/np.diff(msab.c_ttab)[0,0].sum()         <span class="b">  0.8582  # ratio of evt times N=1/N=0  </span>
 
-    np.diff(msab.c_ttab)/1e6   # seconds between event starts
+    np.diff(msab.c_ttab)/1e6                                                <span class="b">  # seconds between event starts </span>
     array([[[2.589, 2.983, 3.004, 3.01 , 2.994, 2.665, 2.619, 2.641, 2.61 ],         
-            [2.304, 2.526, 2.453, 2.443, 2.495, 2.144, 2.179, 2.478, 2.531]]])
+            [2.304, 2.526, 2.453, 2.443, 2.495, 2.144, 2.179, 2.478, 2.531]]])     <span class="r"> Little difference in durations, evt times</span>
 
-    np.c_[msab.c_ttab[0].T].view('datetime64[us]') # SEvt start times (UTC)  <span style="font-size:25px">opticks/syrsap/stimer.h (std::chrono)</span> 
+    np.c_[msab.c_ttab[0].T].view('datetime64[us]') # SEvt start times (UTC)  <span style="font-size:25px">opticks/sysrap/stimer.h (std::chrono)</span> 
     array([['2023-04-15T17:35:25.726622', '2023-04-15T17:41:01.654181'],
            ['2023-04-15T17:35:28.315248', '2023-04-15T17:41:03.957860'],
            ...
@@ -1978,7 +2099,7 @@ Transform photon points into target frame
     msab.c2tab  # c2sum, c2n, c2per for each event
     array([[28.08 , 21.765, 24.036, 14.987, 12.353, 29.081, 23.99 , 18.305, 17.485, 20.135],
            [25.   , 25.   , 26.   , 25.   , 25.   , 27.   , 25.   , 25.   , 27.   , 28.   ],
-           <span class="r">[ 1.123,  0.871,  0.924,  0.599,  0.494,  1.077,  0.96 ,  0.732,  0.648,  0.719]])</span>
+           <span class="r">[ 1.123,  0.871,  0.924,  0.599,  0.494,  1.077,  0.96 ,  0.732,  0.648,  0.719]])</span> <span class="b"> # c2per for 10 evts </span>
 
     msab.c2tab[0,:].sum()/msab.c2tab[1,:].sum()     <span class="r"> 0.8148 </span>            # c2per_tot
     </pre>
@@ -1986,8 +2107,12 @@ Transform photon points into target frame
 
 .. class:: small
 
-   :r:`N=0,1 History Chi2 : Consistent across 10 evt`   Overall Chi2 : 0.8148  
+   :r:`N=0,1 History Chi2 (target HAMA) : Consistent across 10 evt`   Overall Chi2 : 0.8148  
 
+
+.. s5_talk::
+
+    Comparing ProcessHits statistics across 10 events 
 
 
 
@@ -2120,9 +2245,6 @@ Transform photon points into target frame
            [[18551, 18761, 18248, 18266, 18257, 18812, 18231, 18430, 18510, 18360],        2:ProcessHits_false 
             [22445, 22427, 22183, 22299, 22518, 21994, 22343, 22136, 22225, 21993]],        
     ...
-    msab.c_ftab
-    array([[[2.823, 3.323, 3.228, 2.768, 2.747, 2.827, 2.835, 2.879, 2.872, 2.847],        0:SEvt__TimerDone 
-            [2.617, 2.547, 2.55 , 2.548, 2.548, 2.521, 2.532, 2.531, 2.588, 2.569]]])        
 
     msab.c_itab[msab.ik.YSAVE,0].sum()/msab.c_itab[msab.ik.YSAVE,1].sum()     0.9978       # N=0/N=1
     msab.c_ftab[0,1].sum()/msab.c_ftab[0,0].sum()                             0.8766       # ratio of durations N=1/N=0 
@@ -2142,13 +2264,19 @@ Transform photon points into target frame
     msab.c2tab  # c2sum, c2n, c2per for each event
     array([[21.007, 30.807, 31.403, 33.485, 14.285, 42.094, 40.497, 21.573, 31.372, 22.241],
            [31.   , 33.   , 33.   , 32.   , 32.   , 31.   , 30.   , 31.   , 34.   , 31.   ],
-           [ 0.678,  0.934,  0.952,  1.046,  0.446,  1.358,  1.35 ,  0.696,  0.923,  0.717]])
+           [ 0.678,  0.934,  0.952,  1.046,  0.446,  1.358,  1.35 ,  0.696,  0.923,  0.717]])    # >> 1. would indicate bug 
 
     msab.c2tab[0,:].sum()/msab.c2tab[1,:].sum()                              0.9081         # c2per_tot 
     </pre>
 
+.. class:: small
+
+    :r:`N=0,1 History Chi2 (target NNVT) : Consistent across 10 evt : Overall Chi2 0.9081`
 
 
+.. s5_talk::
+
+    Checking with 10 evts : no surprises  
 
 
 
@@ -2169,14 +2297,10 @@ Transform photon points into target frame
             [11990, 11762, 11674, 11658, 12290, 12558, 11621, 11829, 12641, 11923]],        
             
            [[    2,     1,     1,     0,     1,     2,     3,     1,     1,     0],       NBOUND 
-            [   21,    31,    29,    28,    33,    36,    26,    34,    32,    32]], ## <span class="r"> More sensitive Acrylic with N=1 </span>       
+            [   21,    31,    29,    28,    33,    36,    26,    34,    32,    32]], ## <span class="r"> More sensitive Pyrex with N=1 </span>       
            ... 
            [[ 1820,  1724,  1696,  1740,  1806,  1721,  1748,  1745,  1763,  1713],       YSAVE 
             [ 1722,  1654,  1702,  1757,  1791,  1761,  1690,  1769,  1763,  1820]],        
-
-    c_ftab
-    array([[[2.517, 2.35 , 2.895, 2.816, 2.952, 2.344, 2.46 , 2.468, 2.845, 2.322],       SEvt__TimerDone 
-            [2.654, 2.395, 2.562, 2.537, 2.427, 2.534, 2.5  , 2.531, 2.449, 2.605]]])        
 
     np.diff(c_ttab)/1e6   # seconds between event starts 
     [[[2.76  2.586 3.106 3.033 3.231 2.62  2.772 2.69  3.112]  ## <span class="r"> Little difference, timings dominated by recording overheads however </span>
@@ -2195,6 +2319,16 @@ Transform photon points into target frame
     c2per_tot:  0.9963   ## <span class="r"> Combined Chi2 over all 10 events : close to 1. </span>
     </pre>
 
+.. class:: small
+
+    * :r:`Default Gun Check : again no surprises`  
+    * :b:`N=1 Larger "NBOUND" due to more sensitive Pyrex => more BULK_ABSORB not-at-boundary`  
+
+
+.. s5_talk::
+
+    Default Gun Check with 10 evts : again no surprises :  
+
 
 
 
@@ -2210,6 +2344,21 @@ Transform photon points into target frame
      MODE=3 EDL=1 N=0 EYE=500,0,2300 CHECK=not_first ~/j/ntds/ntds.sh ana
 
 
+.. raw:: html
+
+    <p style="margin-bottom:110mm;" />
+    
+
+::
+
+    Photon step points from grid of input photons target NNVT:0:1000 (POM:1)
+
+
+.. s5_talk::
+
+    Can distinguish NNVT from HAMA by the size of ring inside 
+
+
 
 :i:`B_V1J008_N1_OIPF_NNVT:0:1000_POM0.png`
 -------------------------------------------
@@ -2217,6 +2366,21 @@ Transform photon points into target frame
 ::
 
     POM=0 ntds2_cf ## Check No PMT Optical model  
+
+
+.. raw:: html
+
+    <p style="margin-bottom:130mm;" />
+    
+
+::
+
+    Photon step points from grid of input photons target NNVT:0:1000 (POM:0) 
+
+
+.. s5_talk::
+
+    Photons do not enter PMT 
 
 
 
@@ -2266,6 +2430,11 @@ Transform photon points into target frame
 
 
 
+.. s5_talk::
+
+    Traditional POM=0 check 
+
+
 Issue 88, Branch, Merge Request
 --------------------------------
 
@@ -2285,10 +2454,54 @@ Issue 88, Branch, Merge Request
     `junosw/-/merge_requests/180 <https://code.ihep.ac.cn/JUNO/offline/junosw/-/merge_requests/180>`_ 
 
         Merge Request
+
+
+
+.. s5_talk::
+
+    Links
+
+
    
 
+Suggested Further Sanity Checks from MR Reviewer
+---------------------------------------------------
 
+
+.. class:: small
+
+    My checks are mostly between the N=0,N=1 implementations in the branch.
+
+    Some sanity checks (eg hit counts, time distribution of hits) between:
+
+    1. current main with the bugs 
+    2. branch N=0 
+    3. branch N=1 
+
+    Good to check both with and without the PMT Optical Model
+
+
+.. class:: small
+
+    Aim is to confirm that any differences are small. 
+
+    Small effect expected as:
+
+    * proportion of photons effected is small 
+    * QE for "backwards" photons gets set to zero 
+
+      * so need multi-PMT photon history for the bug to change hits  
+
+
+    Although expect small effect on hits, needs to be fixed
+    for Opticks full photon validation to match.   
 
    
+
+.. s5_talk::
+
+    Suggestions
+
+
 
 

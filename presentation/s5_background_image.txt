@@ -17,8 +17,8 @@
     ## to disable the title background image simply change the 
     ## below title of "slide0" to "slide0_D"
     ##
-    ##slide0_D
-    slide0
+    ##slide0
+    slide0_D
     ../graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -68,7 +68,10 @@
     ../Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png 1280px_720px
 
     Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
-    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 1280px_720px 0px_0px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 1280px_720px 0px_0px meta:thumb
+
+    Geant4 + Opticks Instrumentation (no GPU usage)
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_006.png 1280px_720px 0px_0px
 
     GGeoView
     ../graphics/ggeoview/ggeoview-cerenkov-001.png 1047px_795px
