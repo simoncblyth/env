@@ -2026,6 +2026,9 @@
     FewPMT_NNVT_ModelTriggerSimple_avoids_issue.png
     GEOM/FewPMT/U4SimulateTest/0/figs/U4SimulateTest/mpcap/FewPMT_NNVT_ModelTriggerSimple_avoids_issue.png 1280px_720px 
 
+    FewPMT_check_mtd_trig_vacuum_upper_due_to_obliques.png 
+    GEOM/FewPMT/U4SimulateTest/0/figs/U4SimulateTest/mpcap/FewPMT_check_mtd_trig_vacuum_upper_due_to_obliques.png 1280px_720px
+
     N0_one_pmt_FewPMT_hamaLogicalPMT_lhs_window_line_inwin.png
     GEOM/FewPMT/U4SimulateTest/0/figs/U4SimulateTest/mpcap/N0_one_pmt_FewPMT_hamaLogicalPMT_lhs_window_line_inwin.png 1280px_720px
 

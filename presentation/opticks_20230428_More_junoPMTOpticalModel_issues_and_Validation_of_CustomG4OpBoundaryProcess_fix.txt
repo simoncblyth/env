@@ -1289,6 +1289,27 @@ Statistical Comparison of Simulation Histories
 
 
 
+
+:i:`FewPMT_check_mtd_trig_vacuum_upper_due_to_obliques.png`
+------------------------------------------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:90mm;" />
+
+    <div style="max-width:200mm;background-color:white;" > mtd_trig_vacuum_upper initially seems surprising : but actually it is expected 
+        from "oblique" py->vac paths 
+    </div>
+    <div style="max_width:200mm;background-color:white;"> quiver plot (mtd_pos, mtd_dir) with scatter plot of mtd_pos and mtd_next_pos </div>
+     
+
+.. s5_talk::
+
+    This was not presented. Added afterwards prompted by a question from Ziyan.  
+
+
+
 :small:`N0_one_pmt_FewPMT_hamaLogicalPMT_rain_line_012last.png`
 ----------------------------------------------------------------------
 
