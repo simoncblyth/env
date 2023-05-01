@@ -17,8 +17,8 @@
     ## to disable the title background image simply change the 
     ## below title of "slide0" to "slide0_D"
     ##
-    ##slide0
-    slide0_D
+    ##slide0_D
+    slide0
     ../graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -69,6 +69,9 @@
 
     Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
     ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 1280px_720px 0px_0px meta:thumb
+
+    Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 1280px_720px
 
     Geant4 + Opticks Instrumentation (no GPU usage)
     ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_006.png 1280px_720px 0px_0px
@@ -750,6 +753,9 @@
     nvidia/ada_lovelace/ada_lovelace_leap_in_ray_tracing_performance_19206531.jpg 640px_360px 0px_360px
     nvidia/ada_lovelace/Ada_throughput_efficiency.png 640px_360px 640px_0px
     nvidia/ada_lovelace/2022_Geforce_RTX_4090.png 640px_360px 640px_360px
+
+    Hardware accelerated Ray tracing (RT Cores) in the Data Center
+    nvidia/ada_lovelace/NVIDIA-L4-Render-2.jpg 640px_360px 0px_360px
 
     NVIDIA OptiX 7 Programs Full
     nvidia/optix7/relationship_of_optix_programs.png 1267px_506px 0px_100px

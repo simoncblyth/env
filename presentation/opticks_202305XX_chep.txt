@@ -8,7 +8,36 @@
 
 .. comment
 
-   Navigate the HTML slides by entering a page number and pressing return 
+    Opticks : GPU Optical Photon Simulation using NVIDIA OptiX 7 and NVIDIA CUDA
+
+    Opticks is an open source project that accelerates optical photon simulation by
+    integrating NVIDIA GPU ray tracing, accessed via the NVIDIA OptiX 7 API, with
+    Geant4 toolkit based simulations. A single NVIDIA Turing architecture GPU has
+    been measured to provide optical photon simulation speedup factors exceeding
+    1500 times single threaded Geant4 with a full JUNO analytic GPU geometry
+    automatically translated from the Geant4 geometry. Optical physics processes of
+    scattering, absorption, scintillator reemission and boundary processes are
+    implemented in CUDA based on Geant4.  Wavelength-dependent material and surface
+    properties as well as inverse cumulative distribution functions for reemission
+    are interleaved into GPU textures providing fast interpolated property lookup
+    or wavelength generation.
+
+    In this work we describe the near complete re-implementation of geometry and
+    optical simulation required to adopt the entirely new NVIDIA OptiX 7 API, with
+    the implementation now directly CUDA based with OptiX usage restricted to
+    providing intersects.  The new Opticks features a modular many small header
+    design that provides fine grained testing both on GPU and CPU as well as
+    substantial code reductions from CPU/GPU sharing.  Enhanced modularity has
+    enabled CSG tree generalization to support "list-nodes", similar to
+    G4MultiUnion, that improve performance for complex CSG solids.  Recent addition
+    of support for interference effects in boundaries with multiple thin layers,
+    such as anti-reflection coatings and photocathodes, using CUDA compatible
+    transfer matrix method (TMM) calculations of reflectance, transmittance and
+    absorptance is also reported.
+
+
+
+
 
 
 :i:`Opticks : GPU Optical Photon Simulation using NVIDIA OptiX 7 and NVIDIA CUDA` 
@@ -273,6 +302,57 @@ Outline
 
 
 
+:small:`Hardware accelerated Ray tracing (RT Cores) in the Data Center`
+-------------------------------------------------------------------------
+
+.. sidebar:: :small:`Data Center GPUs with RT Cores`
+
+    .. class:: small
+
+        * :b:`An Established part of NVIDIA Lineup`
+
+        +--------------+----------------+----------------+  
+        |              |  NVIDIA L40    | NVIDIA L4      |   
+        +==============+================+================+
+        |  Release     | 2022/10        |  2023/03       |   
+        +--------------+----------------+----------------+  
+        |  GPU Arch    | Ada Lovelace   |  Ada Lovelace  |        
+        +--------------+----------------+----------------+  
+        |  VRAM        | 48 GB GDDR6    | 24 GB GDDR6    |   
+        +--------------+----------------+----------------+  
+        |  TDP         |  300W          |  :r:`72W`      |   
+        +--------------+----------------+----------------+  
+        |  Form factor |  dual slot     |  :r:`1-slot`   |   
+        +--------------+----------------+----------------+  
+        | CUDA Cores   |  18,176        |   7,680        |    
+        +--------------+----------------+----------------+  
+        | RT Cores     |  142 (3rd gen) |    60 (3rd gen)|    
+        +--------------+----------------+----------------+  
+        | Tensor Cores |  568 (4th gen) |   240 (4th gen)|    
+        +--------------+----------------+----------------+  
+        |  FP32        |  90.5 TFLOPS   |  30 TFLOPS     |   
+        +--------------+----------------+----------------+  
+        |  FP16        |  181 TFLOPS    |  242 TFLOPS    |   
+        +--------------+----------------+----------------+  
+        | Predecessor  |  A40           |    T4          |   
+        +--------------+----------------+----------------+  
+
+
+
+.. class:: small
+
+
+    **NVIDIA L4 Tensor Core GPU (Released 2023/03)**
+
+    * Ada Lovelace GPU architecture
+    * universal accelerator for graphics and AI workloads 
+    * small form-factor, easy to integrate, power efficient 
+    * PCIe Gen4 x16 slot without extra power
+    * adopted by Google Cloud for G2 VMs, successor to NVIDIA T4
+    * likely to become a very popular GPU
+
+
+
 
 :small:`NVIDIA® OptiX™ Ray Tracing Engine -- Accessible GPU Ray Tracing`
 --------------------------------------------------------------------------
@@ -386,15 +466,6 @@ Outline
 Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
 -------------------------------------------------------------
 
-.. comment
-
-    .. table::
-        :align: center
-
-        +--------------------------------------------------+
-        | :b:`https://bitbucket.org/simoncblyth/opticks`   |
-        +--------------------------------------------------+
-
 .. class:: small
 
     .. table::
@@ -414,10 +485,6 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
     Opticks API : split according to dependency -- Optical photons are GPU "resident", only hits need to be copied to CPU memory 
 
 
-
-:i:`Geant4OpticksWorkflow`
-----------------------------
-
 .. s5_talk::
 
     This shows how Opticks is integrated with Geant4. The geometry is translated 
@@ -430,16 +497,22 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
     to the GPU with only collected hits requiring CPU memory.
  
 
-:i:`Geant4OpticksWorkflow 2`
-------------------------------
+Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
+--------------------------------------------------------
 
-.. sidebar:: :small:`Opticks : GPU Optical Photons`
+.. sidebar:: :small:`Offload Optical Simulation to GPU`
 
    .. class:: small
 
-      * CUDA port of G4 generation+propagation
-      * :redbold:`auto-translate G4 geometry to OptiX GPU`  
-      * offloads optical simulation to GPU 
+      * :redbold:`translate Geant4 geometry to OptiX GPU`  
+
+        * intersect functions
+        * instance transforms
+        * GPU textures for mat/surf properties
+
+      * CUDA port of Geant4 generation+propagation
+
+        * cuRAND random number generation  
 
 
 .. s5_talk::
@@ -450,157 +523,156 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
 
 
 
-:small:`Opticks + JUNO Progress : Efficiency Hit Culling on GPU`
--------------------------------------------------------------------------------
-
-.. sidebar:: |egr|, |egr| [|thgr|, |phgr|]  -> GPU Tex
-
-    .. class:: small 
-
-         **Separate Textures for each sensor type**
-
-         ``G4Opticks::``
-             ``setSensorData``
-             ``setSensorAngularEfficiency``
+:small:`Full re-implementation of Opticks for NVIDIA OptiX 7 API` 
+--------------------------------------------------------------------
 
 .. class:: small
 
+    * :r:`Huge change unavoidable from new OptiX API` --> :b:`So profit from rethink of simulation code` --> **2nd impl advantage** 
 
-    **On GPU Efficiency Culling**
+    +------------------------------------------+-----------------------------------------------------+
+    |  Old simulation (OptiXRap)               |  New simulation (QUDARap/qsim.h + CSGOptiX, CSG)    | 
+    +==========================================+=====================================================+
+    |  * implemented on top of old OptiX API   | * pure CUDA implementation                          |
+    |                                          | * OptiX use kept separate, just for intersection    |
+    |                                          |                                                     |
+    +------------------------------------------+-----------------------------------------------------+
+    |  * monolithic .cu                        | * many small headers                                |
+    |  * GPU only implementation               | * many GPU+CPU headers                              |
+    |  * deep stack of support code            | * shallow stack : QUDARap depends only on SYSRap    | 
+    +------------------------------------------+-----------------------------------------------------+
+    |  * most code in GPU only context,        | * strict code segregation                           |
+    |    even when not needing OptiX or CUDA   |                                                     |
+    |                                          |   * code not needing GPU in SYSRap not QUDARap      |
+    +------------------------------------------+-----------------------------------------------------+
+    |  * testing : GPU only, coarse            | * testing : CPU+GPU , fine-grained                  |
+    |                                          | * curand mocking on CPU                             | 
+    +------------------------------------------+-----------------------------------------------------+
+    |  * limited CPU/GPU code sharing          | * maximal sharing : SEvt.hh, sphoton.h, ...         |
+    +------------------------------------------+-----------------------------------------------------+
+    |  * timeconsuming manual random alignment | * :b:`new systematic approach to random alignment`  |  
+    |    conducted via debugger                |                                                     |
+    +------------------------------------------+-----------------------------------------------------+
 
-    * upload sensor angular efficiencies 
-    * -> ``COLLECT`` OR ``CULL`` hit flags  
+    **Goals of re-implementation : flexible, modular GPU simulation, easily testable, less code**
 
-    CUDA Thrust **stream compaction**
+    * code reduction, sharing as much as possible between CPU and GPU
+    * fine grained testing on both CPU and GPU, with GPU curand mocking 
+    * profit from several years of CUDA experience, eg QSim.hh/qsim.h host/device counterpart pattern:
 
-    * ``thrust::count_if`` 
-    * ``thrust::copy_if`` 
-    * Download hits with : ``hitmask = COLLECT``
-
-.. class:: small
-
-    * :r:`Reduces hit CPU memory by factor of the efficiency` 
-    * reduce size of GPU->CPU downloads by factor of efficiency
-    * **all** downloaded hits -> electronics simulation
-
-.. raw:: html
-
-    <pre>
-
-    </pre>
-
-
-.. class:: small
-
-    **Mock angular efficiency test of GPU texture machinery :** 
-
-    * texturing sensor surfaces with the efficiency 
-    * mockup striped theta efficiency, two random categories 
-    * cosine phi efficiency variation for one category
+      * hostside initializes and uploads device side counterpart --> :r:`device side hits ground running` 
 
 
 .. s5_talk::
 
-    Moving efficiency culling to the GPU reduces CPU hit memory and downloads 
-    by a factor of the efficiency : so only collected hits consume CPU memory.
-
-    Angular efficiencies of the sensors are uploaded into GPU textures
-    for each sensor type.
-
-    Downloading collected hits just requires to use a different COLLECTED hitmask.
-    
-
-.. comment
-
-    https://bitbucket.org/simoncblyth/opticks/src/master/optickscore/tests/MockSensorLibTest.cc
-
-    https://bitbucket.org/simoncblyth/opticks/src/master/optixrap/tests/OSensorLibGeoTest.cc
+    Embrace the change : might as well profit from a rethink 
 
 
 
-:small:`New "Foundry" Model : Shared CPU/GPU Geometry Context`
------------------------------------------------------------------------------------------------------
 
-.. sidebar:: :small:`IAS < Inst < Solid < Prim < Node`
-
-    .. class:: small
-
-        * **Inst** : 4x4 tran. + **Solid** ref. ( **Inst** -> 1 **IAS** )
-        * **Solid** : 1 or more **Prim**  : ( **Solid** -> **GAS** )
-        * **Prim** : 1,3,7,15,31,... **Node**  : (**Prim** ~ *G4VSolid*) 
-
-    .. raw:: html
-
-        <pre class="mypretiny">
-        struct CSGFoundry
-        {
-           void upload(); <span class="redbold">// to GPU </span> 
-        ...
-           std::vector&lt;CSGSolid&gt;  solid ; // compounds (eg PMT)
-           std::vector&lt;CSGPrim&gt;   prim ;
-           std::vector&lt;CSGNode&gt;   node ; // shapes, operators
-
-           std::vector&lt;float4&gt; plan ; // planes
-           std::vector&lt;qat4&gt;   tran ; // CSG transforms
-           std::vector&lt;qat4&gt;   itra ; // inverse CSG transforms
-           std::vector&lt;qat4&gt;   inst ; // instance transforms
-
-           <span class="redbold">// entire geometry in four GPU allocations</span>
-           CSGPrim*    d_prim ; 
-           CSGNode*    d_node ; 
-           float4*     d_plan ; 
-           qat4*       d_itra ;    
-         };
-        </pre>
-
-    .. class:: small
-
-        :bluebold:`referencing by offset, count`  
+:small:`Two-Level Hierarchy : Instance transforms (TLAS) over Geometry (BLAS)`
+-------------------------------------------------------------------------------
 
 .. class:: small
 
-    * :r:`replaces geometry context dropped in OptiX 6->7` 
-    * array-based -> simple, inherent serialization + persisting 
-    * entire geometry in 4 GPU allocations 
+    **OptiX supports multiple instance levels : IAS->IAS->GAS** BUT: :redbold:`Simple two-level is faster` : :red:`works in hardware RT Cores` 
 
-    **Simple intersect headers, common CPU/GPU types** 
-
-    * use with : pre-7, 7 + testing on CPU 
-
-
-
-.. raw:: html
-
-    <pre>
-    </pre>
 
 .. class:: small
 
-    :bluebold:`https://github.com/simoncblyth/CSG` "Foundry" model 
-        **csg_intersect_tree.h/csg_intersect_node.h/...**
-          :redbold:`simple headers common to pre-7/7/CPU-testing`
+    .. figure:: /env/presentation/nvidia/tlas_blas_two_level_hierarchy.png
+        :width: 800px
+        :align: right 
 
-    :bluebold:`https://github.com/simoncblyth/CSG_GGeo` 
-      Convert *Opticks/GGeo* -> *CSGFoundry*  
+        https://developer.nvidia.com/blog/introduction-nvidia-rtx-directx-ray-tracing/
 
-    :bluebold:`https://github.com/simoncblyth/CSGOptiX` 
-      OptiX 7 + pre-7 rendering 
+.. class:: small
+
+   AS
+      Acceleration Structure
+
+   TLAS (aka **IAS**) 
+      4x4 transforms, refs to BLAS
+       
+   BLAS (aka **GAS**)
+      | triangles : vertices, indices
+      | custom primitives : AABB 
+
+   AABB
+      axis-aligned bounding box 
 
 
-.. raw:: html
+   **SBT : Shader Binding Table**
 
-    <pre>
+   Flexibly binds together:
+ 
+   1. geometry objects
+   2. shader programs 
+   3. data for shader programs
 
-    </pre>
+   **Hidden in OptiX 1-6 APIs**
 
-.. class:: tiny
 
-   **GAS** : Geometry Acceleration Structure
 
-   **IAS** : Instance Acceleration Structure
-   
-   **CSG** : Constructive Solid Geometry 
+.. s5_talk::
 
+   OptiX uses the terms : IAS and GAS for instance and geometry acceleratiom structures.
+   The other APIs use terms: TLAS and BLAS for top level and bottom level acceleration structures
+   This is because OptiX supports multiple instance levels. 
+   But the simple two level is faster as that can be done on the RT cores.
+
+   Simple two-level hierarchy : **just one set of instances with transforms and references to geometry**  
+
+
+
+:small:`Geometry Model Translation : Geant4 => CSGFoundry => NVIDIA OptiX 7`
+-------------------------------------------------------------------------------
+
+.. sidebar:: :small:`CSGFoundry Model`
+
+    .. class:: small
+
+        * array-based -> simple serialization + upload
+        * entire geometry in 4 GPU allocations 
+        * factorized using subtree digests 
+
+.. class:: small
+
+    **Geant4 Geometry Model (JUNO: 300k PV)**
+
+    +----+---------------------------+---------------------------------------------+ 
+    | PV | *G4VPhysicalVolume*       | placed, refs LV                             |
+    +----+---------------------------+---------------------------------------------+ 
+    | LV | *G4LogicalVolume*         | unplaced, refs SO                           |
+    +----+---------------------------+---------------------------------------------+ 
+    | SO | *G4VSolid,G4BooleanSolid* | binary tree of SO "nodes"                   |
+    +----+---------------------------+---------------------------------------------+ 
+
+    **Opticks CSGFoundry Geometry Model**
+
+    +---------------+--------------------------------------------------------------------+-------------------------+
+    | struct        | Notes                                                              |  Geant4 Equivalent      |
+    +===============+====================================================================+=========================+
+    | *CSGFoundry*  | vectors of the below, easily serialized + uploaded                 | None                    |
+    +---------------+--------------------------------------------------------------------+-------------------------+
+    | *qat4*        | 4x4 transform refs *CSGSolid* using "spare" 4th column             |                         |
+    +---------------+--------------------------------------------------------------------+-------------------------+
+    | *CSGSolid*    | refs sequence of *CSGPrim*                                         | Group of nearby PV, LV  | 
+    |               +--------------------------------------------------------------------+                         |
+    |               | eg JUNO *CSGSolid* numPrim [3089, 5, 11, 14, 6, 1, 1, 1, 1, 130]   |                         |
+    +---------------+--------------------------------------------------------------------+-------------------------+
+    | *CSGPrim*     | refs sequence of *CSGNode*, root of CSG Tree of nodes              | root *G4VSolid*         |
+    +---------------+--------------------------------------------------------------------+-------------------------+
+    | *CSGNode*     | CSG node parameters eg JUNO ~23k *CSGNode*                         | node *G4VSolid*         |
+    +---------------+--------------------------------------------------------------------+-------------------------+
+
+    **NVIDIA OptiX 7 Geometry Acceleration Structures (JUNO: 1 IAS + 10 GAS)**
+
+    +-----+----------------------------------+-------------------------------------------------------------------------+ 
+    | IAS | Instance Acceleration Structures | JUNO: 1 IAS created from vector of ~50k *qat4* (JUNO)                   |
+    +-----+----------------------------------+-------------------------------------------------------------------------+ 
+    | GAS | Geometry Acceleration Structures | JUNO: 10 GAS created from 10 *CSGSolid* (which refs *CSGPrim,CSGNode* ) |
+    +-----+----------------------------------+-------------------------------------------------------------------------+ 
 
 .. s5_talk::
 
@@ -646,14 +718,13 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
     </pre>
 
 
-.. sidebar:: :small:`1st JUNO Opticks OptiX 7 Ray-trace`
+.. sidebar:: :small:`JUNO Opticks OptiX 7 Ray-trace`
 
     .. class:: small
 
-        Very New CSG "Foundry" CPU/GPU Geometry 
+        CSGFoundry CPU/GPU Geometry 
 
         * :redbold:`purely analytic CSG, no triangles` 
-        * everything at default, no optimization
 
 
 .. s5_talk::
@@ -665,221 +736,49 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
 
 
 
-:small:`Current JUNO Geometry : Auto-Factorized by "progeny digest"`
-------------------------------------------------------------------------
+QUDARap : new Heart of Opticks Simulation
+---------------------------------------------
 
-
-.. sidebar:: :small:`Factorize ~300,000 vol -> 10 comp`
-
-   .. class:: small
-
-        * **ridx**: repeat index
-        * **plc**: number of placements of the instance
-        * **prim**: number of Prim/volumes in the instance
-        * **component**: numPrim:outerPrimName    
- 
-        :r:`"progeny digest"` characterizes subtree of every volume-node  
-
-
-.. class:: tiny
-
-    +----+------+-----+-------------------------------------------+---------------------------+
-    |ridx|   plc| prim|   component                               |  note                     |
-    +====+======+=====+===========================================+===========================+
-    |   0|     1| 3084|   3084:sWorld                             |  non-repeated remainder   |
-    +----+------+-----+-------------------------------------------+---------------------------+
-    |   1| 25600|    5|   5:PMT_3inch_pmt_solid                   |                           |
-    +----+------+-----+-------------------------------------------+   4 types of PMT          +
-    |   2| 12612|    5|   5:NNVTMCPPMTsMask                       |                           |
-    +----+------+-----+-------------------------------------------+                           +
-    |   3|  5000|    5|   5:HamamatsuR12860sMask                  |                           |
-    +----+------+-----+-------------------------------------------+                           +
-    |   4|  2400|    5|   5:mask_PMT_20inch_vetosMask             |                           |
-    +----+------+-----+-------------------------------------------+---------------------------+
-    |   5|   590|    1|   1:sStrutBallhead                        |                           |
-    +----+------+-----+-------------------------------------------+   4 parts of same         +
-    |   6|   590|    1|   1:uni1                                  |   assembly, BUT not       |
-    +----+------+-----+-------------------------------------------+   grouped as siblings     +
-    |   7|   590|    1|   1:base_steel                            |   (not parent-child)      |
-    +----+------+-----+-------------------------------------------+                           +
-    |   8|   590|    1|   1:uni_acrylic3                          |                           |
-    +----+------+-----+-------------------------------------------+---------------------------+
-    |   9|   504|  130|   130:sPanel                              |  repeated parts of TT     |
-    +----+------+-----+-------------------------------------------+---------------------------+
-
-
-.. class:: small
-
-   * **ridx:0** "remainder" Prim
-
-     * Prim that did not pass instancing criteria, on number of repeats + complexity
-     * TODO: tune criteria to instance more, reducing remainder Prim (Expect: 3084->~ 84)  
-
-   * **ridx:1,2,3,4**
-
-     * four types of PMT, all with 5 Prim 
-
-   * **ridx:5,6,7,8**
-
-     * same 590x assembly :redbold:`but not grouped together` : as siblings (not parent-child like PMTs) 
-     * TODO: implement instancing of siblings, combining 4 -> 1   
-
-
-.. class:: small
-
-   :redbold:`Increasing instancing : reduces memory for geometry -> improved performance`
-
-
-
-.. s5_talk::
-
-   To follow what follows you need to know a bit about the factorization.
-   
-   300,000 Geant4 volumes are factorized into 10 Foundry Solids, with a lot of Inst 
-   referencing them according to the number of placements of each solid.
-   
-   Repeat index zero corresponds to the remainder volumes with only a single placement.
-   These are volumes that were not repeated enough to get instanced.     
-
-   More instancing reduces memory for the geometry and improves performance, so 
-   some work to avoid having thousands of remainder volumes is needed.
-
-
-
- 
-
-
-
-
-:i:`JUNO OptiX 7 : "Foundry" Geometry Scan`
------------------------------------------------
-
-.. sidebar:: :small:`Vary Geom. Compare Render Times`
+.. sidebar:: :small:`CPU/GPU Counterpart Pattern`
 
     .. class:: small
 
-        Fast render -> Fast simulation  
+        hh
+           instanciate device .h on host, upload constituent instances, 
+           set device pointers, upload .h instance to GPU  
+        h
+           keeps device header simple
+            
+        --> :r:`device side hits ground running` 
 
 
-.. s5_talk::
+.. class:: small
 
-    Varying the geometry and comparing render times is a simple way to 
-    find problem solids.
+    +-------------------------------+-----------------+-----------------+
+    |                               | CPU             | GPU header      |
+    +===============================+=================+=================+
+    | context steering              | QSim.hh         |  qsim.h         |  
+    +-------------------------------+-----------------+-----------------+
+    | curandState setup             | QRng.hh         |  qrng.h         |
+    +-------------------------------+-----------------+-----------------+
+    | property interpolation        | QProp.hh        |  qprop.h        |
+    +-------------------------------+-----------------+-----------------+
+    | event handling                | QEvent.hh       |  qevent.h       |
+    +-------------------------------+-----------------+-----------------+
+    | Cerenkov generation           | QCerenkov.hh    |  qcerenkov.h    |
+    +-------------------------------+-----------------+-----------------+
+    | Scintillation generation      | QScint.hh       |  qscint.h       |
+    +-------------------------------+-----------------+-----------------+
+    | texture handling              | QTex.hh         |                 |
+    +-------------------------------+-----------------+-----------------+
+    
+    Aims of counterpart code organization:
 
-    Because simulation is ray trace limited there is a direct correspondence
-    between fast rendering and fast simulation. 
-
-
-
-:small:`JUNO Geometry : OptiX 7 Ray Trace Times ~2M pixels : TITAN RTX`
-----------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Same viewpoint, vary GPU geometry`
-
-   .. class:: small
-
-
-        * **-e** : controls components : "t" means ~ (NOT) 
-        * **time(s)** : GPU ray trace CUDA launch time
-        * **relative** : compares to "ONLY PMT" baseline
-
-        Very large range of times 1:600
-                
-   .. class:: small
-
-        :r:`Table identifies slow geometry to fix :`
-
-        * **3084:sWorld** (too many non-instanced Prim)
-        * **1:uni_acrylic** (CSG sub. 35m diam. sphere)
+    * :redbold:`facilitate fine-grained modular simulation testing` 
+    * keep bulk of GPU code in simple to test headers (some can be tested on CPU)
+    * *QUDARap* does not depend on OptiX -> more flexible -> simpler testing    
 
 
-        Good performance for :b:`ONLY PMTs` :
-
-        * :b:`45,612 PMT instances handled without issue`  
-
-
-
-.. class:: tiny
-
-
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    |idx|        -e  |       time(s)    |      relative    |    enabled geometry description                                              |
-    +===+============+==================+==================+==============================================================================+
-    |  0|        9,  |        0.0017    |        0.1702    |    ONLY: 130:sPanel                                                          |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    |  1|        7,  |        0.0017    |        0.1714    |    ONLY: 1:base_steel                                                        |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    |  2|        6,  |        0.0019    |        0.1923    |    ONLY: 1:uni1                                                              |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    |  3|        5,  |        0.0027    |        0.2780    |    ONLY: 1:sStrutBallhead                                                    |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    |  4|        4,  |        0.0032    |        0.3268    |    ONLY: 5:mask_PMT_20inch_vetosMask                                         |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    |  5|        1,  |        0.0032    |        0.3287    |    ONLY: 5:PMT_3inch_pmt_solid                                               |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    |  6|        2,  |        0.0055    |        0.5669    |    ONLY: 5:NNVTMCPPMTsMask                                                   |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    |  7|        3,  |        0.0074    |        0.7582    |    ONLY: 5:HamamatsuR12860sMask                                              |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    |  8|:b:`1,2,3,4`|    :b:`0.0097`   |    :b:`1.0000`   |:b:`ONLY PMT`                                                                 |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    |  9|      t8,0  |        0.0099    |        1.0179    |    EXCL: 1:uni_acrylic3 3084:sWorld                                          |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    | 10|  :r:`0,`   |    :r:`0.1171`   |   :r:`12.0293`   |:r:`ONLY: 3084:sWorld`                                                        |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    | 11|  :r:`t8,`  |    :r:`0.1186`   |   :r:`12.1769`   |:r:`EXCL: 1:uni_acrylic3`                                                     |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    | 12|  :r:`t0,`  |    :r:`0.5278`   |   :r:`54.2066`   |:r:`EXCL: 3084:sWorld`                                                        |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    | 13|    :r:`8,` |    :r:`0.5310`   |   :r:`54.5298`   |:r:`ONLY: 1:uni_acrylic3`                                                     |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    | 14|       t3,  |        0.6017    |       61.7954    |    EXCL: 5:HamamatsuR12860sMask                                              |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    | 15|       t2,  |        0.6043    |       62.0620    |    EXCL: 5:NNVTMCPPMTsMask                                                   |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    | 16|       t5,  |        0.6171    |       63.3787    |    EXCL: 1:sStrutBallhead                                                    |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    | 17|       t6,  |        0.6196    |       63.6301    |    EXCL: 1:uni1                                                              |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    | 18|       t7,  |        0.6226    |       63.9458    |    EXCL: 1:base_steel                                                        |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    | 19|        t0  |        0.6240    |       64.0879    |    3084:sWorld                                                               |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    | 20|       t4,  |        0.6243    |       64.1169    |    EXCL: 5:mask_PMT_20inch_vetosMask                                         |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    | 21|       t9,  |        0.6335    |       65.0636    |    EXCL: 130:sPanel                                                          |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-    | 22|       t1,  |        0.6391    |       65.6384    |    EXCL: 5:PMT_3inch_pmt_solid                                               |
-    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
-
-
-.. s5_talk::
-
-   This table shows render times for 2M pixels varying the geometry included or excluded. 
-   First thing to note is the very large range, from thousandth of a second to seconds.
-
-   Relative compares to "ONLY PMT". 
-
-   The performance transitions clearly point to two Solids needing to be fixed.
-
-
-
-:white:`JUNO ALL PMTs : 2M ray traced pixels in 0.0097 s : NVIDIA TITAN RTX, NVIDIA OptiX 7.0.0, Opticks`
-------------------------------------------------------------------------------------------------------------
-
-.. s5_talk::
-
-    This is the ONLY PMTs render, with almost 50 thousand PMTs rendered in a hundredth of a second
-
-
-.. comment
-
-    :white:`[8]cxr_i0_1,2,3,4_-1 : ALL PMTS`
-    ------------------------------------------
-
-    .. s5_talk::
-
-       8 : ALL PMTS
 
 
 
