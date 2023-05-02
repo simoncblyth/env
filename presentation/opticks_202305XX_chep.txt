@@ -81,7 +81,7 @@
 Outline
 ----------------------------------------------------
 
-.. image:: /env/presentation/newtons-opticks.png 
+.. image:: newtons-opticks.png 
    :width: 299px
    :height: 547px 
    :align: right
@@ -128,7 +128,7 @@ Outline
 
 .. s5_talk::
 
-    The focus of this talk is recent progress on migrating Opticks
+    The focus of this talk is on the re-implementation of Opticks
     to work with the all new NVIDIA OptiX 7 API.
     
 
@@ -191,6 +191,8 @@ Outline
    simulation.
  
 
+   .. image:: /env/optix/samples/optix-ray-tracing-glasses.png 
+
 
 
 :small:`Optical Photon Simulation ≈ Ray Traced Image Rendering`
@@ -198,7 +200,7 @@ Outline
 
 .. sidebar:: Not a Photo, a Calculation
 
-    .. image:: /env/optix/samples/optix-ray-tracing-glasses.png 
+    .. image:: ../optix/samples/optix-ray-tracing-glasses.png 
        :width: 450px
        :align: right
 
@@ -255,6 +257,7 @@ Outline
 
     Ray tracing is widely used resulting in huge efforts to improve ray tracing perfromance.
     
+    
 
 
 :small:`NVIDIA Ada : 3rd Generation RTX`
@@ -282,8 +285,8 @@ Outline
 .. s5_talk::
 
     GPU Ray Tracing performance continue to improve rapidly.
-    With Ampere there is a big increase in the numbers of CUDA 
-    cores at the same price points.   
+    There has been roughly doubling in raw ray tracing performance
+    with each generation of NVIDIA GPUs. 
 
 
 .. comment
@@ -363,9 +366,13 @@ Outline
 
 .. s5_talk::
 
-    Hardware Accelerated Ray Tracing is becoming much more commonly available 
+    Hardware Accelerated Ray Tracing is becoming much more commonly available, 
+    with a range of data center GPUs with RT cores. 
 
 
+.. comment
+
+    .. image:: /env/presentation/nvidia/optix7/OptiX-API.png
 
 :small:`NVIDIA® OptiX™ Ray Tracing Engine -- Accessible GPU Ray Tracing`
 --------------------------------------------------------------------------
@@ -376,7 +383,7 @@ Outline
 
         :g:`Green: User Programs`,  :e:`Grey: Fixed function/HW`
 
-    .. image:: /env/presentation/nvidia/optix7/OptiX-API.png
+    .. image:: nvidia/optix7/OptiX-API.png
        :width: 450px
        :align: right
 
@@ -420,7 +427,7 @@ Outline
    NVIDIA OptiX makes GPU ray tracing accessible 
 
    * it divides up the ray tracing workflow 
-   * the yellow boxes represent user provided CUDA programs, including:
+   * the green boxes represent user provided CUDA programs, including:
 
      * ray generation : where Opticks generates photons and steers the simulation
      * intersection : where the geometry is implemented 
@@ -471,8 +478,7 @@ Outline
 .. s5_talk::
 
    * OptiX 7 is an entirely new API, dropping many features used by Opticks
-   * re-implementation of large parts of Opticks is necessary
-   * i will cover recent progress on this shortly
+   * re-implementation of almost all of Opticks was necessary
 
 
 
@@ -578,8 +584,12 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-    Embrace the change : might as well profit from a rethink 
+    Embracing the change : might as well profit from a rethink 
 
+
+
+:small:`Opticks Packages`
+---------------------------
 
 
 
@@ -593,7 +603,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. class:: small
 
-    .. figure:: /env/presentation/nvidia/tlas_blas_two_level_hierarchy.png
+    .. figure:: nvidia/tlas_blas_two_level_hierarchy.png
         :width: 800px
         :align: right 
 
@@ -1026,7 +1036,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
       :r:`=> using Opticks improves CPU simulation`
 
-.. image:: /env/presentation/1px.png
+.. image:: 1px.png
    :width: 500px
    :height: 20px
 
@@ -1035,7 +1045,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
   *Opticks* : state-of-the-art GPU ray traced optical simulation integrated with *Geant4*. 
   Full re-implementation of Opticks geometry and simulation for NVIDIA OptiX 7 completed.
 
-  .. image:: /env/presentation/1px.png
+  .. image:: 1px.png
      :width: 1000px
      :height: 1px
 
