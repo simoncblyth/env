@@ -36,6 +36,12 @@
     absorptance is also reported.
 
 
+    * complete re-implementation of geometry 
+    * complete re-implementation of optical simulation
+    * CSG tree generalizations to support "list-nodes" to improve handling of complex CSG solids
+    * multi-thin-layer TMM 
+
+    * list of packages (?)
 
 
 
@@ -58,7 +64,7 @@
 
     <img style="position:absolute; top:200px; LEFT:100px; WIDTH:200px; " src="/env/presentation/juno/JUNO_logo.png"  />
     <div class="mycredit">
-    <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS &mdash; (Presented by Dr Tao Lin, IHEP, CAS) &mdash; CHEP, ?? May 2023</h2>
+    <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS &mdash; (Presented by Dr Tao Lin, IHEP, CAS) &mdash; CHEP, Norfolk VA, 8-12 May 2023</h2>
     </div>
 
 
@@ -88,7 +94,7 @@ Outline
 
        <span>&nbsp;</span>
 
-    * Context and Problem
+    * Optical Photon Simulation : Context and Problem
 
       * p2: Jiangmen Underground Neutrino Observatory (JUNO)
       * p3: JUNO Optical Photon Simulation Problem...
@@ -96,25 +102,24 @@ Outline
 
     * NVIDIA Tools to create Solution   
 
-      * p5: NVIDIA Ampere : 2nd Generation RTX
-      * p6: NVIDIA OptiX Ray Tracing Engine
-      * p7: NVIDIA OptiX 7 : Entirely new thin API
+      * p5,6: NVIDIA Ada Lovelave : 3rd Generation RTX, RT Cores in Data-Center
+      * p7: NVIDIA OptiX Ray Tracing Engine
+      * p8: NVIDIA OptiX 7 : Entirely new thin API
 
-    * Opticks : Introduction + New Features
+    * Opticks : Introduction + Full Re-implementation
 
-      * p8,9: Geant4 + Opticks Hybrid Workflow : External Optical Photon Simulation
-      * p10: New : Collection Efficiency Culling on GPU  
-      * p11: New : *CSGFoundry* Geometry Model
+      * p9,10: Geant4 + Opticks Hybrid Workflow : External Optical Photon Simulation
+      * p11: Full re-implementation for NVIDIA OptiX 7 API
+      * p12-14: *CSGFoundry* Geometry Model, Translation to GPU 
+      * p15: QUDARap : CUDA Optical Simulation Implementation
 
-    * Opticks : 1st JUNO Renders with NVIDIA OptiX 7 
+    * Opticks : New Features 
 
-      * p12:Ray trace renders
-      * p13:Geometry factorization  
-      * p15:Ray trace times for various geometries   
+      * p16:n-Ary CSG "List-Nodes"
+      * p17,18: Specialized n-ary CSG intersect algs : "contiguous" and "dis-contiguous"
+      * p19: Multi-Layer Thin Film (A,R,T) Calc using TMM (Custom4 Package)
 
-    * p17: Summary + Links 
-    * p18: Acknowledgement : Opticks "Hackathon" Series for NVIDIA OptiX 6->7
-    * p19: LZ with Opticks
+    * p20: Summary + Links 
 
     .. raw:: html
  
@@ -263,18 +268,14 @@ Outline
 
      * 16,384 CUDA Cores, 24GB VRAM, USD 1599
 
-   * Ada (2022) : :redbold:`continued ray tracing improvements` 
+   * :r:`Continued large ray tracing improvements:` 
 
-     * 2x ray trace over Ampere (2020), 4x with DLSS 3
-     * :b:`games becoming fully simulated worlds`  
+     * **Ada** ~2x ray trace over **Ampere** (2020), 4x with DLSS 3
+     * **Ampere** ~2x ray trace over **Turing** (2018)  
     
    * DLSS : Deep Learning Super Sampling 
 
      * AI upsampling, not applicable to optical simulation
-
-.. class:: tiny
-
-   * TOPS : Tera operations per second
 
 
 
@@ -311,32 +312,33 @@ Outline
 
         * :b:`An Established part of NVIDIA Lineup`
 
-        +--------------+----------------+----------------+  
-        |              |  NVIDIA L40    | NVIDIA L4      |   
-        +==============+================+================+
-        |  Release     | 2022/10        |  2023/03       |   
-        +--------------+----------------+----------------+  
-        |  GPU Arch    | Ada Lovelace   |  Ada Lovelace  |        
-        +--------------+----------------+----------------+  
-        |  VRAM        | 48 GB GDDR6    | 24 GB GDDR6    |   
-        +--------------+----------------+----------------+  
-        |  TDP         |  300W          |  :r:`72W`      |   
-        +--------------+----------------+----------------+  
-        |  Form factor |  dual slot     |  :r:`1-slot`   |   
-        +--------------+----------------+----------------+  
-        | CUDA Cores   |  18,176        |   7,680        |    
-        +--------------+----------------+----------------+  
-        | RT Cores     |  142 (3rd gen) |    60 (3rd gen)|    
-        +--------------+----------------+----------------+  
-        | Tensor Cores |  568 (4th gen) |   240 (4th gen)|    
-        +--------------+----------------+----------------+  
-        |  FP32        |  90.5 TFLOPS   |  30 TFLOPS     |   
-        +--------------+----------------+----------------+  
-        |  FP16        |  181 TFLOPS    |  242 TFLOPS    |   
-        +--------------+----------------+----------------+  
-        | Predecessor  |  A40           |    T4          |   
-        +--------------+----------------+----------------+  
+        +--------------+------------------+-----------------+  
+        |              |    NVIDIA L40    | NVIDIA L4       |   
+        +==============+==================+=================+
+        |  Release     |   2022/10        |  2023/03        |   
+        +--------------+------------------+-----------------+  
+        |  GPU Arch    |   Ada Lovelace   |  Ada Lovelace   |        
+        +--------------+------------------+-----------------+  
+        |  VRAM        |   48 GB gddr6    | 24 GB gddr6     |   
+        +--------------+------------------+-----------------+  
+        |  TDP         |    300W          |  :r:`72W`       |   
+        +--------------+------------------+-----------------+  
+        |  Form factor |    dual slot     |  :r:`1-slot`    |   
+        +--------------+------------------+-----------------+  
+        | CUDA Core    |    18,176        |   7,680         |    
+        +--------------+------------------+-----------------+  
+        | :b:`RT Core` |:b:`142 (3rd gen)`|:b:`60 (3rd gen)`|    
+        +--------------+------------------+-----------------+  
+        | Tensor Core  |    568 (4th gen) |   240 (4th gen) |    
+        +--------------+------------------+-----------------+  
+        |  FP32        |    90.5 TFLOPS   |  30 TFLOPS      |   
+        +--------------+------------------+-----------------+  
+        |  FP16(*)     |    181 TFLOPS    |  121 TFLOPS     |   
+        +--------------+------------------+-----------------+  
+        | Predecessor  |    A40           |    T4           |   
+        +--------------+------------------+-----------------+  
 
+        (*) x2 with Sparsity 
 
 
 .. class:: small
@@ -345,12 +347,23 @@ Outline
     **NVIDIA L4 Tensor Core GPU (Released 2023/03)**
 
     * Ada Lovelace GPU architecture
-    * universal accelerator for graphics and AI workloads 
-    * small form-factor, easy to integrate, power efficient 
+    * :r:`universal accelerator for graphics and AI workloads` 
+    * :b:`small form-factor, easy to integrate, power efficient` 
     * PCIe Gen4 x16 slot without extra power
-    * adopted by Google Cloud for G2 VMs, successor to NVIDIA T4
-    * likely to become a very popular GPU
+    * Google Cloud adopted for G2 VMs, successor to **NVIDIA T4**
+    * **NVIDIA L4 likely to become a very popular GPU**
 
+.. raw:: html
+
+    <p style="margin-bottom:2cm;" />
+
+.. class:: small
+
+    `NVIDIA L4 Tensor Core GPU (Data Center, low profile+power)`
+
+.. s5_talk::
+
+    Hardware Accelerated Ray Tracing is becoming much more commonly available 
 
 
 
@@ -378,12 +391,12 @@ Outline
 
    * :r:`Programmable GPU-accelerated Ray-Tracing Pipeline`
    * Single-ray shader programming model using CUDA
-   * ray Tracing acceleration using RT Cores (RTX GPUs)
+   * ray tracing acceleration using RT Cores (RTX GPUs)
    * "...free to use within any application..."
 
    **OptiX features**
 
-   * acceleration structure creation + traversal
+   * acceleration structure creation + traversal (eg BVH)
    * instanced sharing of geometry + acceleration structures
    * compiler optimized for GPU ray tracing
 
@@ -638,7 +651,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. class:: small
 
-    **Geant4 Geometry Model (JUNO: 300k PV)**
+    **Geant4 Geometry Model (JUNO: 300k PV, deep hierarchy)**
 
     +----+---------------------------+---------------------------------------------+ 
     | PV | *G4VPhysicalVolume*       | placed, refs LV                             |
@@ -648,7 +661,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
     | SO | *G4VSolid,G4BooleanSolid* | binary tree of SO "nodes"                   |
     +----+---------------------------+---------------------------------------------+ 
 
-    **Opticks CSGFoundry Geometry Model**
+    **Opticks CSGFoundry Geometry Model** (index references)
 
     +---------------+--------------------------------------------------------------------+-------------------------+
     | struct        | Notes                                                              |  Geant4 Equivalent      |
@@ -657,16 +670,16 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
     +---------------+--------------------------------------------------------------------+-------------------------+
     | *qat4*        | 4x4 transform refs *CSGSolid* using "spare" 4th column             |                         |
     +---------------+--------------------------------------------------------------------+-------------------------+
-    | *CSGSolid*    | refs sequence of *CSGPrim*                                         | Group of nearby PV, LV  | 
-    |               +--------------------------------------------------------------------+                         |
+    | *CSGSolid*    | refs sequence of *CSGPrim*                                         | Groups of nearby PV, LV | 
+    |               +--------------------------------------------------------------------+ + Remainder             |
     |               | eg JUNO *CSGSolid* numPrim [3089, 5, 11, 14, 6, 1, 1, 1, 1, 130]   |                         |
     +---------------+--------------------------------------------------------------------+-------------------------+
-    | *CSGPrim*     | refs sequence of *CSGNode*, root of CSG Tree of nodes              | root *G4VSolid*         |
+    | *CSGPrim*     | bbox, refs sequence of *CSGNode*, root of CSG Tree of nodes        | root *G4VSolid*         |
     +---------------+--------------------------------------------------------------------+-------------------------+
-    | *CSGNode*     | CSG node parameters eg JUNO ~23k *CSGNode*                         | node *G4VSolid*         |
+    | *CSGNode*     | CSG node parameters (JUNO: ~23k *CSGNode*)                         | node *G4VSolid*         |
     +---------------+--------------------------------------------------------------------+-------------------------+
 
-    **NVIDIA OptiX 7 Geometry Acceleration Structures (JUNO: 1 IAS + 10 GAS)**
+    **NVIDIA OptiX 7 Geometry Acceleration Structures (JUNO: 1 IAS + 10 GAS, 2-level hierarchy)**
 
     +-----+----------------------------------+-------------------------------------------------------------------------+ 
     | IAS | Instance Acceleration Structures | JUNO: 1 IAS created from vector of ~50k *qat4* (JUNO)                   |
@@ -736,18 +749,18 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 
 
-QUDARap : new Heart of Opticks Simulation
----------------------------------------------
+:small:`QUDARap : CUDA Optical Simulation Implementation`
+------------------------------------------------------------
 
-.. sidebar:: :small:`CPU/GPU Counterpart Pattern`
+.. sidebar:: :small:`CPU Pre-Init of GPU Counterpart`
 
     .. class:: small
 
         hh
-           instanciate device .h on host, upload constituent instances, 
-           set device pointers, upload .h instance to GPU  
+           instanciate device .h **on host**, upload constituents (eg texture buffers),  
+           set constituent device pointers into .h instance, upload .h instance to GPU  
         h
-           keeps device header simple
+           simple device header, testable on CPU 
             
         --> :r:`device side hits ground running` 
 
@@ -775,8 +788,224 @@ QUDARap : new Heart of Opticks Simulation
     Aims of counterpart code organization:
 
     * :redbold:`facilitate fine-grained modular simulation testing` 
-    * keep bulk of GPU code in simple to test headers (some can be tested on CPU)
+    * bulk of GPU code in simple to test headers 
+
+      * many can be tested on CPU
+
     * *QUDARap* does not depend on OptiX -> more flexible -> simpler testing    
+
+
+
+.. s5_talk::
+
+    CUDA implementation of optical simulation  
+
+
+:small:`n-ary CSG Compound "List-Nodes" => Much Smaller CSG trees`
+-------------------------------------------------------------------
+
+.. sidebar:: :small:`Complex CSG => Tree Overheads`
+
+    .. image:: GeoChain_Darwin/XJfixtureConstruction/CSGOptiXRenderTest/cvd0/50001/ALL/top_i0_/cxr_geochain_XJfixtureConstruction_ALL_upper.jpg 
+          :align: right
+          :width: 500px
+
+
+
+.. class:: small
+
+   * list-node references sub-nodes by **subNum** **subOffset**
+
+   CSG_CONTIGUOUS Union
+      user guarantees contiguous 
+       * like G4MultiUnion of prim only
+
+   CSG_DISCONTIGUOUS Union
+      user guarantees no overlaps 
+       * => simple, low resource intersect 
+       * eg use for "holes" to be cutaway  
+
+   CSG_OVERLAP Intersection
+      user guarantees overlap
+       * eg general G4Sphere: inner radius, thetacut, phicut
+
+   :r:`Communicate shape more precisely`
+       :r:`=> better suited intersect alg => less resources => faster` 
+
+
+   Generalized Opticks CSG into three levels : tree < node < leaf (avoids recursion in intersect) 
+
+   * `opticks/src/master/CSG/csg_intersect_tree.h <https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_tree.h>`_ 
+     `csg_intersect_node.h <https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_node.h>`_
+     `csg_intersect_leaf.h <https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_leaf.h>`_
+
+
+
+.. s5_talk::
+
+   Generalize Opticks CSG beyond trees
+
+
+:small:`CSG_CONTIGUOUS Union : n-ary (not bin-ary) CSG intersection`
+-----------------------------------------------------------------------
+
+.. class:: small
+
+    * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_node.h :r:`intersect_node_contiguous`
+
+.. sidebar:: :small:`Alg works : but many TODOs`
+
+    .. class:: small
+
+       * integer templating : suit resources to shape
+       * try sort networks, bitonic sort, ... 
+       * compare performance with unbalanced trees
+       * iterate implementation whilst measuring perf.
+
+
+.. class:: small
+
+    1. *zeroth pass* : find **nearest_enter** and count first exits
+    2. if zero exits => outside compound => return **nearest_enter**
+    3. *first pass* : collect enter distances, **farthest_exit**
+    4. order enter indices making **enter** distances ascend
+
+       * :r:`n-ary : store, sort enters` :b:`(cf bin-ary : compare two)`
+       * :b:`no tree overheads, but must store+sort distances`
+
+    5. *2nd pass* : loop over enters in distance order 
+
+       * contiguous requirement : **enter < farthest_exit** so far  
+       * find Exits for Enters that qualify as contiguous, update farthest_exit
+
+    6. return **farthest_exit** that qualifies as contiguous
+
+
+.. raw:: html
+
+    <pre class="mypre15">
+             +----------------+     +-------------------+                  DISJOINT MUST BE DISQUALIFIED
+             |B               |     |D                  |                   
+        +----|----+      +----|-----|----+       +------|----------+             +-----------+
+        |A   |    |      |C   |     |    |       |E     |          |             |           |
+        |    |    |      |    |     |    |       |      |          |             |           |
+        | 0 E1    X2     E3  X4    E5   X6      E7     X8        [X9]           E10         X11
+        |    |    |      |    |     |    |       |      |          |             |           |
+        |    |    |      |    |     |    |       |      |          |             |           |
+        +----|----+      +----|-----|----+       +------|----------+             +-----------+
+             |                |     |                   |
+             +----------------+     +-------------------+
+
+             E           E          E            E                               E 
+                  X           X          X              X          X                         X
+     </pre>
+
+
+
+.. s5_talk::
+
+   Generalize Opticks CSG beyond trees
+
+
+
+
+:small:`CSG_DISCONTIGUOUS Union : CSG intersection`
+---------------------------------------------------------------
+
+.. class:: small
+
+    * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_node.h :r:`intersect_node_discontiguous`
+
+    :r:`User guarantees : absolutely no overlapping between constituents`
+
+.. raw:: html
+
+    <pre class="mypre15">
+     +-------+          +-------+          +-------+          +-------+         +-------+      
+     |       |          |       |          |       |          |       |         |       |      
+     |       |          |       |          |       |          |       |         |       |      
+     +-------+          +-------+          +-------+          +-------+         +-------+       
+
+     +-------+          +-------+          +-------+          +-------+         +-------+      
+     |       |          |       |          |       |          |       |         |       |      
+     |       |          |       |          |       |          |       |         |       |      
+     +-------+          +-------+          +-------+          +-------+         +-------+       
+
+     </pre>
+
+
+.. class:: small
+
+    * => very simple low resource intersection : **closest Enter or Exit**
+
+    * :b:`More closely suiting algorithm to geometry => better performance`
+    * this can help with "holes" subtracted from another solid : the "holes" usually do not overlap 
+
+.. s5_talk::
+
+   More precise communication of intent for geometry -> better performance
+
+
+
+
+
+
+:small:`Multi-Layer Thin Film (A,R,T) Calc using TMM (Custom4 Package)`
+----------------------------------------------------------------------------
+
+.. sidebar:: :small:`TMM : Transfer Matrix Method`
+ 
+   .. image:: tmm/multi-layer-stack.png
+       :align: center
+       :width: 400px
+
+   .. class:: small
+
+       **multi-layer thin films, coherent calc:**
+
+       * complex refractives indices, thicknesses
+       * => (A,R,T)  (Absorb, Reflect, Transmit)
+       * Used from **C4OpBoundaryProcess**  
+
+       :r:`header-only GPU/CPU` : **C4MultiLayrStack.h**       
+    
+       https://github.com/simoncblyth/customgeant4/
+
+.. class:: small
+
+
+    C4OpBoundaryProcess.hh
+       G4OpBoundaryProcess with C4CustomART.h 
+
+    C4CustomART.h
+       integrate custom boundary process and TMM calculation
+
+    C4MultiLayrStack.h : :b:`TMM calculation of (A,R,T)` 
+       based on complex refractive indices and layer thicknesses 
+
+
+.. class:: small
+
+    Enables **junosw** to use natural Pyrex+Vacuum PMT geometry  
+
+.. image:: GEOM/FewPMT/U4SimtraceTest/1/figs/U4SimtraceTest/mpcap/FewPMT_demo.png
+   :width: 580px
+   :align: left
+
+
+.. comment
+ 
+    .. image:: Custom4/Custom4_README.png
+       :width: 580px
+       :align: left
+
+
+.. s5_talk::
+
+   Circular dependency should be avoided when possible, so I did that by 
+   splitting of the customization into a mini-package which is a junoenv external, 
+   just like Geant4 is.  
+
 
 
 
@@ -786,13 +1015,16 @@ QUDARap : new Heart of Opticks Simulation
 :small:`Summary and Links`
 ----------------------------------------------------------------
 
-.. sidebar:: :small:`Next Steps`
+.. sidebar:: :small:`Hidden Benefits of CPU=>GPU Sim.`
 
    .. class:: small
 
-      * Foundry JUNO geometry validation 
-      * migrate optical physics to NVIDIA OptiX 7  
-      * JUNO Production validation
+      * detailed photon instrumentation 
+      * comparisons find issues with both simulations:
+       
+        * complex geometry, overlaps, bugs... 
+
+      :r:`=> using Opticks improves CPU simulation`
 
 .. image:: /env/presentation/1px.png
    :width: 500px
@@ -801,23 +1033,21 @@ QUDARap : new Heart of Opticks Simulation
 ..
 
   *Opticks* : state-of-the-art GPU ray traced optical simulation integrated with *Geant4*. 
-  Geometry progress with OptiX 7 suggests integration within months is achievable.
+  Full re-implementation of Opticks geometry and simulation for NVIDIA OptiX 7 completed.
 
   .. image:: /env/presentation/1px.png
      :width: 1000px
      :height: 1px
 
-  * Efficiency culling decision moved to GPU, reducing CPU hit memory 
-  * "Foundry" geometry model implemented to support NVIDIA OptiX 7 API. 
-  * :redbold:`First JUNO OptiX 7 renders achieved.` 
+  * NVIDIA Ray Trace Performance continues rapid progress (2x each gen.) 
+  * Increasing availability of HW accelerated ray tracing
+  * NEXT: Opticks production testing, optimization  
 
 .. table::
     :align: center
 
     +--------------------------------------------------+-----------------------------------------+
     | https://bitbucket.org/simoncblyth/opticks        | code repository                         |                   
-    +--------------------------------------------------+-----------------------------------------+
-    | https://github.com/simoncblyth/opticks/releases  | .zip .tar.gz  archives                  |
     +--------------------------------------------------+-----------------------------------------+
     | https://simoncblyth.bitbucket.io                 | presentations and videos                |
     +--------------------------------------------------+-----------------------------------------+
@@ -835,166 +1065,6 @@ QUDARap : new Heart of Opticks Simulation
  
     Links to get you started with using Opticks are listed here.
 
-
-
-:small:`Acknowledgement : Opticks "Hackathon" Series for NVIDIA OptiX 6->7`
-------------------------------------------------------------------------------
-
-* Suggested and organized by LZ, LBNL, NERSC 
-* ~fortnightly meetings since Feb 2021
-* :r:`Valuable advice from NVIDIA engineers` 
-* see next talk by Oisin Creaner, **LZ with Opticks** 
-
-
-.. s5_talk::
-
-   This work has been assisted by a series of meetings organized by LZ people.
-   Its been very helpful to get advice from NVIDIA engineers 
-
-   The next talk covers LZ usage of Opticks.
-
-
-:small:`LZ with Opticks (Images from Sam Eriksen, University of Bristol)`
---------------------------------------------------------------------------
-
-
-.. s5_talk::
-
-   Here are some Opticks renders of LZ, demonstating that Opticks is not JUNO specific, 
-   it is structured to work with multiple geometries. 
-   Although the more complex your optically important geometry the more work you will 
-   have to get good performance.
-
-
-
-.. comment
-
-
-    :white:`[7]cxr_i0_2,_-1 : ONLY NNVT PMTs`
-    -------------------------------------------
-
-    .. s5_talk::
-
-       7 
-
-
-    :white:`[10]cxr_i0_0,_-1 : ONLY GLOBAL "REMAINDER"`
-    -----------------------------------------------------------
-
-    .. s5_talk::
-
-       10 : REMAINDER ONLY : 0,
-
-
-    :white:`[9]cxr_i0_t8,_-1 : EXCLUDE SLOWEST : 2`
-    ------------------------------------------------
-
-    .. s5_talk::
-
-       9 : EXCLUDE THE SLOW : t8
-
-
-
-.. comment
-
-    cxr_view
-    ------------
-
-
-
-    cxr_view_0
-    ------------
-
-    cxr_solid_r0@
-    ---------------
-
-
-
-    cxr_view_1
-    ------------
-
-    cxr_solid_r1@
-    ---------------
-
-    cxr_solid_r1p
-    -------------
-
-
-
-    cxr_view_2
-    ------------
-
-    cxr_solid_r2@
-    ---------------
-
-    cxr_solid_r2p
-    -------------
-
-
-
-    cxr_view_3
-    ------------
-
-    cxr_solid_r3@
-    ---------------
-
-    cxr_solid_r3p
-    -------------
-
-
-
-    cxr_view_4
-    ------------
-
-    cxr_solid_r4@
-    ---------------
-
-    cxr_solid_r4p
-    -------------
-
-
-
-
-    cxr_view_5
-    ------------
-
-    cxr_solid_r5@
-    ---------------
-
-
-
-
-
-    cxr_view_6
-    ------------
-
-    cxr_solid_r6@
-    ---------------
-
-
-
-
-    cxr_view_7
-    ------------
-
-    cxr_solid_r7@
-    ---------------
-
-
-
-    cxr_view_8
-    ------------
-
-    cxr_solid_r8@
-    ---------------
-
-
-
-    cxr_view_9
-    ------------
-
-    cxr_solid_r9@
-    ---------------
 
 
 
