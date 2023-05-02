@@ -588,8 +588,26 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 
 
-:small:`Opticks Packages`
----------------------------
+:small:`Primary Packages In Re-Implemented Opticks`
+----------------------------------------------------
+
+
+.. class:: small 
+
+ 
+   *SysRap* 
+        CPU/GPU base types eg *sphoton.h* *stree.h*, array serialization *NP.hh* 
+   *QUDARap* 
+        *QSim* optical photon simulation implemented in CUDA 
+   *U4*
+        Geant4 Utilities : convert geometry into *stree.h*, collect gensteps, return hits 
+   *CSG*
+        *CSGFoundry* geometry model, CPU/GPU intersection functions 
+   *CSGOptiX*
+        covert *CSG* geometry to OptiX 7 *IAS* *GAS* and *QSim* simulation 
+   *G4CX*
+        Top level geometry interface *G4CXOpticks*     
+
 
 
 
