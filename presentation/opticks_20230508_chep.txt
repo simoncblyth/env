@@ -117,17 +117,17 @@ Outline
     * Opticks : Introduction + Full Re-implementation
 
       * p9,10: Geant4 + Opticks Hybrid Workflow : External Optical Photon Simulation
-      * p11: Full re-implementation for NVIDIA OptiX 7 API
-      * p12-14: *CSGFoundry* Geometry Model, Translation to GPU 
-      * p15: QUDARap : CUDA Optical Simulation Implementation
+      * p11-12: Full re-implementation for NVIDIA OptiX 7 API
+      * p13-14: *CSGFoundry* Geometry Model, Translation to GPU 
+      * p16: QUDARap : CUDA Optical Simulation Implementation
 
     * Opticks : New Features 
 
-      * p16:n-Ary CSG "List-Nodes"
-      * p17,18: Specialized n-ary CSG intersect algs : "contiguous" and "dis-contiguous"
-      * p19: Multi-Layer Thin Film (A,R,T) Calc using TMM (Custom4 Package)
+      * p17:n-Ary CSG "List-Nodes"
+      * p18,19: Specialized n-ary CSG intersect algs : "contiguous" and "dis-contiguous"
+      * p20: Multi-Layer Thin Film (A,R,T) Calc using TMM (Custom4 Package)
 
-    * p20: Summary + Links 
+    * p21: Summary + Links 
 
 .. raw:: html
 
@@ -282,7 +282,8 @@ Outline
     There has been roughly doubling in raw ray tracing performance
     with each generation of NVIDIA RTX GPUs. 
 
-
+    [Notes to Presenter]
+    [<20s slide : No need to read the slide, just say the above comment]    
 
 
 :small:`Hardware accelerated Ray tracing (RT Cores) in the Data Center`
@@ -349,6 +350,8 @@ Outline
     with a range of data center GPUs with RT cores. 
 
     The current boom in interest in AI is only going to increase this trend. 
+
+    [Notes: <20s slide, just mention above comments]
 
 
 .. comment
@@ -417,6 +420,7 @@ Outline
 
 
 
+
 :small:`NVIDIA OptiX 7 : Entirely new thin API => Full Opticks Re-implementation`
 -----------------------------------------------------------------------------------
 
@@ -461,7 +465,7 @@ Outline
    * OptiX 7 is an entirely new API, dropping many features used by the old Opticks
    * re-implementation of almost all of Opticks was necessary
 
-
+   [Notes: No need to read slide, just the above comments]
 
 Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
 -------------------------------------------------------------
@@ -532,7 +536,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
          **Code Organized by Dependency Only**
      
-         * maximizes: utility, re-use, ease of testing 
+         * :r:`maximizes: utility, re-use, ease of testing` 
          * => "GPU" code usable+tested on CPU 
 
          **Many small header-only implementations** 
@@ -573,9 +577,11 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   New set of packages  
-
-
+   Strict by-dependency rather than by-topic package organization 
+   makes code more useful, because more of it has less dependencies.  
+   For example, much of Opticks code can be tested without a GPU. 
+   
+   [Notes: <30s slide, mainly for offline consumption, no need to read out]
 
 
 
@@ -600,9 +606,9 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
     +------------------------------------------+--------------------------------------------------------+
     |  * most code in GPU only context,        | * strict code segregation                              |
     |    even when not needing OptiX or CUDA   |                                                        |
-    |                                          |   * code not needing GPU in SYSRap not QUDARap         |
+    |                                          |   * :r:`code not needing GPU in SysRap not QUDARap`    |
     +------------------------------------------+--------------------------------------------------------+
-    |  * testing : GPU only, coarse            | * testing : CPU+GPU , fine-grained                     |
+    |  * testing : GPU only, coarse            | * :r:`testing : CPU+GPU , fine-grained`                |
     |                                          | * curand mocking on CPU                                | 
     +------------------------------------------+--------------------------------------------------------+
     |  * limited CPU/GPU code sharing          | * maximal sharing : SEvt.hh, sphoton.h, ...            |
@@ -623,6 +629,8 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 .. s5_talk::
 
     Embracing the change : might as well profit from a rethink 
+
+    [Notes: dont read out as too much text, just read a few of the highlighted]
 
 
 :small:`Two-Level Hierarchy : Instance transforms (TLAS) over Geometry (BLAS)`
@@ -679,7 +687,6 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
    Simple two-level hierarchy : **just one set of instances with transforms and references to geometry**  
 
 
-
 :small:`Geometry Model Translation : Geant4 => CSGFoundry => NVIDIA OptiX 7`
 -------------------------------------------------------------------------------
 
@@ -731,34 +738,11 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   SMALL 
-   The Foundry geometry model comprises : Inst, Solid, Prim and Node
+   The tables illustrate three geometry models.
+   The CSGFoundry model was designed to enable translation
+   from Geant4 geometry to OptiX Acceleration Structures.  
 
-   Starting from the bottom:
-
-   * the Node are CSG constituent shapes or operators
-   * the Prim reference a range of Node forming serialized complete binary trees
-   * the Solid reference one or more Prim
-   * the Inst reference one or more Solid 
-
-   **Prim:** are equivalent to G4VSolid
-
-   **Solid:** are compound Prim, each type of PMT corresponds to a Solid 
-
-   **Inst:** are 4x4 transforms with index refererences to Solid 
-
-   The model is designed to work with the OptiX 7 acceleration structures:
-
-   * Solid -> GAS (Geometry Acceleration Structure)
-   * Inst  -> IAS (Instance Acceleration Structure)
-
-   The JUNO geometry of 300,000 volumes is factorized into 10 Solid which 
-   are referenced from a single instance acceleration structure. 
-    
-   The array-based simplicity makes it fast to upload to GPU, 
-   with the entire geometry in 4 GPU allocations. 
-
-
+      
 
 
 :i:`[9]cxr_i0_t8,_-1 : EXCLUDE SLOWEST`
@@ -766,11 +750,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. raw:: html
 
-    <pre>
-
-
-
-    </pre>
+    <p style="margin-bottom:2cm;" />
 
 
 .. sidebar:: :small:`JUNO Opticks OptiX 7 Ray-trace`
@@ -784,11 +764,11 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   Here is one of the first JUNO renders with the OptiX 7 using the Foundry model.
-
+   Here is a ray trace render of JUNO using OptiX 7 
    Note that there are no triangles here, this is a purely analytic ray trace with 
-   the geometry that the simulation will use.
+   the geometry that the simulation uses.
 
+   [Notes: ~10s slide, just the comment] 
 
 
 :small:`QUDARap : CUDA Optical Simulation Implementation`
@@ -842,6 +822,8 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
     CUDA implementation of optical simulation  
 
+    [Notes: mainly of intersect for people writing CUDA code, a useful pattern] 
+
 
 :small:`n-ary CSG Compound "List-Nodes" => Much Smaller CSG trees`
 -------------------------------------------------------------------
@@ -865,7 +847,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
    CSG_DISCONTIGUOUS Union
       user guarantees no overlaps 
        * => simple, low resource intersect 
-       * eg use for "holes" to be cutaway  
+       * eg "union of holes" to be CSG subtracted  
 
    CSG_OVERLAP Intersection
       user guarantees overlap
@@ -885,7 +867,9 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   Generalize Opticks CSG beyond trees
+   Generalize Opticks CSG beyond binary trees, in order to improve performance
+   for complex shapes. 
+
 
 
 :small:`CSG_CONTIGUOUS Union : n-ary (not bin-ary) CSG intersection`
@@ -946,9 +930,10 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   Generalize Opticks CSG beyond trees
+   Communicating the geometry more precisely enables a better suited intersection 
+   algorithm to be used. This reduces resources and increases performance. 
 
-
+   [notes: dont need to explain the algorithm in detail, important point is just the above comment] 
 
 
 :small:`CSG_DISCONTIGUOUS Union : CSG intersection`
@@ -985,15 +970,17 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   More precise communication of intent for geometry -> better performance
+   Again more precise communication of intent for geometry -> better performance
+   as it enables a very low resource intersection appoach to be used and it can 
+   avoid tree overheads.  
 
 
 
 
 
 
-:small:`Multi-Layer Thin Film (A,R,T) Calc using TMM (Custom4 Package)`
-----------------------------------------------------------------------------
+:small:`Multi-Layer Thin Film (A,R,T) Calc using TMM Calc (Custom4 Package)`
+------------------------------------------------------------------------------
 
 .. sidebar:: :small:`TMM : Transfer Matrix Method`
  
@@ -1018,17 +1005,16 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
     C4OpBoundaryProcess.hh
        G4OpBoundaryProcess with C4CustomART.h 
-
+    
     C4CustomART.h
        integrate custom boundary process and TMM calculation
 
-    C4MultiLayrStack.h : :b:`TMM calculation of (A,R,T)` 
+    C4MultiLayrStack.h : :b:`CPU/GPU TMM calculation of (A,R,T)` 
        based on complex refractive indices and layer thicknesses 
+ 
+       * GPU: **using thrust::complex** CPU:**using std::complex**
 
-
-.. class:: small
-
-    Enables **junosw** to use natural Pyrex+Vacuum PMT geometry  
+    :r:`Custom4: Simplifies JUNO PMT Optical Model + Geometry` 
 
 .. image:: GEOM/FewPMT/U4SimtraceTest/1/figs/U4SimtraceTest/mpcap/FewPMT_demo.png
    :width: 580px
@@ -1044,24 +1030,25 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   Circular dependency should be avoided when possible, so I did that by 
-   splitting of the customization into a mini-package which is a junoenv external, 
-   just like Geant4 is.  
+   The Custom4 package enables a substantial simplification in JUNOs PMT Optical Model, 
+   by customizing the Geant4 boundary process to inject just required change to A,R,T
+   needed by the thin layer description of PMT anti-reflection coating and photocathode. 
+
 
 
 :small:`Summary and Links`
 -------------------------------------------------------------------------------------
 
-.. sidebar:: :small:`Hidden Benefits of CPU=>GPU Sim.`
+.. sidebar:: :small:`Hidden Benefits of Adopting Opticks`
 
    .. class:: small
 
-      * detailed photon instrumentation 
+      * detailed photon instrumentation, validation 
       * comparisons find issues with both simulations:
        
         * complex geometry, overlaps, bugs... 
 
-      :r:`=> using Opticks improves CPU simulation`
+      :r:`=> using Opticks improves CPU simulation too !!`
 
 .. raw:: html
 
@@ -1079,7 +1066,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. class:: normal
 
-  * NVIDIA Ray Trace Performance continues rapid progress (2x each gen.) 
+  * NVIDIA Ray Trace Performance continues rapid progress (2x each generation) 
   * Increasing availability of HW accelerated ray tracing
   * NEXT: Opticks production testing, optimization  
 

@@ -1285,7 +1285,18 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){    echo ${INAME:-opticks_202303XX_More_junoPMTOpticalModel_issues_and_Validation_of_CustomG4OpBoundaryProcess_fix} ; }
 #presentation-iname(){    echo ${INAME:-opticks_20230428_More_junoPMTOpticalModel_issues_and_Validation_of_CustomG4OpBoundaryProcess_fix} ; }
 
-presentation-iname(){   echo ${INAME:-opticks_202305XX_chep} ; }
+presentation-iname(){   echo ${INAME:-opticks_20230508_chep} ; }
+
+presentation-notes(){ cat << EON
+
+To render the html as PDF use::
+
+   slides-get--
+   slides-get-talk--
+
+
+EON
+}
 
 
 collab-e(){

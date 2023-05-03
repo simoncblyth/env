@@ -591,6 +591,10 @@ slides-get--(){
    slides-get 0 $(( $pc - 1 ))
 }
 
+slides-get-talk--(){
+   TALK=1 slides-get--   
+}
+
 slides-dupe-cover(){ 
    : kludge extra title page with TALK PDF making Preview 2-page pairings correct 
    cp 00_crop.png 00_crop_.png 
