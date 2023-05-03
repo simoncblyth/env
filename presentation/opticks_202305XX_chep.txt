@@ -1,10 +1,18 @@
 .. meta::
    :title: Opticks CHEP 2023
    :description: (2023 May) JUNO, OptiX, Opticks
-   :note: 15 min including questions 
+   :note: 15 min including questions, presented by Tao  
+   :url0: https://indico.jlab.org/event/459/contributions/11811/
+   :url1: https://indico.jlab.org/event/459/page/252-instructions-to-speakers
+   :chep: Monday, May 8 12:15 (?17:15 BST)
 
 .. include:: my_s5defs.txt
 
+.. comment
+
+    Tao: I will fly on May 6 (Sat). It will take about 30 hours with 2 stops. 
+    The talk is at 12:15 on May 8 (Sun). Is that time OK for you? 
+    According to the instruction, it should be 48 hours before the talk:
 
 .. comment
 
@@ -49,29 +57,31 @@
 :i:`Opticks : GPU Optical Photon Simulation using NVIDIA OptiX 7 and NVIDIA CUDA` 
 ========================================================================================
 
-
 .. raw:: html
 
     <div class="mytitle">
     <header>
     <h1 style="background-color:lightgrey;text-align:center;"> 
-          <i>Opticks</i> : GPU Optical Photon Simulation</br> via NVIDIA® OptiX™ 7, NVIDIA® CUDA™
-
-        <h2 style="background-color:lightgrey;text-align:center"> Open source, https://bitbucket.org/simoncblyth/opticks </h2>
+        <i>Opticks</i> : GPU Optical Photon Simulation</br> via NVIDIA® OptiX™ 7, NVIDIA® CUDA™
+        <h2 style="background-color:lightgrey;text-align:center">
+            Open source, https://bitbucket.org/simoncblyth/opticks 
+        </h2>
     </h1>
     </header>
     </div>
-
-    <img style="position:absolute; top:200px; LEFT:100px; WIDTH:200px; " src="/env/presentation/juno/JUNO_logo.png"  />
+    <img style="position:absolute; top:200px; LEFT:100px; WIDTH:200px; " src="juno/JUNO_logo.png"  />
     <div class="mycredit">
-    <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS &mdash; (Presented by Dr Tao Lin, IHEP, CAS) &mdash; CHEP, Norfolk VA, 8-12 May 2023</h2>
+       <h2 style="background-color:lightgrey">
+          Simon C Blyth, IHEP, CAS &mdash; (Presented by Dr Tao Lin, IHEP, CAS) &mdash; CHEP, Norfolk VA, 8 May 2023
+       </h2>
     </div>
-
 
 .. s5_talk:: 
 
     Opticks applies state-of-the-art GPU ray tracing from NVIDIA OptiX to optical photon simulation 
-    and integrates this with Geant4. This can give drastic speedups of more a factor 1000.
+    and integrates this with Geant4. This can give drastic speedups of more than a factor of 1000.
+    This approach removes memory and processing bottlenecks that can prevent the 
+    optical photons from limiting simulations.  
 
     This render shows the photons resulting from a muon crossing the JUNO scintillator, 
     each line represents a single photon.
@@ -79,16 +89,14 @@
 
 
 Outline
-----------------------------------------------------
+---------
 
 .. image:: newtons-opticks.png 
    :width: 299px
    :height: 547px 
    :align: right
 
-
 .. class:: small
-
 
     .. raw:: html
 
@@ -121,14 +129,14 @@ Outline
 
     * p20: Summary + Links 
 
-    .. raw:: html
- 
-       <hr/>
+.. raw:: html
+
+   <hr/>
 
 
 .. s5_talk::
 
-    The focus of this talk is on the re-implementation of Opticks
+    The focus of this talk is on the full re-implementation of Opticks
     to work with the all new NVIDIA OptiX 7 API.
     
 
@@ -137,7 +145,7 @@ Outline
 
 .. s5_talk::
 
-    JUNO will be the worlds largest liquid scintillator detector,
+    JUNO will soon start data taking, it will be the worlds largest liquid scintillator detector,
     with a 20 kiloton spherical volume of scintillator instrumented with  
     almost 50 thousand PMTs. The diameter of the sphere is 35 meters. 
 
@@ -147,15 +155,7 @@ Outline
 
 .. raw:: html
 
-     <pre>
-
-
-
-
-
-
-
-     </pre>
+     <p style="margin-bottom:7cm;" />
 
 .. sidebar:: :small:`Huge CPU Memory+Time Expense`
 
@@ -174,12 +174,11 @@ Outline
 
 .. s5_talk::
 
-   A muon travelling across the scintillator yields tens of millions 
+   A muon travelling across the JUNO scintillator yields tens of millions 
    of optical photons, presenting memory and time challenges for simulation.
 
    Most of the time is taken finding intersections between photons and geometry 
    Simulation is not alone in this bottleneck.
-
 
 .. comment
 
@@ -191,14 +190,11 @@ Outline
    simulation.
  
 
-   .. image:: /env/optix/samples/optix-ray-tracing-glasses.png 
-
-
 
 :small:`Optical Photon Simulation ≈ Ray Traced Image Rendering`
 -------------------------------------------------------------------------------
 
-.. sidebar:: Not a Photo, a Calculation
+.. sidebar:: :small:`Not a Photo, a Calculation`
 
     .. image:: ../optix/samples/optix-ray-tracing-glasses.png 
        :width: 450px
@@ -209,21 +205,22 @@ Outline
         http://on-demand.gputechconf.com/siggraph/2013/presentation/SG3106-Building-Ray-Tracing-Applications-OptiX.pdf
 
 
+.. raw:: html
+
+    <p style="margin-bottom:2cm;" />
+
 .. class:: small
 
-
-    :bluebold:`simulation` 
+    :b:`simulation` 
        photon parameters at sensors (PMTs) 
 
-    :bluebold:`rendering` 
+    :b:`rendering` 
        pixel values at image plane
 
 
 .. raw:: html
 
-    <pre>
-
-    </pre>
+    <p style="margin-bottom:2cm;" />
 
 
 .. class:: small
@@ -232,12 +229,9 @@ Outline
 
     * :redbold:`both limited by ray geometry intersection, aka ray tracing`
 
-
 .. raw:: html
 
-    <pre>
-
-    </pre>
+    <p style="margin-bottom:2cm;" />
 
 .. class:: small
 
@@ -284,25 +278,10 @@ Outline
 
 .. s5_talk::
 
-    GPU Ray Tracing performance continue to improve rapidly.
+    GPU Ray Tracing performance continues to improve rapidly.
     There has been roughly doubling in raw ray tracing performance
-    with each generation of NVIDIA GPUs. 
+    with each generation of NVIDIA RTX GPUs. 
 
-
-.. comment
-
-    :i:`ada_lovelace_leap_in_ray_tracing_performance_19206531.jpg`
-    ----------------------------------------------------------------
-
-    :i:`ada_lovelace_123_RTX_generations_18976718.jpg`
-    -------------------------------------------------------------
-
-    :small:`NVIDIA OptiX 7 Programs`
-    ----------------------------------
-
-    .. class:: small
-
-       https://developer.nvidia.com/rtx/ray-tracing/optix
 
 
 
@@ -369,10 +348,12 @@ Outline
     Hardware Accelerated Ray Tracing is becoming much more commonly available, 
     with a range of data center GPUs with RT cores. 
 
+    The current boom in interest in AI is only going to increase this trend. 
+
 
 .. comment
 
-    .. image:: /env/presentation/nvidia/optix7/OptiX-API.png
+
 
 :small:`NVIDIA® OptiX™ Ray Tracing Engine -- Accessible GPU Ray Tracing`
 --------------------------------------------------------------------------
@@ -430,9 +411,9 @@ Outline
    * the green boxes represent user provided CUDA programs, including:
 
      * ray generation : where Opticks generates photons and steers the simulation
-     * intersection : where the geometry is implemented 
+     * intersection : where the CSG geometry is implemented 
 
-   * geometry has to be translated into a GPU appropriate form
+   * geometry has to be translated into a GPU appropriate easily serialized form
 
 
 
@@ -477,7 +458,7 @@ Outline
 
 .. s5_talk::
 
-   * OptiX 7 is an entirely new API, dropping many features used by Opticks
+   * OptiX 7 is an entirely new API, dropping many features used by the old Opticks
    * re-implementation of almost all of Opticks was necessary
 
 
@@ -513,7 +494,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
     uploaded to the GPU so optical photon generation can be done there.
 
     This allows the optical photon simulation to be entirely offloaded  
-    to the GPU with only collected hits requiring CPU memory.
+    to the GPU with only collected hits requiring memory on the CPU.
  
 
 Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
@@ -523,7 +504,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
    .. class:: small
 
-      * :redbold:`translate Geant4 geometry to OptiX GPU`  
+      * :r:`translate Geant4 geometry to OptiX GPU`  
 
         * intersect functions
         * instance transforms
@@ -531,7 +512,8 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
       * CUDA port of Geant4 generation+propagation
 
-        * cuRAND random number generation  
+        * cuRAND random number generation
+        * may small QUDARap headers implement optical simulation 
 
 
 .. s5_talk::
@@ -539,6 +521,62 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
     In general, I found that directly porting the optical physics has been straightforward.
     Most of problems and effort of Opticks been with the geometry, because the 
     geometry model needs to be very different from the deep tree of volumes of Geant4.
+
+
+:small:`Primary Packages and Structs Of Re-Implemented Opticks`
+-----------------------------------------------------------------
+
+.. sidebar:: :small:`Flexible Multi-Package Organization`
+
+    .. class:: small
+
+         **Code Organized by Dependency Only**
+     
+         * maximizes: utility, re-use, ease of testing 
+         * => "GPU" code usable+tested on CPU 
+
+         **Many small header-only implementations** 
+
+         * common CPU/GPU headers   
+
+
+
+.. class:: small 
+
+   *SysRap* : many small CPU/GPU headers
+     * *stree.h,snode.h* : geometry base types
+     * *sctx.h* *sphoton.h* : event base types
+     * *NP.hh* : serialization into NumPy .npy format files     
+
+   *QUDARap* 
+     * *QSim* : optical photon simulation steering
+     * *QScint,QCerenkov,QProp,...* : modular CUDA implementation 
+
+   *U4*
+     * *U4Tree* : convert geometry into *stree.h*
+     * *U4* : collect gensteps, return hits 
+
+   *CSG*
+     * *CSGFoundry/CSGSolid/CSGPrim/CSGNode* geometry model
+     * *csg_intersect_tree.h* *csg_intersect_node.h* *csg_intersect_leaf.h* : CPU/GPU intersection functions 
+
+   *CSGOptiX*
+     * *CSGOptiX.h* : manage geometry convert from *CSG* to OptiX 7 *IAS* *GAS*, pipeline creation
+     * *CSGOptiX7.cu* : compiled into ptx that becomes OptiX 7 pipeline
+
+       * includes QUDARap headers for simulation   
+       * includes *csg_intersect_tree.h,..* headers for CSG intersection    
+     
+   *G4CX*
+     * *G4CXOpticks* : Top level Geant4 geometry interface
+
+
+.. s5_talk::
+
+   New set of packages  
+
+
+
 
 
 
@@ -549,29 +587,29 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
     * :r:`Huge change unavoidable from new OptiX API` --> :b:`So profit from rethink of simulation code` --> **2nd impl advantage** 
 
-    +------------------------------------------+-----------------------------------------------------+
-    |  Old simulation (OptiXRap)               |  New simulation (QUDARap/qsim.h + CSGOptiX, CSG)    | 
-    +==========================================+=====================================================+
-    |  * implemented on top of old OptiX API   | * pure CUDA implementation                          |
-    |                                          | * OptiX use kept separate, just for intersection    |
-    |                                          |                                                     |
-    +------------------------------------------+-----------------------------------------------------+
-    |  * monolithic .cu                        | * many small headers                                |
-    |  * GPU only implementation               | * many GPU+CPU headers                              |
-    |  * deep stack of support code            | * shallow stack : QUDARap depends only on SYSRap    | 
-    +------------------------------------------+-----------------------------------------------------+
-    |  * most code in GPU only context,        | * strict code segregation                           |
-    |    even when not needing OptiX or CUDA   |                                                     |
-    |                                          |   * code not needing GPU in SYSRap not QUDARap      |
-    +------------------------------------------+-----------------------------------------------------+
-    |  * testing : GPU only, coarse            | * testing : CPU+GPU , fine-grained                  |
-    |                                          | * curand mocking on CPU                             | 
-    +------------------------------------------+-----------------------------------------------------+
-    |  * limited CPU/GPU code sharing          | * maximal sharing : SEvt.hh, sphoton.h, ...         |
-    +------------------------------------------+-----------------------------------------------------+
-    |  * timeconsuming manual random alignment | * :b:`new systematic approach to random alignment`  |  
-    |    conducted via debugger                |                                                     |
-    +------------------------------------------+-----------------------------------------------------+
+    +------------------------------------------+--------------------------------------------------------+
+    |  Old simulation (OptiXRap)               |  New simulation (QUDARap/qsim.h + CSGOptiX, CSG)       | 
+    +==========================================+========================================================+
+    |  * implemented on top of old OptiX API   | * pure CUDA implementation                             |
+    |                                          | * :r:`OptiX use kept separate, just for intersection`  |
+    |                                          |                                                        |
+    +------------------------------------------+--------------------------------------------------------+
+    |  * monolithic .cu                        | * many small headers                                   |
+    |  * GPU only implementation               | * many GPU+CPU headers                                 |
+    |  * deep stack of support code            | * shallow stack : QUDARap depends only on SysRap       | 
+    +------------------------------------------+--------------------------------------------------------+
+    |  * most code in GPU only context,        | * strict code segregation                              |
+    |    even when not needing OptiX or CUDA   |                                                        |
+    |                                          |   * code not needing GPU in SYSRap not QUDARap         |
+    +------------------------------------------+--------------------------------------------------------+
+    |  * testing : GPU only, coarse            | * testing : CPU+GPU , fine-grained                     |
+    |                                          | * curand mocking on CPU                                | 
+    +------------------------------------------+--------------------------------------------------------+
+    |  * limited CPU/GPU code sharing          | * maximal sharing : SEvt.hh, sphoton.h, ...            |
+    +------------------------------------------+--------------------------------------------------------+
+    |  * timeconsuming manual random alignment | * :b:`new systematic approach to random alignment`     |  
+    |    conducted via debugger                |                                                        |
+    +------------------------------------------+--------------------------------------------------------+
 
     **Goals of re-implementation : flexible, modular GPU simulation, easily testable, less code**
 
@@ -585,30 +623,6 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 .. s5_talk::
 
     Embracing the change : might as well profit from a rethink 
-
-
-
-:small:`Primary Packages In Re-Implemented Opticks`
-----------------------------------------------------
-
-
-.. class:: small 
-
- 
-   *SysRap* 
-        CPU/GPU base types eg *sphoton.h* *stree.h*, array serialization *NP.hh* 
-   *QUDARap* 
-        *QSim* optical photon simulation implemented in CUDA 
-   *U4*
-        Geant4 Utilities : convert geometry into *stree.h*, collect gensteps, return hits 
-   *CSG*
-        *CSGFoundry* geometry model, CPU/GPU intersection functions 
-   *CSGOptiX*
-        covert *CSG* geometry to OptiX 7 *IAS* *GAS* and *QSim* simulation 
-   *G4CX*
-        Top level geometry interface *G4CXOpticks*     
-
-
 
 
 :small:`Two-Level Hierarchy : Instance transforms (TLAS) over Geometry (BLAS)`
@@ -1035,13 +1049,8 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
    just like Geant4 is.  
 
 
-
-
-
-
-
 :small:`Summary and Links`
-----------------------------------------------------------------
+-------------------------------------------------------------------------------------
 
 .. sidebar:: :small:`Hidden Benefits of CPU=>GPU Sim.`
 
@@ -1054,18 +1063,21 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
       :r:`=> using Opticks improves CPU simulation`
 
-.. image:: 1px.png
-   :width: 500px
-   :height: 20px
+.. raw:: html
+
+     <p style="margin-bottom:5mm;" />
 
 ..
 
   *Opticks* : state-of-the-art GPU ray traced optical simulation integrated with *Geant4*. 
   Full re-implementation of Opticks geometry and simulation for NVIDIA OptiX 7 completed.
 
-  .. image:: 1px.png
-     :width: 1000px
-     :height: 1px
+
+.. raw:: html
+
+     <p style="margin-bottom:15mm;" />
+
+.. class:: normal
 
   * NVIDIA Ray Trace Performance continues rapid progress (2x each gen.) 
   * Increasing availability of HW accelerated ray tracing
@@ -1081,9 +1093,10 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
     +--------------------------------------------------+-----------------------------------------+
     | https://groups.io/g/opticks                      | forum/mailing list archive              |
     +--------------------------------------------------+-----------------------------------------+
-    | email:opticks+subscribe@groups.io                | subscribe to mailing list               |
+    | email: ``opticks+subscribe@groups.io``           | subscribe to mailing list               |
     +--------------------------------------------------+-----------------------------------------+ 
-
+    | ``simon.c.blyth@gmail.com``                      | any questions                           |   
+    +--------------------------------------------------+-----------------------------------------+ 
 
 .. s5_talk::
 
@@ -1092,7 +1105,5 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
     which is essential to keep up with the state-of-the-art.
  
     Links to get you started with using Opticks are listed here.
-
-
 
 
