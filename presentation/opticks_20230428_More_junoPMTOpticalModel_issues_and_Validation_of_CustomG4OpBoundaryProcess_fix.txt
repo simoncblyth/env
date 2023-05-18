@@ -91,6 +91,167 @@
     9. DONE : NoOpticks compile+run test 
 
 
+
+STAMP_probe_gap.png
+----------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:155mm;" />
+
+.. class:: small
+
+   Insitu (ntds2_cf), input photons targetting NNVT:0:1000
+
+
+
+
+
+
+:small:`SEvt Timestamps` : ``opticks/sysrap/SEvt.hh``
+-----------------------------------------------------------------
+
+.. sidebar:: :small:`arr.view("datetime64[us]")`
+
+    .. raw:: html
+
+       <pre class="mypretiny">
+
+        In [1]: a.rr
+        Out[1]: array([1684168432404887, 1684168434567412], 
+                dtype=uint64)
+
+        In [2]: np.c_[a.rr.view("datetime64[us]")]   
+        Out[2]:        ## beginOfRun, endOfRun 
+        array([['2023-05-15T16:33:52.404887'],
+               ['2023-05-15T16:33:54.567412']], 
+               dtype='datetime64[us]')
+
+        In [5]: np.c_[a.s0.view("datetime64[us]")]
+        Out[5]:         ## beginPhoton stamps
+        array([['2023-05-15T16:33:53.860482'],
+               ['2023-05-15T16:33:53.860451'],
+               ['2023-05-15T16:33:53.860421'],
+               ...,
+               ['2023-05-15T16:33:52.470429'],
+               ['2023-05-15T16:33:52.470155'],
+               ['2023-05-15T16:33:52.469285']], 
+               dtype='datetime64[us]')
+
+        In [8]: a.t.shape      ## pointPhoton stamps 
+        Out[8]: (10000, 32)
+       </pre>
+
+
+.. class:: small
+
+    ``sysrap/stamp.h stamp::Now()``
+
+    **Collect uint64_t timestamps (microseconds since epoch (UTC))** 
+
+    * beginOfRun
+    
+      * beginOfEvent
+
+        * beginPhoton
+
+          * pointPhoton : :r:`photon step points`      
+          * pointPhoton      
+          * pointPhoton      
+          * ... 
+
+        * endPhoton
+        * ...
+
+      * endOfEvent
+      * ...
+
+    * endOfRun
+
+
+
+STAMP_illus.png
+----------------
+
+.. raw:: html
+
+   <p style="margin-bottom:155mm;" />
+
+.. class:: small
+
+   Timestamps : :r:`beginPhoton`, :g:`pointPhoton`, :g:`pointPhoton`, ...,  :b:`endPhoton`, :r:`beginPhoton`, :g:`pointPhoton`, ... 
+
+
+PHO_AVG_with_fake_skip.png
+----------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:155mm;" />
+
+.. class:: small
+
+   Linear relationship between photon step points and processing time -- :r:`U4Recorder::ClassifyFake` consumes time every step  
+
+
+
+PHO_AVG_without_fake_skip.png
+-------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:155mm;" />
+
+.. class:: small
+
+   Not skipping fakes : makes per-step-point times similar  
+
+
+
+PHO_AVG_wide_with_fake_skip.png
+---------------------------------
+
+
+.. raw:: html
+
+   <p style="margin-bottom:155mm;" />
+
+.. class:: small
+
+   The very few high bounce photons are excluded from the fit -- recording truncates to 32 points 
+
+
+
+:i:`FewPMT_truncated_record_32.png`
+------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:168mm;" />
+
+.. class:: small
+
+   Point 31 : at propagation time 4.3 ns (photon ends at: 10.9 ns, at [-237.9,0.,-200] -- 6.6ns of propagation not recorded
+
+.. comment
+
+   BPID=117 BOPT=idx POINT=-237.948,0.,-200 LINE=-139.781,0.,-180.94,-237.948,0.,-200 ./U4SimtraceTest.sh ana
+
+
+
+
+PHO_AVG_wide_without_fake_skip.png
+------------------------------------
+
+PHO_N_with_fake_skip.png
+--------------------------
+
+PHO_N_without_fake_skip.png
+----------------------------
+
+
+
+
 junoPMTOpticalModel Issues : All from using FastSim 
 ----------------------------------------------------
 

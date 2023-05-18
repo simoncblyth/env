@@ -17,8 +17,8 @@
     ## to disable the title background image simply change the 
     ## below title of "slide0" to "slide0_D"
     ##
-    ##slide0_D
-    slide0
+    ##slide0
+    slide0_D
     ../graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -2100,6 +2100,33 @@
 
     ada_lovelace_123_RTX_generations_18976718.jpg
     nvidia/ada_lovelace/ada_lovelace_123_RTX_generations_18976718.jpg 1280px_720px
+
+    PHO_AVG_with_fake_skip.png
+    GEOM/FewPMT/U4SimulateTest/0/figs/U4SimulateTest/mpcap/PHO_AVG_with_fake_skip.png 1280px_720px
+
+    PHO_AVG_wide_with_fake_skip.png
+    GEOM/FewPMT/U4SimulateTest/0/figs/U4SimulateTest/mpcap/PHO_AVG_wide_with_fake_skip.png 1280px_720px
+   
+    PHO_AVG_without_fake_skip.png
+    GEOM/FewPMT/U4SimulateTest/0/figs/U4SimulateTest/mpcap/PHO_AVG_without_fake_skip.png 1280px_720px
+    
+    PHO_AVG_wide_without_fake_skip.png
+    GEOM/FewPMT/U4SimulateTest/0/figs/U4SimulateTest/mpcap/PHO_AVG_wide_without_fake_skip.png 1280px_720px
+
+    STAMP_illus.png
+    GEOM/FewPMT/U4SimulateTest/0/figs/U4SimulateTest/mpcap/STAMP_illus.png 1280px_720px
+
+    FewPMT_truncated_record_32.png
+    GEOM/FewPMT/U4SimulateTest/0/figs/U4SimulateTest/mpcap/FewPMT_truncated_record_32.png 1280px_720px
+
+    PHO_N_with_fake_skip.png
+    GEOM/FewPMT/U4SimulateTest/0/figs/U4SimulateTest/mpcap/PHO_N_with_fake_skip.png 1280px_720px
+
+    PHO_N_without_fake_skip.png
+    GEOM/FewPMT/U4SimulateTest/0/figs/U4SimulateTest/mpcap/PHO_N_without_fake_skip.png 1280px_720px
+
+    STAMP_probe_gap.png
+    GEOM/V0J008/ntds2/ALL0/000/figs/ntds2/mpcap/STAMP_probe_gap.png 1280px_720px
 
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
