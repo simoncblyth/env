@@ -3,10 +3,34 @@ bitbucket-src(){      echo scm/bitbucket/bitbucket.bash ; }
 bitbucket-source(){   echo ${BASH_SOURCE:-$(env-home)/$(bitbucket-src)} ; }
 bitbucket-vi(){       vi $(bitbucket-source) ; }
 bitbucket-env(){      elocal- ; }
+
+bitbucket-host-key-info(){ type $FUNCNAME ; ssh git@bitbucket.org host_key_info ; }
 bitbucket-usage(){ cat << EOU
 
 BITBUCKET
 ==========
+
+
+May 2023 : SSH key rotation : RSA key removal 
+-----------------------------------------------
+
+* https://bitbucket.org/blog/ssh-host-key-changes
+
+::
+
+    epsilon:opticks blyth$ ssh git@bitbucket.org host_key_info
+    You are using host key with fingerprint:
+    ssh-rsa SHA256:zzXQOXSRBEiUtuE8AikJYKwbHaxvSc0ojez9YXaGp1A
+
+    WARNING: The host key your client is using will be removed in the near future.
+
+    Please configure your client to trust a new host key.
+
+    See https://bitbucket.org/blog/ssh-host-key-changes for more details.
+    epsilon:opticks blyth$ 
+
+
+
 
 related
 --------
