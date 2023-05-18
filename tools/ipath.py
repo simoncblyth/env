@@ -14,13 +14,13 @@ from __future__ import with_statement
 import os, hashlib, logging, re, sys, subprocess
 from functools import partial
 
-
+"""
 try:
     from commands import getstatusoutput 
 except ImportError:
     from subprocess import getstatusoutput 
 pass 
-           
+"""           
 
 
 
@@ -77,7 +77,7 @@ class IPath(object):
     """
 
     @classmethod
-    def repotype(cls, _, up=0, noup=False):
+    def repotype(cls, _, up=0, noup=False, dump=False):
         """
         :param _: absolute path 
         :param up: number of directories up from original
@@ -87,7 +87,11 @@ class IPath(object):
         and provide base directory of the repo.   This works by recursively 
         moving up the directory tree looking for special folders .hg .svn .git 
         """
-        #log.debug("repotype %2d %s " % (up, _) )
+
+        if dump:
+            log.info("repotype %2d %s " % (up, _) )
+        pass
+       
 
         if os.path.isfile(_):
             typ, base = cls.repotype( os.path.dirname(_) )
@@ -119,29 +123,23 @@ class IPath(object):
         :return: status command for the repository 
 
         """
-        if typ == "svn":
-            cmd = "svn status %s " % _
-        elif typ == "git":
-            if len(rbase) == 0:  ## cwd is the repodir
-                cmd = "git status --porcelain %(_)s " % locals()
-            else:
-                cmd = "git --work-tree=%(rbase)s --git-dir=%(rbase)s/.git status --porcelain %(_)s " % locals()
-            pass
-        elif typ == "hg":
-            cmd = "hg status %s " % _
+        assert typ == "git"
+        assert len(_) > 0 
+
+        if len(rbase) == 0:  ## cwd is the repodir
+            cmd = "git status --porcelain -z %(_)s" % locals()
         else:
-            assert 0, typ
+            cmd = "git --work-tree=%(rbase)s --git-dir=%(rbase)s/.git status --porcelain -z %(_)s" % locals()
         pass
+        ### NB LEAVING A TRAILING SPACE CAUSES LISTING OF MANY FILES WHEN ONE IS DESIRED
         return cmd
 
     @classmethod
     def run(cls, cmd):
-        rc, out = getstatusoutput(cmd)
-        pass
-        if rc != 0:
-            log.fatal("non-zero RC from cmd : %s " % cmd ) 
-        pass     
-        assert rc == 0,  rc
+        args = cmd.split(" ")
+        log.debug("%s" % str(args))
+        out_ = subprocess.check_output(args)
+        out = out_.decode('utf-8').split('\0')[:-1] 
         log.debug("cmd:[%s] out:%d " % (cmd, len(out)) ) 
         return out 
 
@@ -170,7 +168,7 @@ class IPath(object):
 
     @classmethod
     def parse(cls, line, ptn):
-        log.debug("parse line [%s] " % line )
+        #log.info("parse line [%s] " % line )
         m = ptn.match(line)
         if m:
             groups = m.groups()
@@ -188,6 +186,8 @@ class IPath(object):
 
     @classmethod
     def multiparse(cls, lines, ptn, pfx):
+        #log.info("lines : %s " % "\n".join(lines))
+
         sub = []
         log.debug("multiparse %d lines " % len(lines) ) 
         for line in filter(None, lines):
@@ -207,34 +207,45 @@ class IPath(object):
     def __init__(self, path_, stat=None, noup=False):
         """
         :param path: relative or absolute, tilde or envvars are expanded
+
+        HMM: paths with unicode chars in them are getting quoted by git 
+        which leads to non-existing paths 
+
         """
+        #dump = "signed" in path_ or "DataPage" in path_ 
+        dump = False
+
         log.debug("IPath.path_ %s " % path_ )
         xx_ = lambda _:os.path.abspath(os.path.expandvars(os.path.expanduser(_)))
         path = xx_(path_)
-        typ, repodir = self.repotype(path, noup=noup)  
+        typ, repodir = self.repotype(path, noup=noup, dump=dump)  
         log.debug(" HERE path_:%s typ:%s repodir:%s " % (path_, typ, repodir))
         reponame = os.path.basename(repodir) if repodir is not None else None 
 
-        log.debug(" IPath path_:%s path:%s typ:%s repodir:%s reponame:%s " % ( path_, path, typ, repodir, reponame) )
+        if dump:
+            log.info(" IPath path_:%s path:%s typ:%s repodir:%s reponame:%s " % ( path_, path, typ, repodir, reponame) )
 
         dig = digest_(path)
         isdir = os.path.isdir(path)
 
         cwd = os.getcwd()
         cpath = path[len(cwd)+1:]   # path relative to cwd
+        if cpath == "": cpath = "."
       
         cmd, out, ptn, rpath, sub = None, None, None, None, []
 
-        if typ is not None and stat is None:
+        proceed = typ is not None and stat is None
+
+        if proceed:
             rpath = path[len(repodir)+1:]   # path relative to repodir
             rbase = repodir[len(cwd)+1:]    # repodir expressed relative to cwd 
+
 
             cmd = self.status_command( cpath, typ, rbase)   
             log.debug("cpath:%s rpath:%s rbase:%s " % (cpath, rpath, rbase))
             log.debug("cmd:%s " % (cmd))
 
-            out = self.run(cmd) 
-            #print(out)
+            lines = self.run(cmd) 
 
             # git uses relative to base paths in status, hg/svn use relative to cwd
             upath = rpath if typ == "git" else cpath
@@ -246,10 +257,11 @@ class IPath(object):
      
             pfx = rbase if typ == "git" else None
 
-            lines = list(filter(None, out.split("\n")))
-
             nline = len(lines)
-            log.debug("read %d lines from cmd:%s" % (nline, cmd) )
+            log.debug("read %d lines isdir:%d from cmd:%s" % (nline, isdir, cmd) )
+            log.debug("\n".join(["["]+lines+["]"]))
+
+
             if not isdir:
                 assert nline <= 1 
             pass
@@ -271,6 +283,8 @@ class IPath(object):
                     pass
                 pass
             pass
+        else:
+            log.debug("not proceeding for path:%s" % path ) 
         pass
         self.path = path 
         self.rpath = rpath 

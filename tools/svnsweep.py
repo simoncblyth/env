@@ -123,7 +123,7 @@ class Sweeper(list):
         :param skip: space delimited list of dirnames to skip in the dir_walk (ignored in status_walk) eg "_build _sources"
 
         """
-        log.debug("Sweeper.__init__ START  " )
+        log.info("Sweeper.__init__ START exts: %s  " % str(exts) )
         self.src = IPath(src)
         log.debug("Sweeper.__init__ src instanciated " )
         self.tgt = IPath(tgt, noup=True)
