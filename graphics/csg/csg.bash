@@ -9,6 +9,13 @@ CSG : Constructive Solid Geometry
 ==================================
 
 
+
+
+
+
+
+
+
 Searching for CSG developments
 ---------------------------------
 
@@ -22,6 +29,42 @@ Active Zones in CSG for accelerating Boundary Evaluation, Redundancy Elimination
 
 * ~/opticks_refs/csg_active_zones_rossignac_10.1.1.449.428.pdf
 * https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.449.428&rep=rep1&type=pdf
+
+
+:google:`Parallel GPU Boolean Evaluation for CSG Ray-Tracing`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ~/opticks_refs/Domingues_IST_Parallel_GPU_Boolean_Evaluation_for_CSG_Ray_Tracing_article-1.pdf
+* HMM: some intersesting ideas, but fundamentally using interval approach
+
+Traversing and evaluating a CSG tree on the GPU can be a challenging task,
+since recursion is not allowed and the available memory is limited. To
+overcome this problem, we use a linearized tree representation and a stack to
+hold temporary values of the tree during evaluation.  We first attempted to
+represent the CSG tree in postfix notation, where each element of the array
+contained either the id of a primitive, or the Boolean operator associated.
+This method had the limitation of requiring all the elements of the tree to
+be processed to evaluate the compound object. When evaluating a CSG tree, the
+structure of the tree should be taken into consideration to skip subtrees
+that will not influence the outcome of the Boolean evaluation. For example,
+when intersecting two objects, if the left subtree has value false, then there
+is no need to process the right subtree, because the result will be f alse,
+following the Boolean algebra rules. Using a postfix tree representation does
+not allows us to easily implement this sort of optimizations.
+
+We solve the early out problem by converting the CSG tree to an array form
+which is traversed in depth-first order. With this representation, we fit
+each element of the tree in 32 bits length, having a structure that requires
+less memory and that is able to skip unnecessary subtrees. To store each tree
+node in 32 bits, the following convention was adopted: the 3 most significant
+bits representing the operator, and the remaining 29 bits to represent either
+the position of the right child, or for leaf nodes, the id of the primitive.
+The operator zero indicates a leaf node. With this representation, a CSG tree
+can have up to 2^29 nodes and can be used in scenes with 2^29 primitives. These
+limits can be increased by representing each node with more bits and adopting a
+similar convention.
+
+
 
 
 
