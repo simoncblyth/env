@@ -10,6 +10,13 @@ C++
 ====
 
 
+Sampling profilers
+--------------------
+
+* https://hackingcpp.com/cpp/tools/profilers.html
+* https://github.com/jasonrohrer/wallClockProfiler
+
+
 type convertor : eg root TComplex "decays" to real double
 ------------------------------------------------------------
 
