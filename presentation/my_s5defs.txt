@@ -35,7 +35,11 @@
         | body row 4 |            | - blocks. | 
         +------------+------------+-----------+
 
+    .. class:: small
 
+        hash escaping 
+
+        &#35;include "JPMT.h"
 
 
 .. include:: <s5defs.txt>
@@ -65,12 +69,18 @@
 .. role:: strike
     :class: strike
 
+
+
 .. raw:: html
 
     <style type="text/css">
 
         .strike { text-decoration: line-through; }
         .center {text-align: center;}
+        .m20 { font-family: monospace; font-size: 20px; font-weight:bold ;}
+        .m18 { font-family: monospace; font-size: 18px; font-weight:bold ;}
+        .m15 { font-family: monospace; font-size: 15px; font-weight:bold ;}
+        .m10 { font-family: monospace; font-size: 10px; font-weight:bold ;}
 
         span.redbold { color: red; font-weight:bold ; }
         span.bluebold { color: blue; font-weight:bold ; }
@@ -237,6 +247,11 @@
 .. role:: m
 .. role:: y
 .. role:: e
+
+.. role:: m20
+.. role:: m18
+.. role:: m15
+.. role:: m10
 
 
 

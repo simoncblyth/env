@@ -2128,6 +2128,15 @@
     STAMP_probe_gap.png
     GEOM/V0J008/ntds2/ALL0/000/figs/ntds2/mpcap/STAMP_probe_gap.png 1280px_720px
 
+    B_V1J008_N1_OIPF_PMT_20inch_veto:0:1000_target_WPMT.png 
+    GEOM/V1J008/ntds2/ALL1/000/figs/ntds2/pvcap/B_V1J008_N1_OIPF_PMT_20inch_veto:0:1000_target_WPMT.png 1280px_720px
+
+    STAMP_tail_gap_apparent.png 
+    GEOM/V0J008/ntds2/ALL0/000/figs/ntds2/mpcap/STAMP_tail_gap_apparent.png 1280px_720px
+
+    STAMP_ProcessHits_56us_Hama_0_0.png
+    GEOM/V0J008/ntds2/ALL0/000/figs/ntds2/mpcap/STAMP_ProcessHits_56us_Hama_0_0.png 1280px_720px 
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
