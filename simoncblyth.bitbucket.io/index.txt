@@ -214,11 +214,17 @@ Opticks Presentations
 ~~~~~~~~
 
 
+`env/presentation/opticks_20230525_MR180_timestamp_analysis.html <env/presentation/opticks_20230525_MR180_timestamp_analysis.html>`_
+
+    Opticks + JUNO : MR180 Timestamp Analysis (25 May 2023)
+
+
+
 `env/presentation/opticks_20230508_chep.html <env/presentation/opticks_20230508_chep.html>`_
 
     Opticks : GPU Optical Photon Simulation via NVIDIA® OptiX™ 7, NVIDIA® CUDA™ (8 May 2023)
 
-    To be presented by Dr Tao Lin, IHEP, CAS
+    Presented by Dr Tao Lin, IHEP, CAS
 
 
 `env/presentation/opticks_20230428_More_junoPMTOpticalModel_issues_and_Validation_of_CustomG4OpBoundaryProcess_fix.html <env/presentation/opticks_20230428_More_junoPMTOpticalModel_issues_and_Validation_of_CustomG4OpBoundaryProcess_fix.html>`_
