@@ -10,6 +10,27 @@ CHEP 2023 : May 8-12
 * https://www.jlab.org/conference/CHEP2023
 * https://simoncblyth.bitbucket.io/
 
+
+Proceedings
+--------------
+
+* https://indico.jlab.org/event/459/page/356-proceedings
+
+CHEP 2023 will be publishing a peer-reviewed proceedings following the
+conference. All presenters will be invited to contribute. Paper length is
+flexible but, following prior guidelines, something on the order of 8--12 pages
+(including figures) is average.
+
+Deadlines for that stage will be finalized soon.  Presenters can anticipate a
+nominal July 2023 timeframe for submission.
+
+Additional details will be posted here when they are available.  Deadlines will
+be publicized shortly.
+
+* https://indico.jlab.org/event/459/attachments/9030/13097/epj-woc-latex.zip
+
+
+
 Ideas for slides
 -------------------
 

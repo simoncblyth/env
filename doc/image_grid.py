@@ -6,6 +6,7 @@ image_grid.py
 For usage example see:
 
 * ~/env/presentation/image_grid.sh
+* ~/opticks/CSGOptiX/image_grid.sh 
 
 
 """
@@ -51,6 +52,8 @@ class IMG(object):
         :param rows: number of rows
         :param cols: number of cols
         :return gridspec: np.object array of shape (rows, cols) containing IMG instances
+
+        Default annotation is the enumeration number.
         """
         num = rows*cols 
         gridspec = np.zeros([rows, cols], dtype=np.object )   
@@ -64,7 +67,7 @@ class IMG(object):
         return gridspec
 
     @classmethod 
-    def Grid(cls, grid):
+    def Grid(cls, gridspec):
         """
 
              +---+---+---+---+
@@ -81,10 +84,10 @@ class IMG(object):
                   columns 
 
         """
-        assert len(grid.shape) == 2
-        rows, cols = grid.shape
+        assert len(gridspec.shape) == 2
+        rows, cols = gridspec.shape
 
-        x_imgs = grid[np.where(grid != 0)]
+        x_imgs = gridspec[np.where(gridspec != 0)]
         assert len(x_imgs) > 0  
         first_img = x_imgs[0] 
 
@@ -97,7 +100,7 @@ class IMG(object):
         
         for r in range(rows):
             for c in range(cols):
-                obj = grid[r,c]
+                obj = gridspec[r,c]
                 if obj == 0: continue
                 if obj.img is None: continue
                 if annotate and not obj.anno is None:
@@ -136,6 +139,11 @@ class IMG(object):
         return comp
 
     def __init__(self, path=None, anno=None, img=None):
+        """
+        :param path:
+        :param anno:
+        :param img:
+        """
         self.path = path
         self.anno = anno
 
@@ -161,7 +169,17 @@ class IMG(object):
     def ParseArgs(cls, args):
         """
         :param args: sys.argv[1:]
-        :return: 
+        :return all_paths, all_anno:
+
+        First argument is path to a file containing 
+        multiple absolute paths. 
+
+        Second argument if present is path to a file
+        containin annotation strings, if this file exists
+        its length must match the number of paths. 
+
+        The returned all_anno list is either the same length
+        as all_paths or its empty. 
         """
         if len(args) > 0:
             pathlist = args[0]

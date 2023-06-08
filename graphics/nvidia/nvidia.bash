@@ -10,6 +10,28 @@ NVIDIA
 ========
 
 
+Cluster Management
+---------------------
+
+* https://github.com/NVIDIA/deepops
+* https://www.nvidia.com/en-us/data-center/bright-cluster-manager/
+* https://www.run.ai/guides/slurm/understanding-slurm-gpu-management
+
+
+nvidia-smi
+------------
+
+* https://stackoverflow.com/questions/8223811/a-top-like-utility-for-monitoring-cuda-activity-on-a-gpu
+
+::
+
+    nvidia-smi -l 1        # every second
+    nvidia-smi -lms 500    # every half second  
+    watch -n0.2 nvidia-smi # every 0.2 second, but forking process every time : probably unwise
+
+
+
+
 nvidia-visual-profiler 
 ----------------------
 

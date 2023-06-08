@@ -17,8 +17,8 @@
     ## to disable the title background image simply change the 
     ## below title of "slide0" to "slide0_D"
     ##
-    ##slide0
-    slide0_D
+    ##slide0_D
+    slide0
     ../graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -2152,6 +2152,36 @@
     PHO_N_Release_Count_10.png
     GEOM/R0J008/ntds2/ALL0/000/figs/ntds2/mpcap/PHO_N_Release_Count_10.png 1280px_720px
 
+    cxr_min__eye_1,0,5__zoom_2__tmin_0.5__NNVT:0:1000_demo.jpg
+    GEOM/V1J009/CSGOptiXRdrTest/cxr_min__eye_1,0,5__zoom_2__tmin_0.5__NNVT:0:1000_demo.jpg 1280px_720px
+
+    cxr_overview_emm_t0_elv_t_moi__ALL_with-debug-disable-xj.jpg
+    GEOM/V1J009/CSGOptiXRenderTest/CVD1/70000/ALL/cxr_overview_emm_t0_elv_t_moi__ALL_with-debug-disable-xj.jpg 1280px_720px
+
+    image_grid_elv_scan.jpg
+    GEOM/V1J009/CSGOptiXRenderTest/CVD1/70000/sWaterTube/scan-elv/image_grid_elv_scan.jpg 1280px_720px
+
+    cxr_view_emm_t0_elv_t142_eye_-1,-1,-1,1__zoom_1__tmin_0.4__sWaterTube_skip_sBottomRock.jpg
+    GEOM/V1J009/CSGOptiXRenderTest/CVD1/70000/sWaterTube/scan-elv/cxr_view_emm_t0_elv_t142_eye_-1,-1,-1,1__zoom_1__tmin_0.4__sWaterTube_skip_sBottomRock.jpg 1280px_720px 
+
+    scan_emm_jpg_select.txt_coarse.jpg 
+    GEOM/V1J009/CSGOptiXRenderTest/CVD1/70000/ALL/scan-emm/scan_emm_jpg_select.txt_coarse.jpg 1280px_720px
+
+    cxr_min__eye_-10,0,0__zoom_1__tmin_0.1__sChimneyAcrylic_altview.jpg
+    GEOM/V1J009/CSGOptiXRdrTest/cxr_min__eye_-10,0,0__zoom_1__tmin_0.1__sChimneyAcrylic_altview.jpg 1280px_720px
+
+    cxr_min__eye_-30,0,5__zoom_1__tmin_25__sChimneyAcrylic_tmin_cutaway.jpg
+    GEOM/V1J009/CSGOptiXRdrTest/cxr_min__eye_-30,0,5__zoom_1__tmin_25__sChimneyAcrylic_tmin_cutaway.jpg 1280px_720px 
+
+    cxr_min__eye_-30,0,5__zoom_1__tmin_25__sChimneyAcrylic_skip_target_acrylic.jpg 
+    GEOM/V1J009/CSGOptiXRdrTest/cxr_min__eye_-30,0,5__zoom_1__tmin_25__sChimneyAcrylic_skip_target_acrylic.jpg 1280px_720px 
+
+    cxr_min__eye_-10,0,-30__zoom_0.5__tmin_0.1__sChimneyAcrylic_photon_eye_view.jpg
+    GEOM/V1J009/CSGOptiXRdrTest/cxr_min__eye_-10,0,-30__zoom_0.5__tmin_0.1__sChimneyAcrylic_photon_eye_view.jpg 1280px_720px
+
+    cxr_min__eye_-10,0,0__zoom_0.5__tmin_0.1__sChimneyAcrylic_explain_the_grey.jpg
+    GEOM/V1J009/CSGOptiXRdrTest/cxr_min__eye_-10,0,0__zoom_0.5__tmin_0.1__sChimneyAcrylic_explain_the_grey.jpg 1280px_720px
+   
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

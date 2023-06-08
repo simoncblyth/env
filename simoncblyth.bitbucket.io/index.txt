@@ -214,6 +214,13 @@ Opticks Presentations
 ~~~~~~~~
 
 
+`env/presentation/opticks_20230611_qingdao_sdu_workshop.html <env/presentation/opticks_20230611_qingdao_sdu_workshop.html>`_
+
+    Opticks : GPU Optical Photon Simulation via NVIDIA® OptiX™ 7, NVIDIA® CUDA™ (11 June 2023)
+
+    Workshop on HEP Computing and Software, SDU, Qingdao Campus, Remote Presentation
+
+
 `env/presentation/opticks_20230525_MR180_timestamp_analysis.html <env/presentation/opticks_20230525_MR180_timestamp_analysis.html>`_
 
     Opticks + JUNO : MR180 Timestamp Analysis (25 May 2023)

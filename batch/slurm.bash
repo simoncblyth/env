@@ -13,6 +13,14 @@ slurm-usage(){ cat << EOU
 * https://www.nersc.gov/systems/perlmutter/
 
 
+
+* https://www.run.ai/guides/slurm/understanding-slurm-gpu-management
+
+
+
+
+
+
 EOU
 }
 slurm-get(){
