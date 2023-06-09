@@ -7,6 +7,14 @@
 
 .. include:: my_s5defs.txt
 
+
+.. comment 
+  
+    Possible things to add
+
+    * describe raytrace rendering 
+    * describe validation techniques : aligned, statistical comparison  
+
 .. comment
 
     Dear Simon,
@@ -21,15 +29,6 @@
 
     Best regards,
     Xingtao
-
-
-.. comment
-
-    TO ADD
-
-    * recent renders both cxr_overview and cxr_view 
-    * perf scanning 
-    * some cxr_min frame targetting interesting views
 
 
 .. comment
@@ -123,30 +122,31 @@ Outline
 
     * Optical Photon Simulation : Context and Problem
 
-      * p2: Jiangmen Underground Neutrino Observatory (JUNO)
-      * p3: JUNO Optical Photon Simulation Problem...
-      * p4: Optical Photon Simulation ≈ Ray Traced Image Rendering
+      * Jiangmen Underground Neutrino Observatory (JUNO)
+      * JUNO Optical Photon Simulation Problem...
+      * Optical Photon Simulation ≈ Ray Traced Image Rendering
 
     * NVIDIA Tools to create Solution   
 
-      * p5,6: NVIDIA Ada Lovelave : 3rd Generation RTX, RT Cores in Data-Center
-      * p7: NVIDIA OptiX Ray Tracing Engine
-      * p8: NVIDIA OptiX 7 : Entirely new thin API
+      * NVIDIA Ada Lovelave : 3rd Generation RTX, RT Cores in Data-Center
+      * NVIDIA OptiX Ray Tracing Engine
+      * NVIDIA OptiX 7 : Entirely new thin API, BVH Acceleration Structure
 
     * Opticks : Introduction + Full Re-implementation
 
-      * p9,10: Geant4 + Opticks Hybrid Workflow : External Optical Photon Simulation
-      * p11-12: Full re-implementation for NVIDIA OptiX 7 API
-      * p13-14: *CSGFoundry* Geometry Model, Translation to GPU 
-      * p16: QUDARap : CUDA Optical Simulation Implementation
+      * Geant4 + Opticks Hybrid Workflow : External Optical Photon Simulation
+      * Full re-implementation for NVIDIA OptiX 7 API
+      * *CSGFoundry* Geometry Model, Translation to GPU 
+      * Ray trace render performance scanning 
+      * n-Ary CSG "List-Nodes"
+      * QUDARap : CUDA Optical Simulation Implementation
+      * Validation 
 
     * Opticks : New Features 
 
-      * p17:n-Ary CSG "List-Nodes"
-      * p18,19: Specialized n-ary CSG intersect algs : "contiguous" and "dis-contiguous"
-      * p20: Multi-Layer Thin Film (A,R,T) Calc using TMM (Custom4 Package)
+      * Multi-Layer Thin Film (A,R,T) Calc using TMM (Custom4 Package)
 
-    * p21: Summary + Links 
+    * Summary + Links 
 
 .. raw:: html
 
@@ -749,7 +749,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
     .. class:: small
 
-        * array-based -> simple serialization + upload
+        * :b:`array-based -> simple serialization + upload`
         * entire geometry in 4 GPU allocations 
         * factorized using subtree digests 
 
@@ -767,21 +767,19 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
     **Opticks CSGFoundry Geometry Model** (index references)
 
-    +---------------+--------------------------------------------------------------------+-------------------------+
-    | struct        | Notes                                                              |  Geant4 Equivalent      |
-    +===============+====================================================================+=========================+
-    | *CSGFoundry*  | vectors of the below, easily serialized + uploaded                 | None                    |
-    +---------------+--------------------------------------------------------------------+-------------------------+
-    | *qat4*        | 4x4 transform refs *CSGSolid* using "spare" 4th column             |                         |
-    +---------------+--------------------------------------------------------------------+-------------------------+
-    | *CSGSolid*    | refs sequence of *CSGPrim*                                         | Groups of nearby PV, LV | 
-    |               +--------------------------------------------------------------------+ + Remainder             |
-    |               | eg JUNO *CSGSolid* numPrim [3089, 5, 11, 14, 6, 1, 1, 1, 1, 130]   |                         |
-    +---------------+--------------------------------------------------------------------+-------------------------+
-    | *CSGPrim*     | bbox, refs sequence of *CSGNode*, root of CSG Tree of nodes        | root *G4VSolid*         |
-    +---------------+--------------------------------------------------------------------+-------------------------+
-    | *CSGNode*     | CSG node parameters (JUNO: ~23k *CSGNode*)                         | node *G4VSolid*         |
-    +---------------+--------------------------------------------------------------------+-------------------------+
+    +---------------+----------------------------------------------------------------------------+----------------------------+
+    | struct        | Notes                                                                      |  Geant4 Equivalent         |
+    +===============+============================================================================+============================+
+    | *CSGFoundry*  | vectors of the below, easily serialized + uploaded + :r:`used on GPU`      | None                       |
+    +---------------+----------------------------------------------------------------------------+----------------------------+
+    | *qat4*        | 4x4 transform refs *CSGSolid* using "spare" 4th column (:b:`becomes IAS`)  | Transforms ref from PV     |
+    +---------------+----------------------------------------------------------------------------+----------------------------+
+    | *CSGSolid*    | refs sequence of *CSGPrim*                                                 | Grouped Vols + Remainder   | 
+    +---------------+----------------------------------------------------------------------------+----------------------------+
+    | *CSGPrim*     | bbox, refs sequence of *CSGNode*, root of CSG Tree of nodes                | root *G4VSolid*            |
+    +---------------+----------------------------------------------------------------------------+----------------------------+
+    | *CSGNode*     | CSG node parameters (JUNO: ~23k *CSGNode*)                                 | node *G4VSolid*            |
+    +---------------+----------------------------------------------------------------------------+----------------------------+
 
     **NVIDIA OptiX 7 Geometry Acceleration Structures (JUNO: 1 IAS + 10 GAS, 2-level hierarchy)**
 
@@ -790,6 +788,11 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
     +-----+----------------------------------+-------------------------------------------------------------------------+ 
     | GAS | Geometry Acceleration Structures | JUNO: 10 GAS created from 10 *CSGSolid* (which refs *CSGPrim,CSGNode* ) |
     +-----+----------------------------------+-------------------------------------------------------------------------+ 
+
+.. class:: small
+
+    :r:`JUNO : Geant4 ~300k volumes "factorized" into 1 OptiX IAS referencing ~10 GAS`
+
 
 .. s5_talk::
 
@@ -843,21 +846,43 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 ``Raytrace render view from inside JUNO Water Buffer``
 
+.. s5_talk::
+
+   View inside 
+
+
 :i:`cxr_min__eye_-30,0,5__zoom_1__tmin_25__sChimneyAcrylic_tmin_cutaway.jpg`
 ------------------------------------------------------------------------------
 
 ``ray TMIN cuts away sphere`` 
+
+.. s5_talk::
+
+   TMIN
+
+
+
 
 :i:`cxr_min__eye_-30,0,5__zoom_1__tmin_25__sChimneyAcrylic_skip_target_acrylic.jpg`
 ------------------------------------------------------------------------------------
 
 ``ELV=t94,95 ./cxr_min.sh  ## skip sTarget sAcrylic``
 
+.. s5_talk::
+
+   Skip acrylic sphere for visibility
+
 
 :i:`cxr_min__eye_-10,0,-30__zoom_0.5__tmin_0.1__sChimneyAcrylic_photon_eye_view.jpg`
 --------------------------------------------------------------------------------------
 
 ``ELV=t94,95 ./cxr_min.sh ## skip sTarget sAcrylic : upwards view`` 
+
+.. s5_talk::
+
+   Upwards
+
+
 
 
 :i:`cxr_overview_emm_image_grid_overview`
@@ -871,15 +896,31 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
    Ray trace rendering performance provides natural way to look for issues
 
 
+.. comment
 
-:i:`scan_emm_jpg_select.txt_coarse.jpg`
------------------------------------------
+    :i:`scan_emm_jpg_select.txt_coarse.jpg`
+    -----------------------------------------
 
 :i:`cxr_view_emm_t0_elv_t142_eye_-1,-1,-1,1__zoom_1__tmin_0.4__sWaterTube_skip_sBottomRock.jpg`
 -------------------------------------------------------------------------------------------------
 
+``Render inside JUNO water buffer : PMTs, chimney, support sticks`` 
+
+
+.. s5_talk::
+
+   Inside 
+
+
 :i:`image_grid_elv_scan.jpg`
 ------------------------------
+
+``Spot the differences : from volume exclusions``
+
+.. s5_talk::
+
+   Checking performance with exclusions, scanning for slow geometry
+
 
 .. comment
 
@@ -934,104 +975,19 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. class:: small
 
-    :r:`Dynamic geometry : excluding volumes of each of 146 solids` 
+    :r:`Dynamic geometry : excluding volumes of each of 146 solids (after excluding slowest: solidXJfixture)` 
 
     * time range : 0.0077->0.0102 s (~ +-20% )  
     * reproducibility ~+-10%
-    * (after excluding worst offender : solidXJfixture) 
 
+    :b:`Small time range suggests no major geometry performance issues remain, after excluding slowest`
 
-
-
-:i:`cxr_min__eye_1,0,5__zoom_2__tmin_0.5__NNVT:0:1000_demo.jpg`
------------------------------------------------------------------
-
-``ray traced renders : exact same geometry "seen" by simulation``
-
-
-
-
-:i:`B_V1J008_N1_OIPF_NNVT:0:1000_gridxy.png`
-----------------------------------------------
-
-
-::
-
-     export OPTICKS_INPUT_PHOTON=GridXY_X1000_Z1000_40k_f8.npy
-     export OPTICKS_INPUT_PHOTON_FRAME=NNVT:0:1000
-
-     MODE=3 EDL=1 N=0 EYE=500,0,2300 CHECK=not_first ~/j/ntds/ntds.sh ana
-
-
-.. raw:: html
-
-    <p style="margin-bottom:110mm;" />
-    
-
-::
-
-    Photon step points from grid of input photons target NNVT:0:1000 (POM:1)
+    * :r:`solids with deep CSG trees (eg solidXJfixture) can cause >2x slow downs`  
 
 
 .. s5_talk::
 
-    Can distinguish NNVT from HAMA by the size of ring inside 
-
-
-
-
-:small:`QUDARap : CUDA Optical Simulation Implementation`
-------------------------------------------------------------
-
-.. sidebar:: :small:`CPU Pre-Init of GPU Counterpart`
-
-    .. class:: small
-
-        hh
-           instanciate device .h **on host**, upload constituents (eg texture buffers),  
-           set constituent device pointers into .h instance, upload .h instance to GPU  
-        h
-           simple device header, testable on CPU 
-            
-        --> :r:`device side hits ground running` 
-
-
-.. class:: small
-
-    +-------------------------------+-----------------+-----------------+
-    |                               | CPU             | GPU header      |
-    +===============================+=================+=================+
-    | context steering              | QSim.hh         |  qsim.h         |  
-    +-------------------------------+-----------------+-----------------+
-    | curandState setup             | QRng.hh         |  qrng.h         |
-    +-------------------------------+-----------------+-----------------+
-    | property interpolation        | QProp.hh        |  qprop.h        |
-    +-------------------------------+-----------------+-----------------+
-    | event handling                | QEvent.hh       |  qevent.h       |
-    +-------------------------------+-----------------+-----------------+
-    | Cerenkov generation           | QCerenkov.hh    |  qcerenkov.h    |
-    +-------------------------------+-----------------+-----------------+
-    | Scintillation generation      | QScint.hh       |  qscint.h       |
-    +-------------------------------+-----------------+-----------------+
-    | texture handling              | QTex.hh         |                 |
-    +-------------------------------+-----------------+-----------------+
-    
-    Aims of counterpart code organization:
-
-    * :redbold:`facilitate fine-grained modular simulation testing` 
-    * bulk of GPU code in simple to test headers 
-
-      * many can be tested on CPU
-
-    * *QUDARap* does not depend on OptiX -> more flexible -> simpler testing    
-
-
-
-.. s5_talk::
-
-    CUDA implementation of optical simulation  
-
-    [Notes: mainly of intersect for people writing CUDA code, a useful pattern] 
+    Scan results table
 
 
 :small:`n-ary CSG Compound "List-Nodes" => Much Smaller CSG trees`
@@ -1047,31 +1003,31 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. class:: small
 
-   * list-node references sub-nodes by **subNum** **subOffset**
-
-   CSG_CONTIGUOUS Union
-      user guarantees contiguous 
-       * like G4MultiUnion of prim only
-
-   CSG_DISCONTIGUOUS Union
-      user guarantees no overlaps 
-       * => simple, low resource intersect 
-       * eg "union of holes" to be CSG subtracted  
-
-   CSG_OVERLAP Intersection
-      user guarantees overlap
-       * eg general G4Sphere: inner radius, thetacut, phicut
 
    :r:`Communicate shape more precisely`
        :r:`=> better suited intersect alg => less resources => faster` 
 
+   Generalized Opticks CSG into three levels : tree < node < leaf 
 
-   Generalized Opticks CSG into three levels : tree < node < leaf (avoids recursion in intersect) 
+   * `csg_intersect_tree.h <https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_tree.h>`_ 
+   * `csg_intersect_node.h <https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_node.h>`_
+   * `csg_intersect_leaf.h <https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_leaf.h>`_
 
-   * `opticks/src/master/CSG/csg_intersect_tree.h <https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_tree.h>`_ 
-     `csg_intersect_node.h <https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_node.h>`_
-     `csg_intersect_leaf.h <https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_leaf.h>`_
+   :b:`Generalizes binary to n-ary CSG trees`
 
+   * list-node references sub-nodes by **subNum** **subOffset**
+
+   CSG_CONTIGUOUS Union
+      user guarantees contiguous, like G4MultiUnion of prim
+
+   CSG_DISCONTIGUOUS Union
+      user guarantees no overlaps, eg "union of holes" to be CSG subtracted : :r:`=> simple, low resource intersect` 
+
+   CSG_OVERLAP Intersection
+      user guarantees overlap, eg general G4Sphere: inner radius, thetacut, phicut
+
+
+   :r:`Promising approach to avoid slowdowns from complex CSG solids`
 
 
 .. s5_talk::
@@ -1193,6 +1149,248 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 
 
+
+
+
+
+
+
+:small:`QUDARap : CUDA Optical Simulation Implementation`
+------------------------------------------------------------
+
+.. sidebar:: :small:`CPU Pre-Init of GPU Counterpart`
+
+    .. class:: small
+
+        hh
+           instanciate device .h **on host**, upload constituents (eg texture buffers),  
+           set constituent device pointers into .h instance, upload .h instance to GPU  
+        h
+           simple device header, testable on CPU 
+            
+        --> :r:`device side hits ground running` 
+
+
+.. class:: small
+
+    **CPU/GPU Counterpart Code Organization for Simulation**
+
+    +-------------------------------+-----------------+-----------------------+
+    |                               | CPU             | GPU                   |
+    +===============================+=================+=======================+
+    | context steering              | QSim.hh         |  qsim.h               |  
+    +-------------------------------+-----------------+-----------------------+
+    | curandState setup             | QRng.hh         |  qrng.h               |
+    +-------------------------------+-----------------+-----------------------+
+    | property interpolation        | QProp.hh        |  qprop.h              |
+    +-------------------------------+-----------------+-----------------------+
+    | event handling                | QEvent.hh       |  qevent.h             |
+    +-------------------------------+-----------------+-----------------------+
+    | Cerenkov generation           | QCerenkov.hh    |  qcerenkov.h          |
+    +-------------------------------+-----------------+-----------------------+
+    | Scintillation generation      | QScint.hh       |  qscint.h             |
+    +-------------------------------+-----------------+-----------------------+
+    | texture handling              | QTex.hh         |  cudaTextureObject_t  |
+    +-------------------------------+-----------------+-----------------------+
+    
+
+    * :r:`facilitate fine-grained modular testing` 
+    * bulk of GPU code in simple to test headers 
+
+      * test most "GPU" code on CPU,  eg using mock curand
+
+    * *QUDARap* does not depend on OptiX -> more flexible -> simpler testing    
+
+
+
+.. s5_talk::
+
+    CUDA implementation of optical simulation  
+
+    [Notes: mainly of intersect for people writing CUDA code, a useful pattern] 
+
+
+
+.. comment
+
+       +---------------------------------------+
+       | **A** (GPU) CSGOptiX/qsim.h           |
+       +=======================================+
+       |  qsim => sctx/sevent/SEvt             |
+       +---------------------------------------+
+
+       +---------------------------------------+
+       | **B** (CPU) U4Recorder                |
+       +=======================================+
+       | G4StepPoint => sctx/sevent/SEvt       |
+       +---------------------------------------+
+
+
+
+
+
+:small:`Validation of Opticks Simulation(A) by Comparison with Geant4 Sim. (B)`
+--------------------------------------------------------------------------------
+
+.. sidebar:: :small:`A+B photon histories => SEvt`
+
+   .. class:: small
+
+      * **A** : CSGOptiX : qsim => SEvt
+      * **B** : U4Recorder : G4StepPoint => SEvt 
+
+      +---------------------------------------+
+      | **Opticks Event** : sysrap/SEvt.hh    |
+      +=======================================+ 
+      | sevent.h sctx.h sphoton.h srec.h ...  |
+      +---------------------------------------+
+      | :r:`serialize to NumPy .npy arrays`   |
+      +---------------------------------------+
+
+      => A-B comparison, matplotlib/pyvista plotting
+
+      +------------+------------+------------------+
+      |  array     | shape      |  notes           |  
+      +============+============+==================+
+      | inphoton   | (n,4,4)    | input photons    |
+      +------------+------------+------------------+
+      | photon     | (n,4,4)    | final photons    |
+      +------------+------------+------------------+
+      | record     | (n,32,4,4) | photon histories |
+      +------------+------------+------------------+
+      | seq        |  (n,2,2)   | uint64 histories |   
+      +------------+------------+------------------+
+      | aux        | (n,32,4,4) | extra point info |       
+      +------------+------------+------------------+
+      | sframe     | (4,4,4)    | target M2W W2M   |
+      +------------+------------+------------------+
+
+      :b:`Record of every point of every photon`
+
+
+.. class:: small 
+
+   **A and B always same photon counts (due to gensteps)** 
+
+   1. direct comparison when simulations are random aligned
+   2. when not aligned : statistical Chi2 history comparison
+
+      * compare history frequencies, Chi2 points to issues
+
+   **Primary Issue : double vs float, also:**
+
+   * geometry bugs : overlaps, coincident faces 
+   * grazing incidence, edge skimmers
+
+   After debugged : :b:`fraction of percent diffs` 
+
+   **Optical Performance : Very dependent on geometry + modelling**
+
+   After avoiding geometry problems : G4Torus, deep CSG trees
+
+   * :r:`have achieved > 1500x Geant4 [1]` 
+   * :b:`removes optical bottlenecks : memory + processing` 
+
+.. class:: tiny 
+
+   [1] Single threaded Geant4 10.4.2, NVIDIA Quadro RTX 8000 (48G), 1st gen RTX, ancient JUNO geom, OptiX 6.5, ancient Opticks 
+    
+
+.. s5_talk::
+
+    Validation, Performance mention
+
+
+:i:`B_V1J008_N1_ip_MOI_Hama:0:1000_yy_frame_close.png`
+----------------------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:130mm;" />
+
+.. class:: small
+
+    ``Green : start position (100k input photons)`` 
+
+    ``Red : end position,  Cyan : other position``
+
+
+.. s5_talk::
+
+    squares indicates the target frame
+
+
+
+:i:`B_V1J008_N1_ip_MOI_Hama:0:1000_b.png`
+-------------------------------------------
+
+.. class:: small
+
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   |emsp| |emsp| |emsp| |emsp| |emsp| 
+   ``cd ~/j/ntds ; N=1 ./ntds.sh ana``  
+
+.. raw:: html
+
+    <p style="margin-bottom:150mm;" />
+
+.. class:: small
+
+   :b:`Geant4/U4Recorder 3D photon points transformed into target frame, viewed in 2D`
+ 
+
+.. s5_talk::
+
+   Fake skipping enables the simulations to be compared 
+
+
+
+:i:`B_V1J008_N1_OIPF_NNVT:0:1000_gridxy.png`
+----------------------------------------------
+
+
+::
+
+     export OPTICKS_INPUT_PHOTON=GridXY_X1000_Z1000_40k_f8.npy
+     export OPTICKS_INPUT_PHOTON_FRAME=NNVT:0:1000
+
+     MODE=3 EDL=1 N=0 EYE=500,0,2300 CHECK=not_first ~/j/ntds/ntds.sh ana
+
+
+.. raw:: html
+
+    <p style="margin-bottom:110mm;" />
+    
+
+::
+
+    Photon step points from grid of input photons target NNVT:0:1000 (POM:1)
+
+
+.. s5_talk::
+
+    Can distinguish NNVT from HAMA by the size of ring inside 
+
+
+
+
+:i:`cxr_min__eye_1,0,5__zoom_2__tmin_0.5__NNVT:0:1000_demo.jpg`
+-----------------------------------------------------------------
+
+``ray traced renders : exact same geometry "seen" by simulation``
+
+
+.. s5_talk::
+
+    Ray trace rendering uses exactly same geometry and intersect code as the simulation 
+
+
+
+
+
 :small:`Multi-Layer Thin Film (A,R,T) Calc using TMM Calc (Custom4 Package)`
 ------------------------------------------------------------------------------
 
@@ -1281,8 +1479,9 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 .. class:: normal
 
   * NVIDIA Ray Trace Performance continues rapid progress (2x each generation) 
-  * Increasing availability of HW accelerated ray tracing
-  * NEXT: Opticks production testing, optimization  
+  * **any simulation limited by optical photons can benefit**
+  * more photon limited -> more overall speedup (99% -> 100x)
+
 
 .. table::
     :align: center
