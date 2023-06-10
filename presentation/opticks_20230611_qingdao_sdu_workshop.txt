@@ -1,9 +1,11 @@
 .. meta::
    :title: Opticks SDU Qingdao Workshop 
    :description: (2023 June) JUNO, OptiX, Opticks
-   :note: 20-25 min 
+   :note0: 20-25 min 
+   :note1: Jun 11, 2023, 4:40 PM (Qingdao CST) +7 
+   :note2: Jun 11, 2023, 9:40 AM (London BST) 
    :url0: https://indico.ihep.ac.cn/event/19620/timetable/#all.detailed
-   :chep: Monday, May 8 12:15 (?17:15 BST)
+   :url1: https://indico.ihep.ac.cn/event/19620/contributions/135082/
 
 .. include:: my_s5defs.txt
 
@@ -71,7 +73,7 @@
 
 
 
-:i:`Opticks : GPU Optical Photon Simulation using NVIDIA OptiX 7 and NVIDIA CUDA` 
+:i:`Opticks : GPU Optical Photon Simulation via NVIDIA OptiX 7 and NVIDIA CUDA` 
 ========================================================================================
 
 .. raw:: html
@@ -154,15 +156,23 @@ Outline
 
 
 .. s5_talk::
-
-    The focus of this talk is on the full re-implementation of Opticks
-    to work with the all new NVIDIA OptiX 7 API.
     
+    This aim of this talk is to explain how GPU ray tracing is integrated 
+    with Geant4 
+
+
 
 :i:`JUNO_Intro_2`
 ------------------
 
 .. s5_talk::
+
+    I guess JUNO needs no introduction here. 
+
+    One thing to note however is the scale : JUNO will soon become the worlds 
+    largest liquid scintillator detector with a 35m diameter sphere of scintillator. 
+
+.. comment 
 
     JUNO will soon start data taking, it will be the worlds largest liquid scintillator detector,
     with a 20 kiloton spherical volume of scintillator instrumented with  
@@ -193,11 +203,14 @@ Outline
 
 .. s5_talk::
 
+   That scale poses problems for JUNO simulation. 
+
    A muon travelling across the JUNO scintillator yields tens of millions 
-   of optical photons, presenting memory and time challenges for simulation.
+   of optical photons, presenting memory and time challenges. 
 
    Most of the time is taken finding intersections between photons and geometry 
    Simulation is not alone in this bottleneck.
+
 
 .. comment
 
@@ -366,15 +379,13 @@ Outline
 .. s5_talk::
 
     Hardware Accelerated Ray Tracing is becoming much more commonly available, 
-    with a range of data center GPUs with RT cores. 
-
-    The current boom in interest in AI is only going to increase this trend. 
+    with NVIDIA offering a range of data center GPUs with RT cores. 
 
     [Notes: <20s slide, just mention above comments]
 
-
 .. comment
 
+    The current boom in interest in AI is only going to increase this trend. 
 
 
 :small:`NVIDIA® OptiX™ Ray Tracing Engine -- Accessible GPU Ray Tracing`
@@ -488,11 +499,8 @@ Outline
 
 
 
-
-
 ``Spatial Index Acceleration Structure``
 ---------------------------------------------------
-
 
 .. raw:: html
 
@@ -517,8 +525,8 @@ Outline
    Traversing the tree of bounds allows to minimize tests
    needed to find an intersect.
 
-   With some geometry it is possible for the traversal 
-   to be done on the dedicated RT cores.
+   Much of the acceleration structure traversal 
+   is done in the dedicated RT cores.
 
 
 
@@ -589,7 +597,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
     .. class:: small
 
-         **Code Organized by Dependency Only**
+         **Code Organized by Dependency (not "Topic")**
      
          * :r:`maximizes: utility, re-use, ease of testing` 
          * => "GPU" code usable+tested on CPU 
@@ -632,10 +640,12 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   Strict by-dependency rather than by-topic package organization 
-   makes code more useful, because more of it has less dependencies.  
-   For example, much of Opticks code can be tested without a GPU. 
-   
+   Opticks code is split into multiple packages by-dependency, not by-topic
+   This means that more of the code has less dependencies, making 
+   it more useful and easier to test.   
+
+   Using mocking,  most of the "GPU" code can be tested on CPU.  
+
    [Notes: <30s slide, mainly for offline consumption, no need to read out]
 
 
@@ -735,7 +745,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 .. s5_talk::
 
    OptiX uses the terms : IAS and GAS for instance and geometry acceleratiom structures.
-   The other APIs use terms: TLAS and BLAS for top level and bottom level acceleration structures
+   Other APIs use terms: TLAS and BLAS for top level and bottom level acceleration structures
    This is because OptiX supports multiple instance levels. 
    But the simple two level is faster as that can be done on the RT cores.
 
@@ -796,9 +806,10 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   The tables illustrate three geometry models.
-   The CSGFoundry model was designed to enable translation
-   from Geant4 geometry to OptiX Acceleration Structures.  
+   The tables illustrates three geometry models.
+
+   The CSGFoundry geometry model in the middle was designed 
+   to enable translation between the Geant4 and OptiX models. 
 
       
 
@@ -834,8 +845,8 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 .. s5_talk::
 
    Here is a ray trace render of JUNO using OptiX 7 
-   Note that there are no triangles here, this is a purely analytic ray trace with 
-   the geometry that the simulation uses.
+   There are no triangles here, this is a purely analytic ray trace with 
+   the exact same geometry that the simulation uses.
 
    [Notes: ~10s slide, just the comment] 
 
@@ -848,7 +859,8 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   View inside 
+   Here is a view from inside the JUNO Water Buffer showing the PMTs
+   pointing down at the acrylic sphere that contains the scintillator. 
 
 
 :i:`cxr_min__eye_-30,0,5__zoom_1__tmin_25__sChimneyAcrylic_tmin_cutaway.jpg`
@@ -858,7 +870,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   TMIN
+   Unlike with rasterization clipping, setting a ray tracing TMIN cuts away a sphere. 
 
 
 
@@ -870,7 +882,8 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   Skip acrylic sphere for visibility
+   Skipping the acrylic sphere and scintillator target allows to see more of the PMTs
+   
 
 
 :i:`cxr_min__eye_-10,0,-30__zoom_0.5__tmin_0.1__sChimneyAcrylic_photon_eye_view.jpg`
@@ -880,9 +893,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   Upwards
-
-
+   Here is a photon eye view from inside the scintillator, looking upwards towards the Chimney. 
 
 
 :i:`cxr_overview_emm_image_grid_overview`
@@ -891,9 +902,11 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 ``Comparison of ray traced render times of different geometry`` 
   ``simple way to find issues, eg over complex CSG, overlarge BBox`` 
 
+
 .. s5_talk::
 
-   Ray trace rendering performance provides natural way to look for issues
+   Comparisons of ray trace rendering times provides simple way to look 
+   for performance issues
 
 
 .. comment
@@ -909,7 +922,8 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   Inside 
+   Acceleration structure creation is a black box, so have to adopt an experimental 
+   approach to finding the best geometry modelling to use.   
 
 
 :i:`image_grid_elv_scan.jpg`
@@ -919,7 +933,10 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   Checking performance with exclusions, scanning for slow geometry
+   If you look closely at the renders you can see differences 
+   from the exclusion of single volume types. Doing this for 
+   all volume types allows to sort the volumes by their 
+   impact on the performance. 
 
 
 .. comment
@@ -987,7 +1004,15 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-    Scan results table
+    You might think that the geometry without any exclusions would be the slowest, but 
+    that is not the case. Varying the geometry changes the details of the acceleration structure. 
+    Here the time range from fastest to slowest is rather small, suggesting there are 
+    no major geometry performance problems left. 
+
+    This is only the case after I excluded some problematic geometry. 
+ 
+ 
+
 
 
 :small:`n-ary CSG Compound "List-Nodes" => Much Smaller CSG trees`
@@ -1032,9 +1057,10 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   Generalize Opticks CSG beyond binary trees, in order to improve performance
-   for complex shapes. 
-
+   Complex solids like this one with deep CSG trees can cause 
+   large slowdowns.  In an attempt to reduce the performance degradation 
+   I have generalize Opticks CSG to support list nodes in order to 
+   reduce tree size and avoid large tree overheads. 
 
 
 .. comment
@@ -1205,10 +1231,11 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-    CUDA implementation of optical simulation  
+    Of course in addition to geometry intersections the simulation also 
+    needs the optical physics. The QUDARap package is a pure CUDA port 
+    of the Geant4 optical simulation, with no OptiX dependency. 
 
     [Notes: mainly of intersect for people writing CUDA code, a useful pattern] 
-
 
 
 .. comment
@@ -1298,7 +1325,11 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-    Validation, Performance mention
+    The Opticks simulation is validated by comparison with the Geant4 simulation. 
+
+    Full details of the optical photon propagations from both simulations 
+    are collected into Opticks Events and persisted to NumPy arrays. 
+    Allowing NumPy analysis to compare the photon propagations. 
 
 
 :i:`B_V1J008_N1_ip_MOI_Hama:0:1000_yy_frame_close.png`
@@ -1317,8 +1348,8 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-    squares indicates the target frame
-
+    3D pyvista view of photon points here from input photons shown in green. 
+    The squares indicates the target frame.
 
 
 :i:`B_V1J008_N1_ip_MOI_Hama:0:1000_b.png`
@@ -1344,7 +1375,8 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   Fake skipping enables the simulations to be compared 
+   This is a 2D view of the target frame, showing intersection positions on the
+   PMT mask and inside the PMT. 
 
 
 
@@ -1372,9 +1404,9 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-    Can distinguish NNVT from HAMA by the size of ring inside 
-
-
+    This is a 3D pyvista view of photon points from a grid of input photons. 
+    Looking closely you can distinguish the type of PMT 
+    by the size of ring inside. 
 
 
 :i:`cxr_min__eye_1,0,5__zoom_2__tmin_0.5__NNVT:0:1000_demo.jpg`
@@ -1385,8 +1417,8 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-    Ray trace rendering uses exactly same geometry and intersect code as the simulation 
-
+    This is a ray trace render targetting the same group of PMTs. 
+    You can see the same pattern of PMTs from the ray trace and from the simulation. 
 
 
 
@@ -1442,9 +1474,10 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   The Custom4 package enables a substantial simplification in JUNOs PMT Optical Model, 
-   by customizing the Geant4 boundary process to inject just required change to A,R,T
-   needed by the thin layer description of PMT anti-reflection coating and photocathode. 
+   This slide summarizes recent work that enables the JUNO PMT geometry 
+   to be simplified and also enables the same PMT geometry to be used 
+   for the Geant4 and Opticks simulations. 
+
 
 
 
@@ -1479,7 +1512,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 .. class:: normal
 
   * NVIDIA Ray Trace Performance continues rapid progress (2x each generation) 
-  * **any simulation limited by optical photons can benefit**
+  * **any simulation limited by optical photons can benefit from Opticks**
   * more photon limited -> more overall speedup (99% -> 100x)
 
 
@@ -1500,9 +1533,13 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-    Summary is that : Opticks provides state-of-the-art GPU ray tracing integrated with Geant4 and that 
-    there has been substantial progress with the migration to OptiX 7, 
-    which is essential to keep up with the state-of-the-art.
+    Opticks brings state-of-the-art GPU ray tracing performance to optical photon 
+    simulations. 
+
+    The detailed validations needed when adopting a new simulation has a 
+    hidden benefit in that detailed comparisons reveal problems with both 
+    simulations. Adopting Opticks means you will 
+    improve your CPU simulation whilst also giving you a GPU simulation.  
  
     Links to get you started with using Opticks are listed here.
 
