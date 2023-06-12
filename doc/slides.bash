@@ -25,8 +25,6 @@ Pixel dimensions::
     Cropped  : 2560x1382    # 180 pixels trimmed, more at top than bottom 
 
 
-
-
 Simplify talk interleaving with p2.sh
 ---------------------------------------
 
@@ -60,7 +58,8 @@ How to interleave presentation slides with s5_talk notes
    with iname temporarily with _TALK appended that will get  
    exactly twice the number of pages compared to the un-annotated slides
 
-   * TODO: avoid the need to temporarily change the iname 
+   * WIP: avoid the need to temporarily change the iname 
+   * MAYBE: slides-get-talk-- DOES THIS ALREADY  
 
 5. to convert the PDF to a two-up form for looking at while 
    giving the presentation.

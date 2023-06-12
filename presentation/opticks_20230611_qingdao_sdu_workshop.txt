@@ -886,6 +886,12 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
    
 
 
+:i:`cxr_min__eye_-10,0,0__zoom_0.5__tmin_0.1__sChimneyAcrylic_increased_TMAX.jpg`
+-----------------------------------------------------------------------------------
+
+`Increase TMAX to avoid cutoff`
+
+
 :i:`cxr_min__eye_-10,0,-30__zoom_0.5__tmin_0.1__sChimneyAcrylic_photon_eye_view.jpg`
 --------------------------------------------------------------------------------------
 
