@@ -2184,7 +2184,10 @@
 
     cxr_min__eye_-10,0,0__zoom_0.5__tmin_0.1__sChimneyAcrylic_increased_TMAX.jpg
     GEOM/V1J009/CSGOptiXRdrTest/cxr_min__eye_-10,0,0__zoom_0.5__tmin_0.1__sChimneyAcrylic_increased_TMAX.jpg 1280px_720px
-    
+   
+    cxr_min__eye_0,1.5,0__zoom_1.2__tmin_1.0__ALL_maybe_box_too_small_ELV_t6,7.jpg
+    GEOM/FewPMT/CSGOptiXRMTest/cxr_min__eye_0,1.5,0__zoom_1.2__tmin_1.0__ALL_maybe_box_too_small_ELV_t6,7.jpg 1280px_720px
+ 
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

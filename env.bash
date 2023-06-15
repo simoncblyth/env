@@ -2111,6 +2111,6 @@ liyu-(){      . $(env-home)/proj/liyu.bash && liyu-env $* ; }
 rs-(){        . $(env-home)/proj/Rich_Simplified/rs.bash && rs-env $* ; }
 ai-(){        . $(env-home)/ai/ai.bash && ai-env $* ; }
 pytorch-(){      . $(env-home)/pytorch/pytorch.bash && pytorch-env $* ; }
-
+usd-(){       . $(env-home)/graphics/usd/usd.bash && usd-env $* ; }
 
 
