@@ -246,11 +246,21 @@ git log
 
 
 git show : to look at a file from a different branch
---------------------------------------------------------
+-----------------------------------------------------
 
 ::
 
     epsilon:junosw blyth$ git show main:Simulation/DetSimV2/PMTSim/src/junoSD_PMT_v2.cc > /tmp/conflict/junoSD_PMT_v2.cc 
+
+
+git show : quick look at earlier versions without needing to checkout
+-------------------------------------------------------------------------
+
+::
+
+    epsilon:opticks blyth$ git log -n10 qudarap/QPMT.hh 
+    epsilon:opticks blyth$ git show f464a81:qudarap/QPMT.hh
+    epsilon:opticks blyth$ git show a005d53:qudarap/QPMT.hh
 
 
 

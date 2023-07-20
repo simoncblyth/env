@@ -1287,7 +1287,8 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){   echo ${INAME:-opticks_20230508_chep} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20230525_MR180_timestamp_analysis} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20230611_qingdao_sdu_workshop} ;  }
-presentation-iname(){ echo ${INAME:-opticks_20230721_kaiping_pwg_afg} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20230721_kaiping_pwg_afg} ; }
+presentation-iname(){ echo ${INAME:-opticks_20230726_kaiping_software_review} ; }
 
 presentation-notes(){ cat << EON
 

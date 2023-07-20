@@ -18,6 +18,17 @@ replace mode
 * shift-r (remember as "R") and start typing, escape returns to normal insert mode
 
 
+replace trailing whitespace on blocks of lines
+------------------------------------------------
+
+::
+
+    :.,$s/\s+$//gc
+    :%s/\s+$//gc
+
+    :.,$s/\s*$//gc
+
+
 delete multiple lines
 ------------------------
 

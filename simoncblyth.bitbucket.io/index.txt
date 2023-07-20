@@ -214,6 +214,15 @@ Opticks Presentations
 ~~~~~~~~
 
 
+`env/presentation/opticks_20230726_kaiping_software_review.html <env/presentation/opticks_20230726_kaiping_software_review.html>`_
+
+   JUNO+Opticks : Progress Review
+
+   JUNO Summer Meeting, Kaiping, Software Review, July 26, 2023 
+
+   **WIP : PRESENTATION BEING PREPARED** 
+
+
 `env/presentation/opticks_20230611_qingdao_sdu_workshop.html <env/presentation/opticks_20230611_qingdao_sdu_workshop.html>`_
 
     Opticks : GPU Optical Photon Simulation via NVIDIA® OptiX™ 7, NVIDIA® CUDA™ (11 June 2023)
