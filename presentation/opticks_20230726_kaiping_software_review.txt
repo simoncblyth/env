@@ -163,8 +163,18 @@
     **2023 May 25** : `junosw/-/merge_requests/180 <https://code.ihep.ac.cn/JUNO/offline/junosw/-/merge_requests/180>`_ :r:`MERGED` : Pivot to Simple Geometry + *C4OpBoundaryProcess*
        * :b:`FIXES ABOVE BUGS` : :m:`Above JUNOSW + Custom4 dev., enables below Opticks dev.`  
 
-    **2023 June/July** : Opticks *SPMT.h QPMT.hh qpmt.h* (uses *C4MultiLayrStack.h*) : CUDA equiv. of *C4OpBoundaryProcess*
+.. raw:: html
+
+    <hr/>
+
+.. class:: small
+
+    **2023 June-July** : Opticks *SPMT.h QPMT.hh qpmt.h* (uses *C4MultiLayrStack.h*) : CUDA equiv. of *C4OpBoundaryProcess*
        * add *smatsur.h* enum to **optical buffer**, *qsim::propagate* enum branch => *qsim:propagate_at_surface_CustomART*
+
+
+.. comment
+
        * *sysrap/s_mock_texture.h* : mocking CUDA ``tex2D`` => *qsim::propagate*, now testable on CPU  
 
 
@@ -179,8 +189,7 @@
 
 
 
-cxr_min__eye_0,1.5,0__zoom_1.2__tmin_1.0__ALL_maybe_box_too_small_ELV_t6,7.jpg
---------------------------------------------------------------------------------
+
 
 
 
@@ -283,6 +292,104 @@ junoPMTOpticalModel Issues : All from using FastSim
  
     There is quite a long list of FastSim issues, number 5 is the 
     new one : with a fraction of photons behaving unphysically 
+
+
+
+
+:small:`Entire Geometry Serializes into NPFold.h tree`
+-------------------------------------------------------
+
+.. sidebar:: :small:`NPFold : Contains sub-NPFold ...`
+
+    .. class:: small
+
+         * recursive data structure
+         * save into directory tree
+         * load from directory tree
+
+         (persisting to file system is optional)
+
+         ``SSim/extra/jpmt/PMTSimParamData``
+              JUNO PMT info, without JUNOSW classes
+
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    epsilon:V1J009 blyth$ pwd
+    /Users/blyth/.opticks/GEOM/V1J009
+    epsilon:V1J009 blyth$ find . -name '*.npy' 
+    ...
+    ./CSGFoundry/node.npy
+    ./CSGFoundry/itra.npy
+    ./CSGFoundry/tran.npy
+    ./CSGFoundry/inst.npy
+    ./CSGFoundry/solid.npy
+    ./CSGFoundry/prim.npy
+
+    ./CSGFoundry/SSim/extra/jpmt/PMTParamData/pmtCat.npy
+
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/lpmtData.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/pmtTotal.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/pmtCat.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/pmtCatVec.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/pmtID.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/spmtData.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/qeScale.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/lpmtCat.npy
+
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/MPT/000/PHC_KINDEX.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/MPT/000/PHC_RINDEX.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/MPT/000/ARC_KINDEX.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/MPT/000/ARC_RINDEX.npy
+    ...
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/QEshape/QEshape_NNVT_HiQE.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/QEshape/QEshape_WP_PMT.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/QEshape/QEshape_R12860.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/QEshape/QEshape_NNVT.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/QEshape/QEshape_HZC.npy
+    ...
+    ./CSGFoundry/SSim/extra/jpmt/PMT_RINDEX/PyrexRINDEX.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMT_RINDEX/VacuumRINDEX.npy
+    ...
+    ./CSGFoundry/SSim/stree/inst.npy
+    ./CSGFoundry/SSim/stree/inst_f4.npy
+    ./CSGFoundry/SSim/stree/inst_nidx.npy
+    ./CSGFoundry/SSim/stree/standard/icdf.npy
+    ./CSGFoundry/SSim/stree/standard/bd.npy
+    ./CSGFoundry/SSim/stree/standard/bnd.npy
+    ./CSGFoundry/SSim/stree/standard/sur.npy
+    ./CSGFoundry/SSim/stree/standard/rayleigh.npy
+    ./CSGFoundry/SSim/stree/standard/energy.npy
+    ./CSGFoundry/SSim/stree/standard/wavelength.npy
+    ./CSGFoundry/SSim/stree/standard/optical.npy
+    ./CSGFoundry/SSim/stree/standard/mat.npy
+    ./CSGFoundry/SSim/stree/digs.npy
+    ./CSGFoundry/SSim/stree/mtname_no_rindex.npy
+    ./CSGFoundry/SSim/stree/suindex.npy
+    ./CSGFoundry/SSim/stree/subs_freq/val.npy
+    ./CSGFoundry/SSim/stree/subs_freq/key.npy
+    ./CSGFoundry/SSim/stree/implicit.npy
+    ./CSGFoundry/SSim/stree/mtindex.npy
+    ./CSGFoundry/SSim/stree/rem.npy
+    ./CSGFoundry/SSim/stree/iinst.npy
+    ./CSGFoundry/SSim/stree/w2m.npy
+    ./CSGFoundry/SSim/stree/material/Pyrex/ABSLENGTH.npy
+    ./CSGFoundry/SSim/stree/material/Pyrex/GROUPVEL.npy
+    ./CSGFoundry/SSim/stree/material/Pyrex/RINDEX.npy
+    ./CSGFoundry/SSim/stree/material/CDReflectorSteel/ABSLENGTH.npy
+    ./CSGFoundry/SSim/stree/material/CDReflectorSteel/REFLECTIVITY.npy
+    ./CSGFoundry/SSim/stree/material/AcrylicMask/ABSLENGTH.npy
+    ...
+   </pre>
+
+
+
+
+
+
+cxr_min__eye_0,1.5,0__zoom_1.2__tmin_1.0__ALL_maybe_box_too_small_ELV_t6,7.jpg
+--------------------------------------------------------------------------------
 
 
 
@@ -435,117 +542,185 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 
 
-
-Issue 88, Branch, Merge Request : :r:`STILL PENDING`
-------------------------------------------------------
-
-.. class:: small
+:small:`CUDA equivalent of C4OpBoundaryProcess : With Full LPMT info` 
+----------------------------------------------------------------------
 
 
-    `junosw/-/issues/88 <https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/88>`_
-
-        Geant4 FastSim based junoPMTOpticalModel implementation has incorrect polarization and propagation time within PMT and also overcomplex 4 volume PMT geometry 
-
-
-    `junosw/-/tree/blyth-88-pivot-PMT-optical-model-from-FastSim-to-CustomG4OpBoundaryProcess <https://code.ihep.ac.cn/JUNO/offline/junosw/-/tree/blyth-88-pivot-PMT-optical-model-from-FastSim-to-CustomG4OpBoundaryProcess>`_
-
-        Pivot Branch 
-
-
-    `junosw/-/merge_requests/180 <https://code.ihep.ac.cn/JUNO/offline/junosw/-/merge_requests/180>`_ 
-
-        Merge Request
-
-
-
-.. s5_talk::
-
-    Links
-
-
-
-:small:`SEvt Timestamps` : ``opticks/sysrap/SEvt.hh``
------------------------------------------------------------------
-
-.. sidebar:: :small:`arr.view("datetime64[us]")`
+.. sidebar:: :small:`qsim::propagate_at_surface_CustomART`
 
     .. raw:: html
 
-       <pre class="mypretiny">
+        <pre class="mypretiny">
+        int qsim::propagate_at_surface_CustomART(
+         unsigned& flag, curandStateXORWOW& rng, 
+         sctx& ctx) const
+        {
+         const sphoton& p = ctx.p ; 
+         const float3* nrm = (float3*)&ctx.prd->q0.f.x ; 
+         <span class="r">int lpmtid = ctx.prd->identity();</span> 
 
-        In [1]: a.rr
-        Out[1]: array([1684168432404887, 1684168434567412], 
-                dtype=uint64)
+         float minus_cos_theta, dot_pol_cross_mom_nrm ; 
 
-        In [2]: np.c_[a.rr.view("datetime64[us]")]   
-        Out[2]:        ## beginOfRun, endOfRun 
-        array([['2023-05-15T16:33:52.404887'],
-               ['2023-05-15T16:33:54.567412']], 
-               dtype='datetime64[us]')
+         minus_cos_theta = dot(p.mom, *nrm); 
+         <span class="b">dot_pol_cross_mom_nrm = dot(p.pol,cross(p.mom,*nrm));</span> 
+         // enables calc of S/P-polarization fraction
 
-        In [5]: np.c_[a.s0.view("datetime64[us]")]
-        Out[5]:         ## beginPhoton stamps
-        array([['2023-05-15T16:33:53.860482'],
-               ['2023-05-15T16:33:53.860451'],
-               ['2023-05-15T16:33:53.860421'],
-               ...,
-               ['2023-05-15T16:33:52.470429'],
-               ['2023-05-15T16:33:52.470155'],
-               ['2023-05-15T16:33:52.469285']], 
-               dtype='datetime64[us]')
+         float ARTE[4] ; 
+         pmt->get_lpmtid_ARTE(
+             ARTE, 
+             lpmtid, // <span class="b">0->17611 => pmt specific qescale</span>
+             p.wavelength, 
+             minus_cos_theta, 
+             dot_pol_cross_mom_nrm );   
 
-        In [8]: a.t.shape      ## pointPhoton stamps 
-        Out[8]: (10000, 32)
-       </pre>
+         const float& theAbsorption    = ARTE[0]; 
+         const float& theReflectivity  = ARTE[1]; 
+         const float& theTransmittance = ARTE[2]; 
+         const float& theEfficiency    = ARTE[3]; 
+        </pre>
 
 
 .. class:: small
 
-    ``sysrap/stamp.h stamp::Now()``
+    JSW:PMTSimParamSvc
+       fills PMTSimParamData from file/DB/frontier/...
 
-    **Collect uint64_t timestamps (microseconds since epoch (UTC))** 
+    JSW:PMTSimParamData
+       data "core" of *PMTSimParamSvc*
 
-    * beginOfRun
+    JSW:_PMTSimParamData **(added in MR 126)**
+       serialize *PMTSimParamData* into Opticks NPFold.h/NP.hh   
+     
+    sysrap/SPMT.h  
+      *_PMTSimParamData* NPFold => summary arrays
+
+    qudarap/QPMT.hh
+      * upload PMT summary arrays to GPU
+      * QProp.hh/qprop.h interpolation setup (RINDEX,KINDEX) 
+      * instanciates qpmt.h instance and uploads 
+
+    qudarap/qpmt.h 
+      * provides PMT info, TMM calc to ``qsim.h``
+      * includes Custom4 : *C4MultiLayrStack.h* 
+      * ``qpmt::get_lpmtid_ARTE`` 
+
+       
+    https://bitbucket.org/simoncblyth/opticks/src/master/qudarap/qpmt.h
+
+
+
+
+
+
+
+
+
+     
+
     
-      * beginOfEvent
-
-        * beginPhoton
-
-          * pointPhoton : :r:`photon step points`      
-          * pointPhoton      
-          * pointPhoton      
-          * ... 
-
-        * endPhoton
-        * ...
-
-      * endOfEvent
-      * ...
-
-    * endOfRun
 
 
 
-:i:`STAMP_illus.png`
-----------------------
 
-``Standalone FewPMT(1) test : No large stamp gaps ([us] microseconds)``
-
-.. raw:: html
-
-   <p style="margin-bottom:155mm;" />
-
-.. class:: small
-
-   TimeStamps : :r:`beginPhoton`, :g:`pointPhoton`, ...,  :b:`endPhoton`,  OnePMT Standalone : **UNIFORM : NO BIG GAPS** 
-   (NO ProcessHits)
 
 
 
 .. comment
 
-    PHO_AVG_with_fake_skip.png
-    ----------------------------
+    Issue 88, Branch, Merge Request : :r:`STILL PENDING`
+    ------------------------------------------------------
+
+    .. class:: small
+
+
+        `junosw/-/issues/88 <https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/88>`_
+
+            Geant4 FastSim based junoPMTOpticalModel implementation has incorrect polarization and propagation time within PMT and also overcomplex 4 volume PMT geometry 
+
+
+        `junosw/-/tree/blyth-88-pivot-PMT-optical-model-from-FastSim-to-CustomG4OpBoundaryProcess <https://code.ihep.ac.cn/JUNO/offline/junosw/-/tree/blyth-88-pivot-PMT-optical-model-from-FastSim-to-CustomG4OpBoundaryProcess>`_
+
+            Pivot Branch 
+
+
+        `junosw/-/merge_requests/180 <https://code.ihep.ac.cn/JUNO/offline/junosw/-/merge_requests/180>`_ 
+
+            Merge Request
+
+
+
+    .. s5_talk::
+
+        Links
+
+
+
+    :small:`SEvt Timestamps` : ``opticks/sysrap/SEvt.hh``
+    -----------------------------------------------------------------
+
+    .. sidebar:: :small:`arr.view("datetime64[us]")`
+
+        .. raw:: html
+
+           <pre class="mypretiny">
+
+            In [1]: a.rr
+            Out[1]: array([1684168432404887, 1684168434567412], 
+                    dtype=uint64)
+
+            In [2]: np.c_[a.rr.view("datetime64[us]")]   
+            Out[2]:        ## beginOfRun, endOfRun 
+            array([['2023-05-15T16:33:52.404887'],
+                   ['2023-05-15T16:33:54.567412']], 
+                   dtype='datetime64[us]')
+
+            In [5]: np.c_[a.s0.view("datetime64[us]")]
+            Out[5]:         ## beginPhoton stamps
+            array([['2023-05-15T16:33:53.860482'],
+                   ['2023-05-15T16:33:53.860451'],
+                   ['2023-05-15T16:33:53.860421'],
+                   ...,
+                   ['2023-05-15T16:33:52.470429'],
+                   ['2023-05-15T16:33:52.470155'],
+                   ['2023-05-15T16:33:52.469285']], 
+                   dtype='datetime64[us]')
+
+            In [8]: a.t.shape      ## pointPhoton stamps 
+            Out[8]: (10000, 32)
+           </pre>
+
+
+    .. class:: small
+
+        ``sysrap/stamp.h stamp::Now()``
+
+        **Collect uint64_t timestamps (microseconds since epoch (UTC))** 
+
+        * beginOfRun
+        
+          * beginOfEvent
+
+            * beginPhoton
+
+              * pointPhoton : :r:`photon step points`      
+              * pointPhoton      
+              * pointPhoton      
+              * ... 
+
+            * endPhoton
+            * ...
+
+          * endOfEvent
+          * ...
+
+        * endOfRun
+
+
+
+    :i:`STAMP_illus.png`
+    ----------------------
+
+    ``Standalone FewPMT(1) test : No large stamp gaps ([us] microseconds)``
 
     .. raw:: html
 
@@ -553,757 +728,773 @@ Issue 88, Branch, Merge Request : :r:`STILL PENDING`
 
     .. class:: small
 
-       Linear relationship between photon step points and processing time -- :r:`U4Recorder::ClassifyFake` consumes time every step  
+       TimeStamps : :r:`beginPhoton`, :g:`pointPhoton`, ...,  :b:`endPhoton`,  OnePMT Standalone : **UNIFORM : NO BIG GAPS** 
+       (NO ProcessHits)
 
 
 
-    PHO_AVG_without_fake_skip.png
-    -------------------------------
+    .. comment
 
-    .. raw:: html
+        PHO_AVG_with_fake_skip.png
+        ----------------------------
 
-       <p style="margin-bottom:155mm;" />
+        .. raw:: html
 
-    .. class:: small
+           <p style="margin-bottom:155mm;" />
 
-       Not skipping fakes : makes per-step-point times similar  
+        .. class:: small
 
-
-    PHO_AVG_wide_with_fake_skip.png
-    ---------------------------------
-
-    .. raw:: html
-
-       <p style="margin-bottom:155mm;" />
-
-    .. class:: small
-
-       The very few high bounce photons are excluded from the fit -- recording truncates to 32 points 
+           Linear relationship between photon step points and processing time -- :r:`U4Recorder::ClassifyFake` consumes time every step  
 
 
 
+        PHO_AVG_without_fake_skip.png
+        -------------------------------
 
-.. comment
+        .. raw:: html
 
-    PHO_AVG_wide_without_fake_skip.png
-    ------------------------------------
+           <p style="margin-bottom:155mm;" />
 
-    PHO_N_with_fake_skip.png
-    --------------------------
+        .. class:: small
 
-    PHO_N_without_fake_skip.png
-    ----------------------------
+           Not skipping fakes : makes per-step-point times similar  
 
-    :i:`STAMP_tail_gap_apparent.png`
-    ----------------------------------
+
+        PHO_AVG_wide_with_fake_skip.png
+        ---------------------------------
+
+        .. raw:: html
+
+           <p style="margin-bottom:155mm;" />
+
+        .. class:: small
+
+           The very few high bounce photons are excluded from the fit -- recording truncates to 32 points 
 
 
 
 
-:i:`PHO_N_consistent_point_counts.png`
-----------------------------------------------
+    .. comment
 
-``A,B Point counts consistent : Bump at 32 from recording truncation``
+        PHO_AVG_wide_without_fake_skip.png
+        ------------------------------------
+
+        PHO_N_with_fake_skip.png
+        --------------------------
+
+        PHO_N_without_fake_skip.png
+        ----------------------------
+
+        :i:`STAMP_tail_gap_apparent.png`
+        ----------------------------------
 
 
-.. comment
 
-    :i:`PHO_AVG_unfair_due_to_fakeskip_in_A.png`
+
+    :i:`PHO_N_consistent_point_counts.png`
     ----------------------------------------------
 
-    ``Comparison unfair as only A does fake skipping : linear with step points``
+    ``A,B Point counts consistent : Bump at 32 from recording truncation``
+
+
+    .. comment
+
+        :i:`PHO_AVG_unfair_due_to_fakeskip_in_A.png`
+        ----------------------------------------------
+
+        ``Comparison unfair as only A does fake skipping : linear with step points``
 
 
 
-:i:`FewPMT_truncated_record_32.png`
-------------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:168mm;" />
-
-.. class:: small
-
-   Point 31 : at propagation time 4.3 ns (photon ends at: 10.9 ns, at [-237.9,0.,-200] -- 6.6ns of propagation not recorded
-
-.. comment
-
-   BPID=117 BOPT=idx POINT=-237.948,0.,-200 LINE=-139.781,0.,-180.94,-237.948,0.,-200 ./U4SimtraceTest.sh ana
-
-
-
-
-
-
-
-
-
-
-:i:`STAMP_probe_gap.png`
---------------------------
-
-.. class:: small
-
-   ``SD (+ some SA) photons : last step stamp "gaps" : slow ProcessHits?`` 
-
-.. raw:: html
-
-   <p style="margin-bottom:155mm;" />
-
-.. class:: small
-
-   Insitu (ntds2_cf), input photons targetting NNVT:0:1000
-
-
-
-
-
-:i:`STAMP_ProcessHits_56us_Hama_0_0.png`
-------------------------------------------
-
-``STAMP_TT=257400,600 STAMP_ANNO=1 ~/j/ntds/stamp.sh ## inpho => Hama:0:0``
-
-.. raw:: html
-
-    <p style="margin-bottom:152mm;" />
-    
-.. class:: small
-
-    :r:`(s0) beginPhoton` :b:`(s1) finalPhoton` :g:`( ) pointPhoton` :c:`(h0) ProcessHits[` :c:`(i0) ProcessHits]` 
-    -- **ProcessHits taking ~56us for SD** 
-
-
-
-
-:small:`opticks/sysrap/SProfile.h : Simple Profiling via TimeStamp[us] Collection`
-------------------------------------------------------------------------------------
-
-.. sidebar:: :m18:`junoSD_PMT_c2.cc`
+    :i:`FewPMT_truncated_record_32.png`
+    ------------------------------------
 
     .. raw:: html
+
+       <p style="margin-bottom:168mm;" />
+
+    .. class:: small
+
+       Point 31 : at propagation time 4.3 ns (photon ends at: 10.9 ns, at [-237.9,0.,-200] -- 6.6ns of propagation not recorded
+
+    .. comment
+
+       BPID=117 BOPT=idx POINT=-237.948,0.,-200 LINE=-139.781,0.,-180.94,-237.948,0.,-200 ./U4SimtraceTest.sh ana
+
+
+
+
+
+
+
+
+
+
+    :i:`STAMP_probe_gap.png`
+    --------------------------
+
+    .. class:: small
+
+       ``SD (+ some SA) photons : last step stamp "gaps" : slow ProcessHits?`` 
+
+    .. raw:: html
+
+       <p style="margin-bottom:155mm;" />
+
+    .. class:: small
+
+       Insitu (ntds2_cf), input photons targetting NNVT:0:1000
+
+
+
+
+
+    :i:`STAMP_ProcessHits_56us_Hama_0_0.png`
+    ------------------------------------------
+
+    ``STAMP_TT=257400,600 STAMP_ANNO=1 ~/j/ntds/stamp.sh ## inpho => Hama:0:0``
+
+    .. raw:: html
+
+        <p style="margin-bottom:152mm;" />
         
-        <pre class="mypretiny">
-        &#35;include "SProfile.h"
-        template<>
-        std::vector&lt;SProfile&lt;16&gt;&gt; SProfile<16>::RECORD = {}  ;
-        ...
-        G4bool junoSD_PMT_v2::ProcessHits(G4Step * step,G4TouchableHistory*)
-        {
-         <span class="b">m_profile->stamp(0);</span>
-         ...
-         <span class="b">m_profile->stamp(1);</span>
-
-         const G4VTouchable* touch = track->GetTouchable();
-         int pmtID_1 = touch->GetReplicaNumber(1) ; 
-         if(pmtID_1 <= 0) pmtID_1 = touch->GetReplicaNumber(2) ; 
-
-         <span class="b">m_profile->stamp(2);</span>
-
-         int pmtID_2 = U4Touchable::AncestorReplicaNumber(touch) ; 
-
-         <span class="b">m_profile->stamp(3);</span>
-
-         <span class="r">int pmtID = get_pmtid(track); // TAKING 50-56 us  </span> 
-
-         <span class="b">m_profile->stamp(4);</span>
-        </pre>
-             
     .. class:: small
 
-         1. :r:`Collect TimeStamps to find slow code`
-         2. NumPy analysis reveals whats taking the time
-
-
-.. raw:: html
- 
-   <pre class="mypretiny">
-    &#35;include &lt;cstdint&gt;
-    &#35;include &lt;vector&gt;
-    &#35;include &lt;chrono&gt;
-    &#35;include "NPX.h"
-
-    template&lt;int N&gt;
-    struct SProfile
-    {
-      uint64_t idx ; 
-      uint64_t t[N] ; 
-
-      static std::vector&lt;SProfile&lt;N&gt;&gt; RECORD ; 
-      void add(){ RECORD.push_back(*this) ; } 
-      void zero(){ idx = 0 ; for(int i=0 ; i &lt; N ; i++) t[i] = 0 ; } 
-
-      <span class="b">static uint64_t Now() // microseconds[us] since UTC epoch 
-      {   
-        std::chrono::time_point&lt;std::chrono::system_clock&gt; 
-            t0 = std::chrono::system_clock::now();
-        return 
-            std::chrono::duration_cast&lt;std::chrono::microseconds&gt;
-               (t0.time_since_epoch()).count() ; 
-      }</span>   
-
-      <span class="r">void stamp(int i){ t[i] = Now(); } // stamp collection </span>
-
-      static constexpr const char* NAME = "SProfile.npy" ; 
-      static NP* Array(){ return 
-         NPX::ArrayFromVec&lt;uint64_t,SProfile&lt;N&gt;&gt;(RECORD,1+N); }
-      static void Save(const char* dir, const char* reldir=nullptr){ 
-         NP* a = Array(); a->save(dir, reldir, NAME) ; } 
-    }; 
-   </pre>
-
-.. class:: small
-
-    **Timestamp collection + persisting implemented in the header**
+        :r:`(s0) beginPhoton` :b:`(s1) finalPhoton` :g:`( ) pointPhoton` :c:`(h0) ProcessHits[` :c:`(i0) ProcessHits]` 
+        -- **ProcessHits taking ~56us for SD** 
 
 
 
-:small:`Analysis of uint64_t timestamps from ProcessHits, A(N=0) B(N=1)`
---------------------------------------------------------------------------
 
-.. sidebar:: :small:`ProcessHits time fraction >10%`
+    :small:`opticks/sysrap/SProfile.h : Simple Profiling via TimeStamp[us] Collection`
+    ------------------------------------------------------------------------------------
 
+    .. sidebar:: :m18:`junoSD_PMT_c2.cc`
 
-    .. class:: small
+        .. raw:: html
+            
+            <pre class="mypretiny">
+            &#35;include "SProfile.h"
+            template<>
+            std::vector&lt;SProfile&lt;16&gt;&gt; SProfile<16>::RECORD = {}  ;
+            ...
+            G4bool junoSD_PMT_v2::ProcessHits(G4Step * step,G4TouchableHistory*)
+            {
+             <span class="b">m_profile->stamp(0);</span>
+             ...
+             <span class="b">m_profile->stamp(1);</span>
 
-         Sum of ProcessHits times/ event time
+             const G4VTouchable* touch = track->GetTouchable();
+             int pmtID_1 = touch->GetReplicaNumber(1) ; 
+             if(pmtID_1 <= 0) pmtID_1 = touch->GetReplicaNumber(2) ; 
+
+             <span class="b">m_profile->stamp(2);</span>
+
+             int pmtID_2 = U4Touchable::AncestorReplicaNumber(touch) ; 
+
+             <span class="b">m_profile->stamp(3);</span>
+
+             <span class="r">int pmtID = get_pmtid(track); // TAKING 50-56 us  </span> 
+
+             <span class="b">m_profile->stamp(4);</span>
+            </pre>
+                 
+        .. class:: small
+
+             1. :r:`Collect TimeStamps to find slow code`
+             2. NumPy analysis reveals whats taking the time
+
 
     .. raw:: html
      
        <pre class="mypretiny">
-        In [16]: np.sum(a.pfr)/a.ee[-1]
-        Out[16]: 0.10450881266649384
+        &#35;include &lt;cstdint&gt;
+        &#35;include &lt;vector&gt;
+        &#35;include &lt;chrono&gt;
+        &#35;include "NPX.h"
 
-        In [17]: np.sum(b.pfr)/b.ee[-1]
-        Out[17]: 0.11134881257006096
+        template&lt;int N&gt;
+        struct SProfile
+        {
+          uint64_t idx ; 
+          uint64_t t[N] ; 
+
+          static std::vector&lt;SProfile&lt;N&gt;&gt; RECORD ; 
+          void add(){ RECORD.push_back(*this) ; } 
+          void zero(){ idx = 0 ; for(int i=0 ; i &lt; N ; i++) t[i] = 0 ; } 
+
+          <span class="b">static uint64_t Now() // microseconds[us] since UTC epoch 
+          {   
+            std::chrono::time_point&lt;std::chrono::system_clock&gt; 
+                t0 = std::chrono::system_clock::now();
+            return 
+                std::chrono::duration_cast&lt;std::chrono::microseconds&gt;
+                   (t0.time_since_epoch()).count() ; 
+          }</span>   
+
+          <span class="r">void stamp(int i){ t[i] = Now(); } // stamp collection </span>
+
+          static constexpr const char* NAME = "SProfile.npy" ; 
+          static NP* Array(){ return 
+             NPX::ArrayFromVec&lt;uint64_t,SProfile&lt;N&gt;&gt;(RECORD,1+N); }
+          static void Save(const char* dir, const char* reldir=nullptr){ 
+             NP* a = Array(); a->save(dir, reldir, NAME) ; } 
+        }; 
        </pre>
 
-
-.. class:: small
-
-   Select complete SProfile (ProcessHit hit candidates) in A,B:
-
-.. raw:: html
- 
-   <pre class="mypretiny">
-    // sevt.py : pf = f.junoSD_PMT_v2_SProfile 
-
-    In [30]: aa = a.pf[a.pf[:,6]>0,1:]    
-    In [38]: bb = b.pf[b.pf[:,6]>0,1:]   
-   </pre> 
-
-.. class:: small
-
-   Subtract first timestamp for each ProcessHits call.
-   Relative to start microseconds [us]: 
-
-.. raw:: html
- 
-   <pre class="mypretiny">
-    In [35]: aa[:,:6] - aa[:,0,np.newaxis]  
-    Out[35]: 
-    array([[   0,  551,  551,  571,  678, 1899],  
-           [   0,    1,    1,    1,   53,   96],
-           [   0,    1,    1,    1,   54,   61],
-           [   0,    0,    0,    1,   52,   57],
-           [   0,    1,    1,    1,   57,   63],
-           ...
-
-    In [39]: bb[:,:6] - bb[:,0,np.newaxis]
-    Out[39]: 
-    array([[   0,    0,    0,    1,   53, 1192],
-           [   0,    0,    0,    1,   54,   99],
-           [   0,    1,    1,    1,   54,   64],
-           [   0,    1,    1,    1,   53,   59],
-           [   0,    1,    1,    1,   53,   61],
-           ...
-      
-           ##  0     1     2     <span class="r">3--->4</span>    5      
-    </pre>
-
-.. class:: small
-
-    :r:`Most (50->56 us) ProcessHits time between stamps 3 and 4`  in ``junoSD_PMT_v2::get_pmtid``
-
-
-
-:small:`Tail "gap" : junoSD_PMT_v2::get_pmtid : ~50us per hit candidate` 
---------------------------------------------------------------------------------------------------------
-
-
-.. sidebar:: :small:`"get_pmtid_fast" (~1us)`
-
     .. class:: small
 
-        :r:`Only few SD volumes => use simpler approach :`
+        **Timestamp collection + persisting implemented in the header**
 
-    ::
 
-      const G4VTouchable* th = 
-          track->GetTouchable();
-      int ID(-1) ; 
-      ID = th->GetReplicaNumber(1);
-      if( ID <= 0) 
-      ID = th->GetReplicaNumber(2);   
+
+    :small:`Analysis of uint64_t timestamps from ProcessHits, A(N=0) B(N=1)`
+    --------------------------------------------------------------------------
+
+    .. sidebar:: :small:`ProcessHits time fraction >10%`
+
+
+        .. class:: small
+
+             Sum of ProcessHits times/ event time
+
+        .. raw:: html
          
+           <pre class="mypretiny">
+            In [16]: np.sum(a.pfr)/a.ee[-1]
+            Out[16]: 0.10450881266649384
 
-    .. class:: m18
+            In [17]: np.sum(b.pfr)/b.ee[-1]
+            Out[17]: 0.11134881257006096
+           </pre>
 
-      G4VTouchable::GetReplicaNumber(int depth)
-          depth:0/1/2 : current/parent/grandparent
 
-    
     .. class:: small
 
-        * tested : old_lpmt, new_lpmt, spmt, wpmt
-        * :b:`same pmtId result in ~1us (not ~50us)` 
-        
+       Select complete SProfile (ProcessHit hit candidates) in A,B:
 
-
-
-.. raw:: html
-
-   <pre class="mypretiny">
-   int junoSD_PMT_v2::get_pmtid(G4Track* track) {
-       int ipmt= -1;
-       const G4VTouchable* touch= track->GetTouchable();
-       int nd= touch->GetHistoryDepth();
-       int id=0;
-       for (id=0; id<nd; id++) {
-         if (touch->GetVolume(id)==track->GetVolume()) {
-           int idid=1;
-           G4VPhysicalVolume* tmp_pv=NULL;
-           for (idid=1; idid < (nd-id); ++idid) {
-             tmp_pv = touch->GetVolume(id+idid);
-   
-             G4LogicalVolume* mother_vol = tmp_pv->GetLogicalVolume();
-             G4LogicalVolume* daughter_vol = touch->GetVolume(id+idid-1)->
-                 GetLogicalVolume();
-             int no_daugh = mother_vol -> GetNoDaughters();
-             if (no_daugh > 1) {
-                 int count = 0;
-                 for (int i=0; (count<2) &&(i < no_daugh); ++i) {
-                     if (daughter_vol->GetName()
-                             ==mother_vol->GetDaughter(i)
-                                ->GetLogicalVolume()->GetName()) {
-                         ++count;
-                     }
-                 }
-                 if (count > 1) break;
-             }
-           }
-           ipmt= touch->GetReplicaNumber(id+idid-1);
-           break;
-         }
-       }
-       return ipmt;
-   }
-   </pre>
-
-.. class:: small
-
-    :r:`Looping over daughters at multiple levels and name matching to find copyNo` : :b:`NO NEED FOR SUCH GENERALITY`
-
-
-
-
-SD Touchable histories for SPMT, LPMT_NEW
--------------------------------------------
-
-.. raw:: html
-
-   <pre class="mypretiny">
-    spmt (old/new makes no difference)::
-
-        junoSD_PMT_v2::ProcessHits pmtID 325044 pmtID_1 325044 pmtID_2 325044 pv PMT_3inch_body_phys
-        junoSD_PMT_v2::ProcessHits
-        C4Touchable::Desc HistoryDepth  7 TouchDepth  0 ReplicaDepth  1 ReplicaNumber 325044
-         i  0 cp      0 nd      2 so PMT_3inch_body_solid_ell_ell_helper pv  PMT_3inch_body_phys
-         i  1 cp 325044 nd      2 so  PMT_3inch_pmt_solid pv   PMT_3inch_log_phys
-         i  2 cp      0 nd  46276 so          sInnerWater pv          pInnerWater
-         i  3 cp      0 nd      1 so       sReflectorInCD pv     pCentralDetector
-         i  4 cp      0 nd   4521 so      sOuterWaterPool pv      pOuterWaterPool
-         i  5 cp      0 nd      1 so          sPoolLining pv          pPoolLining
-         i  6 cp      0 nd      1 so          sBottomRock pv             pBtmRock
-
-    LPMT_NEW (same depth to get copynumber as SPMT)::
-
-        junoSD_PMT_v2::ProcessHits pmtID 1425 pmtID_1 1425 pmtID_2 1425 pv NNVTMCPPMT_PMT_20inch_log_phys
-        junoSD_PMT_v2::ProcessHits
-        C4Touchable::Desc HistoryDepth  7 TouchDepth  0 ReplicaDepth  1 ReplicaNumber   1425
-         i  0 cp      0 nd      1 so NNVTMCPPMT_PMT_20inch_pmt_solid_head pv NNVTMCPPMT_PMT_20inch_log_phys
-         i  1 cp   1425 nd      3 so NNVTMCPPMTsMask_virtual pv    pLPMT_NNVT_MCPPMT
-         i  2 cp      0 nd  46276 so          sInnerWater pv          pInnerWater
-         i  3 cp      0 nd      1 so       sReflectorInCD pv     pCentralDetector
-         i  4 cp      0 nd   4521 so      sOuterWaterPool pv      pOuterWaterPool
-         i  5 cp      0 nd      1 so          sPoolLining pv          pPoolLining
-         i  6 cp      0 nd      1 so          sBottomRock pv             pBtmRock
-    </pre>
-
-.. class:: small
-
-    Also checked with input photons targetting ``Hama:0:0  ## (pmtid == 0)`` 
-
-
-SD Touchable histories for LPMT_OLD, WPMT
--------------------------------------------
-
-.. raw:: html
-
-   <pre class="mypretiny">
-    LPMT_OLD (one more level to get copynumber)::
-
-        junoSD_PMT_v2::ProcessHits pmtID 1425 pmtID_1 1425 pmtID_2 1425 pv NNVTMCPPMT_PMT_20inch_body_phys
-        junoSD_PMT_v2::ProcessHits
-        C4Touchable::Desc HistoryDepth  8 TouchDepth  0 ReplicaDepth  2 ReplicaNumber   1425
-         i  0 cp      0 nd      2 so NNVTMCPPMT_PMT_20inch_body_solid_head pv NNVTMCPPMT_PMT_20inch_body_phys
-         i  1 cp      0 nd      1 so NNVTMCPPMT_PMT_20inch_pmt_solid_head pv NNVTMCPPMT_PMT_20inch_log_phys
-         i  2 cp   1425 nd      3 so NNVTMCPPMTsMask_virtual pv    pLPMT_NNVT_MCPPMT
-         i  3 cp      0 nd  46276 so          sInnerWater pv          pInnerWater
-         i  4 cp      0 nd      1 so       sReflectorInCD pv     pCentralDetector
-
-    WPMT (same depth to get copynumber as LPMT_OLD)
-
-       junoSD_PMT_v2::ProcessHits pmtID 31000 pmtID_1 31000 pmtID_2 31000 pv PMT_20inch_veto_body_phys
-        junoSD_PMT_v2::ProcessHits
-        C4Touchable::Desc HistoryDepth  6 TouchDepth  0 ReplicaDepth  2 ReplicaNumber  31000
-         i  0 cp      0 nd      2 so PMT_20inch_veto_body_solid_1_2 pv PMT_20inch_veto_body_phys
-         i  1 cp      0 nd      1 so PMT_20inch_veto_pmt_solid_1_2 pv PMT_20inch_veto_log_phys
-         i  2 cp  31000 nd      2 so mask_PMT_20inch_vetosMask_virtual pv mask_PMT_20inch_vetolMaskVirtual_phys
-         i  3 cp      0 nd   4521 so      sOuterWaterPool pv      pOuterWaterPool
-         i  4 cp      0 nd      1 so          sPoolLining pv          pPoolLining
-         i  5 cp      0 nd      1 so          sBottomRock pv             pBtmRock
-     </pre>
-
-
-:i:`B_V1J008_N1_OIPF_PMT_20inch_veto:0:1000_target_WPMT.png`
--------------------------------------------------------------
-
-.. raw:: html
-
-    <p style="margin-bottom:150mm;" />
-
-.. class:: small 
-
-    ``OPTICKS_INPUT_PHOTON_FRAME=PMT_20inch_veto:0:1000 ntds2``
-
-    ``N=1 MODE=3 ~/j/ntds/ntds.sh ana   ## checking "get_pmtid_fast" for WPMT``
-
-
-
-
-:small:`Yaoguang Observations (Not reproduced by Simon on Workstation)`
-------------------------------------------------------------------------
-
-.. class:: small
-
-    * totalPE distributions are almost the same as expected.
-    * But .. the natural geometry is more time-consuming than the unnatural one. 
-
-      * (this is batch running, presumably with much more memory+IO pressure)
-
-    **Yaoguang : Event Time from Mean of 100 runs of 500 evt**
-
-    +-------------------------------+--------+-----------------------------------+
-    | ``--pmt-unnatural-geometry``  | 1.40s  |                                   |
-    +-------------------------------+--------+-----------------------------------+
-    | ``--pmt-natural-geometry``    | 2.04s  |  (~45% longer with bug fixes ?)   |  
-    +-------------------------------+--------+-----------------------------------+
-
-    ``/junofs/users/wangyg/Software/juno-dev/Official/sim_dat``
-
-    :: 
-
-          python ${RunPath}/tut_detsim.py 
-               --evtmax 500 --seed $1  ... (output opts skipped) ...
-               --pmt-natural-geometry [ OR --pmt-unnatural-geometry ]  
-               gun --particles gamma --momentums 2.223 
-               --momentums-interp KineticEnergy --positions 0 0 0
-
-
-    Simon : Comparing an implementation with many known bugs with one that fixes them 
-
-    * :r:`thats an apples-vs-oranges "invalid" comparison`
-    * also the implementation from the branch is not the same at the one in main 
-    * BUT good to understand whats taking time : hoping for optimizations
-
-
-
-10 evt check on workstation (no memory pressure?)
----------------------------------------------------
-
-.. sidebar:: :small:`Natural always faster than Unnatural`
-
-    .. class:: small       
-
-          +---+-----+---------------------------+ 
-          | A | N=0 | --pmt-unnatural-geometry  |
-          +---+-----+---------------------------+ 
-          | B | N=1 | --pmt-natural-geometry    |
-          +---+-----+---------------------------+ 
-
-          B always faster than A in all config, variations tried
-
-          0. Debug build, U4Recorder, only opticks-anamgr
-          1. Debug build, no Opticks, default anamgr
-          2. Release build, no Opticks, default anamgr
-
-
-.. class:: small 
-
-    **Debug build, with Opticks U4Recorder, only opticks-anamgr**
-
-.. raw:: html
-
-    <pre class="mypretiny"> 
-    GUN=2 ntds2_cf:            Count       Total(ms)     
-    A : DetSimAlg                10          55232.92090   
-    B : DetSimAlg                10          48998.21484   
-    </pre>
-
-.. class:: small 
-
-    **Debug build, no Opticks, default anamgr**
-
-.. raw:: html
-
-    <pre class="mypretiny"> 
-    GUN=2 ntds0_cf:           Count       Total(ms)     
-    A : DetSimAlg              10          32182.09277   
-    B : DetSimAlg              10          20433.68774   
-    </pre>
-
-
-
-.. class:: small
-
-    **Release build, no Opticks, default anamgr**
-
-.. raw:: html
-
-    <pre class="mypretiny"> 
-    GUN=2 ntds0_cf:             Count       Total(ms)     
-    A : DetSimAlg                10          13037.99695   
-    B : DetSimAlg                10          12551.25012   
-    </pre>
-
-.. comment
-
-    a = np.array([[  55232.92090, 48998.21484  ], [32182.09277, 20433.68774], [13037.99695, 12551.25012] ])
-
-.. class:: small
-
-    **Release build, no Opticks, default anamgr,** :r:`switch to "get_pmtid_fast" (B: ~6% faster)`
-
-.. raw:: html
-
-    <pre class="mypretiny"> 
-    GUN=2 ntds0_cf:             Count       Total(ms)
-    A : DetSimAlg                10          12678.48804    
-    B : DetSimAlg                10          11844.33704    
-    </pre>
-
-
-
-.. class:: small
-
-    **Release build, no Opticks, default anamgr,** :r:`switch to "get_pmtid_fast" (B: ~6% faster), disable all anamgr`
-
-.. raw:: html
-
-    <pre class="mypretiny"> 
-    GUN=2 ntds0_cf:             Count       Total(ms)
-    A : DetSimAlg                10          11973.54700    
-    B : DetSimAlg                10          11426.45898   <span class="b">Workstation : : A,B get closer as memory decreases ?</span> 
-    </pre>
-
-
-
-
-:small:`A vs B : Attempt to Explain Observed Workstation Performance`
------------------------------------------------------------------------
-
-.. sidebar:: :small:`A/B B/A ratios`
-
-    ::
-
-                A          B 
-        array([[55232.921, 48998.215],
-               [32182.093, 20433.688],
-               [13037.997, 12551.25 ]])
-
-         a[:,1]/a[:,0]  # B/A
-         array([0.887, 0.635, 0.963])
-
-         a[:,0]/a[:,1]  # A/B
-         array([1.127, 1.575, 1.039])
-
-
-.. class:: small 
-
-   0. Debug build, U4Recorder, only opticks-anamgr
-   1. Debug build, no Opticks, default anamgr
-   2. Release build, no Opticks, default anamgr
-
-   +---+---------------------+--------------------------------------------------+
-   | 0 | Both slow           | recording every photon point is expensive        |  
-   |   |                     | (also fake skipping is expensive)                |
-   +---+---------------------+--------------------------------------------------+
-   | 1 | A,B most diff       | default multiple anamgr => memory/IO pressure ?  |
-   |   |                     |                                                  |
-   |   |                     | * highest memory pressure                        |
-   +---+---------------------+--------------------------------------------------+
-   | 2 | A,B closest         | Release eases memory ?                           |
-   |   |                     |                                                  |
-   |   |                     | * lowest memory pressure                         |
-   +---+---------------------+--------------------------------------------------+
-
-   * Release running => greatly reduced memory pressure 
-   * B has ~30% elevated ProcessHits:false calls from larger sensitive volume 
-
-     * :r:`if AnaMgr sensitive to that could explain decreased B performance in batch jobs` 
+    .. raw:: html
      
+       <pre class="mypretiny">
+        // sevt.py : pf = f.junoSD_PMT_v2_SProfile 
+
+        In [30]: aa = a.pf[a.pf[:,6]>0,1:]    
+        In [38]: bb = b.pf[b.pf[:,6]>0,1:]   
+       </pre> 
+
+    .. class:: small
+
+       Subtract first timestamp for each ProcessHits call.
+       Relative to start microseconds [us]: 
+
+    .. raw:: html
+     
+       <pre class="mypretiny">
+        In [35]: aa[:,:6] - aa[:,0,np.newaxis]  
+        Out[35]: 
+        array([[   0,  551,  551,  571,  678, 1899],  
+               [   0,    1,    1,    1,   53,   96],
+               [   0,    1,    1,    1,   54,   61],
+               [   0,    0,    0,    1,   52,   57],
+               [   0,    1,    1,    1,   57,   63],
+               ...
+
+        In [39]: bb[:,:6] - bb[:,0,np.newaxis]
+        Out[39]: 
+        array([[   0,    0,    0,    1,   53, 1192],
+               [   0,    0,    0,    1,   54,   99],
+               [   0,    1,    1,    1,   54,   64],
+               [   0,    1,    1,    1,   53,   59],
+               [   0,    1,    1,    1,   53,   61],
+               ...
+          
+               ##  0     1     2     <span class="r">3--->4</span>    5      
+        </pre>
+
+    .. class:: small
+
+        :r:`Most (50->56 us) ProcessHits time between stamps 3 and 4`  in ``junoSD_PMT_v2::get_pmtid``
 
 
-:small:`B has ~25% more ProcessHits calls : Is AnaMgr, IO, .. impacted ?`  
----------------------------------------------------------------------------------
 
-.. sidebar:: :small:`cfmeta for 5 evt`
+    :small:`Tail "gap" : junoSD_PMT_v2::get_pmtid : ~50us per hit candidate` 
+    --------------------------------------------------------------------------------------------------------
+
+
+    .. sidebar:: :small:`"get_pmtid_fast" (~1us)`
+
+        .. class:: small
+
+            :r:`Only few SD volumes => use simpler approach :`
+
+        ::
+
+          const G4VTouchable* th = 
+              track->GetTouchable();
+          int ID(-1) ; 
+          ID = th->GetReplicaNumber(1);
+          if( ID <= 0) 
+          ID = th->GetReplicaNumber(2);   
+             
+
+        .. class:: m18
+
+          G4VTouchable::GetReplicaNumber(int depth)
+              depth:0/1/2 : current/parent/grandparent
+
+        
+        .. class:: small
+
+            * tested : old_lpmt, new_lpmt, spmt, wpmt
+            * :b:`same pmtId result in ~1us (not ~50us)` 
+            
+
+
 
     .. raw:: html
 
-        <pre class="mypretiny">
-        NEVT=5 ./ntds.sh cfmeta 
+       <pre class="mypretiny">
+       int junoSD_PMT_v2::get_pmtid(G4Track* track) {
+           int ipmt= -1;
+           const G4VTouchable* touch= track->GetTouchable();
+           int nd= touch->GetHistoryDepth();
+           int id=0;
+           for (id=0; id<nd; id++) {
+             if (touch->GetVolume(id)==track->GetVolume()) {
+               int idid=1;
+               G4VPhysicalVolume* tmp_pv=NULL;
+               for (idid=1; idid < (nd-id); ++idid) {
+                 tmp_pv = touch->GetVolume(id+idid);
+       
+                 G4LogicalVolume* mother_vol = tmp_pv->GetLogicalVolume();
+                 G4LogicalVolume* daughter_vol = touch->GetVolume(id+idid-1)->
+                     GetLogicalVolume();
+                 int no_daugh = mother_vol -> GetNoDaughters();
+                 if (no_daugh > 1) {
+                     int count = 0;
+                     for (int i=0; (count<2) &&(i < no_daugh); ++i) {
+                         if (daughter_vol->GetName()
+                                 ==mother_vol->GetDaughter(i)
+                                    ->GetLogicalVolume()->GetName()) {
+                             ++count;
+                         }
+                     }
+                     if (count > 1) break;
+                 }
+               }
+               ipmt= touch->GetReplicaNumber(id+idid-1);
+               break;
+             }
+           }
+           return ipmt;
+       }
+       </pre>
 
-        msab.c_itab
+    .. class:: small
 
-        array([
-        [[26082, 25126, 25586, 26383, 26177], # A 0:ProcessHits_count 
-         [31874, 31477, 31544, 31319, 32353]],# B   
-         
-        [[ 4022,  3967,  3934,  4193,  4137],     1:ProcessHits_true 
-         [ 3972,  4011,  3941,  4026,  3947]],     
-         
-        [[22060, 21159, 21652, 22190, 22040],     2:ProcessHits_false 
-         [27902, 27466, 27603, 27293, 28406]],     
-         
-        [[ 4022,  3967,  3934,  4193,  4137],     3:SaveNormHit_count 
-         [ 3972,  4011,  3941,  4026,  3947]],     
-        ...
-         
-        [[25249, 24311, 24723, 25561, 25368],     8:NEDEP 
-         [30964, 30552, 30654, 30408, 31459]],     
-         
-        [[    1,     1,     4,     0,     2],     9:NBOUND 
-         [   99,    92,    94,    93,    81]],     
+        :r:`Looping over daughters at multiple levels and name matching to find copyNo` : :b:`NO NEED FOR SUCH GENERALITY`
+
+
+
+
+    SD Touchable histories for SPMT, LPMT_NEW
+    -------------------------------------------
+
+    .. raw:: html
+
+       <pre class="mypretiny">
+        spmt (old/new makes no difference)::
+
+            junoSD_PMT_v2::ProcessHits pmtID 325044 pmtID_1 325044 pmtID_2 325044 pv PMT_3inch_body_phys
+            junoSD_PMT_v2::ProcessHits
+            C4Touchable::Desc HistoryDepth  7 TouchDepth  0 ReplicaDepth  1 ReplicaNumber 325044
+             i  0 cp      0 nd      2 so PMT_3inch_body_solid_ell_ell_helper pv  PMT_3inch_body_phys
+             i  1 cp 325044 nd      2 so  PMT_3inch_pmt_solid pv   PMT_3inch_log_phys
+             i  2 cp      0 nd  46276 so          sInnerWater pv          pInnerWater
+             i  3 cp      0 nd      1 so       sReflectorInCD pv     pCentralDetector
+             i  4 cp      0 nd   4521 so      sOuterWaterPool pv      pOuterWaterPool
+             i  5 cp      0 nd      1 so          sPoolLining pv          pPoolLining
+             i  6 cp      0 nd      1 so          sBottomRock pv             pBtmRock
+
+        LPMT_NEW (same depth to get copynumber as SPMT)::
+
+            junoSD_PMT_v2::ProcessHits pmtID 1425 pmtID_1 1425 pmtID_2 1425 pv NNVTMCPPMT_PMT_20inch_log_phys
+            junoSD_PMT_v2::ProcessHits
+            C4Touchable::Desc HistoryDepth  7 TouchDepth  0 ReplicaDepth  1 ReplicaNumber   1425
+             i  0 cp      0 nd      1 so NNVTMCPPMT_PMT_20inch_pmt_solid_head pv NNVTMCPPMT_PMT_20inch_log_phys
+             i  1 cp   1425 nd      3 so NNVTMCPPMTsMask_virtual pv    pLPMT_NNVT_MCPPMT
+             i  2 cp      0 nd  46276 so          sInnerWater pv          pInnerWater
+             i  3 cp      0 nd      1 so       sReflectorInCD pv     pCentralDetector
+             i  4 cp      0 nd   4521 so      sOuterWaterPool pv      pOuterWaterPool
+             i  5 cp      0 nd      1 so          sPoolLining pv          pPoolLining
+             i  6 cp      0 nd      1 so          sBottomRock pv             pBtmRock
+        </pre>
+
+    .. class:: small
+
+        Also checked with input photons targetting ``Hama:0:0  ## (pmtid == 0)`` 
+
+
+    SD Touchable histories for LPMT_OLD, WPMT
+    -------------------------------------------
+
+    .. raw:: html
+
+       <pre class="mypretiny">
+        LPMT_OLD (one more level to get copynumber)::
+
+            junoSD_PMT_v2::ProcessHits pmtID 1425 pmtID_1 1425 pmtID_2 1425 pv NNVTMCPPMT_PMT_20inch_body_phys
+            junoSD_PMT_v2::ProcessHits
+            C4Touchable::Desc HistoryDepth  8 TouchDepth  0 ReplicaDepth  2 ReplicaNumber   1425
+             i  0 cp      0 nd      2 so NNVTMCPPMT_PMT_20inch_body_solid_head pv NNVTMCPPMT_PMT_20inch_body_phys
+             i  1 cp      0 nd      1 so NNVTMCPPMT_PMT_20inch_pmt_solid_head pv NNVTMCPPMT_PMT_20inch_log_phys
+             i  2 cp   1425 nd      3 so NNVTMCPPMTsMask_virtual pv    pLPMT_NNVT_MCPPMT
+             i  3 cp      0 nd  46276 so          sInnerWater pv          pInnerWater
+             i  4 cp      0 nd      1 so       sReflectorInCD pv     pCentralDetector
+
+        WPMT (same depth to get copynumber as LPMT_OLD)
+
+           junoSD_PMT_v2::ProcessHits pmtID 31000 pmtID_1 31000 pmtID_2 31000 pv PMT_20inch_veto_body_phys
+            junoSD_PMT_v2::ProcessHits
+            C4Touchable::Desc HistoryDepth  6 TouchDepth  0 ReplicaDepth  2 ReplicaNumber  31000
+             i  0 cp      0 nd      2 so PMT_20inch_veto_body_solid_1_2 pv PMT_20inch_veto_body_phys
+             i  1 cp      0 nd      1 so PMT_20inch_veto_pmt_solid_1_2 pv PMT_20inch_veto_log_phys
+             i  2 cp  31000 nd      2 so mask_PMT_20inch_vetosMask_virtual pv mask_PMT_20inch_vetolMaskVirtual_phys
+             i  3 cp      0 nd   4521 so      sOuterWaterPool pv      pOuterWaterPool
+             i  4 cp      0 nd      1 so          sPoolLining pv          pPoolLining
+             i  5 cp      0 nd      1 so          sBottomRock pv             pBtmRock
          </pre>
 
 
-.. class:: small 
+    :i:`B_V1J008_N1_OIPF_PMT_20inch_veto:0:1000_target_WPMT.png`
+    -------------------------------------------------------------
 
-    +---+-----------------------------------------------------------+
-    | A | fake volume 1e-3 mm larger than vacuum is Sensitive       |
-    +---+-----------------------------------------------------------+
-    | B | full 5mm larger than vacuum is Sensitive                  |
-    |   |                                                           |
-    |   | * larger sensitive volume than A                          |
-    |   | * => 30% more ProcessHits:false calls                     |
-    |   | * :r:`potential to reduce perf when memory constrained`   | 
-    |   |                                                           |
-    |   |   * depends on the AnaMgr                                 |
-    +---+-----------------------------------------------------------+
+    .. raw:: html
 
+        <p style="margin-bottom:150mm;" />
 
+    .. class:: small 
 
-:small:`Ideas for further investigations`
------------------------------------------------------
+        ``OPTICKS_INPUT_PHOTON_FRAME=PMT_20inch_veto:0:1000 ntds2``
 
-.. sidebar:: :small:`Only Opticks anamgr`
-
-   .. class:: small
-
-        When using Opticks U4Recorder, only ``--opticks-anamgr`` is enabled::
-
-            anamgr(){ cat << EOU
-            --opticks-anamgr
-            --no-anamgr-normal
-            --no-anamgr-genevt
-            --no-anamgr-edm-v2
-            --no-anamgr-grdm
-            --no-anamgr-deposit
-            --no-anamgr-deposit-tt
-            --no-anamgr-interesting-process
-            --no-anamgr-optical-parameter
-            --no-anamgr-timer
-            EOU
-            }
-
-
-.. class:: small
-
-    Suggestions to understand futher:
- 
-    * compare with IO disabled 
-    * compare with all anamgr disabled 
-    * enable anamgr one-by-one 
-    * enable IO
-    * memory measurements
- 
-    **which has most impact on A/B performance ?**
-
-    :r:`However : Pointless to spend much effort` as **A is WRONG**:
-
-    * incorrect propagation time within PMT
-    * incorrect reflect polarization
-    * incorrect refract polarization
-    * tunneling through geometry (*) 
-    * unphysical photon : mid-vac D,A,R,T (*)
-    * overcomplex PMT geometry
-    * can still use: ``--pmt-unnatural-geometry``
-
-    (*) these actually fixed in branch 
-
-    :b:`Detailed comparison only worthwhile between valid alternatives`
+        ``N=1 MODE=3 ~/j/ntds/ntds.sh ana   ## checking "get_pmtid_fast" for WPMT``
 
 
 
-PHO_AVG_GPFX_V_for_Debug.png
-------------------------------
 
-
-PHO_AVG_GPFX_R_for_Release.png
------------------------------------
-
-
-
-.. comment
-
-    :small:`SniperProfile DetSimAlg for V:Debug R:Release with A(N=0) B(N=1)`
-    ---------------------------------------------------------------------------
+    :small:`Yaoguang Observations (Not reproduced by Simon on Workstation)`
+    ------------------------------------------------------------------------
 
     .. class:: small
 
-        With only opticks-anamgr for U4Recorder. Results from ``GUN=2 ntds2_cf`` 
+        * totalPE distributions are almost the same as expected.
+        * But .. the natural geometry is more time-consuming than the unnatural one. 
+
+          * (this is batch running, presumably with much more memory+IO pressure)
+
+        **Yaoguang : Event Time from Mean of 100 runs of 500 evt**
+
+        +-------------------------------+--------+-----------------------------------+
+        | ``--pmt-unnatural-geometry``  | 1.40s  |                                   |
+        +-------------------------------+--------+-----------------------------------+
+        | ``--pmt-natural-geometry``    | 2.04s  |  (~45% longer with bug fixes ?)   |  
+        +-------------------------------+--------+-----------------------------------+
+
+        ``/junofs/users/wangyg/Software/juno-dev/Official/sim_dat``
+
+        :: 
+
+              python ${RunPath}/tut_detsim.py 
+                   --evtmax 500 --seed $1  ... (output opts skipped) ...
+                   --pmt-natural-geometry [ OR --pmt-unnatural-geometry ]  
+                   gun --particles gamma --momentums 2.223 
+                   --momentums-interp KineticEnergy --positions 0 0 0
+
+
+        Simon : Comparing an implementation with many known bugs with one that fixes them 
+
+        * :r:`thats an apples-vs-oranges "invalid" comparison`
+        * also the implementation from the branch is not the same at the one in main 
+        * BUT good to understand whats taking time : hoping for optimizations
+
+
+
+    10 evt check on workstation (no memory pressure?)
+    ---------------------------------------------------
+
+    .. sidebar:: :small:`Natural always faster than Unnatural`
+
+        .. class:: small       
+
+              +---+-----+---------------------------+ 
+              | A | N=0 | --pmt-unnatural-geometry  |
+              +---+-----+---------------------------+ 
+              | B | N=1 | --pmt-natural-geometry    |
+              +---+-----+---------------------------+ 
+
+              B always faster than A in all config, variations tried
+
+              0. Debug build, U4Recorder, only opticks-anamgr
+              1. Debug build, no Opticks, default anamgr
+              2. Release build, no Opticks, default anamgr
+
+
+    .. class:: small 
+
+        **Debug build, with Opticks U4Recorder, only opticks-anamgr**
 
     .. raw:: html
-      
-        <pre class="mypretiny">
-        epsilon:GEOM blyth$ find . -name '*.tlog' -exec grep -H ^DetSimAlg {} \;
-        ./V0J008/ntds2/ALL0/ntds2.tlog:DetSimAlg                10          54994.47266    5499.44727   361.45867    
-        ./V1J008/ntds2/ALL1/ntds2.tlog:DetSimAlg                10          49180.87549    4918.08755   237.30542    
-        ./R0J008/ntds2/ALL0/ntds2.tlog:DetSimAlg                10          32793.73901    3279.37390   140.08360    
-        ./R1J008/ntds2/ALL1/ntds2.tlog:DetSimAlg                10          29882.99414    2988.29941   109.68597    
-        epsilon:GEOM blyth$ 
+
+        <pre class="mypretiny"> 
+        GUN=2 ntds2_cf:            Count       Total(ms)     
+        A : DetSimAlg                10          55232.92090   
+        B : DetSimAlg                10          48998.21484   
         </pre>
+
+    .. class:: small 
+
+        **Debug build, no Opticks, default anamgr**
+
+    .. raw:: html
+
+        <pre class="mypretiny"> 
+        GUN=2 ntds0_cf:           Count       Total(ms)     
+        A : DetSimAlg              10          32182.09277   
+        B : DetSimAlg              10          20433.68774   
+        </pre>
+
+
+
+    .. class:: small
+
+        **Release build, no Opticks, default anamgr**
+
+    .. raw:: html
+
+        <pre class="mypretiny"> 
+        GUN=2 ntds0_cf:             Count       Total(ms)     
+        A : DetSimAlg                10          13037.99695   
+        B : DetSimAlg                10          12551.25012   
+        </pre>
+
+    .. comment
+
+        a = np.array([[  55232.92090, 48998.21484  ], [32182.09277, 20433.68774], [13037.99695, 12551.25012] ])
+
+    .. class:: small
+
+        **Release build, no Opticks, default anamgr,** :r:`switch to "get_pmtid_fast" (B: ~6% faster)`
+
+    .. raw:: html
+
+        <pre class="mypretiny"> 
+        GUN=2 ntds0_cf:             Count       Total(ms)
+        A : DetSimAlg                10          12678.48804    
+        B : DetSimAlg                10          11844.33704    
+        </pre>
+
+
+
+    .. class:: small
+
+        **Release build, no Opticks, default anamgr,** :r:`switch to "get_pmtid_fast" (B: ~6% faster), disable all anamgr`
+
+    .. raw:: html
+
+        <pre class="mypretiny"> 
+        GUN=2 ntds0_cf:             Count       Total(ms)
+        A : DetSimAlg                10          11973.54700    
+        B : DetSimAlg                10          11426.45898   <span class="b">Workstation : : A,B get closer as memory decreases ?</span> 
+        </pre>
+
+
+
+
+    :small:`A vs B : Attempt to Explain Observed Workstation Performance`
+    -----------------------------------------------------------------------
+
+    .. sidebar:: :small:`A/B B/A ratios`
+
+        ::
+
+                    A          B 
+            array([[55232.921, 48998.215],
+                   [32182.093, 20433.688],
+                   [13037.997, 12551.25 ]])
+
+             a[:,1]/a[:,0]  # B/A
+             array([0.887, 0.635, 0.963])
+
+             a[:,0]/a[:,1]  # A/B
+             array([1.127, 1.575, 1.039])
+
+
+    .. class:: small 
+
+       0. Debug build, U4Recorder, only opticks-anamgr
+       1. Debug build, no Opticks, default anamgr
+       2. Release build, no Opticks, default anamgr
+
+       +---+---------------------+--------------------------------------------------+
+       | 0 | Both slow           | recording every photon point is expensive        |  
+       |   |                     | (also fake skipping is expensive)                |
+       +---+---------------------+--------------------------------------------------+
+       | 1 | A,B most diff       | default multiple anamgr => memory/IO pressure ?  |
+       |   |                     |                                                  |
+       |   |                     | * highest memory pressure                        |
+       +---+---------------------+--------------------------------------------------+
+       | 2 | A,B closest         | Release eases memory ?                           |
+       |   |                     |                                                  |
+       |   |                     | * lowest memory pressure                         |
+       +---+---------------------+--------------------------------------------------+
+
+       * Release running => greatly reduced memory pressure 
+       * B has ~30% elevated ProcessHits:false calls from larger sensitive volume 
+
+         * :r:`if AnaMgr sensitive to that could explain decreased B performance in batch jobs` 
          
 
 
+    :small:`B has ~25% more ProcessHits calls : Is AnaMgr, IO, .. impacted ?`  
+    ---------------------------------------------------------------------------------
+
+    .. sidebar:: :small:`cfmeta for 5 evt`
+
+        .. raw:: html
+
+            <pre class="mypretiny">
+            NEVT=5 ./ntds.sh cfmeta 
+
+            msab.c_itab
+
+            array([
+            [[26082, 25126, 25586, 26383, 26177], # A 0:ProcessHits_count 
+             [31874, 31477, 31544, 31319, 32353]],# B   
+             
+            [[ 4022,  3967,  3934,  4193,  4137],     1:ProcessHits_true 
+             [ 3972,  4011,  3941,  4026,  3947]],     
+             
+            [[22060, 21159, 21652, 22190, 22040],     2:ProcessHits_false 
+             [27902, 27466, 27603, 27293, 28406]],     
+             
+            [[ 4022,  3967,  3934,  4193,  4137],     3:SaveNormHit_count 
+             [ 3972,  4011,  3941,  4026,  3947]],     
+            ...
+             
+            [[25249, 24311, 24723, 25561, 25368],     8:NEDEP 
+             [30964, 30552, 30654, 30408, 31459]],     
+             
+            [[    1,     1,     4,     0,     2],     9:NBOUND 
+             [   99,    92,    94,    93,    81]],     
+             </pre>
+
+
+    .. class:: small 
+
+        +---+-----------------------------------------------------------+
+        | A | fake volume 1e-3 mm larger than vacuum is Sensitive       |
+        +---+-----------------------------------------------------------+
+        | B | full 5mm larger than vacuum is Sensitive                  |
+        |   |                                                           |
+        |   | * larger sensitive volume than A                          |
+        |   | * => 30% more ProcessHits:false calls                     |
+        |   | * :r:`potential to reduce perf when memory constrained`   | 
+        |   |                                                           |
+        |   |   * depends on the AnaMgr                                 |
+        +---+-----------------------------------------------------------+
+
+
+
+    :small:`Ideas for further investigations`
+    -----------------------------------------------------
+
+    .. sidebar:: :small:`Only Opticks anamgr`
+
+       .. class:: small
+
+            When using Opticks U4Recorder, only ``--opticks-anamgr`` is enabled::
+
+                anamgr(){ cat << EOU
+                --opticks-anamgr
+                --no-anamgr-normal
+                --no-anamgr-genevt
+                --no-anamgr-edm-v2
+                --no-anamgr-grdm
+                --no-anamgr-deposit
+                --no-anamgr-deposit-tt
+                --no-anamgr-interesting-process
+                --no-anamgr-optical-parameter
+                --no-anamgr-timer
+                EOU
+                }
+
+
     .. class:: small
 
-        With default set of anamgr, without Opticks/U4Recorder. Results from ``GUN=2 ntds0_cf``
+        Suggestions to understand futher:
+     
+        * compare with IO disabled 
+        * compare with all anamgr disabled 
+        * enable anamgr one-by-one 
+        * enable IO
+        * memory measurements
+     
+        **which has most impact on A/B performance ?**
+
+        :r:`However : Pointless to spend much effort` as **A is WRONG**:
+
+        * incorrect propagation time within PMT
+        * incorrect reflect polarization
+        * incorrect refract polarization
+        * tunneling through geometry (*) 
+        * unphysical photon : mid-vac D,A,R,T (*)
+        * overcomplex PMT geometry
+        * can still use: ``--pmt-unnatural-geometry``
+
+        (*) these actually fixed in branch 
+
+        :b:`Detailed comparison only worthwhile between valid alternatives`
 
 
 
-PHO_N_Release_Count_10.png
-----------------------------
- 
+    PHO_AVG_GPFX_V_for_Debug.png
+    ------------------------------
+
+
+    PHO_AVG_GPFX_R_for_Release.png
+    -----------------------------------
+
+
+
+    .. comment
+
+        :small:`SniperProfile DetSimAlg for V:Debug R:Release with A(N=0) B(N=1)`
+        ---------------------------------------------------------------------------
+
+        .. class:: small
+
+            With only opticks-anamgr for U4Recorder. Results from ``GUN=2 ntds2_cf`` 
+
+        .. raw:: html
+          
+            <pre class="mypretiny">
+            epsilon:GEOM blyth$ find . -name '*.tlog' -exec grep -H ^DetSimAlg {} \;
+            ./V0J008/ntds2/ALL0/ntds2.tlog:DetSimAlg                10          54994.47266    5499.44727   361.45867    
+            ./V1J008/ntds2/ALL1/ntds2.tlog:DetSimAlg                10          49180.87549    4918.08755   237.30542    
+            ./R0J008/ntds2/ALL0/ntds2.tlog:DetSimAlg                10          32793.73901    3279.37390   140.08360    
+            ./R1J008/ntds2/ALL1/ntds2.tlog:DetSimAlg                10          29882.99414    2988.29941   109.68597    
+            epsilon:GEOM blyth$ 
+            </pre>
+             
+
+
+        .. class:: small
+
+            With default set of anamgr, without Opticks/U4Recorder. Results from ``GUN=2 ntds0_cf``
+
+
+
+    PHO_N_Release_Count_10.png
+    ----------------------------
+     
 
