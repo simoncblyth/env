@@ -94,14 +94,30 @@
 
 .. comment 
 
-   DONE : NPFold
-   DONE : SPMT/QPMT/qpmt workflow
+   DONE : NPFold : BUT HOW TO FIT THAT IN 
 
-   TODO : Low dep PMT data access
-   TODO : Other work : sur/mat/bnd/optical snd ... code reduction
-   TODO : Custom Fix Validation
+   DONE : SPMT/QPMT/qpmt workflow
+   DONE : Custom Fix Validation
+
+
+   DONE : geom scan renders
+
+   TODO : Low dep PMT data access (this is more interesting than other work)
+
+   TODO : Other work : needs mention, but code dev not very engaging, until almost done 
+
+   * sur/mat/bnd/optical is essentially complete : but not very interesting, just needs a bullet point 
+   * snd/sn/scsg/sndtree/s_pool : very liable to change so just a bullet point 
+
    TODO : QPMT_Test ART plot, LayrTest comparison table, comparison with CPU calc, PMT Specific check 
+
    TODO : describe MOCK_TEXTURE, MOCK_CURAND : and what that allows 
+
+   TODO : Next steps 
+
+   TODO : contents 
+
+
 
 
 
@@ -643,7 +659,7 @@ junoPMTOpticalModel Issues : All from using FastSim
 .. class:: large
 
    :b:`Advantages far outweigh disadvantages`
-     * :r:`MR 180 : MERGED (May 25, 2023)`
+     * :r:`MR 180 : MERGED May 25, 2023`
 
 
 
@@ -1316,6 +1332,158 @@ Transform photon history points into target frame
 
 
 
+
+
+  
+
+
+:i:`cxr_min__eye_-10,0,0__zoom_0.5__tmin_0.1__sChimneyAcrylic_increased_TMAX.jpg`
+-----------------------------------------------------------------------------------
+
+``ELV=t94,95 ./cxr_min.sh  ## skip sTarget sAcrylic``
+
+.. s5_talk::
+
+   Skipping the acrylic sphere and scintillator target allows to see more of the PMTs
+ 
+
+
+:i:`cxr_min__eye_-10,0,-30__zoom_0.5__tmin_0.1__sChimneyAcrylic_photon_eye_view.jpg`
+--------------------------------------------------------------------------------------
+
+``ELV=t94,95 ./cxr_min.sh ## skip sTarget sAcrylic : upwards view`` 
+
+.. s5_talk::
+
+   Here is a photon eye view from inside the scintillator, looking upwards towards the Chimney. 
+
+
+:i:`cxr_overview_emm_image_grid_overview`
+-------------------------------------------
+
+``Comparison of ray traced render times of different geometry`` 
+  ``simple way to find issues, eg over complex CSG, overlarge BBox`` 
+
+
+.. s5_talk::
+
+   Comparisons of ray trace rendering times provides simple way to look 
+   for performance issues
+
+
+.. comment
+
+    :i:`scan_emm_jpg_select.txt_coarse.jpg`
+    -----------------------------------------
+
+:i:`cxr_view_emm_t0_elv_t142_eye_-1,-1,-1,1__zoom_1__tmin_0.4__sWaterTube_skip_sBottomRock.jpg`
+-------------------------------------------------------------------------------------------------
+
+``Render inside JUNO water buffer : PMTs, chimney, support sticks`` 
+
+
+.. s5_talk::
+
+   Acceleration structure creation is a black box, so have to adopt an experimental 
+   approach to finding the best geometry modelling to use.   
+
+
+:i:`image_grid_elv_scan.jpg`
+------------------------------
+
+``Spot the differences : from volume exclusions``
+
+.. s5_talk::
+
+   If you look closely at the renders you can see differences 
+   from the exclusion of single volume types. Doing this for 
+   all volume types allows to sort the volumes by their 
+   impact on the performance. 
+
+
+.. comment
+
+    vi $HOME/j/issues/scan_elv_jpg_select.txt  ## manually prepare list of 9 jpg with visible diffs
+    export JPGLIST=$HOME/j/issues/scan_elv_jpg_select.txt
+    open -n $(cat $JPGLIST)
+    cx
+    JPGLIST=$JPGLIST ./image_grid.sh 
+
+
+
+
+.. comment
+
+    cxr_min__eye_-10,0,0__zoom_0.5__tmin_0.1__sChimneyAcrylic_explain_the_grey.jpg
+    --------------------------------------------------------------------------------
+
+    Maybe a TMAX issue again ?
+
+
+
+:small:`cxr_overview.sh ELV scan 1080x1920 2M (NVIDIA TITAN RTX)`
+---------------------------------------------------------------------
+
+.. class:: small
+
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |idx|        -e|       time(s)    |      relative    |    enabled geometry description                                              |
+    +===+==========+==================+==================+==============================================================================+
+    |  0|      t133|        0.0077    |        0.9347    |    EXCL: sReflectorInCD                                                      |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  1|       t37|        0.0079    |        0.9518    |    EXCL: GLw1.bt08_bt09_FlangeI_Web_FlangeII                                 |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  2|       t74|        0.0079    |        0.9616    |    EXCL: GZ1.B06_07_FlangeI_Web_FlangeII                                     |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  ...                                                                                                                              |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 35|         t|        0.0083    |        1.0000    |    ALL                                                                       |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  ...                                                                                                                              |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |141|       t50|        0.0097    |        1.1750    |    EXCL: GLb1.up01_FlangeI_Web_FlangeII                                      |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |142|       t39|        0.0097    |        1.1751    |    EXCL: GLw1.bt10_bt11_FlangeI_Web_FlangeII                                 |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |143|      t123|        0.0097    |        1.1753    |    EXCL: PMT_3inch_inner1_solid_ell_helper                                   |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |144|       t46|        0.0097    |        1.1758    |    EXCL: GLb1.up05_FlangeI_Web_FlangeII                                      |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |145|       t16|        0.0102    |        1.2320    |    EXCL: sExpRockBox                                                         |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+
+.. class:: small
+
+    :r:`Dynamic geometry : excluding volumes of each of 146 solids (after excluding slowest: solidXJfixture)` 
+
+    * time range : 0.0077->0.0102 s (~ +-20% )  
+    * reproducibility ~+-10%
+
+    :b:`Small time range suggests no major geometry performance issues remain, after excluding slowest`
+
+    * :r:`solids with deep CSG trees (eg solidXJfixture) can cause >2x slow downs`  
+
+
+.. s5_talk::
+
+    You might think that the geometry without any exclusions would be the slowest, but 
+    that is not the case. Varying the geometry changes the details of the acceleration structure. 
+    Here the time range from fastest to slowest is rather small, suggesting there are 
+    no major geometry performance problems left. 
+
+    This is only the case after I excluded some problematic geometry. 
+ 
+ 
+
+
+
+
+
+
+
+
+
+
 :small:`Entire Geometry Serializes into NPFold.h tree`
 -------------------------------------------------------
 
@@ -1482,7 +1650,70 @@ Transform photon history points into target frame
 
 .. s5_talk::
 
-    HMM
+    Bringing CustomART to GPU 
+
+
+
+
+
+LayrTest__R12860_QPMT_Test.png
+----------------------------------
+
+
+
+Comparing AOI scans : ``j/Layr/LayrTest.sh`` 
+---------------------------------------------
+
+.. sidebar:: :small:`Shapes`
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+        In [6]: h.f.art.shape 
+        Out[6]: (9, 900, 4, 4)
+        In [7]: h.f.comp.shape
+        Out[7]: (9, 900, 1, 4, 4, 2)
+
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    CFLayrTest
+     a :              LayrTest : scan__R12860__cpu_thr_double 
+     b :              LayrTest : scan__R12860__cpu_thr_float 
+     c :              LayrTest : scan__R12860__gpu_thr_double 
+     d :              LayrTest : scan__R12860__gpu_thr_float 
+     e :             SPMT_test : sscan 
+     f :              QPMTTest : qscan 
+     g :         QPMT_MockTest : qscan 
+     h :             QPMT_Test : qscan 
+
+    ## tab, rst = ts.cf_table(tt, pmtcat, excl=excl) # excl 0.05 
+    ## rst 
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    |          R12860 art\comp 0.05|     a:ctd|     b:ctf|     c:gtd|     d:gtf|        e:|        f:|        g:|        h:|
+    +==============================+==========+==========+==========+==========+==========+==========+==========+==========+
+    |                         a:ctd|         0| 4.829e-05| 1.066e-14| 4.829e-05| 8.644e-05| 3.422e-05| 4.255e-05| 3.685e-05|
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    |                         b:ctf| 9.317e-07|         0| 4.829e-05| 5.722e-06| 4.578e-05|  5.15e-05|  5.15e-05| 5.531e-05|
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    |                         c:gtd| 1.582e-15| 9.317e-07|         0| 4.829e-05| 8.644e-05| 3.422e-05| 4.255e-05| 3.685e-05|
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    |                         d:gtf| 7.958e-07| 8.792e-07| 7.958e-07|         0| 4.196e-05| 5.341e-05| 5.722e-05| 5.913e-05|
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    |                            e:| 2.956e-06| 3.159e-06| 2.956e-06|  3.07e-06|         0| 5.341e-05|  5.15e-05| 4.959e-05|
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    |                            f:| 3.094e-06| 3.338e-06| 3.094e-06| 3.159e-06| 1.192e-06|         0| 1.335e-05| 9.537e-06|
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    |                            g:| 2.956e-06| 3.159e-06| 2.956e-06|  3.07e-06| 7.451e-07| 1.103e-06|         0| 7.629e-06|
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    |                            h:| 2.907e-06| 3.248e-06| 2.907e-06| 2.921e-06| 7.451e-07| 8.941e-07| 8.419e-07|         0|
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    </pre>
+
+.. class:: small
+
+    Largest differences between ART (9, 900, 4, 4) from various tests (float,double,GPU,CPU,mock-CPU,standalone...) 
 
 
 
@@ -1492,6 +1723,12 @@ Transform photon history points into target frame
 
 
 
+Extras : not for presentation follow
+---------------------------------------
+
+.. s5_talk::
+
+    Klop
 
 
 
@@ -1508,6 +1745,11 @@ Transform photon history points into target frame
 
     :r:`(s0) beginPhoton` :b:`(s1) finalPhoton` :g:`( ) pointPhoton` :c:`(h0) ProcessHits[` :c:`(i0) ProcessHits]` 
     -- **ProcessHits taking ~56us for SD** 
+
+
+.. s5_talk::
+
+   Time Stamp analysis reveals "tail gap"  
 
 
 
@@ -1588,6 +1830,9 @@ Transform photon history points into target frame
     :r:`Looping over daughters at multiple levels and name matching to find copyNo` : :b:`NO NEED FOR SUCH GENERALITY`
 
 
+.. s5_talk::
+
+   No need to pay the price of general code, when geometry not changing so much anymore
 
 
 
