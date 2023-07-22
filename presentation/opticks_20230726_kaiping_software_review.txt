@@ -29,8 +29,6 @@
 
 .. comment
 
-   TODO : ART plot presentation improvement, (A,R,T plots) 
-
    WIP : Next steps, conclusion/summary page 
 
    TODO : s5_talk, talk PDF 
@@ -91,8 +89,8 @@
 
     * CUDA equivalent of C4CustomART::doIt, (A,R,T) Comparisons from AOI scans : :r:`MATCHED`
 
-  * (p40) **Other Work** : U4Tree/stree minimal Geometry translation, Mocking CUDA  
-  * (p42) **Next Steps** : Validation with input photons (GPU vs CPU), standalone (FewPMT) then insitu tests
+  * (p43) **Other Work** : U4Tree/stree minimal Geometry translation, Mocking CUDA  
+  * (p45) **Next Steps** : Validation with input photons (GPU vs CPU), standalone (FewPMT) then insitu tests
 
 
 .. raw:: html
@@ -1734,6 +1732,30 @@ Transform photon history points into target frame
     ARTPlot
 
 
+:i:`LayrTest__R12860_Aspa.png`
+---------------------------------
+
+.. s5_talk::
+
+    Aspa
+
+:i:`LayrTest__R12860_Rspa.png`
+---------------------------------
+
+.. s5_talk::
+
+    Rspa
+
+:i:`LayrTest__R12860_Tspa.png`
+---------------------------------
+
+.. s5_talk::
+
+    Tspa
+
+
+
+
 Comparing AOI scans : ``j/Layr/LayrTest.sh`` 
 ---------------------------------------------
 
@@ -1786,7 +1808,7 @@ Comparing AOI scans : ``j/Layr/LayrTest.sh``
 
 .. class:: small
 
-    Largest differences between ART (9, 900, 4, 4) from various tests (float,double,GPU,CPU,mock-CPU,standalone...) 
+    :b:`Largest differences between ART (9, 900, 4, 4) from various tests (float,double,GPU,CPU,mock-CPU,standalone...)` 
 
 
 .. s5_talk::
