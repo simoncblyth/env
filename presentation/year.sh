@@ -1,5 +1,6 @@
 #!/bin/bash -l 
 
-YEAR=${1:-2023}
+year=2023
+YEAR=${YEAR:-$year}
 
 ls -l *${YEAR}*.txt | grep -v TALK 

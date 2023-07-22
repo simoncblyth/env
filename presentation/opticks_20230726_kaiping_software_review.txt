@@ -13,7 +13,6 @@
 .. comment
 
    From Ziyan, July 11th
-
    Due to conflits with other sessions, finally the offline software review has
    been arranged in the moring of Beijing time(26 Jul 2023, 09:00).  Please see
    the details from DocDB:
@@ -27,17 +26,16 @@
    THAT IS EARLY MORNING 02:00 AM OF Wednesday 26th July, 
    IE IMMEDIATELY FOLLOWING LATE NIGHT OF Tuesday 25th 
 
-   TODO : Next steps 
 
-   TODO : Other work (essentially "Misc") needing mention 
+.. comment
 
-   * describe MOCK_TEXTURE, MOCK_CURAND : and what that allows : that can be a sidebar 
-   * add as last page, simply a bullet list and ref to progress notes 
-   * sur/mat/bnd/optical is essentially complete 
-   * snd/sn/scsg/sndtree/s_pool : very liable to change so just a bullet point 
+   TODO : ART plot presentation improvement, (A,R,T plots) 
 
+   WIP : Next steps, conclusion/summary page 
 
-   WIP : QPMT_Test ART plot, LayrTest comparison table, comparison with CPU calc, PMT Specific check 
+   TODO : s5_talk, talk PDF 
+
+   TODO : publish in triplicate, PDF creation, docdb upload   
 
 
 
@@ -57,28 +55,28 @@
 
 .. class:: small
 
-  * **Summary Timeline of JUNOSW PMT Simulation Development**  
+  * (p1) **Summary Timeline of JUNOSW PMT Simulation Development**  
 
-  * **Issues** : with FastSim based *junoPMTOpticalModel* 
+  * (p2) **Issues** : with FastSim based *junoPMTOpticalModel* 
 
     * Unnatural FastSim kludged PMT geometry : Pyrex+Pyrex+Vacuum+Vacuum (Natural: Pyrex+Vacuum)
     * :r:`BUGS:` polarization and propagation time within PMT were wrong
     * :r:`MORE BUGS:` unphysical mid-vacuum reflect, refract, absorb, detect, "tunneling" thru dynode/MCP
 
-  * **FIX** : adopting simple PMT geometry with custom C4OpBoundaryProcess
+  * (p10) **FIX** : adopting simple PMT geometry with custom C4OpBoundaryProcess
 
     * Pivot to C4OpBoundaryProcess for PMT Optical Model (:r:`MR 180 : MERGED`)
     * C4OpBoundaryProcess::PostStepDoIt : 3-way (A,R,T) Customization with C4CustomART.h
     * Low dependency access to PMT data from anywhere (:r:`MR 126 : MERGED`)
     * Custom4 : Custom Boundary Multi-Layer Thin Film (A,R,T) TMM Calc
 
-  * **Validation of FIX** : with Opticks full photon history recording, U4Recorder
+  * (p16) **Validation of FIX** : with Opticks full photon history recording, U4Recorder
 
     * Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
     * Opticks SEvt loaded into ipython : arrays detailing every photon point
     * Insitu input photon tests (CPU only), Statistical photon history Chi2 comparison 
 
-  * **Extra** : slow ``junoSD_PMT_v2::get_pmtid`` ~50us per hit candidate, alternative <1us with exact same results
+  * (p29) **Extra** : slow ``junoSD_PMT_v2::get_pmtid`` ~50us per hit candidate, alternative <1us with exact same results
 
 .. raw:: html
 
@@ -88,15 +86,13 @@
 
 .. class:: small
 
-  * **Opticks Geometry Update** :  Render performance scan : excluding volumes for each of 146 solids
-
-  * **Opticks Extension for PMT Optical Model** : using full PMT info on GPU   
+  * (p31) **Opticks Geometry Update** :  Render performance scan : excluding volumes for each of 146 solids
+  * (p37) **Opticks Extension for PMT Optical Model** : using full PMT info on GPU   
 
     * CUDA equivalent of C4CustomART::doIt, (A,R,T) Comparisons from AOI scans : :r:`MATCHED`
 
-  * **Next Steps** : Validation with input photons (GPU vs CPU)  
-
-    * standalone (FewPMT) then insitu tests, statistical history comparisons, random aligned comparison if needed 
+  * (p40) **Other Work** : U4Tree/stree minimal Geometry translation, Mocking CUDA  
+  * (p42) **Next Steps** : Validation with input photons (GPU vs CPU), standalone (FewPMT) then insitu tests
 
 
 .. raw:: html
@@ -1730,11 +1726,12 @@ Transform photon history points into target frame
 
 
 
+:i:`LayrTest__R12860_QPMT_Test.png`
+--------------------------------------
 
+.. s5_talk::
 
-LayrTest__R12860_QPMT_Test.png
-----------------------------------
-
+    ARTPlot
 
 
 Comparing AOI scans : ``j/Layr/LayrTest.sh`` 
@@ -1792,7 +1789,201 @@ Comparing AOI scans : ``j/Layr/LayrTest.sh``
     Largest differences between ART (9, 900, 4, 4) from various tests (float,double,GPU,CPU,mock-CPU,standalone...) 
 
 
+.. s5_talk::
 
+    Compare ART values from AOI scans from multiple tests 
+
+
+
+:small:`Other Work : U4Tree/stree Minimal Geometry Translation`
+------------------------------------------------------------------------
+
+.. sidebar:: :small:`OLD : Extraneous full GGeo model`
+
+    .. class:: small
+
+        **GGeo** : Historical baggage from export/import era  
+
+    .. raw:: html
+
+        <pre class="mypretiny">+-------------------------------------+
+        | Geant4 ----> GGeo ----> CSGFoundry  |
+        |         X4       CSG_GGeo           |
+        +-------------------------------------+</pre>
+ 
+    .. class:: small
+
+        +-----------------------------------------------------------+
+        |   Progress with adoption of minimal approach              |
+        +--------------------------------------+--------------------+
+        |  Aspect of translation               |     Status         |
+        +======================================+====================+
+        | structural factorization             |    MATCHED         | 
+        +--------------------------------------+--------------------+
+        | instance transforms                  |    MATCHED         |
+        +--------------------------------------+--------------------+
+        | standard CSG                         |    MATCHED         | 
+        +--------------------------------------+--------------------+
+        | :r:`material/surf/boundary` **NEW**  |:r:`MATCHED`        |
+        +--------------------------------------+--------------------+
+        | CSG auto-uncoincidence               |    WIP             |
+        +--------------------------------------+--------------------+
+        | CSG tree balancing                   |    WIP             |
+        +--------------------------------------+--------------------+
+
+        :b:`CLOSE TO HUGE CODE REDUCTION`
+          * ~6 pkgs, hundreds of classes/structs
+          * Opticks will more than half in size
+
+.. class:: small
+
+   +-------------------------------------------+
+   | Geant4 -> U4Tree.h/stree.h -> CSGFoundry  |
+   +-------------------------------------------+
+
+   :b:`Minimal intermediate stree.h model` :r:`(much less code)`
+
+   * benefits of experience : eg n-ary tree serialization
+
+   +------------+--------------------------------------------------+
+   | U4Tree     | G4VPhysicalVolume -> stree/snode  (n-ary tree)   |
+   +------------+--------------------------------------------------+
+   | U4Solid    | G4VSolid -> scsg/snd  (n-ary tree of constituent)|
+   +------------+--------------------------------------------------+
+   | U4Material | G4Material -> NPFold/NP                          | 
+   +------------+--------------------------------------------------+
+   | U4Surface  | G4LogicalSurface -> NPFold/NP                    |
+   +------------+--------------------------------------------------+
+
+   +------------------------------------------------------+
+   |  CSGFoundry/CSGImport                                |
+   |     CSGSolid/CSGPrim/CSGNode <- stree/snode/scsg/snd |
+   +------------------------------------------------------+
+
+
+   `opticks/src/master/notes/progress.rst <https://bitbucket.org/simoncblyth/opticks/src/master/notes/progress.rst>`_
+
+
+.. s5_talk::
+
+    While waiting for merge : worked on direct geometry translation
+
+
+
+
+:small:`Other Work : Mocking CUDA : curand_uniform and tex2D`
+---------------------------------------------------------------
+
+.. sidebar:: :small:`CUDA Mocking Benefits`
+
+    .. class:: small 
+
+         Two simple overrides, :r:`NOW ENABLE:`
+
+         :b:`test + debug most Opticks CUDA on CPU`  
+
+         ::
+
+             qsim.h
+             qprop.h
+             qcerenkov.h
+             qscint.h
+             qpmt.h 
+
+
+         +--------------------------------+
+         | qudarap/tests/QPMT_MockTest.sh |
+         |   eg: qpmt::get_lpmtid_ARTE    | 
+         +--------------------------------+
+         | qudarap/tests/QSim_MockTest.sh |
+         |   eg: qsim::propagate          |
+         |   qsim::propagate_at_boundary  |
+         +--------------------------------+
+
+
+
+
+::
+
+    // sysrap/s_mock_curand.h 
+    struct curandStateXORWOW { ... };
+    typedef curandStateXORWOW curandState_t; 
+    float curand_uniform(
+        curandState_t* state )
+    {   return state->generate_float() ; 
+    } 
+
+    // sysrap/s_mock_texture.h  **NEW** 
+    template<typename T> 
+    T tex2D(cudaTextureObject_t tex, 
+            float x, float y ) 
+    {
+        MockTextureManager* mgr = 
+           MockTextureManager::Get() ; 
+        return 
+           mgr->tex2D<T>( tex, x, y ); 
+    }
+
+.. raw:: html
+
+    <p style="margin-bottom:-3mm;" />
+
+.. class:: small
+
+    :r:`Simple technique, strong benefits, especially now PMT Optical Model on GPU` 
+
+.. s5_talk::
+
+   Simple technique, strong benefits 
+   especially now that have PMT Optical Model on GPU 
+
+
+
+:small:`Next Steps : CPU vs GPU validation : Now with full PMT Optical Model`
+--------------------------------------------------------------------------------
+
+
+.. sidebar:: :small:`Standard Tests`
+
+    1. Input photon 
+
+       * Few PMT standalone
+       * Full geometry insitu
+
+    +---------------------------------+
+    | Stat. photon history comparison |
+    +---------------------------------+
+    | Random aligned, if needed       |
+    +---------------------------------+
+
+    2. Scintillation + Cerenkov 
+
+       * Few PMT standalone
+       * Full geometry insitu
+
+    +---------------------------------+
+    | Stat. photon history comparison |
+    +---------------------------------+
+ 
+
+
+
++----------------------------------------------+
+| opticksMode:2                                |
+|    G4 CPU simulation => U4Recorder/SEvt      |
+|    (as used for PMT geometry comparisons)    | 
++----------------------------------------------+
+| opticksMode:1                                | 
+|    Opticks GPU simulation => SEvt            |
++----------------------------------------------+
+
+
+.. s5_talk::
+
+    Next steps 
+
+
+        
 
 
 
