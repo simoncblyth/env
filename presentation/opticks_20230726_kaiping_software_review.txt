@@ -5,124 +5,125 @@
    :description: (26 July 2023)
    :notes: Summer Meeting Software Review
 
-.. comment
-
-    From Ziyan, July 11th
-
-    Due to conflits with other sessions, finally the offline software review has
-    been arranged in the moring of Beijing time(26 Jul 2023, 09:00).  Please see
-    the details from DocDB:
-    https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?conferenceid=1231
-
-    26 Jul 2023 at 09:00
-    https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?sessionid=2390
-
-    So could you please overcome the difficuties of the time difference? 
-
-    THAT IS EARLY MORNING 02:00 AM OF Wednesday 26th July, 
-    IE IMMEDIATELY FOLLOWING LATE NIGHT OF Tuesday 25th 
-
-.. comment
-
-   TO INCLUDE
-
-   * primary merges list     
-
-   
-
 .. include:: my_s5defs.txt
 
 .. include:: s5_background_image.txt
 
 
+.. comment
 
-:i:`Opticks + JUNO : Progress Review` 
-========================================================================================================
+   From Ziyan, July 11th
+
+   Due to conflits with other sessions, finally the offline software review has
+   been arranged in the moring of Beijing time(26 Jul 2023, 09:00).  Please see
+   the details from DocDB:
+   https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?conferenceid=1231
+
+   26 Jul 2023 at 09:00
+   https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?sessionid=2390
+
+   So could you please overcome the difficuties of the time difference? 
+
+   THAT IS EARLY MORNING 02:00 AM OF Wednesday 26th July, 
+   IE IMMEDIATELY FOLLOWING LATE NIGHT OF Tuesday 25th 
+
+   TODO : Next steps 
+
+   TODO : Other work (essentially "Misc") needing mention 
+
+   * describe MOCK_TEXTURE, MOCK_CURAND : and what that allows : that can be a sidebar 
+   * add as last page, simply a bullet list and ref to progress notes 
+   * sur/mat/bnd/optical is essentially complete 
+   * snd/sn/scsg/sndtree/s_pool : very liable to change so just a bullet point 
+
+
+   WIP : QPMT_Test ART plot, LayrTest comparison table, comparison with CPU calc, PMT Specific check 
+
+
+
+:i:`JUNOSW + Opticks : Status of Opticks Simulation` 
+========================================================
 
 .. raw:: html
 
     <div class="mytitle">
         <header>
             <h1 style="background-color:lightgrey"> 
-                Opticks + JUNO : Progress Review
-                <h2 style="background-color:lightgrey;text-align:center"> Open source, https://bitbucket.org/simoncblyth/opticks </h2>
+                JUNOSW + Opticks : Status of Opticks Simulation
             </h1>
         </header>
     </div>
-    <p style="margin-bottom:35mm;" />
+    <p style="margin-bottom:25mm;" />
 
 .. class:: small
 
+  * **Summary Timeline of JUNOSW PMT Simulation Development**  
 
-  * JUNO + Opticks : Summary Timeline of PMT Simulation Development  
+  * **Issues** : with FastSim based *junoPMTOpticalModel* 
 
-  * Reminder of *junoPMTOpticalModel* issues:
+    * Unnatural FastSim kludged PMT geometry : Pyrex+Pyrex+Vacuum+Vacuum (Natural: Pyrex+Vacuum)
+    * :r:`BUGS:` polarization and propagation time within PMT were wrong
+    * :r:`MORE BUGS:` unphysical mid-vacuum reflect, refract, absorb, detect, "tunneling" thru dynode/MCP
 
-    * Unnatural FastSim kludged PMT geometry : Pyrex+Pyrex+Vacuum+Vacuum 
-    * Natural PMT geometry : Pyrex+Vacuum 
-    * :r:`BUGS:` polarization and propagation time within PMT are wrong
-    * :r:`MORE BUGS:` unphysical mid-vacuum reflect, refract, absorb, detect, "tunneling" 
+  * **FIX** : adopting simple PMT geometry with custom C4OpBoundaryProcess
 
-  * Fix for all issues with simple PMT geometry and custom C4BoundaryProcess
+    * Pivot to C4OpBoundaryProcess for PMT Optical Model (:r:`MR 180 : MERGED`)
+    * C4OpBoundaryProcess::PostStepDoIt : 3-way (A,R,T) Customization with C4CustomART.h
+    * Low dependency access to PMT data from anywhere (:r:`MR 126 : MERGED`)
+    * Custom4 : Custom Boundary Multi-Layer Thin Film (A,R,T) TMM Calc
 
-    * Custom4 : mini-package with Geant4 customizations
-    * Multi-Layer Thin Film (A,R,T) Calc using TMM Calc 
+  * **Validation of FIX** : with Opticks full photon history recording, U4Recorder
 
+    * Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
+    * Opticks SEvt loaded into ipython : arrays detailing every photon point
+    * Insitu input photon tests (CPU only), Statistical photon history Chi2 comparison 
 
+  * **Extra** : slow ``junoSD_PMT_v2::get_pmtid`` ~50us per hit candidate, alternative <1us with exact same results
 
- 
+.. raw:: html
+
+    <p style="margin-bottom:-5mm;" />
+    <hr/>
+    <p style="margin-bottom:-5mm;" />
+
+.. class:: small
+
+  * **Opticks Geometry Update** :  Render performance scan : excluding volumes for each of 146 solids
+
+  * **Opticks Extension for PMT Optical Model** : using full PMT info on GPU   
+
+    * CUDA equivalent of C4CustomART::doIt, (A,R,T) Comparisons from AOI scans : :r:`MATCHED`
+
+  * **Next Steps** : Validation with input photons (GPU vs CPU)  
+
+    * standalone (FewPMT) then insitu tests, statistical history comparisons, random aligned comparison if needed 
+
 
 .. raw:: html
 
     <div class="mycredit">
-       <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS  &mdash; 26 July 2023 </h2>
+       <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS  &mdash; 22nd JUNO Collaboration Meeting, Kaiping, Software Review &mdash; 26 July 2023 </h2>
     </div>
 
 
 .. s5_talk:: 
 
-    junoPMTOpticalModel is the FastSim based implementation of the PMT Optical Model.
+    Despite the title, the bulk of my work in the past year has been 
+    finding and fixing issues with JUNOSW PMT simulation. 
+    Only after bugs with the CPU optical simulation are fixed is
+    it possible to validate the GPU optical simulation. 
 
-    However using FastSim comes with a large number of problems. 
+    The PMT Optical Model was based on FastSim. I will show the issues 
+    with that and present the fix using a custom boundary process. 
 
-    I will remind you of the ones I reported before, and include some
-    new issues I found while testing an alternative approach to using FastSim.
-
-    Namely using a custom boundary process. 
 
  
 
-.. comment 
-
-   DONE : NPFold : BUT HOW TO FIT THAT IN 
-
-   DONE : SPMT/QPMT/qpmt workflow
-   DONE : Custom Fix Validation
-
-
-   DONE : geom scan renders
-
-   TODO : Low dep PMT data access (this is more interesting than other work)
-
-   TODO : Other work : needs mention, but code dev not very engaging, until almost done 
-
-   * sur/mat/bnd/optical is essentially complete : but not very interesting, just needs a bullet point 
-   * snd/sn/scsg/sndtree/s_pool : very liable to change so just a bullet point 
-
-   TODO : QPMT_Test ART plot, LayrTest comparison table, comparison with CPU calc, PMT Specific check 
-
-   TODO : describe MOCK_TEXTURE, MOCK_CURAND : and what that allows 
-
-   TODO : Next steps 
-
-   TODO : contents 
 
 
 
-
-
-:small:`JUNO + Opticks : Summary Timeline of PMT Simulation Development`
----------------------------------------------------------------------------
+:small:`JUNOSW + Opticks : Summary Timeline of PMT Simulation Development`
+-----------------------------------------------------------------------------
 
 .. sidebar:: :small:`Opticks used to find JUNOSW bugs`
 
@@ -334,29 +335,6 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 
 
-:i:`hamaLogicalPMTWrapLV_full_history.png`
---------------------------------------------
-
-.. raw:: html
-
-   <p style="margin-bottom:16.5cm;" />
-
-.. raw:: html
-
-   <pre class="mypre20">   
-   TO  BT  BT  BT  BT  SR  SR  BT  BR  BR  BT  SR  SR  SR  BT  BR  BT  SR  BT  SA   <span class="b"> Lots of fakes </span> 
-   00  01 [02] 03 [04] 05  06 [07] 08  09 [10] 11  12  13 [14] 15 [16] 17 [18] 19   (7/20 Fake)
-   </pre>
-
-
-.. s5_talk::
-
-   Lots of fake step points in current Geant4 histories. The ones across the 
-   middle are obvious. There are others much closer together that are difficult to see. 
-
-
-
-
 
 
 
@@ -385,64 +363,31 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 
 
-.. comment
-
-    :i:`hamaLogicalPMT_fake.png`
-    ------------------------------
-
-    .. class:: small
-     
-       Biggest problem with FastSim based POM : :r:`forces using unnatural geometry`    
-
-    .. raw:: html
-
-        <p style="margin-bottom:3cm;" />
 
 
-    .. class:: normal
-
-       |emsp| |emsp| |emsp| |emsp| 
-       |emsp| |emsp| |emsp| |emsp| 
-       |emsp| |emsp|
-       :c:`body` hidden under :m:`inner1` :y:`inner2` 
-
-       |emsp| |emsp| |emsp| |emsp| 
-       |emsp| |emsp| |emsp| |emsp| 
-       |emsp| |emsp|
-       :c:`body` is :r:`FastSim envelope volume`
 
 
-    .. raw:: html
+:i:`hamaLogicalPMTWrapLV_full_history.png`
+--------------------------------------------
 
-        <p style="margin-bottom:10cm;" />
+.. raw:: html
 
+   <p style="margin-bottom:16.5cm;" />
 
-    .. class:: large
+.. raw:: html
 
-        OLD **Unnatural** 4-volume PMT (Pyrex+Pyrex+Vacuum+Vacuum) => :r:`Half Fake`
-
-
-    :i:`hamaLogicalPMT_natural.png`
-    ---------------------------------
-
-    .. class:: small
-     
-       Biggest advantage with Custom Boundary Process POM : :r:`enables natural geometry`    
+   <pre class="mypre20">   
+   TO  BT  BT  BT  BT  SR  SR  BT  BR  BR  BT  SR  SR  SR  BT  BR  BT  SR  BT  SA   <span class="b"> Lots of fakes </span> 
+   00  01 [02] 03 [04] 05  06 [07] 08  09 [10] 11  12  13 [14] 15 [16] 17 [18] 19   (7/20 Fake)
+   </pre>
 
 
-    .. raw:: html
+.. s5_talk::
 
-        <p style="margin-bottom:15.6cm;" />
-
-
-    .. class:: large
-
-        Natural 2-volume PMT (:b:`Pyrex` + :c:`Vacuum`) : :r:`NOT COMPATIBLE WITH FastSim`  
+   Lots of fake step points in current Geant4 histories. The ones across the 
+   middle are obvious. There are others much closer together that are difficult to see. 
 
 
-    .. s5_talk::
-
-        Natural geometry is not possible when using FastSim
 
 
 
@@ -572,6 +517,13 @@ junoPMTOpticalModel Issues : All from using FastSim
  
   </pre>
 
+.. class:: small
+
+    Fix in **junoPMTOpticalModel::ModelTriggerSimple_**
+
+    * fixed FastSim impl. as needed something to validate against 
+
+
 
 .. s5_talk::
 
@@ -588,9 +540,8 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 
 
-
-:small:`FIX : Pivot to C4OpBoundaryProcess For PMT Optical Model` :r:`MERGED`
--------------------------------------------------------------------------------
+:small:`FIX: Pivot to C4OpBoundaryProcess for PMT Optical Model:` :r:`MERGED`
+---------------------------------------------------------------------------------
 
 .. sidebar:: :small:`Custom Boundary POM`
 
@@ -630,7 +581,6 @@ junoPMTOpticalModel Issues : All from using FastSim
 .. class:: small
  
    **Custom Boundary Process : Advantages**
-
 
    * natural geometry, no fakes
    * standard Geant4 polarization, propagation, time 
@@ -834,21 +784,111 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 
 
+Low dependency access to PMT data :r:`from anywhere`
+------------------------------------------------------
+
+
+.. sidebar:: :small:`Why Low Dependency Access ?` 
+
+   .. class:: small
+
+       * REQUIRED, BY Custom4 + Opticks
+       * CODING BEST PRACTICE
+
+         * :r:`less deps -> more useful code`
+
+       * test separate from the "monolith"
+ 
+         * :r:`development cycle < 1 s (vs minutes)`
+
+       * serialization with **NP.hh,NPFold.h** 
+
+         * https://github.com/simoncblyth/np/  
+
+       **QE scan over 100 energy points, all PMTs**
+
+       +----------------------------------+--------------+  
+       |  IPMTSimParamSvc                 |   7.70 s     |
+       +----------------------------------+--------------+  
+       |  PMTSimParamData                 |   0.30 s     |
+       +----------------------------------+--------------+
+       |  IPMTSimParamSvc/PMTSimParamData |   26.10      | 
+       +----------------------------------+--------------+
+
+       * :r:`exactly same results, 26x faster` 
+
+   .. class:: tiny
+
+       `junosw/-/merge_requests/126 <https://code.ihep.ac.cn/JUNO/offline/junosw/-/merge_requests/126>`_   
+
+   .. class:: small
+
+       +-----------------------------------+
+       | MR 126 :r:`MERGED Feb 3, 2023`    |
+       +-----------------------------------+
+
+
+.. class:: small
+
+    Full PMT access from **Custom4** + **Opticks** without **Svc** : :r:`How ?` 
+
+    1. Add *PMTSimParamData* "core" to *PMTSimParamSvc*
+
+       * :b:`consistent by design` from any source file/DB/Frontier/...
+
+    2. Add *PMTAccessor* impl. of protocol base *C4IPMTAccessor*
+
+       * header only impl + serialization => :r:`PMT data anywhere` 
+       * => :b:`liberate PMT data from monolith` 
+  
+.. class:: small
+
+   **SimSvc/PMTSimParamSvc/PMTSimParamSvc/PMTAccessor.h** 
+
+.. raw:: html
+
+    <pre class="mypretiny">&#35;include "C4IPMTAccessor.h"
+    struct PMTAccessor : public C4IPMTAccessor 
+    {
+        PMTAccessor(const PMTSimParamData* data); 
+        int    get_num_lpmt() const ;     
+        double get_pmtid_qe( int pmtid, double energy ) const ; 
+        ...</pre>
+
+.. class:: small
+
+    **Pure virtual protocol base : Custom4/C4IPMTAccessor.h**
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    struct C4IPMTAccessor   // only standard types in API 
+    {
+        virtual int    get_num_lpmt() const = 0 ; 
+        virtual double get_pmtid_qe( int pmtid, double energy ) const = 0 ; 
+        virtual double get_qescale( int pmtid ) const = 0 ; 
+        ...
+    </pre>
+
+.. class:: small
+
+    :r:`Consistent PMT data access : JUNOSW + Opticks + Custom4` 
+
+
+.. s5_talk::
+
+   First step is to improve access to PMT data for use from the custom boundary process   
 
 
 
 
 
 
-
-
-
-
-:small:`Multi-Layer Thin Film (A,R,T) Calc using TMM Calc (Custom4 Package)`
-------------------------------------------------------------------------------
+:small:`Custom4 : Custom Boundary Multi-Layer Thin Film (A,R,T) TMM Calc`
+---------------------------------------------------------------------------
 
 .. sidebar:: :small:`TMM : Transfer Matrix Method`
- 
+
    .. image:: tmm/multi-layer-stack.png
        :align: center
        :width: 400px
@@ -862,89 +902,19 @@ junoPMTOpticalModel Issues : All from using FastSim
        * Used from **C4OpBoundaryProcess**  
 
        :r:`header-only GPU/CPU` : **C4MultiLayrStack.h**       
-    
-       https://github.com/simoncblyth/customgeant4/
-
-.. class:: small
-
-
-    C4OpBoundaryProcess.hh
-       G4OpBoundaryProcess with C4CustomART.h 
-    
-    C4CustomART.h
-       integrate custom boundary process and TMM calculation
-
-    C4MultiLayrStack.h : :b:`CPU/GPU TMM calculation of (A,R,T)` 
-       based on complex refractive indices and layer thicknesses 
- 
-       * GPU: **using thrust::complex** CPU:**using std::complex**
-
-    :r:`Custom4: Simplifies JUNO PMT Optical Model + Geometry` 
-
-.. image:: GEOM/FewPMT/U4SimtraceTest/1/figs/U4SimtraceTest/mpcap/FewPMT_demo.png
-   :width: 580px
-   :align: left
-
-
-.. comment
- 
-    .. image:: Custom4/Custom4_README.png
-       :width: 580px
-       :align: left
-
-
-.. s5_talk::
-
-   This slide summarizes recent work that enables the JUNO PMT geometry 
-   to be simplified and also enables the same PMT geometry to be used 
-   for the Geant4 and Opticks simulations. 
-
-
-
-
-
-
-
-:small:`Custom4 : mini-package with Geant4 customizations`
-------------------------------------------------------------
-
-.. sidebar:: :small:`Why Custom4 mini-package ?`
-
-   .. class:: small
-
-       * :r:`Avoid junosw-opticks circular dependency:` 
-
-         * by splitting off Custom4 mini-package
 
        * ``Custom4`` depends only on Geant4
-       * junosw depends on ``Custom4``
-       * opticks uses ``Custom4`` for detailed testing
+       * Dependency of JUNOSW and Opticks
 
-       Added to : **junoenv/junoenv-external-libs.sh**
 
-       Auto-installed like other externals (eg Geant4), or:
-
-   ::
-
-       cd $JUNOTOP/junoenv
-       bash junoenv libs get custom4
-       bash junoenv libs conf custom4
-       bash junoenv libs make custom4
-       bash junoenv libs install custom4
-
-       bash junoenv libs all custom4
-
-       
- 
 .. image:: Custom4/Custom4_README.png
    :width: 580px
    :align: left
 
-
-.. class:: small
+.. class:: normal
 
     https://github.com/simoncblyth/customgeant4/
-
+ 
 
 .. s5_talk::
 
@@ -957,10 +927,103 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 
 
+:small:`Opticks : Translates Entire Geometry + Simulation data into NPFold.h tree`
+-----------------------------------------------------------------------------------
+
+.. sidebar:: :small:`NPFold.h : Contains sub-NPFold.h ...`
+
+    .. class:: small
+
+         * Tree of ``NP.hh`` arrays
+         * :r:`recursive data structure`
+         * save into directory tree of ``.npy`` (optional) 
+         * load from directory tree into C++ or python
+
+         :b:`persisting extremely useful:`
+         
+         0. **rsync** across network => testing on laptop
+         1. **NPFold::Load** into C++ for standalone tests
+         2. **np.load** with NumPy for ipython debug, plots
+
+         ``SSim/extra/jpmt/PMTSimParamData``
+              JUNO PMT info, without JUNOSW classes
+
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    epsilon:V1J009 blyth$ pwd
+    /Users/blyth/.opticks/GEOM/V1J009
+    epsilon:V1J009 blyth$ find . -name '*.npy' 
+    ...
+    ./CSGFoundry/node.npy
+    ./CSGFoundry/itra.npy
+    ./CSGFoundry/tran.npy
+    ./CSGFoundry/inst.npy
+    ./CSGFoundry/solid.npy
+    ./CSGFoundry/prim.npy
+
+    ./CSGFoundry/SSim/extra/jpmt/PMTParamData/pmtCat.npy
+
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/lpmtData.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/pmtTotal.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/pmtCat.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/pmtCatVec.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/pmtID.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/spmtData.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/qeScale.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/lpmtCat.npy
+
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/MPT/000/PHC_KINDEX.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/MPT/000/PHC_RINDEX.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/MPT/000/ARC_KINDEX.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/MPT/000/ARC_RINDEX.npy
+    ...
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/QEshape/QEshape_NNVT_HiQE.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/QEshape/QEshape_WP_PMT.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/QEshape/QEshape_R12860.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/QEshape/QEshape_NNVT.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/QEshape/QEshape_HZC.npy
+    ...
+    ./CSGFoundry/SSim/extra/jpmt/PMT_RINDEX/PyrexRINDEX.npy
+    ./CSGFoundry/SSim/extra/jpmt/PMT_RINDEX/VacuumRINDEX.npy
+    ...
+    ./CSGFoundry/SSim/stree/inst.npy
+    ./CSGFoundry/SSim/stree/inst_f4.npy
+    ./CSGFoundry/SSim/stree/inst_nidx.npy
+    ./CSGFoundry/SSim/stree/standard/icdf.npy
+    ./CSGFoundry/SSim/stree/standard/bd.npy
+    ./CSGFoundry/SSim/stree/standard/bnd.npy
+    ./CSGFoundry/SSim/stree/standard/sur.npy
+    ./CSGFoundry/SSim/stree/standard/rayleigh.npy
+    ./CSGFoundry/SSim/stree/standard/energy.npy
+    ./CSGFoundry/SSim/stree/standard/wavelength.npy
+    ./CSGFoundry/SSim/stree/standard/optical.npy
+    ./CSGFoundry/SSim/stree/standard/mat.npy
+    ./CSGFoundry/SSim/stree/digs.npy
+    ./CSGFoundry/SSim/stree/mtname_no_rindex.npy
+    ./CSGFoundry/SSim/stree/suindex.npy
+    ./CSGFoundry/SSim/stree/subs_freq/val.npy
+    ./CSGFoundry/SSim/stree/subs_freq/key.npy
+    ./CSGFoundry/SSim/stree/implicit.npy
+    ./CSGFoundry/SSim/stree/mtindex.npy
+    ./CSGFoundry/SSim/stree/rem.npy
+    ./CSGFoundry/SSim/stree/iinst.npy
+    ./CSGFoundry/SSim/stree/w2m.npy
+    ./CSGFoundry/SSim/stree/material/Pyrex/ABSLENGTH.npy
+    ./CSGFoundry/SSim/stree/material/Pyrex/GROUPVEL.npy
+    ./CSGFoundry/SSim/stree/material/Pyrex/RINDEX.npy
+    ./CSGFoundry/SSim/stree/material/CDReflectorSteel/ABSLENGTH.npy
+    ./CSGFoundry/SSim/stree/material/CDReflectorSteel/REFLECTIVITY.npy
+    ./CSGFoundry/SSim/stree/material/AcrylicMask/ABSLENGTH.npy
+    ...
+   </pre>
 
 
 
+.. s5_talk::
 
+    NPFold
 
 
 
@@ -1334,6 +1397,114 @@ Transform photon history points into target frame
 
 
 
+
+:i:`STAMP_ProcessHits_56us_Hama_0_0.png`
+------------------------------------------
+
+``STAMP_TT=257400,600 STAMP_ANNO=1 ~/j/ntds/stamp.sh ## inpho => Hama:0:0``
+
+.. raw:: html
+
+    <p style="margin-bottom:152mm;" />
+    
+.. class:: small
+
+    :r:`(s0) beginPhoton` :b:`(s1) finalPhoton` :g:`( ) pointPhoton` :c:`(h0) ProcessHits[` :c:`(i0) ProcessHits]` 
+    -- **ProcessHits taking ~56us for SD** 
+
+
+.. s5_talk::
+
+   Time Stamp analysis reveals "tail gap"  
+
+
+
+
+:small:`Tail "gap" : junoSD_PMT_v2::get_pmtid : ~50us per hit candidate` 
+--------------------------------------------------------------------------------------------------------
+
+
+.. sidebar:: :small:`"get_pmtid_fast" (~1us)`
+
+    .. class:: small
+
+        :r:`Only few SD volumes => use simpler approach :`
+
+    ::
+
+      const G4VTouchable* th = 
+          track->GetTouchable();
+      int ID(-1) ; 
+      ID = th->GetReplicaNumber(1);
+      if( ID <= 0) 
+      ID = th->GetReplicaNumber(2);   
+         
+
+    .. class:: m18
+
+      G4VTouchable::GetReplicaNumber(int depth)
+          depth:0/1/2 : current/parent/grandparent
+
+    
+    .. class:: small
+
+        * tested : old_lpmt, new_lpmt, spmt, wpmt
+        * :b:`same pmtId result in ~1us (not ~50us)` 
+        
+
+.. raw:: html
+
+   <pre class="mypretiny">
+   int junoSD_PMT_v2::get_pmtid(G4Track* track) {
+       int ipmt= -1;
+       const G4VTouchable* touch= track->GetTouchable();
+       int nd= touch->GetHistoryDepth();
+       int id=0;
+       for (id=0; id<nd; id++) {
+         if (touch->GetVolume(id)==track->GetVolume()) {
+           int idid=1;
+           G4VPhysicalVolume* tmp_pv=NULL;
+           for (idid=1; idid < (nd-id); ++idid) {
+             tmp_pv = touch->GetVolume(id+idid);
+   
+             G4LogicalVolume* mother_vol = tmp_pv->GetLogicalVolume();
+             G4LogicalVolume* daughter_vol = touch->GetVolume(id+idid-1)->
+                 GetLogicalVolume();
+             int no_daugh = mother_vol -> GetNoDaughters();
+             if (no_daugh > 1) {
+                 int count = 0;
+                 for (int i=0; (count<2) &&(i < no_daugh); ++i) {
+                     if (daughter_vol->GetName()
+                             ==mother_vol->GetDaughter(i)
+                                ->GetLogicalVolume()->GetName()) {
+                         ++count;
+                     }
+                 }
+                 if (count > 1) break;
+             }
+           }
+           ipmt= touch->GetReplicaNumber(id+idid-1);
+           break;
+         }
+       }
+       return ipmt;
+   }
+   </pre>
+
+.. class:: small
+
+    :r:`Looping over daughters at multiple levels and name matching to find copyNo` : :b:`NO NEED FOR SUCH GENERALITY`
+
+
+.. s5_talk::
+
+   No need to pay the price of general code, when geometry not changing so much anymore
+
+
+
+
+
+
   
 
 
@@ -1483,101 +1654,6 @@ Transform photon history points into target frame
 
 
 
-
-:small:`Entire Geometry Serializes into NPFold.h tree`
--------------------------------------------------------
-
-.. sidebar:: :small:`NPFold : Contains sub-NPFold ...`
-
-    .. class:: small
-
-         * recursive data structure
-         * save into directory tree
-         * load from directory tree
-
-         (persisting to file system is optional)
-
-         ``SSim/extra/jpmt/PMTSimParamData``
-              JUNO PMT info, without JUNOSW classes
-
-
-.. raw:: html
-
-   <pre class="mypretiny">
-    epsilon:V1J009 blyth$ pwd
-    /Users/blyth/.opticks/GEOM/V1J009
-    epsilon:V1J009 blyth$ find . -name '*.npy' 
-    ...
-    ./CSGFoundry/node.npy
-    ./CSGFoundry/itra.npy
-    ./CSGFoundry/tran.npy
-    ./CSGFoundry/inst.npy
-    ./CSGFoundry/solid.npy
-    ./CSGFoundry/prim.npy
-
-    ./CSGFoundry/SSim/extra/jpmt/PMTParamData/pmtCat.npy
-
-    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/lpmtData.npy
-    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/pmtTotal.npy
-    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/pmtCat.npy
-    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/pmtCatVec.npy
-    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/pmtID.npy
-    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/spmtData.npy
-    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/qeScale.npy
-    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/lpmtCat.npy
-
-    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/MPT/000/PHC_KINDEX.npy
-    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/MPT/000/PHC_RINDEX.npy
-    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/MPT/000/ARC_KINDEX.npy
-    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/MPT/000/ARC_RINDEX.npy
-    ...
-    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/QEshape/QEshape_NNVT_HiQE.npy
-    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/QEshape/QEshape_WP_PMT.npy
-    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/QEshape/QEshape_R12860.npy
-    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/QEshape/QEshape_NNVT.npy
-    ./CSGFoundry/SSim/extra/jpmt/PMTSimParamData/QEshape/QEshape_HZC.npy
-    ...
-    ./CSGFoundry/SSim/extra/jpmt/PMT_RINDEX/PyrexRINDEX.npy
-    ./CSGFoundry/SSim/extra/jpmt/PMT_RINDEX/VacuumRINDEX.npy
-    ...
-    ./CSGFoundry/SSim/stree/inst.npy
-    ./CSGFoundry/SSim/stree/inst_f4.npy
-    ./CSGFoundry/SSim/stree/inst_nidx.npy
-    ./CSGFoundry/SSim/stree/standard/icdf.npy
-    ./CSGFoundry/SSim/stree/standard/bd.npy
-    ./CSGFoundry/SSim/stree/standard/bnd.npy
-    ./CSGFoundry/SSim/stree/standard/sur.npy
-    ./CSGFoundry/SSim/stree/standard/rayleigh.npy
-    ./CSGFoundry/SSim/stree/standard/energy.npy
-    ./CSGFoundry/SSim/stree/standard/wavelength.npy
-    ./CSGFoundry/SSim/stree/standard/optical.npy
-    ./CSGFoundry/SSim/stree/standard/mat.npy
-    ./CSGFoundry/SSim/stree/digs.npy
-    ./CSGFoundry/SSim/stree/mtname_no_rindex.npy
-    ./CSGFoundry/SSim/stree/suindex.npy
-    ./CSGFoundry/SSim/stree/subs_freq/val.npy
-    ./CSGFoundry/SSim/stree/subs_freq/key.npy
-    ./CSGFoundry/SSim/stree/implicit.npy
-    ./CSGFoundry/SSim/stree/mtindex.npy
-    ./CSGFoundry/SSim/stree/rem.npy
-    ./CSGFoundry/SSim/stree/iinst.npy
-    ./CSGFoundry/SSim/stree/w2m.npy
-    ./CSGFoundry/SSim/stree/material/Pyrex/ABSLENGTH.npy
-    ./CSGFoundry/SSim/stree/material/Pyrex/GROUPVEL.npy
-    ./CSGFoundry/SSim/stree/material/Pyrex/RINDEX.npy
-    ./CSGFoundry/SSim/stree/material/CDReflectorSteel/ABSLENGTH.npy
-    ./CSGFoundry/SSim/stree/material/CDReflectorSteel/REFLECTIVITY.npy
-    ./CSGFoundry/SSim/stree/material/AcrylicMask/ABSLENGTH.npy
-    ...
-   </pre>
-
-
-
-.. s5_talk::
-
-    NPFold
-
-
 :small:`CUDA equivalent of C4CustomART::doIt : With Full LPMT info` 
 ----------------------------------------------------------------------
 
@@ -1717,122 +1793,6 @@ Comparing AOI scans : ``j/Layr/LayrTest.sh``
 
 
 
-
-
-
-
-
-
-Extras : not for presentation follow
----------------------------------------
-
-.. s5_talk::
-
-    Klop
-
-
-
-:i:`STAMP_ProcessHits_56us_Hama_0_0.png`
-------------------------------------------
-
-``STAMP_TT=257400,600 STAMP_ANNO=1 ~/j/ntds/stamp.sh ## inpho => Hama:0:0``
-
-.. raw:: html
-
-    <p style="margin-bottom:152mm;" />
-    
-.. class:: small
-
-    :r:`(s0) beginPhoton` :b:`(s1) finalPhoton` :g:`( ) pointPhoton` :c:`(h0) ProcessHits[` :c:`(i0) ProcessHits]` 
-    -- **ProcessHits taking ~56us for SD** 
-
-
-.. s5_talk::
-
-   Time Stamp analysis reveals "tail gap"  
-
-
-
-
-:small:`Tail "gap" : junoSD_PMT_v2::get_pmtid : ~50us per hit candidate` 
---------------------------------------------------------------------------------------------------------
-
-
-.. sidebar:: :small:`"get_pmtid_fast" (~1us)`
-
-    .. class:: small
-
-        :r:`Only few SD volumes => use simpler approach :`
-
-    ::
-
-      const G4VTouchable* th = 
-          track->GetTouchable();
-      int ID(-1) ; 
-      ID = th->GetReplicaNumber(1);
-      if( ID <= 0) 
-      ID = th->GetReplicaNumber(2);   
-         
-
-    .. class:: m18
-
-      G4VTouchable::GetReplicaNumber(int depth)
-          depth:0/1/2 : current/parent/grandparent
-
-    
-    .. class:: small
-
-        * tested : old_lpmt, new_lpmt, spmt, wpmt
-        * :b:`same pmtId result in ~1us (not ~50us)` 
-        
-
-.. raw:: html
-
-   <pre class="mypretiny">
-   int junoSD_PMT_v2::get_pmtid(G4Track* track) {
-       int ipmt= -1;
-       const G4VTouchable* touch= track->GetTouchable();
-       int nd= touch->GetHistoryDepth();
-       int id=0;
-       for (id=0; id<nd; id++) {
-         if (touch->GetVolume(id)==track->GetVolume()) {
-           int idid=1;
-           G4VPhysicalVolume* tmp_pv=NULL;
-           for (idid=1; idid < (nd-id); ++idid) {
-             tmp_pv = touch->GetVolume(id+idid);
-   
-             G4LogicalVolume* mother_vol = tmp_pv->GetLogicalVolume();
-             G4LogicalVolume* daughter_vol = touch->GetVolume(id+idid-1)->
-                 GetLogicalVolume();
-             int no_daugh = mother_vol -> GetNoDaughters();
-             if (no_daugh > 1) {
-                 int count = 0;
-                 for (int i=0; (count<2) &&(i < no_daugh); ++i) {
-                     if (daughter_vol->GetName()
-                             ==mother_vol->GetDaughter(i)
-                                ->GetLogicalVolume()->GetName()) {
-                         ++count;
-                     }
-                 }
-                 if (count > 1) break;
-             }
-           }
-           ipmt= touch->GetReplicaNumber(id+idid-1);
-           break;
-         }
-       }
-       return ipmt;
-   }
-   </pre>
-
-.. class:: small
-
-    :r:`Looping over daughters at multiple levels and name matching to find copyNo` : :b:`NO NEED FOR SUCH GENERALITY`
-
-
-.. s5_talk::
-
-   No need to pay the price of general code, when geometry not changing so much anymore
 
 
 
