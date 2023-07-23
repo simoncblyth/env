@@ -70,6 +70,11 @@
     Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
     ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 1280px_720px 0px_0px meta:thumb
 
+    Opticks Progress Summary 
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 640px_360px 640px_0px
+    LayrTest/4/figs/LayrTest/mpcap/LayrTest__R12860_Aspa.png 640px_360px 0px_360px
+    GEOM/V1J009/CSGOptiXRdrTest/cxr_min__eye_-10,0,0__zoom_0.5__tmin_0.1__sChimneyAcrylic_increased_TMAX.jpg 640px_360px 640px_360px 
+
     Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
     ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 1280px_720px
 
