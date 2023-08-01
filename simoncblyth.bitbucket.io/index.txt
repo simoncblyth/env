@@ -220,8 +220,6 @@ Opticks Presentations
 
    JUNO Summer Meeting, Kaiping, Software Review, July 26, 2023 
 
-   **WIP : PRESENTATION BEING PREPARED** 
-
 
 `env/presentation/opticks_20230611_qingdao_sdu_workshop.html <env/presentation/opticks_20230611_qingdao_sdu_workshop.html>`_
 

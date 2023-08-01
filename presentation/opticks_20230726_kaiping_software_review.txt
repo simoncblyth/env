@@ -4,11 +4,24 @@
    :name: opticks_20230721_kaiping_pwg_afg.txt
    :description: (26 July 2023)
    :notes: Summer Meeting Software Review
+   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=10384
 
 .. include:: my_s5defs.txt
 
 .. include:: s5_background_image.txt
 
+
+.. title_and_abstract
+
+   Opticks Simulation Status : PMT Optical Model issues, fix and GPU port
+
+   Issues with the former JUNOSW FastSim based PMT Optical Model 
+   are described including kludged 4 volume geometry, 
+   unphysical polarization, time propagation and mid-vacuum absorption, reflection, 
+   refraction and tunneling through dynode/MCP inside the PMT vacuum.
+   A fix for all these issues using a custom boundary process that enables adoption 
+   of a natural two volume PMT geometry is described. In addition the extension of 
+   Opticks to bring the full PMT Optical Model to the GPU is detailed. 
 
 .. comment
 
@@ -29,9 +42,8 @@
 
 .. comment
 
-   TODO : s5_talk, talk PDF 
-   TODO : publish in triplicate
-   TODO : PDF creation, docdb upload   
+   TODO : s5_talk, talk PDF, AirDrop talk PDF 
+   FAIL : iPad update for Zoom, fails due to Network Error 
 
 
 
@@ -100,13 +112,11 @@
 
 .. s5_talk:: 
 
-    Despite the title, the bulk of my work in the past year has been 
-    finding and fixing issues with JUNOSW PMT simulation. 
-    Only after bugs with the CPU optical simulation are fixed is
-    it possible to validate the GPU optical simulation. 
+    Despite the title, most of my recent work has been 
+    finding and fixing bugs with JUNOSW PMT simulation. 
 
-    The PMT Optical Model was based on FastSim. I will show the issues 
-    with that and present the fix using a custom boundary process. 
+    Clearly, need to fix bugs on the CPU
+    before bringing the simulation to the GPU. 
 
 
 
@@ -159,9 +169,18 @@
        * add *smatsur.h* enum to **optical buffer**, *qsim::propagate* enum branch => *qsim:propagate_at_surface_CustomART*
 
 
-
-
 .. s5_talk::
+
+    * Here is the timeline. 
+
+    * Above the line is mostly using Opticks to fix the PMT simulation on CPU. 
+
+    * Below the line is extending Opticks to bring the PMT optical model to the GPU. 
+
+    * Standalone PMT tests on CPU, revealed lots of bugs. I will describe the bugs
+      and the fix. Which is already merged.  
+
+.. comment
 
     Almost a year ago now I was working on fixing PMT geomerty overlaps. 
 
@@ -286,8 +305,16 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 .. s5_talk::
  
-    There is quite a long list of FastSim issues, number 5 is the 
-    new one : with a fraction of photons behaving unphysically 
+    * Using FastSim required kludging the geometry
+      with fake volumes to place a region around the photocathode
+
+    * It kinda worked, but looking closely there were lots of bugs. 
+    * I fixed some of them, but the approach is not a good one. 
+
+    Much better to pivot away from FastSim to using a custom boundary process.
+
+    That allows using natural geometry and makes it possible to use a much 
+    more standard approach, just changing the minimum. 
 
 
 
@@ -303,25 +330,10 @@ junoPMTOpticalModel Issues : All from using FastSim
     **Old unnatural 4 vol. PMT geometry, kludged for FastSim : HAMA and NNVT** 
 
 
-.. comment
-
-   Compare Unnatural/Natural N=0/1 geometry simulations by skipping N=0 Pyrex/Pyrex + Vacuum/Vacuum fake points
-
-
 .. s5_talk::
 
-    Biggest problem with using FastSim is that it forces using 
-    an unnatural PMT geometry 
-  
-    * natural geometry is 2 volumes : but here there are 4 volumes
-    * 2 of them are workarounds that allow FastSim to be used
-
-    Murky colors are because there are near degenerate Fake volumes on top of each other  
-
-
-
-
-
+    * This is the old unnatural PMT geometry with fake volumes to kludge the FastSim region.  
+    * There are fake boundaries in the middle of the PMT vacuum, and also in the Pyrex.
 
 
 :i:`FewPMT_demo.png`
@@ -343,8 +355,7 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 .. s5_talk::
 
-    Natural HAMA and NNVT geometries are as simple as possible to be. 
-
+    The natural geometries are as simple as possible. 
 
 
 :i:`hamaLogicalPMTWrapLV_full_history.png`
@@ -364,9 +375,9 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 .. s5_talk::
 
-   Lots of fake step points in current Geant4 histories. The ones across the 
-   middle are obvious. There are others much closer together that are difficult to see. 
-
+   * with the old kludged geometry there are fake step points in Geant4 histories. 
+   * mid-vacuum fakes are obvious, there are also fakes inside the Pyrex, 
+     that are difficult to see
 
 
 
@@ -379,7 +390,7 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 .. s5_talk::
 
-    NNVT Natural geometry, ray trace render with tmin cutaway 
+    Heres a ray trace render of the natural geometry. 
 
 
 
@@ -413,8 +424,8 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 .. s5_talk::
 
-    The different between the old polarization and correct one now in 
-    use can be seen clearly at the Brewster angle where the reflection polarizes. 
+    Another bug was not polarizing on reflection.  
+    The difference is very clear at the Brewster angle as illustrated here. 
 
 
 
@@ -499,9 +510,9 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 .. s5_talk::
 
-    Looking back at the implementation : the bug is obvious : it 
-    treats the geometry incorrectly as if developed prior to 
-    the PMT vacuum having anything inside. 
+    Another bug was from the FastSim ModelTrigger which didnt 
+    account for having photons reflect off things inside the PMT
+    and resulted in unphysical behavior.  
 
 
 
@@ -510,7 +521,10 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 .. s5_talk::
 
-    Tunneling through geometry and reflection in middle of vacuum 
+    This shows two examples of unphysical behavior: 
+
+    * Tunneling through geometry 
+    * mid-vacuum reflection
 
 
 
@@ -564,7 +578,7 @@ junoPMTOpticalModel Issues : All from using FastSim
    * half the geometry objects to model PMT (4->2)
 
    +----------------------+-----------------------+
-   | Current FastSim POM  | 4 Solid, 4 LV, 4 PV   |
+   | Old FastSim POM      | 4 Solid, 4 LV, 4 PV   |
    +----------------------+-----------------------+
    | Custom Boundary POM  | 2 Solid, 2 LV, 2 PV   | 
    +----------------------+-----------------------+
@@ -574,7 +588,7 @@ junoPMTOpticalModel Issues : All from using FastSim
    **Disadvantages**
 
    * maintain Custom4 C4OpBoundaryProcess  
-   * updating Geant4 may require care (depending on changes)  
+   * updating Geant4 needs care if G4OpBoundaryProcess changed
 
 .. raw:: html 
 
@@ -589,13 +603,8 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 .. s5_talk::
 
-   Customizing Geant4 boundary process does have some disadvantages but 
-   the advantages far outweigh them.  It provides a natural fix for 
-   all the problems and it requires less code. 
-
-   BUT its a big change, so have made careful validity checks
-
-
+   Using a custom boundary process provides a natural fix for the issues
+   and enables using natural geometry with no kludging. 
 
 
 
@@ -676,9 +685,8 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 .. s5_talk::
 
-    This shows now the C4OpBoundaryProcess is customized.  It usually does exactly the 
-    same as G4OpBoundaryProcess. The customization is only active for OpticalSurfaces
-    with names starting with certain prefixes.   
+    Customization only active for specially named surfaces
+
 
 
 :small:`custom4/C4CustomART.h : include into C4OpBoundaryProcess.cc`
@@ -746,12 +754,53 @@ junoPMTOpticalModel Issues : All from using FastSim
 
 .. s5_talk::
 
-   Separate header for cleaner customization. 
+   Most the customization is done in a Separate header, to minimize changes 
+   to the boundary process. This CustomART header includes another header 
+   with the TMM calculation.   
+   
 
-   `custom4/C4CustomART.h <https://github.com/simoncblyth/customgeant4/blob/main/C4CustomART.h>`_
 
-   Reuse as much of the standard G4OpBoundaryProcess as possible just changing the minimum needed.  
 
+
+
+:small:`Custom4 : Custom Boundary Multi-Layer Thin Film (A,R,T) TMM Calc`
+---------------------------------------------------------------------------
+
+.. sidebar:: :small:`TMM : Transfer Matrix Method`
+
+   .. image:: tmm/multi-layer-stack.png
+       :align: center
+       :width: 400px
+
+   .. class:: small
+
+       **multi-layer thin films, coherent calc:**
+
+       * complex refractives indices, thicknesses
+       * => (A,R,T)  (Absorb, Reflect, Transmit)
+       * Used from **C4OpBoundaryProcess**  
+
+       :r:`header-only GPU/CPU` : **C4MultiLayrStack.h**       
+
+       * ``Custom4`` depends only on Geant4
+       * Dependency of JUNOSW and Opticks
+
+
+.. image:: Custom4/Custom4_README.png
+   :width: 580px
+   :align: left
+
+.. class:: normal
+
+    https://github.com/simoncblyth/customgeant4/
+ 
+
+.. s5_talk::
+
+   As the TMM calculation is needed both by JUNOSW on CPU and Opticks 
+   on GPU it is useful to organize it into a separate Custom4 package 
+   that both JUNOSW and Opticks depend on. This avoids circular dependency. 
+   
 
 
 Low dependency access to PMT data :r:`from anywhere`
@@ -847,52 +896,10 @@ Low dependency access to PMT data :r:`from anywhere`
 
 .. s5_talk::
 
-   First step is to improve access to PMT data for use from the custom boundary process   
-
-
-
-
-
-
-:small:`Custom4 : Custom Boundary Multi-Layer Thin Film (A,R,T) TMM Calc`
----------------------------------------------------------------------------
-
-.. sidebar:: :small:`TMM : Transfer Matrix Method`
-
-   .. image:: tmm/multi-layer-stack.png
-       :align: center
-       :width: 400px
-
-   .. class:: small
-
-       **multi-layer thin films, coherent calc:**
-
-       * complex refractives indices, thicknesses
-       * => (A,R,T)  (Absorb, Reflect, Transmit)
-       * Used from **C4OpBoundaryProcess**  
-
-       :r:`header-only GPU/CPU` : **C4MultiLayrStack.h**       
-
-       * ``Custom4`` depends only on Geant4
-       * Dependency of JUNOSW and Opticks
-
-
-.. image:: Custom4/Custom4_README.png
-   :width: 580px
-   :align: left
-
-.. class:: normal
-
-    https://github.com/simoncblyth/customgeant4/
- 
-
-.. s5_talk::
-
-   To avoid circular dependency I split off the customization into the Custom4 
-   mini-package which is a junoenv external, just like Geant4 is.  
-
-
-
+   Using a pure virtual protocol struct allows JUNOSW to 
+   pass the PMT data to Opticks and Custom4.
+   Combining that with Opticks serialization means that 
+   the PMT data can be used anywhere. 
 
 
 
@@ -992,8 +999,10 @@ Low dependency access to PMT data :r:`from anywhere`
 
 .. s5_talk::
 
-    Opticks translation serializes everything needed for the optical simulation, 
-    now including full PMT info.
+    Opticks translation serializes everything needed for the optical simulation, now including full PMT info.
+    The entire geometry and simulation data is serialized into an NPFold data structure, 
+    which can be persisted into a directory of arrays. 
+    
 
 
 Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
@@ -1001,7 +1010,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
 
 .. s5_talk::
 
-    This is the Opticks workflow
+    This is the Opticks workflow. 
 
 
 Geant4 + Opticks Instrumentation (no GPU usage)
@@ -1018,9 +1027,8 @@ Geant4 + Opticks Instrumentation (no GPU usage)
 
 .. s5_talk::
 
-    The CPU part of Opticks has machinery to collect and persist every step point of every photon of Geant4 simulations
-    into Opticks events. 
-
+    The CPU part of Opticks has machinery to collect and persist Geant4 photon histories into Opticks events. 
+    I validated the fix by comparing photon histories.  
 
 
 :small:`Opticks SEvt loaded into ipython : arrays detailing every photon point`
@@ -1068,7 +1076,8 @@ Geant4 + Opticks Instrumentation (no GPU usage)
 
 .. s5_talk::
 
-    Opticks events can be loaded into python as NumPy arrays
+    This is an Opticks event loaded into python as NumPy arrays.
+    The record array holds up to 32 step points for each photon. 
 
 
 
@@ -1098,7 +1107,7 @@ Geant4 + Opticks Instrumentation (no GPU usage)
 
 .. s5_talk::
 
-    3D visualize photon points with pyvista
+    This is a pyvista 3D visualization of the photon history
 
 
 :i:`B_V1J008_N1_ip_MOI_Hama:0:1000_yy_frame_close.png`
@@ -1117,7 +1126,8 @@ Geant4 + Opticks Instrumentation (no GPU usage)
 
 .. s5_talk::
 
-    squares indicates the target frame
+    The green line is the start position of input photons, 
+    the squares indicates the target frame. 
 
 
 
@@ -1156,7 +1166,7 @@ Transform photon history points into target frame
 
 .. s5_talk::
 
-    Its useful to transform global positions into the target frame  
+    Transforming the 3D global positions into the target frame enables a 2D view. 
 
 
 
@@ -1288,6 +1298,7 @@ Transform photon history points into target frame
 
    Chi2 shows the two simulations are consistent 
 
+   * any large Chi2 contribitions : would point at bugs   
 
 
 
@@ -1377,7 +1388,7 @@ Transform photon history points into target frame
 
 .. s5_talk::
 
-   Time Stamp analysis reveals "tail gap" in the Geant4 simulation 
+   Looking at the pattern of time stamps in the simulation, I found "tail gaps" for hit candidates
 
 
 
@@ -1459,14 +1470,10 @@ Transform photon history points into target frame
 
 .. s5_talk::
 
-   No need to pay the price of general code, when geometry not changing so much anymore
-
-
-
-
-
-
-  
+   Moving positions of time stamp collection in the code, 
+   I isolated this method that gets the pmtid as the cause of the tail gaps. 
+   On the right is an alternative that gives the same results 50 times faster. 
+ 
 
 
 :i:`cxr_min__eye_-10,0,0__zoom_0.5__tmin_0.1__sChimneyAcrylic_increased_TMAX.jpg`
@@ -1476,7 +1483,8 @@ Transform photon history points into target frame
 
 .. s5_talk::
 
-   Skipping the acrylic sphere and scintillator target allows to see more of the PMTs
+   As geometry is updated, I redid render checks. 
+   This render skips acrylic sphere and scintillator.
  
 
 
@@ -1487,7 +1495,7 @@ Transform photon history points into target frame
 
 .. s5_talk::
 
-   Here is a photon eye view from inside the scintillator, looking upwards towards the Chimney. 
+   Here is an upwards view from inside the scintillator, looking towards the Chimney. 
 
 
 :i:`cxr_overview_emm_image_grid_overview`
@@ -1499,8 +1507,8 @@ Transform photon history points into target frame
 
 .. s5_talk::
 
-   Comparisons of ray trace rendering times provides simple way to look 
-   for performance issues
+   A standard check I do after geometry updates is to compare 
+   ray trace rendering times to look for slow geometry. 
 
 
 .. comment
@@ -1515,9 +1523,8 @@ Transform photon history points into target frame
 
 
 .. s5_talk::
-
-   Acceleration structure creation is a black box, so have to adopt an experimental 
-   approach to finding the best geometry modelling to use.   
+  
+   Render from near the chimney
 
 
 :i:`image_grid_elv_scan.jpg`
@@ -1527,10 +1534,8 @@ Transform photon history points into target frame
 
 .. s5_talk::
 
-   If you look closely at the renders you can see differences 
-   from the exclusion of single volume types. Doing this for 
-   all volume types allows to sort the volumes by their 
-   impact on the performance. 
+   Varying volumes included and excluded allows sorting 
+   by render times so can find slow geometry. 
 
 
 .. comment
@@ -1540,16 +1545,6 @@ Transform photon history points into target frame
     open -n $(cat $JPGLIST)
     cx
     JPGLIST=$JPGLIST ./image_grid.sh 
-
-
-
-
-.. comment
-
-    cxr_min__eye_-10,0,0__zoom_0.5__tmin_0.1__sChimneyAcrylic_explain_the_grey.jpg
-    --------------------------------------------------------------------------------
-
-    Maybe a TMAX issue again ?
 
 
 
@@ -1598,10 +1593,10 @@ Transform photon history points into target frame
 
 .. s5_talk::
 
-    You might think that the geometry without any exclusions would be the slowest, but 
-    that is not the case. Varying the geometry changes the details of the acceleration structure. 
-    Here the time range from fastest to slowest is rather small, suggesting there are 
-    no major geometry performance problems left. 
+    Heres the volumes sorted by render time. 
+    Varying the geometry changes the details of the acceleration structure.
+    As the time range from fastest to slowest is small, can say there are 
+    no major geometry performance problems. 
 
     This is only the case after I excluded some problematic geometry. 
  
@@ -1679,7 +1674,9 @@ Transform photon history points into target frame
 
 .. s5_talk::
 
-    Bringing CustomART to GPU by getting full PMT info onto GPU 
+    CUDA code to implement PMT Optical Model straightforward, 
+    because it re-uses existing propagate_at_boundary just 
+    like on CPU can reuse Geant4 boundary process methods.     
 
 
 
@@ -1690,27 +1687,36 @@ Transform photon history points into target frame
 
     ARTPlot : each of A, R, T have three versions from three pmt categories
 
+    * this shows Absorption, Reflection and Transmission probabilities which sum to 1 
+      scanning across the full range of angles of incidences 
+
+    * angles above 90 degrees correspond to reverse photons going from the vacuum to the pyrex 
+    * there are lots of lines because S-polarized/P-polarized/Avg are shown 
+    * also there are lines for each of three PMT catehories 
+
+
 
 :i:`LayrTest__R12860_Aspa.png`
 ---------------------------------
 
 .. s5_talk::
 
-    Aspa
+    Aspa : This is just showing the absorption, the dotted lines are the average of the S and P polarizations
+
 
 :i:`LayrTest__R12860_Rspa.png`
 ---------------------------------
 
 .. s5_talk::
 
-    Rspa
+    Rspa : the reflection, which goes to 1. at grazing incidence 
 
 :i:`LayrTest__R12860_Tspa.png`
 ---------------------------------
 
 .. s5_talk::
 
-    Tspa
+    Tspa : above the Critical angle there is no transmission, only absorption and reflection
 
 
 
@@ -1772,7 +1778,8 @@ Comparing AOI scans : ``j/Layr/LayrTest.sh``
 
 .. s5_talk::
 
-    Compare ART values from AOI scans from multiple tests 
+    Compare ART values from AOI scans from multiple tests, including on GPU and CPU and mock GPU 
+    shows expected levels of deviation.. 
 
 
 
@@ -1847,9 +1854,8 @@ Comparing AOI scans : ``j/Layr/LayrTest.sh``
 
 .. s5_talk::
 
-    Are tantalisingly close to being able to more the half the size of the opticks code base. 
-    Dropping lots of old code. 
-
+    Some other work on the geometry translation is getting close
+    to concluding with a major reduction in Opticks code. 
 
 
 :small:`Other Work : Mocking CUDA : curand_uniform and tex2D`
@@ -1911,12 +1917,12 @@ Comparing AOI scans : ``j/Layr/LayrTest.sh``
 
 .. class:: small
 
-    :r:`Simple technique, strong benefits, especially now PMT Optical Model on GPU` 
+    :r:`Simple technique, proving useful, especially now PMT Optical Model on GPU` 
 
 .. s5_talk::
 
-   Simple technique, strong benefits : especially now that have PMT Optical Model on GPU 
-
+   Mocking just these two functions, allows most Opticks CUDA code to be tested on CPU. 
+   As GPU code getting more complicated that has proved useful. 
 
 
 :small:`Next Steps : CPU vs GPU validation : Now with full PMT Optical Model`
@@ -1960,7 +1966,11 @@ Comparing AOI scans : ``j/Layr/LayrTest.sh``
 
 .. s5_talk::
 
-    Next steps 
+    Next steps : are to validate applying the same machinery used to check the PMT 
+    geometry pivot to compare between CPU and GPU simulations. 
+
+    This comparison should be simpler, because the geometry is the same. 
+
 
 
 
@@ -1992,8 +2002,8 @@ Comparing AOI scans : ``j/Layr/LayrTest.sh``
 
     **Problem Geometry**
  
-    * Deep CSG trees (XJFixtureConstruction) : test "list-node" developments : reduces tree height to avoid overheads
-    * Torus (Guide Tube) : NVIDIA OptiX 7.1+ adds Curves primitive : may allow performant Torus intersect 
+    * Deep CSG trees (XJFixtureConstruction) : test if "list-nodes" can avoid issue by tree height reduction
+    * Torus (Guide Tube) : NVIDIA OptiX 7.1+ adds Curves primitive : may give performant Torus intersect 
 
 
 .. class:: tiny 
@@ -2003,7 +2013,13 @@ Comparing AOI scans : ``j/Layr/LayrTest.sh``
 
 .. s5_talk::
 
-    Choices depend on findings from performance measurements from different OptiX versions
+    If everything validates OK then the next steps are to work the practicalities
+    of getting Opticks into production.  Checking performance with different OptiX versions
+    is needed.  
+
+    Also there are some problem parts of the geometry, that are currently just skipped. 
+    
+
 
 
 
@@ -2058,17 +2074,14 @@ Comparing AOI scans : ``j/Layr/LayrTest.sh``
 
 .. s5_talk::
 
-    Opticks brings state-of-the-art GPU ray tracing performance to optical photon 
-    simulations. 
+    Opticks brings state-of-the-art GPU ray tracing performance to optical photon simulations. 
 
     The detailed validations needed when adopting a new simulation has a 
     hidden benefit in that detailed comparisons reveal problems with both 
-    simulations. Adopting Opticks means you will 
-    improve your CPU simulation whilst also giving you a GPU simulation.  
+    simulations. 
+
+    **Opticks improves the CPU simulation as well as providing an on GPU simulation**  
  
-    Links to get you started with using Opticks are listed here.
-
-
 
 
 
