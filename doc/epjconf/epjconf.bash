@@ -21,6 +21,19 @@ PDF documents at
 
 
 
+CHEP 2023 Proceedings
+-----------------------
+
+* https://indico.jlab.org/event/459/page/356-proceedings
+
+The deadline for the initial submission of your articles is: Fri Sep 8 at 23:59 UTC.
+
+Each article shall have at most 8 pages (references included) and use a
+single-column format. This applies to parallel oral presentations and posters. 
+
+* NEED TO MAKE TEXT AND FIG UPDATES AND CHOP OUT 2 PAGES
+
+
 
 CHEP 2021 Proceedings
 ---------------------------
@@ -308,11 +321,12 @@ epjconf-open(){ open $(epjconf-opdf) ; }
 
 #epjconf-confname(){ echo chep2018 ; }
 #epjconf-confname(){ echo chep2019 ; }
-epjconf-confname(){ echo chep2021 ; }
+#epjconf-confname(){ echo chep2021 ; }
+epjconf-confname(){ echo chep2023 ; }
 
-#epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v0 ; }
+epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v0 ; }
 #epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v1 ; }
-epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v2 ; }
+#epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v2 ; }
 
 #epjconf-filename(){ echo opticks-snowmass21-loi-v0 ; }
 #epjconf-filename(){ echo opticks-snowmass21-loi-v1 ; }
@@ -537,7 +551,8 @@ epjconf-e(){    epjconf-edit ; }
 
 epjconf-aux(){ cat << EOA | grep -v ^#
 #/Users/blyth/env/presentation/opticks_gpu_optical_photon_simulation_jul2018_chep.txt
-/Users/blyth/env/doc/epjconf/chep2021/opticks-blyth-chep2021-abstract.tex
+#/Users/blyth/env/doc/epjconf/chep2021/opticks-blyth-chep2021-abstract.tex
+/Users/blyth/env/doc/epjconf/chep2023/opticks-blyth-chep2023-abstract.tex
 EOA
 }
 

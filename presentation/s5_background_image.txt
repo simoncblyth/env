@@ -2205,6 +2205,9 @@
     LayrTest__R12860_Tspa.png
     LayrTest/4/figs/LayrTest/mpcap/LayrTest__R12860_Tspa.png 1280px_720px
 
+    FewPMT_tub3_degenerate.png
+    GEOM/FewPMT/U4SimtraceTest/0/figs/U4SimtraceTest/mpcap/FewPMT_tub3_degenerate.png 1280px_720px 
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

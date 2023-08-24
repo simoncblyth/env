@@ -11,6 +11,46 @@ CHEP 2023 : May 8-12
 * https://simoncblyth.bitbucket.io/
 
 
+Proceedings machinery : epjconf-
+------------------------------------
+
+
+
+
+
+Ziyan : email Aug 8
+----------------------
+
+Hi Simon,
+
+Could you please add this in the proceeding of CHEP 2023:
+
+This work is supported by National Natural Science Foundation of China (NSFC)
+under grant No. 12275293.
+
+Thank you.
+
+
+Special Notes
+----------------
+
+* from https://indico.jlab.org/event/459/
+
+CHEP 2023 Proceedings are under development and will be published through the
+EPJ Web of Conferences in the new year.  If you gave a presentation at CHEP
+2023, please watch your email and/or review the article submission process
+under Proceedings for instructions.
+
+* https://indico.jlab.org/event/459/page/356-proceedings
+
+
+Each article shall have at most 8 pages (references included) and use a
+single-column format. This applies to parallel oral presentations and posters. 
+
+
+
+
+
 Proceedings
 --------------
 

@@ -12,6 +12,17 @@ See also *numpy-* for numpy development rather than usage.
 
 
 
+np.char.startswith
+------------------
+
+
+::
+
+    In [10]: np.flatnonzero(np.char.startswith(b.q, "TO BT SD".encode("utf-8") ))
+    Out[10]: array([   4,    7,   18,   21,   22, ..., 9990, 9993, 9994, 9997, 9998])
+
+
+
 np.newaxis for subtracting off first column value for every row of 2D array
 -----------------------------------------------------------------------------
 
