@@ -5,17 +5,16 @@
 \usepackage{graphicx}
 \usepackage{array}
 \comment{
-TODO:
 
-* NEED TO SLIM DOWN FROM 10 TO 8 PAGES
-* ACTUALLY NEED TO GET DOWN TO ~6.5 TO ADD NEW SECTIONS:
+* TODO : NEED COVERAGE OF QUDARAP : QSIM COUNTERPART PATTERN  
+
+* DONE : SLIM DOWN TO MAKE SPACE FOR NEW SECTIONS
   
   * new code organization
   * list-nodes
   * TMM
 
 grep section\{ *.tex
-
 
 * Introduction
 
@@ -69,6 +68,7 @@ and visualized all on the GPU.
 %The acrylic vessel that contains the liquid scintillator is not shown.
 }
 \label{problem}
+\vspace{-5mm}
 \end{figure}%
 %
 Sequential simulation of large numbers of 
@@ -151,6 +151,7 @@ to the same NVIDIA ray tracing technology including AS construction and RTX hard
 %which to generate them and all other parameters used by the photon generatation loop.
 %}
 \label{workflow} 
+\vspace{-5mm}
 \end{figure}
 %
 \section{Hybrid simulation workflow}%
@@ -179,6 +180,16 @@ Converting these lengths to distances using pseudorandom numbers and
 the known exponential distributions allows a comparison of absorption and scattering distances 
 with geometrical boundary distance to assign photon histories. 
 Earlier proceedings\cite{chep2016} detail efficient use of the cuRAND\cite{curandURL} pseudorandom generator.
+%
+%
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,clip]{env/presentation/GEOM/V1J009/CSGOptiXRdrTest/cxr_min__eye_-10,0,0__zoom_0p5__tmin_0p1__sChimneyAcrylic_increased_TMAX.jpg}
+\caption{Render of the PMTs of the JUNO detector comprising 1920x1080 ray traced pixels created with a CUDA launch under 16 ms 
+using a single NVIDIA TITAN RTX GPU and NVIDIA OptiX 7.
+\label{j1808}}
+\vspace{-5mm}
+\end{figure}
 %
 \section{Detector geometry} 
 \label{secgeom}%
@@ -272,8 +283,8 @@ for the entire geometry is created from the instance transform vector.
 \end{tabular}
 \caption{\label{tabcsgfoundry}Principal std::vector members of {\tt CSGFoundry} struct with Geant4 equivalent. }
 \end{table}
-\end{center}
-%
+\vspace{-8mm}
+\end{center}%
 %
 \subsection{Solid shapes}%
 %
@@ -345,55 +356,51 @@ optical surface handling that perform the interference calculations.
 %
 %
 %
-\begin{figure}
-\centering
-%\includegraphics[width=\textwidth,clip]{env/presentation/j1808/j1808_top_rtx}
-%\caption{Ray traced rendering of the chimney region of JUNO detector showing photomultiplier tubes, 
-%acrylic sphere, supports and the calibration guide tube torus. 
-%The rendering uses exactly the same analytic geometry as the simulation.
-%The geometry was directly converted from Geant4 into an Opticks geometry including analytic CSG 
-%and persisted into a geometry cache of NumPy\cite{numpy} binary files. 
-%}
-\includegraphics[width=\textwidth,clip]{env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_1,2,3,4_moi_-1.jpg}
-\caption{Render of the PMTs of the JUNO detector comprising 1920x1080 ray traced pixels created with a CUDA launch of under a hundredth of a second  
-using a single NVIDIA TITAN RTX GPU and NVIDIA OptiX 7.
-\label{j1808}}
-\end{figure}
-%
-%
 \section{Optical physics}%
 %
-Optical physics processes of scattering, absorption, scintillator reemission and 
-boundary processes are implemented in CUDA functions based on the Geant4
-implementations. 
+Opticks optical photon simulation is now implemented in the QUDARap package, 
+that depend only on the SysRap base package and CUDA, with no dependency on OptiX. 
+Table~\ref{tabqsim} illustrates the simple host/device counterpart pattern 
+adopted where each CPU struct sets up its GPU counterpart first on the host, 
+uploading constituents and setting device pointers of the host prior to uploading it 
+to the GPU. This approach simplifies GPU/CPU testing of the simulation.  
 %
-The single ray programming model of NVIDIA OptiX enables 
-direct ports of the corresponding Geant4 implementations adapted
-to use GPU textures for property access. 
-
 %
-On the CPU, it is convenient to implement scintillator reemission using Geant4 secondary 
-tracks. A different approach is adopted on the GPU where a fraction of absorbed photons
-are reborn with modified direction and wavelength within the same CUDA thread. 
-A reemission texture that encapsulates an inverse cumulative distribution function 
-is used to generate wavelengths that follow the desired distribution on lookup of pseudorandom numbers. 
-%
-Details on the CUDA ports of Geant4 optical physics are given in the 2016 proceedings\cite{chep2016}
-and the use of GPU textures for material and surface properties are covered in the 2021 
-proceedings\cite{chep2021}. 
-%
+\begin{table}
+\begin{center}
+\begin{tabular}{ |m{40mm}|m{30mm}|m{30mm}| } 
+\hline
+     Role                          & CPU             & GPU                   \\    
+ \hline\hline
+     simulation steering           & QSim.hh         &  qsim.h               \\   
+     curandState setup             & QRng.hh         &  qrng.h               \\   
+     property interpolation        & QProp.hh        &  qprop.h              \\   
+     event handling                & QEvent.hh       &  qevent.h             \\    
+     Cerenkov generation           & QCerenkov.hh    &  qcerenkov.h          \\    
+     scintillation generation      & QScint.hh       &  qscint.h             \\    
+     texture handling              & QTex.hh         &  cudaTextureObject\_t \\
+ \hline
+\end{tabular}
+\end{center}
+\caption{\label{tabqsim}Simple host/device counterpart pattern adopted by QUDARap.} 
+\vspace{-4mm}
+\end{table}%
 %
 %
 \section{Summary}
 %
 Opticks enables Geant4-based optical photon simulations to benefit from 
 state-of-the-art NVIDIA GPU ray tracing, made accessible via the NVIDIA OptiX 7+ API,
-allowing memory and time processing bottlenecks to be eliminated.
+allowing memory and time processing bottlenecks to be eliminated. 
+A full re-implementation of Opticks for the OptiX 7+ API is complete. 
+Opticks now features many shared CPU/GPU headers and a minimal intermediate geometry model 
+that has enabled drastic code reduction and simplification. 
+The many small headers design together with mocking of a CUDA texture and 
+random number functions enables fine grained testing of almost all functionality 
+on both GPU and CPU.
 
 Several groups from various experiments and the Geant4 Collaboration are evaluating Opticks
-and an example of Opticks usage is included with the Geant4 distribution. 
-migration of Opticks to the all new NVIDIA OptiX 7 API. 
-Figure.\ref{j1808} is one of the first renders of the full JUNO geometry with OptiX 7.
+and an example of Opticks usage is now included with the Geant4 distribution. 
 %
 %
 \newpage
