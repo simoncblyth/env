@@ -10,6 +10,11 @@
 
 .. comment
 
+   Standalone C++ software testing, debugging and analysis with python packages:  NumPy, matplotlib, pyvista, ... 
+
+
+.. comment
+
     Tao: I will fly on May 6 (Sat). It will take about 30 hours with 2 stops. 
     The talk is at 12:15 on May 8 (Sun). Is that time OK for you? 
     According to the instruction, it should be 48 hours before the talk:

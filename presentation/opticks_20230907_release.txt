@@ -1,0 +1,483 @@
+.. meta::
+
+   :title: Opticks + JUNO : 
+   :name: opticks_20230907_release.txt
+   :description: (07 Sep 2023)
+   :notes: JOC
+   :url: 
+
+.. include:: my_s5defs.txt
+
+.. include:: s5_background_image.txt
+
+
+.. title_and_abstract
+
+   Opticks Simulation Status : PMT Optical Model issues, fix and GPU port
+
+   Issues with the former JUNOSW FastSim based PMT Optical Model 
+   are described including kludged 4 volume geometry, 
+   unphysical polarization, time propagation and mid-vacuum absorption, reflection, 
+   refraction and tunneling through dynode/MCP inside the PMT vacuum.
+   A fix for all these issues using a custom boundary process that enables adoption 
+   of a natural two volume PMT geometry is described. In addition the extension of 
+   Opticks to bring the full PMT Optical Model to the GPU is detailed. 
+
+
+.. comment
+
+   TODO : make any old v0.1.7 Opticks release to refer to 
+
+
+:i:`JUNOSW + Opticks : Planning Release` 
+========================================================
+
+.. raw:: html
+
+    <div class="mytitle">
+        <header>
+            <h1 style="background-color:lightgrey"> 
+                JUNOSW + Opticks : Plan Release
+            </h1>
+        </header>
+    </div>
+    <p style="margin-bottom:25mm;" />
+
+.. class:: small
+
+  * (p1) **Summary Timeline of JUNOSW PMT Simulation Development**  
+
+  * (p2) **Issues** : with FastSim based *junoPMTOpticalModel* 
+
+    * Unnatural FastSim kludged PMT geometry : Pyrex+Pyrex+Vacuum+Vacuum (Natural: Pyrex+Vacuum)
+    * :r:`BUGS:` polarization and propagation time within PMT were wrong
+    * :r:`MORE BUGS:` unphysical mid-vacuum reflect, refract, absorb, detect, "tunneling" thru dynode/MCP
+
+  * (p10) **FIX** : adopting simple PMT geometry with custom C4OpBoundaryProcess
+
+    * Pivot to C4OpBoundaryProcess for PMT Optical Model (:r:`MR 180 : MERGED`)
+    * C4OpBoundaryProcess::PostStepDoIt : 3-way (A,R,T) Customization with C4CustomART.h
+    * Low dependency access to PMT data from anywhere (:r:`MR 126 : MERGED`)
+    * Custom4 : Custom Boundary Multi-Layer Thin Film (A,R,T) TMM Calc
+
+  * (p16) **Validation of FIX** : with Opticks full photon history recording, U4Recorder
+
+    * Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
+    * Opticks SEvt loaded into ipython : arrays detailing every photon point
+    * Insitu input photon tests (CPU only), Statistical photon history Chi2 comparison 
+
+  * (p29) **Extra** : slow ``junoSD_PMT_v2::get_pmtid`` ~50us per hit candidate, alternative <1us with exact same results
+
+.. raw:: html
+
+    <p style="margin-bottom:-5mm;" />
+    <hr/>
+    <p style="margin-bottom:-5mm;" />
+
+.. class:: small
+
+  * (p31) **Opticks Geometry Update** :  Render performance scan : excluding volumes for each of 146 solids
+  * (p37) **Opticks Extension for PMT Optical Model** : using full PMT info on GPU   
+
+    * CUDA equivalent of C4CustomART::doIt, (A,R,T) Comparisons from AOI scans : :r:`MATCHED`
+
+  * (p43) **Other Work** : U4Tree/stree minimal Geometry translation, Mocking CUDA  
+  * (p45) **Next Steps** : Validation with input photons (GPU vs CPU), standalone (FewPMT) then insitu tests
+
+
+.. raw:: html
+
+    <div class="mycredit">
+       <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS  &mdash; 22nd JUNO Collaboration Meeting, Kaiping, Software Review &mdash; 26 July 2023 </h2>
+    </div>
+
+
+.. s5_talk:: 
+
+    Despite the title, most of my recent work has been 
+    finding and fixing bugs with JUNOSW PMT simulation. 
+
+    Clearly, need to fix bugs on the CPU
+    before bringing the simulation to the GPU. 
+
+
+FewPMT_tub3_degenerate.png
+----------------------------
+
+
+
+:small:`Other Work : U4Tree/stree Minimal Geometry Translation`
+------------------------------------------------------------------------
+
+.. sidebar:: :small:`OLD : Extraneous full GGeo model`
+
+    .. class:: small
+
+        **GGeo** : Historical baggage from export/import era  
+
+    .. raw:: html
+
+        <pre class="mypretiny">+-------------------------------------+
+        | Geant4 ----> GGeo ----> CSGFoundry  |
+        |         X4       CSG_GGeo           |
+        +-------------------------------------+</pre>
+ 
+    .. class:: small
+
+        +-----------------------------------------------------------+
+        |   Progress with adoption of minimal approach              |
+        +--------------------------------------+--------------------+
+        |  Aspect of translation               |     Status         |
+        +======================================+====================+
+        | structural factorization             |    MATCHED         | 
+        +--------------------------------------+--------------------+
+        | instance transforms                  |    MATCHED         |
+        +--------------------------------------+--------------------+
+        | standard CSG                         |    MATCHED         | 
+        +--------------------------------------+--------------------+
+        | :r:`material/surf/boundary` **NEW**  |    MATCHED         |
+        +--------------------------------------+--------------------+
+        | CSG auto-uncoincidence               |:r:`MATCHED`        |
+        +--------------------------------------+--------------------+
+        | CSG tree balancing                   |    DEFERRED        |
+        +--------------------------------------+--------------------+
+
+        :b:`HUGE CODE REDUCTION`
+          * ~6 pkgs now made inactive : hundreds of classes/structs
+          * Opticks can more than half in size once inactive removed
+   
+
+.. class:: small
+
+   +-------------------------------------------+
+   | Geant4 -> U4Tree.h/stree.h -> CSGFoundry  |
+   +-------------------------------------------+
+
+   :b:`Minimal intermediate stree.h model` :r:`(much less code)`
+
+   * benefits of experience : eg n-ary tree serialization
+
+   +------------+--------------------------------------------------+
+   | U4Tree     | G4VPhysicalVolume -> stree/snode  (n-ary tree)   |
+   +------------+--------------------------------------------------+
+   | U4Solid    | G4VSolid -> scsg/snd  (n-ary tree of constituent)|
+   +------------+--------------------------------------------------+
+   | U4Material | G4Material -> NPFold/NP                          | 
+   +------------+--------------------------------------------------+
+   | U4Surface  | G4LogicalSurface -> NPFold/NP                    |
+   +------------+--------------------------------------------------+
+
+   +------------------------------------------------------+
+   |  CSGFoundry/CSGImport                                |
+   |     CSGSolid/CSGPrim/CSGNode <- stree/snode/scsg/snd |
+   +------------------------------------------------------+
+
+
+   `opticks/src/master/notes/progress.rst <https://bitbucket.org/simoncblyth/opticks/src/master/notes/progress.rst>`_
+
+
+.. s5_talk::
+
+    Some other work on the geometry translation is getting close
+    to concluding with a major reduction in Opticks code. 
+
+
+:small:`CPU vs GPU validation : Now with full PMT Optical Model`
+--------------------------------------------------------------------------------
+
+
+.. sidebar:: :small:`Standard Tests`
+
+    1. Input photon 
+
+       * Few PMT standalone
+       * Full geometry insitu
+
+    +---------------------------------+
+    | Stat. photon history comparison |
+    +---------------------------------+
+    | Random aligned, if needed       |
+    +---------------------------------+
+
+    2. Scintillation + Cerenkov 
+
+       * Few PMT standalone
+       * Full geometry insitu
+
+    +---------------------------------+
+    | Stat. photon history comparison |
+    +---------------------------------+
+ 
+
+
+
++----------------------------------------------+
+| opticksMode:2                                |
+|    G4 CPU simulation => U4Recorder/SEvt      |
+|    (as used for PMT geometry comparisons)    | 
++----------------------------------------------+
+| opticksMode:1                                | 
+|    Opticks GPU simulation => SEvt            |
++----------------------------------------------+
+
+
+.. s5_talk::
+
+    Next steps : are to validate applying the same machinery used to check the PMT 
+    geometry pivot to compare between CPU and GPU simulations. 
+
+    This comparison should be simpler, because the geometry is the same. 
+
+
+
+:small:`Simplifications to avoid needing`
+-------------------------------------------
+
+.. class:: small
+
+    +-----------------------------+-----------------------------------------------------------------------+
+    |   Aspect                    |  Status                                                               |
+    +=============================+=======================================================================+
+    | sigma_alpha ground surfaces |  G4RandGauss::shoot brought over, need qsim::propagate generalization |
+    +-----------------------------+-----------------------------------------------------------------------+
+
+
+
+
+:small:`Table`
+------------------
+
+
+.. class:: small 
+
+    +------------------+----------------+-----------------+----------------+---------+---------+
+    |  Release Date    |   NVIDIA OptiX |  Notes          |  Driver        |  CUDA   |  gcc    |
+    +==================+================+=================+================+=========+=========+
+    |  July 2019       |   :r:`7.0.0`   | **NEW API**     | 435.12(435.21) |  10.1   |  8.3.0  |
+    +------------------+----------------+-----------------+----------------+---------+---------+
+    |  June 2020       |   7.1.0        | Added Curves    | 450            |  11.0   |         |
+    +------------------+----------------+-----------------+----------------+---------+---------+
+    |  Oct 2020        |   7.2.0        | Specialization  | 455            |  11.1   |         |
+    +------------------+----------------+-----------------+----------------+---------+---------+
+    |  Apr 2021        |   7.3.0        |                 | 465            |  11.1   |         |
+    +------------------+----------------+-----------------+----------------+---------+---------+
+    |  Oct 2021        |   7.4.0        | Catmull-Rom     | 495            |  11.4   |         |
+    +------------------+----------------+-----------------+----------------+---------+---------+
+    |  June 2022       |   7.5.0 [1]    | Debug, Sphere   | 515            |  11.7   |         |
+    +------------------+----------------+-----------------+----------------+---------+---------+
+    |  Oct 2022        |   7.6.0 [1]    |                 | 520            |  11.8   |         |
+    +------------------+----------------+-----------------+----------------+---------+---------+
+    |  Mar 2023        |   7.7.0        | More Curves     | 530            |  12.0   |         |
+    +------------------+----------------+-----------------+----------------+---------+---------+
+    |  Aug 2023        |   8.0.0        | SER, Perf       | 535            |  12.0   |         |
+    +------------------+----------------+-----------------+----------------+---------+---------+
+
+.. class:: small
+
+   **JUNOSW + Opticks : "Technical" Release : Which versions ?**
+
+   * Objective : enable more people to get involved with Opticks validation 
+
+   +------------------+----------------------------------------------------------------------------+ 
+   | Geant4 10.4.2    | Changing Geant4 ? high delay potential : Custom4 + Opticks + JUNOSW        |
+   +------------------+----------------------------------------------------------------------------+
+   | Custom4 0.1.7    | * small package : but deeply coupled with : Geant4 + JUNOSW + Opticks      |
+   +------------------+----------------------------------------------------------------------------+ 
+   | OptiX 7.0.0 ?    | * 7.0.0 -> 8.0.0 minor API changes only, little dev expected               | 
+   |                  | * BUT: expecting performance improvements, want measurements from 7.0.0    | 
+   |                  | * also want measurements as update driver and OptiX version                | 
+   +------------------+----------------------------------------------------------------------------+ 
+   | Opticks v0.2.0 ? | last release  https://github.com/simoncblyth/opticks/releases/tag/v0.1.6   |
+   |                  |                                                                            |
+   +------------------+----------------------------------------------------------------------------+ 
+
+   Deferred geometry:
+
+   +--------------------+-----------------------------------------------------------------------------+
+   | --no-guide_tube    |  OptiX 7.1 has curves which might allow G4Torus translation (dev. needed)   | 
+   +--------------------+---------------------------------------------+-------------------------------+
+   | --debug-disable-xj |  XJfixture XJanchor                         |  Deep CSG trees               |
+   +--------------------+---------------------------------------------+  require dev.                 |
+   | --debug-disable-sj |  SJCLSanchor SJFixture SJReceiver SJFixture |  to see if "listnode"         |
+   +--------------------+---------------------------------------------+  (similar to G4MultiUnion)    |
+   | --debug-disable-fa |  FastenerAcrylic                            |  can provide solution         |
+   +--------------------+---------------------------------------------+-------------------------------+
+
+
+   Known missing physics:
+
+   * sigma_alpha/polish ground surface handling : impl in progress
+
+
+:small:`Future Plan for GPU Cluster Driver Version ?`
+------------------------------------------------------
+
+.. class:: small
+
+   +------------------------+-------------------------------------------+
+   |  NVIDIA Driver Version |  * What progression over next year(s) ?   |
+   |                        |  * constraints ?                          |
+   +------------------------+-------------------------------------------+
+   |  CUDA, gcc Version ?   |                                           |
+   +------------------------+-------------------------------------------+   
+
+
+
+
+
+:small:`Further Steps : Performance, Production, Updates, Problem Geometry`
+-----------------------------------------------------------------------------
+
+.. class:: small
+
+
+    * performance tests with different versions of NVIDIA OptiX, CUDA
+    * production constraints re: NVIDIA Driver versions ? 
+    * :r:`Decide on minimum NVIDIA OptiX version to support`  (maybe 7.1 if Curves prove useful)
+
+
+    +-----------------+------------------+---------------+------------------+---------------+--------------+----------------+--------------+--------------+
+    |                 |  July 2019       |  June 2020    |  Oct 2020        |  Apr 2021     |  Oct 2021    |   June 2022    |  Oct 2022    |  Mar 2023    | 
+    +=================+==================+===============+==================+===============+==============+================+==============+==============+
+    | NVIDIA OptiX    |  :r:`7.0.0`      |   7.1.0       |  7.2.0           |   7.3.0       |  7.4.0       |   7.5.0 [1]    |   7.6.0 [1]  |  7.7.0       |   
+    +-----------------+------------------+---------------+------------------+---------------+--------------+----------------+--------------+--------------+
+    | Notes           | **NEW API**      | Added Curves  | Specialization   |               | Catmull-Rom  | Debug, Sphere  |              | More Curves  |
+    +-----------------+------------------+---------------+------------------+---------------+--------------+----------------+--------------+--------------+
+    | NVIDIA Driver   | 435.12(435.21)   |   450         |   455            |    465        |   495        |   515          |   520        |   530        |   
+    +-----------------+------------------+---------------+------------------+---------------+--------------+----------------+--------------+--------------+
+    | NVIDIA CUDA     |  10.1            |   11.0        |   11.1           |    11.1       |   11.4       |   11.7         |   11.8       |   12.0       |   
+    +-----------------+------------------+---------------+------------------+---------------+--------------+----------------+--------------+--------------+
+    | gcc             |  8.3.0           |    ?          |    ?             |      ?        |    ?         |    ?           |     ?        |   ?          |   
+    +-----------------+------------------+---------------+------------------+---------------+--------------+----------------+--------------+--------------+
+
+
+    **Problem Geometry**
+ 
+    * Deep CSG trees (XJFixtureConstruction) : test if "list-nodes" can avoid issue by tree height reduction
+    * Torus (Guide Tube) : NVIDIA OptiX 7.1+ adds Curves primitive : may give performant Torus intersect 
+
+
+.. class:: tiny 
+
+    [1] minor Opticks changes to support NVIDIA OptiX 7.5, 7.6 done already for Opticks users from Fermilab Geant4 group  
+
+
+.. s5_talk::
+
+    If everything validates OK then the next steps are to work the practicalities
+    of getting Opticks into production.  Checking performance with different OptiX versions
+    is needed.  
+
+    Also there are some problem parts of the geometry, that are currently just skipped. 
+    
+
+
+
+
+:small:`Summary and Links`
+-------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Hidden Benefits of Adopting Opticks`
+
+   .. class:: small
+
+      * detailed photon instrumentation, validation 
+      * comparisons find issues with both simulations:
+       
+        * complex geometry, overlaps, bugs... 
+
+      :r:`=> using Opticks improves CPU simulation too !!`
+
+.. raw:: html
+
+     <p style="margin-bottom:5mm;" />
+
+..
+
+  *Opticks* : state-of-the-art GPU ray traced optical simulation integrated with *Geant4*. 
+  Migration to NVIDIA OptiX 7 complete. Full JUNO PMT Optical Model now on GPU. 
+
+.. raw:: html
+
+     <p style="margin-bottom:15mm;" />
+
+.. class:: normal
+
+  * NVIDIA Ray Trace Performance continues rapid progress (2x each generation) 
+  * **any simulation limited by optical photons can benefit from Opticks**
+  * more photon limited -> more overall speedup (99% -> 100x)
+
+
+.. table::
+    :align: center
+
+    +--------------------------------------------------+-----------------------------------------+
+    | https://bitbucket.org/simoncblyth/opticks        | code repository                         |                   
+    +--------------------------------------------------+-----------------------------------------+
+    | https://simoncblyth.bitbucket.io                 | presentations and videos                |
+    +--------------------------------------------------+-----------------------------------------+
+    | https://groups.io/g/opticks                      | forum/mailing list archive              |
+    +--------------------------------------------------+-----------------------------------------+
+    | email: ``opticks+subscribe@groups.io``           | subscribe to mailing list               |
+    +--------------------------------------------------+-----------------------------------------+ 
+    | ``simon.c.blyth@gmail.com``                      | any questions                           |   
+    +--------------------------------------------------+-----------------------------------------+ 
+
+.. s5_talk::
+
+    Opticks brings state-of-the-art GPU ray tracing performance to optical photon simulations. 
+
+    The detailed validations needed when adopting a new simulation has a 
+    hidden benefit in that detailed comparisons reveal problems with both 
+    simulations. 
+
+    **Opticks improves the CPU simulation as well as providing an on GPU simulation**  
+ 
+
+
+
+:i:`Opticks Progress Summary` 
+-------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:-10mm;" />
+    <p style="position:fixed;top:-10px;left:680px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">Geant4 + Opticks + NVIDIA OptiX 7 (GPU ray trace)</p>
+    <p style="position:fixed;top:600px;left:10px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">Full PMT Info on GPU</p>
+    <p style="position:fixed;top:600px;left:680px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">Geometry translated for GPU ray trace (no triangles)</p>
+    
+
+.. class:: small
+
+   **JUNOSW : PMT FastSim => Custom Boundary Process** 
+   
+   * FIXED BUGS : polarization, time, tunneling, unphys. A,R,T   
+   * NOW : natural pyrex + vacuum PMT geometry  
+
+   **Opticks : Full JUNO PMT Optical Model on GPU**
+
+   * same CPU/GPU TMM code shared by JUNOSW/Opticks 
+   * CPU vs GPU validation ongoing 
+
+.. class:: small
+
+   +--------------------------------------------+
+   | https://bitbucket.org/simoncblyth/opticks/ |
+   +--------------------------------------------+
+
+
+
+.. comment
+
+   +-----------------------------------+
+   | https://juno.ihep.ac.cn/~blyth    |
+   +-----------------------------------+
+   | https://simoncblyth.bitbucket.io  |
+   +-----------------------------------+
+
+
+.. s5_talk::
+
+   This is a summary page : highlighting key points 
+
+

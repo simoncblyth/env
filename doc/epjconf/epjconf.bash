@@ -21,6 +21,16 @@ PDF documents at
 
 
 
+Aug 2023 : Check no changes to the template or styles 
+---------------------------------------------------------
+
+Confirmed no changes::
+
+    epsilon:epj blyth$ diff /usr/local/epjconf/web-conf/woc.bst /tmp/epj/woc.bst 
+    epsilon:epj blyth$ diff /usr/local/epjconf/web-conf/webofc.cls /tmp/epj/webofc.cls
+    epsilon:epj blyth$ diff /usr/local/epjconf/web-conf/template.tex /tmp/epj/template.tex 
+
+
 CHEP 2023 Proceedings
 -----------------------
 
@@ -30,9 +40,6 @@ The deadline for the initial submission of your articles is: Fri Sep 8 at 23:59 
 
 Each article shall have at most 8 pages (references included) and use a
 single-column format. This applies to parallel oral presentations and posters. 
-
-* NEED TO MAKE TEXT AND FIG UPDATES AND CHOP OUT 2 PAGES
-
 
 
 CHEP 2021 Proceedings
