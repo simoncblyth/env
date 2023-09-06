@@ -11,11 +11,22 @@ CHEP 2023 : May 8-12
 * https://simoncblyth.bitbucket.io/
 
 
+Proceedings submission : Wed Sep 6 
+-------------------------------------
+
+* NOTICE DEADLINE MOVED TO : 23 Sept 2023, 03:00
+
+* ~/opticks_refs/opticks-blyth-chep2023-v0.pdf
+* ~/opticks_refs/chep2023_signed_publication_right_form.pdf 
+
+HMM: SEEMS NO WAY TO SUBMIT THE RIGHTS FORM ?   
+
+* https://indico.jlab.org/event/459/papers/11811/
+* https://indico.jlab.org/event/459/contributions/11811/
+
+
 Proceedings machinery : epjconf-
 ------------------------------------
-
-
-
 
 
 Ziyan : email Aug 8

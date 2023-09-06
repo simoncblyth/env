@@ -475,7 +475,7 @@ epjconf--()
     epjconf-pdflatex
     [ $? -ne 0 ] && return 1 
     epjconf-pdflatex
-    epjconf-open
+    #epjconf-open  # somehow Preview.app launced this way exits on changing window size
     epjconf-info
     ls -l $(epjconf-odir)    
 }

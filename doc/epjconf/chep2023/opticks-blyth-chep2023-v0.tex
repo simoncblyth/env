@@ -38,7 +38,7 @@ grep section\{ *.tex
 %
 \begin{document}
 \title{Opticks : GPU Optical Photon Simulation via NVIDIA OptiX}
-\author{\firstname{Simon} \lastname{Blyth}\inst{1}\fnsep\thanks{Corresponding author \email{simon.c.blyth@gmail.com}.}}
+\author{\firstname{Simon} C. \lastname{Blyth}\inst{1}\fnsep\thanks{Corresponding author \email{simon.c.blyth@gmail.com}.}}
 \institute{Institute of High Energy Physics, CAS, Beijing, China.}
 \abstract{\input{opticks-blyth-chep2023-abstract.tex}}
 \maketitle
@@ -81,7 +81,7 @@ Any optical photon limited simulation can benefit from Opticks.
 
 Opticks was presented to the four prior CHEP conferences, with each contribution
 covering different aspects of its development. The 2021 contribution\cite{chep2021} 
-covered initial stages of the transition to the NVIDIA OptiX 7 API and 
+covered initial stages of the transition to the NVIDIA OptiX 7+ API and 
 the integration of Opticks with detector simulation frameworks. 
 The 2019 plenary presentation and proceedings\cite{chep2019} focused on RTX\cite{rtx} performance measurements.
 The earlier contributions[6,7] covered the first 
@@ -90,13 +90,13 @@ implementations of geometry translation and the CUDA port of photon generation a
 These proceedings describe the almost completely re-implemented Opticks,
 as required to adopt the entirely new NVIDIA OptiX 7+ API. 
 Ongoing developments to improve performance with complex solid shapes with "list-nodes" are described
-and modelling of multiple thin layer interference effects are described. 
+and modelling of multiple thin layer interference effects are reported. 
 %
 %
 \subsection{Importance of optical photon simulation}%
 %
 %
-Vetos that suppress of cosmic muon induced backgrounds are crucial for neutrino
+Suppression of cosmic muon induced backgrounds with veto selections are crucial for neutrino
 detectors such as JUNO\cite{juno}, necessitating production of large simulated samples of muon events. 
 However, a muon of typical energy 200 GeV crossing the JUNO scintillator can yield tens of millions of 
 optical photons, which are found with Geant4 simulations to consume more than 99\% of CPU time
@@ -119,8 +119,8 @@ The most computationally demanding aspect of photon propagation
 is the calculation of intersection positions of rays representing photons with the detector geometry.
 This ray tracing limitation of simulation is shared with the synthesis of realistic images in computer graphics. 
 Many recent NVIDIA GPUs include 3rd generation RTX\cite{rtx} hardware dedicated to ray geometry intersection. 
-NVIDIA GPU ray tracing performance continues to improve rapidly with performance factors of 2 
-from each RTX generation. 
+NVIDIA GPU ray tracing performance continues to improve rapidly, with performance doubling  
+with each RTX generation. 
 %
 %
 \subsection{NVIDIA\textregistered\ OptiX\texttrademark\ ray tracing engine}
@@ -195,7 +195,7 @@ using a single NVIDIA TITAN RTX GPU and NVIDIA OptiX 7.
 \label{secgeom}%
 % FIRST : HIGH LEVEL DESCRIPTION OF THE VARIOUS GEOMETRY MODELS AND TRANSLATIONS BETWEEN THEM
 % AND THEN GET INTO THE DETAILS IN THE SUBSECTIONS
-Opticks provides automated translation between geometry models in the below sequence. 
+At initialization Opticks translates between geometry models in the below sequence:
 %
 \begin{enumerate}
 \item Geant4 : deep hierarchy of structural volumes and trees of {\tt G4VSolid} CSG nodes
@@ -343,26 +343,26 @@ dis-contiguous nature of the holes.
 %
 The JUNO PMT optical model\cite{jpom} accounts for optical processes inside PMTs including 
 interference effects from thin layers of anti-reflection coating and photocathode between 
-the PMT glass and interior vacuum. Using the transfer matrix method (TMM) allows 
+the PMT glass and interior vacuum. The optical model is implemented using a transfer matrix method (TMM) 
 calculation of reflectance, transmittance and absorption based on layer thicknesses 
 and complex refractive indices of the layer materials. 
 
-In order to perform equivalent calculations within Opticks a CPU/GPU 
+In order to optionally perform equivalent calculations within Opticks a CPU/GPU 
 single header {\tt C4MultiLayrStack.h} implementation of TMM 
 has been developed within the Custom4 package\cite{custom4}. 
 Custom4 is an optional external package that when available 
-is integrated with the Opticks qudarap package providing special 
-optical surface handling that perform the interference calculations.   
+is integrated with the Opticks QUDARap package providing special 
+optical surface handling that performs the interference calculations.   
 %
 %
 %
 \section{Optical physics}%
 %
 Opticks optical photon simulation is now implemented in the QUDARap package, 
-that depend only on the SysRap base package and CUDA, with no dependency on OptiX. 
+that depends only on the SysRap base package and CUDA, with no dependency on OptiX. 
 Table~\ref{tabqsim} illustrates the simple host/device counterpart pattern 
 adopted where each CPU struct sets up its GPU counterpart first on the host, 
-uploading constituents and setting device pointers of the host prior to uploading it 
+uploading constituents and setting device pointers within a host instance prior to uploading it 
 to the GPU. This approach simplifies GPU/CPU testing of the simulation.  
 %
 %
@@ -382,7 +382,7 @@ to the GPU. This approach simplifies GPU/CPU testing of the simulation.
  \hline
 \end{tabular}
 \end{center}
-\caption{\label{tabqsim}Simple host/device counterpart pattern adopted by QUDARap.} 
+\caption{\label{tabqsim}Simple host/device counterpart pattern adopted by the Opticks QUDARap package.} 
 \vspace{-4mm}
 \end{table}%
 %
@@ -400,7 +400,7 @@ random number functions enables fine grained testing of almost all functionality
 on both GPU and CPU.
 
 Several groups from various experiments and the Geant4 Collaboration are evaluating Opticks
-and an example of Opticks usage is now included with the Geant4 distribution. 
+and an example of Opticks usage is now included within the Geant4 distribution. 
 %
 %
 \newpage
@@ -409,7 +409,11 @@ and an example of Opticks usage is now included with the Geant4 distribution.
 The JUNO collaboration is acknowledged for the use of detector 
 geometries and simulation software. Dr. Tao Lin is acknowledged for presenting 
 this work at conference at short notice and for his assistance with 
-the JUNO offline software.
+the JUNO offline software. NVIDIA is acknowledged for assistance 
+with the OptiX 7+ API transition provided during a series of meetings 
+throughout 2021 and a UK GPU hackathon in 2022. 
+The LZ and LHCb physicists that suggested and organized these meetings with 
+NVIDIA are also acknowledged.  
 
 This work is supported by National Natural Science Foundation of China (NSFC)
 under grant No. 12275293.
@@ -468,7 +472,7 @@ OptiX API, {\tt https://raytracing-docs.nvidia.com/optix8/index.html}
 OptiX 7 {\tt https://developer.nvidia.com/blog/how-to-get-started-with-optix-7/}
 %15
 \bibitem{rtx}
-NVIDIA RTX\texttrademark Platform, {\tt https://developer.nvidia.com/rtx}
+NVIDIA RTX\texttrademark\, Platform, {\tt https://developer.nvidia.com/rtx}
 %16
 \bibitem{juno}
 Neutrino physics with JUNO \\
