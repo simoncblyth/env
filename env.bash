@@ -1600,6 +1600,7 @@ flup-(){      . $(env-home)/wsgi/flup.bash && flup-env $* ; }
 g4daenode-(){      . $(env-home)/geant4/geometry/collada/g4daenode.bash && g4daenode-env $* ; }
 presentation-(){      . $(env-home)/presentation/presentation.bash && presentation-env $* ; }
 chep-(){              . $(env-home)/presentation/chep/chep.bash && chep-env $* ; }
+cepc-(){              . $(env-home)/presentation/cepc/cepc.bash && cepc-env $* ; }
 
 
 dataquality-(){      . $(env-home)/nuwa/dataquality.bash && dataquality-env $* ; }
