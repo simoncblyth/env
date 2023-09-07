@@ -214,6 +214,13 @@ Opticks Presentations
 ~~~~~~~~
 
 
+`env/presentation/opticks_20230907_release.html <env/presentation/opticks_20230907_release.html>`_
+
+    JUNOSW + Opticks : Release Planning 
+
+    JOC Meeting, IHEP, Beijing, Sept 7, 2023
+
+
 `env/presentation/opticks_20230726_kaiping_software_review.html <env/presentation/opticks_20230726_kaiping_software_review.html>`_
 
    JUNO+Opticks : Progress Review
