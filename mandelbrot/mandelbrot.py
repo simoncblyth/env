@@ -1,32 +1,35 @@
 #!/usr/bin/env python
 """
-https://rosettacode.org/wiki/Mandelbrot_set#Python
+mandelbrot.py 
+==============
+
+
 """
-
-import matplotlib.pyplot as plt
 import numpy as np
+SIZE = np.array([1280, 720])
+import matplotlib.pyplot as plt
 
-npts = 300
-max_iter = 100
+def read_npy(path):
+    path = os.path.expandvars("$FOLD/a.npy")
+    c = np.load(path)
+    d = dict()
+    for line in open(path.replace(".npy","_meta.txt")).read().splitlines():
+        key, val = line.split(":")
+        d[key] = float(val)
+    pass 
+    return c, d 
 
-X = np.linspace(-2, 1, 2 * npts)
-Y = np.linspace(-1, 1, npts)
+if __name__ == '__main__':
 
-#broadcast X to a square array
-C = X[:, None] + 1J * Y
-#initial value is always zero
-Z = np.zeros_like(C)
+    c, d = read_npy("$FOLD/a.npy")
 
-exit_times = max_iter * np.ones(C.shape, np.int32)
-mask = exit_times > 0
+    print( "c.min() %s c.max() %s " % (c.min(), c.max()))
+    scale = float(os.environ.get("SCALE", 1))
 
-for k in range(max_iter):
-    Z[mask] = Z[mask] * Z[mask] + C[mask]
-    mask, old_mask = abs(Z) < 2, mask
-    #use XOR to detect the area which has changed 
-    exit_times[mask ^ old_mask] = k
+    extent = (d["xmin"], d["xmax"], d["ymin"], d["ymax"] )
+    cmap = plt.cm.prism
+    #cmap = None
 
-plt.imshow(exit_times.T,
-           cmap=plt.cm.prism,
-           extent=(X.min(), X.max(), Y.min(), Y.max()))
-plt.show()
+    fig, ax = plt.subplots(figsize=SIZE/100.)  
+    ax.imshow(c*scale, extent=extent, cmap=cmap) 
+    fig.show()

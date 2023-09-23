@@ -1,31 +1,36 @@
 #!/bin/bash -l 
+usage(){ cat << EOU
+mandelbrot.sh
+===============
 
+FOCUS=-1.4,0,0.3 ~/env/mandelbrot/mandelbrot.sh 
+
+FOCUS=-1.3,0,0.3 ~/env/mandelbrot/mandelbrot.sh
+
+FOCUS=-1.45,0,0.05 ~/env/mandelbrot/mandelbrot.sh
+
+EOU
+}
+cd $(dirname $BASH_SOURCE)
 name=mandelbrot 
-defarg="build_run_imshow"
+defarg="build_run_ana"
 arg=${1:-$defarg}
 
+export FOLD=/tmp/$name
+mkdir -p $FOLD
+bin=$FOLD/$name
+
 if [ "${arg/build}" != "$arg" ]; then 
-    gcc $name.cc \
-         -I/usr/local/cuda/include \
-         -I/usr/local/opticks/include/OKConf \
-         -I/usr/local/opticks/include/SysRap \
-         -L/usr/local/opticks/lib \
-         -lOKConf \
-         -lSysRap \
-         -std=c++11 -lstdc++ \
-          -o /tmp/$name 
+    gcc $name.cc -I$HOME/np -std=c++11 -lstdc++ -o $bin 
     [ $? -ne 0 ] && echo $BASH_SOURCE build error && exit 1 
 fi 
-
 if [ "${arg/run}" != "$arg" ]; then 
-    /tmp/$name
+    $bin
     [ $? -ne 0 ] && echo $BASH_SOURCE run error && exit 2 
 fi 
-
-if [ "${arg/imshow}" != "$arg" ]; then 
-    ${IPYTHON:-ipython} --pdb -i mandelbrot_imshow.py 
+if [ "${arg/ana}" != "$arg" ]; then 
+    ${IPYTHON:-ipython} --pdb -i $name.py 
     [ $? -ne 0 ] && echo $BASH_SOURCE ana error && exit 1 
 fi 
-
-
+exit 0 
 
