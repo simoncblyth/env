@@ -1,0 +1,666 @@
+.. meta::
+
+   :title: 
+   :name: standalone_20230930_cpp_test_debug_ana_with_numpy.txt
+   :description: (30 Sep 2023)
+   :notes: Hohhot
+
+.. include:: my_s5defs.txt
+
+.. include:: s5_background_image.txt
+
+
+.. comment
+
+    Things to cover
+
+    * Standalone tests 
+    * Serialization 
+
+      * favor simple data structures, arrays 
+      * union trick placing float/int in same place   
+      * example : recording the steps of millions of photons
+      * http://localhost/env/presentation/opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar.html
+
+
+    * python : fastest growing ...
+    * http://localhost/env/presentation/opticks_gpu_optical_photon_simulation_sep2018_qingdao.html
+
+    * basic NumPy intro : data science fundamental 
+
+    * Example of serialization : NP.hh NPFold.h 
+    * Header only impl 
+
+    http://localhost/env/presentation/opticks_20230726_kaiping_software_review.html
+
+
+
+:i:`Standalone C++ software testing, debugging and analysis with python packages:  NumPy, matplotlib, pyvista, ...` 
+=====================================================================================================================
+
+.. raw:: html
+
+    <div class="mytitle">
+        <header>
+            <h1 style="background-color:lightgrey"> 
+                Standalone C++ software testing, debugging and analysis<br/> with python packages:  NumPy, matplotlib, pyvista, ...
+            </h1>
+        </header>
+    </div>
+    <p style="margin-bottom:25mm;" />
+    <p style="margin-bottom:50mm;" />
+
+.. class:: normal
+
+   * Three Laws of Good Software Design + Development
+
+   * Standalone Software Test Example : U4Mesh_test.sh 
+
+   * Power of Serialization + De-Serialization 
+
+   * Using *NP.hh NPFold.h* Serialization from *U4Mesh.h*
+
+   * NumPy : Fundamental to Python Data Ecosystem
+
+   * The Zen of Numpy, by its creator, Travis Oliphant
+
+   * NumPy : Python flexibility+brevity at C speed
+
+   * NPY minimal file format : metadata header + data buffer : trivial to parse
+
+   * Loading Serialized U4Mesh with NumPy, Visualize with PyVista
+
+   * TODO : Brief Description of PyVista and MatPlotLib
+
+   * TODO : Adapt env/mandelbrot/mandelbrot2.sh example 
+
+
+.. raw:: html
+
+    <div class="mycredit">
+       <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS  &mdash; Hohhot Meeting &mdash; 30 Sept 2023 </h2>
+    </div>
+
+
+
+
+Three Laws of Good Software Design + Development
+---------------------------------------------------
+
+.. sidebar:: :small:`Curse of Software Dependencies`
+
+    .. class:: small
+
+        * slow dev. cycle : ~mins build + run 
+        * only "high" level tests of whole packages  
+        * => :r:`LOTS OF (OLD) BUGS` 
+
+        Solution : :r:`Divide and Conquer` => split into units 
+
+        * fast dev. cycle : change unit + rerun in < 1s 
+        * fine grained test => :b:`EASY FIND/FIX BUGS` 
+
+
+        **HOW CAN SOFTWARE BE SPLIT APART:**
+
+        * design to minimize dependencies of "unit"
+
+          * less dependencies => more useful 
+          * Literally, as :r:`usable in more situations` 
+
+        * persist objects with serialization 
+
+          * save to file, load from file 
+          * enables split dependencies + processing 
+
+        :r:`Serialization : sw flexibility superpower` 
+
+
+
+.. raw:: html
+
+    <p style="margin-bottom:25mm;" />
+
+.. class:: small 
+
+   +--------------------------------------------------------------+
+   |                                                              |
+   |  1. **Arrange fast development cycle** : :b:`TOP PRIORITY`   | 
+   |                                                              |
+   |  * seconds to make change and see outcome, not minutes       |  
+   |  * <1s cycletime : no waiting, :r:`focussed development`     | 
+   |  * cheap cycles => great code                                |
+   |                                                              |
+   |  .. raw:: html                                               |
+   |                                                              |
+   |       <p style="margin-bottom:5mm;" />                       |
+   +--------------------------------------------------------------+
+   |                                                              |
+   |  2. **Always minimize dependencies**                         |
+   |                                                              |
+   |  * just good design : code more useful                       |
+   |  * organize code by dependency, NOT TOPIC                    |
+   |  * dependency is fundamental, topic just opinion             |
+   |                                                              |
+   |  .. raw:: html                                               |
+   |                                                              |
+   |       <p style="margin-bottom:5mm;" />                       |
+   +--------------------------------------------------------------+
+   |                                                              |
+   |  3. **Apply serialization wherever useful**                  |
+   |                                                              |
+   |  * dont repeat processing, load objects from file            |
+   |  * dependencies to create very different to use              |
+   |  * inherent dependency reduction                             |   
+   |                                                              |
+   |  .. raw:: html                                               |
+   |                                                              |
+   |       <p style="margin-bottom:5mm;" />                       |
+   +--------------------------------------------------------------+
+
+
+
+
+Standalone Software Test Example : U4Mesh_test.sh 
+----------------------------------------------------
+
+.. sidebar:: :small:`What is a Standalone Test ?`
+
+    .. class:: small
+
+         * :r:`Very Simple => Very Fast` 
+         * tests small "unit" of software 
+
+           * ``U4Mesh.h``
+           * => simple fast build (no Makefile,..) 
+
+         * Serialization : C++ -> .npy -> NumPy 
+
+           * => analyse in python
+
+         * Communicate bash/C++/py : envvar ``FOLD``
+
+
+.. sidebar:: :small:`<= eg: Standalone Bash Script`
+
+
+    ::
+    
+         ./U4Mesh_test.sh info
+         ./U4Mesh_test.sh build
+         ./U4Mesh_test.sh run
+         ./U4Mesh_test.sh ana
+
+
+    .. class:: tiny
+
+        https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4Mesh_test.sh 
+
+
+.. class:: small
+
+   +--------------------------------------------------------------------+
+   |                                                                    | 
+   |                                                                    |
+   | .. raw:: html                                                      |
+   |                                                                    |
+   |    <pre class="mypretiny">&#35;!/bin/bash -l                       |
+   |    cd $(dirname $BASH_SOURCE)                                      |
+   |    name=U4Mesh_test                                                |
+   |    <span class="r">export FOLD=/tmp/$name </span>                  |
+   |    bin=$FOLD/$name                                                 |
+   |    mkdir -p $FOLD                                                  |
+   |    vars="BASH_SOURCE name FOLD bin"                                |
+   |                                                                    |
+   |    defarg="info_build_run_ana"                                     |
+   |    arg=${1:-$defarg}                                               |
+   |    g4- ; clhep-                                                    |
+   |                                                                    |
+   |    if [ "${arg/info}" != "$arg" ]; then                            |
+   |        for var in $vars ; do                                       |
+   |             printf "%20s : %s \n" "$var" "${!var}" ; done          |
+   |    fi                                                              |
+   |    if [ "${arg/build}" != "$arg" ]; then                           |
+   |         gcc $name.cc                                               |
+   |             -g -std=c++11 -lstdc++ -I.. -I$HOME/np                 |
+   |             -I$(clhep-prefix)/include -L$(clhep-prefix)/lib        |
+   |             -I$(g4-prefix)/include/Geant4 -L$(g4-prefix)/lib       |
+   |             -lG4global -lG4geometry -lG4graphics_reps -lCLHEP      |
+   |             -o $bin                                                |
+   |         [ $? -ne 0 ] && echo $BASH_SOURCE build error && exit 1    |
+   |    fi                                                              |
+   |    if [ "${arg/run}" != "$arg" ]; then                             |
+   |        $bin                                                        |
+   |        [ $? -ne 0 ] && echo $BASH_SOURCE run error && exit 2       |
+   |    fi                                                              |
+   |    if [ "${arg/ana}" != "$arg" ]; then                             |
+   |        ${IPYTHON:-ipython} --pdb -i $name.py                       |
+   |        [ $? -ne 0 ] && echo $BASH_SOURCE ana error && exit 3       |
+   |    fi                                                              |
+   |    exit 0                                                          |
+   |    </pre>                                                          |
+   |                                                                    |
+   +--------------------------------------------------------------------+
+    
+   
+
+
+
+Power of Serialization + De-Serialization 
+--------------------------------------------
+
+.. sidebar:: :small:`What is Serialization ?`
+
+   .. class:: small
+
+        **Convert objects into stream of bytes, enabling:** 
+
+        * write to file
+        * transfer over network 
+        * upload to GPU address space      
+        
+        :b:`Handle data with standard tools`
+
+        **Favor simple data structures**
+
+        * arrays of simple struct  
+        * simplify serialization de-serialization 
+
+
+
+.. class:: small 
+
+    Power arises from dependency "suspension":
+
+    * many deps to create objects, much fewer to use
+    * => :r:`Huge potential for software simplification`
+
+    Under-used : as objects often over designed 
+
+    * design for easy serialize/de-serialize 
+    * => flexible data handling 
+
+
+
+
+
+
+
+Using *NP.hh NPFold.h* Serialization from *U4Mesh.h*
+------------------------------------------------------------
+
+
+.. sidebar:: :small:`Serialize + Save`
+
+    .. class:: tiny
+
+        https://bitbucket.org/simoncblyth/opticks/src/master/u4/U4Mesh.h
+
+    .. class:: small
+
+       +-----------------------------------------------------------------+
+       |                                                                 |
+       | .. raw:: html                                                   |
+       |                                                                 |
+       |    <pre class="mypretiny">                                      |
+       |    inline NPFold* U4Mesh::serialize() const                     |
+       |    {                                                            |
+       |        <span class="r">NPFold* fold = new NPFold ;</span>       |
+       |        fold->add("vtx", vtx );                                  |
+       |        fold->add("fpd", fpd );                                  |
+       |        return fold ;                                            |
+       |    }                                                            |
+       |    inline void U4Mesh::save(const char* base) const             |
+       |    {                                                            |
+       |        NPFold* fold = serialize();                              |
+       |        fold->save(base);                                        |
+       |    }                                                            |
+       |    </pre>                                                       |
+       +-----------------------------------------------------------------+
+
+    .. class:: small
+
+         *NP.hh*
+              NumPy ``.npy`` file format serialization
+
+         *NPFold.h*
+              In memory folders-of-folders of NP.hh arrays
+
+
+
+.. class:: small
+
+   ::
+
+        https://github.com/simoncblyth/np
+
+
+   +-------------------------------------------------------------------+
+   |                                                                   |
+   | .. raw:: html                                                     |
+   |                                                                   |
+   |    <pre class="mypretiny">                                        |
+   |    &#35;include "G4Polyhedron.hh"                                 |
+   |    <span class="b">&#35;include "NP.hh" </span>                   |
+   |    <span class="b">&#35;include "NPFold.h" </span>                |
+   |                                                                   |
+   |    struct U4Mesh {                                                |
+   |        const G4VSolid* solid ;                                    |
+   |        G4Polyhedron*   poly ;                                     |
+   |        int             nv,nf ;                                    |
+   |        <span class="r">NP*             vtx ;</span>               |
+   |        double*         vtx_ ;                                     |
+   |        <span class="r">NP*             fpd ;</span>               |
+   |        ...                                                        |
+   |    };                                                             |
+   |    inline U4Mesh::U4Mesh(const G4VSolid* solid_):                 |
+   |        solid(solid_),                                             |
+   |        poly(solid->CreatePolyhedron()),                           |
+   |        nv(poly->GetNoVertices()),                                 |
+   |        nf(poly->GetNoFacets()),                                   |
+   |        <span class="r">vtx(NP::Make&lt;double&gt;(nv, 3)),</span> |
+   |        vtx_(vtx->values&lt;double&gt;()),                         |
+   |        fpd(nullptr)                                               |
+   |    {                                                              |
+   |        for(int i=0 ; i < nv ; i++){                               |
+   |            G4Point3D point = poly->GetVertex(i+1) ;               |
+   |            vtx_[3*i+0] = point.x() ;                              |
+   |            vtx_[3*i+1] = point.y() ;                              |
+   |            vtx_[3*i+2] = point.z() ;                              |
+   |        }                                                          |
+   |        ...                                                        |
+   |    }                                                              |
+   +-------------------------------------------------------------------+
+
+
+
+
+
+
+:small:`NumPy : Fundamental to Python Data Ecosystem`
+-------------------------------------------------------
+
+.. class:: small
+
+   * central nature of *NumPy* to the *Python* world makes mastering it exceedingly useful
+   * understanding it, enables C/C++ performance with python brevity + ease of development  
+ 
+.. image:: /env/presentation/numpy_ecosystem.png
+   :width: 700px
+   :align: center
+
+.. class:: tiny
+
+   https://docs.scipy.org/doc/numpy/user/quickstart.html
+
+   http://www.scipy-lectures.org/intro/index.html
+
+   https://github.com/donnemartin/data-science-ipython-notebooks
+
+
+
+.. comment
+
+   Familiarity with NumPy fundmentals makes use of all these packages more straightforward.  
+
+   http://luispedro.org/files/talks/2014/09-pyss/pyss14.html
+
+
+
+
+
+
+
+
+:small:`The Zen of Numpy, by its creator, Travis Oliphant`
+--------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypre" >
+
+    Strided is better than scattered.
+    Contiguous is better than strided.
+    Descriptive is better than imperative[1] (e.g. data-types).
+    <b>Array-orientated is better than object-oriented.</b>
+    <b>Broadcasting is a great idea -- use where possible!</b>
+    <b>Vectorized is better than an explicit loop.</b>
+    Unless its complicated -- then use Cython or numexpr.
+    <b>Think in higher dimensions.</b>
+
+    </pre>
+
+.. class:: small
+
+    **My take : best tool depends on nature of data**
+
+    * *NumPy* shines for large[2] and simple data ; splitting data to make it simple brings other benefits !
+    * *NumPy* holistic approach : prepares you for **vectorized and parallel** processing
+    * no-looping makes for an terse, intuitive interactive interface
+
+
+.. class:: tiny
+ 
+   [1] *imperative* means step by step how to do something
+
+   [2] but not so large that has trouble fitting in memory, np.memmap is possible but better to avoid for simplicity  
+
+
+
+:small:`NumPy : Python flexibility+brevity at C speed`
+---------------------------------------------------------------------------
+
+.. sidebar:: :small:`github.com/simoncblyth/np` 
+
+    .. class:: small
+
+        * inspired by *NumPy* : does not depend on it
+        * implements *NumPy* serialization file format, 
+          into which almost everything(*) is persisted  
+        * *Opticks* analysis/debugging done with *NumPy* and *IPython* 
+
+    .. class:: tiny   
+ 
+        (*) gensteps, photons, hits, analytic CSG geometry shapes, transforms, triangulated geometry vertices, triangles, material/surface properties ... 
+
+.. class:: small
+
+   **“fundamental package for scientific computing with Python”** 
+
+   *NumPy* arrays : simply an interface to C memory buffers 
+
+   * :red:`extreme simplicity` : simple interop with C, C++, CUDA 
+   * slices are no-copy "views" of underlying buffers
+   * reshape/transpose : just changes metadata
+   * fast memcpy, cudaMemcpy, serialization/deserialization
+   
+   Very terse, no-loop python interface to C performance
+
+   * **array-oriented computing** (C loops under python control)
+   * interactive handling of very large N-dimensional arrays
+   * easily manipulate million item arrays from python
+
+     * faster + more convenient than dealing with millions of C++ objects   
+
+.. class:: small
+
+   **“The NumPy array: a structure for efficient numerical computation”**  
+
+   * https://hal.inria.fr/inria-00564007/document
+
+
+.. class:: tiny
+
+   NPY file format specification
+
+   https://github.com/numpy/numpy/blob/master/doc/neps/nep-0001-npy-format.rst
+
+
+.. comment
+
+    https://jeffknupp.com/blog/2017/09/15/python-is-the-fastest-growing-programming-language-due-to-a-feature-youve-never-heard-of/
+
+    Secret weapon of NumPy 
+
+    https://github.com/python/peps/blob/master/pep-3118.txt
+
+
+
+
+
+:small:`NPY minimal file format : metadata header + data buffer : trivial to parse`
+--------------------------------------------------------------------------------------------
+
+.. class:: small
+
+    * data accessible from anywhere : C/C++/CUDA/python/... ; Simple to *memcpy()* or *cudaMemcpy()* to GPU
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+
+    In [1]: a = np.arange(10)       <b> # array of 10 ints : 64 bit, 8 bytes each  </b>
+    In [2]: np.save("a.npy", a )      <b> # persist the array : serializing it into a file </b>
+
+    In [3]: a2 = np.load("a.npy")        <b> # load array from file into memory </b>
+    In [4]: assert np.all( a == a2 )     <b> # check all elements the same </b>
+
+    In [5]: !xxd a.npy                  <b> # run xxd in shell to hexdump the byte contents of the file </b>  
+
+    00000000: 934e 554d 5059 0100 7600 7b27 6465 7363  .NUMPY..v.{ desc
+    00000010: 7227 3a20 273c 6938 272c 2027 666f 7274  r': '&lt;i8', 'fort
+    00000020: 7261 6e5f 6f72 6465 7227 3a20 4661 6c73  ran_order : Fals
+    00000030: 652c 2027 7368 6170 6527 3a20 2831 302c  e, 'shape': (10,   <b><span class="alarm"> # minimal metadata : type, shape   </span></b>
+    00000040: 292c 207d 2020 2020 2020 2020 2020 2020  ), }            
+    00000050: 2020 2020 2020 2020 2020 2020 2020 2020                  
+    00000060: 2020 2020 2020 2020 2020 2020 2020 2020                  
+    00000070: 2020 2020 2020 2020 2020 2020 2020 200a                 .   <b><span class="alarm"> # 128 bytes of header  </span></b>
+    00000080: 0000 0000 0000 0000 0100 0000 0000 0000  ................  
+    00000090: 0200 0000 0000 0000 0300 0000 0000 0000  ................
+    000000a0: 0400 0000 0000 0000 0500 0000 0000 0000  ................   <b><span class="alarm"> # data buffer  </span></b>  
+    000000b0: 0600 0000 0000 0000 0700 0000 0000 0000  ................
+    000000c0: 0800 0000 0000 0000 0900 0000 0000 0000  ................
+
+    In [6]: !ls -l a.npy    <b> # small 128 byte header + (8 bytes per integer)*10 = 208 bytes total </b> 
+    -rw-r--r--  1 blyth  staff  208 Sep 13 11:01 a.npy            
+
+    In [7]: a
+    Out[7]: array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    In [8]: a.shape
+    Out[8]: (10,)
+
+    </pre>
+
+.. class:: tiny
+
+    One possibility for compression with blosc http://bcolz.blosc.org/en/latest/intro.html 
+
+
+.. comment
+
+    Very simple file format : about as minimal as could be 
+
+    * easy to parse : can implement in any language
+    * very stable 
+
+
+
+
+
+
+
+:small:`Loading Serialized U4Mesh with NumPy, Visualize with PyVista`
+------------------------------------------------------------------------
+
+
+.. sidebar:: :small:`PyVista 3D Visualization`
+
+     .. image:: /env/presentation/pyvista/U4MeshTest_G4Orb.png
+       :width: 500px
+       :align: right
+
+     .. raw:: html
+
+         <p style="margin-bottom:135mm;" />
+   
+
+     .. class:: small
+
+         ::
+
+             ./U4Mesh_test.sh ana 
+
+
+.. class:: small
+
+   ::
+
+       u4/tests/U4Mesh_test.cc
+
+.. class:: small
+
+   +-------------------------------------------------------------------+
+   |                                                                   |
+   | .. raw:: html                                                     |
+   |                                                                   |
+   |    <pre class="mypretiny">                                        |
+   |    &#35;include "G4Orb.hh"                                        |
+   |    &#35;include "U4Mesh.h"                                        |
+   |    int main()                                                     |
+   |    {                                                              |
+   |        G4Orb* solid = new G4Orb("Orb", 100);                      |
+   |        U4Mesh::Save(solid, "$FOLD");                              |
+   |        return 0;                                                  |
+   |    };                                                             |
+   |    </pre>                                                         |
+   |                                                                   |
+   +-------------------------------------------------------------------+
+ 
+
+.. class:: small
+
+   ::
+
+       u4/tests/U4Mesh_test.py
+
+.. class:: small
+
+   +-------------------------------------------------------------------+
+   |                                                                   |
+   | .. raw:: html                                                     |
+   |                                                                   |
+   |    <pre class="mypretiny">                                        |
+   |    &#35;!/usr/bin/env python                                      |
+   |    from np.fold import Fold                                       |
+   |    import numpy as np                                             |
+   |    import pyvista as pv                                           |
+   |    SIZE = np.array([1280, 720])                                   |
+   |                                                                   |
+   |    if __name__ == '__main__':                                     |
+   |        f = Fold.Load("$FOLD",symbol="f")                          |
+   |        print(repr(f))                                             |
+   |        pd = pv.PolyData(f.vtx, f.fpd)   # tri and/or quad         | 
+   |        pl = pv.Plotter(window_size=SIZE*2)                        |
+   |        pl.add_text("U4Mesh_test.sh", position="upper_left")       |
+   |        pl.add_mesh(pd, show_edges=True, lighting=True )           |
+   |        pl.show()                                                  |
+   |    pass                                                           |
+   |    </pre>                                                         |
+   |                                                                   |
+   +-------------------------------------------------------------------+
+   
+
+
+U4Mesh_test2_xjfcSolid_review.png
+----------------------------------
+
+
+
+TODO : Brief Description of PyVista and MatPlotLib
+----------------------------------------------------
+
+.. class:: small 
+
+
+     PyVista 
+         Interface on top of VTK 

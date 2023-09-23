@@ -74,7 +74,7 @@ On running the capture script:
    the captured png is cropped and opened in Preview
 
   
-For onward use of the captures use argument env to just define environment without 
+For onward use of the captures use the argument "env" to just define environment without 
 doing the capture::
 
    source pvcap.sh env ## pyvista

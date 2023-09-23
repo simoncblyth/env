@@ -15,15 +15,19 @@ EOU
 
 epub_relative_stem()
 {
+   : when path argument is identified as within one of a few known output folders
+   : returns a path relative to the corresponding base directory  
+
    local path=$1
-   #local geocache=$HOME/.opticks/geocache/
    local dotopticks=$HOME/.opticks/
    local tmpcache=/tmp/$USER/opticks/
+   local u4mesh=/tmp/U4Mesh_test2/figs/
 
    local rel  
    case $path in 
       ${dotopticks}*)  rel=${path/$dotopticks/} ;;
-      ${tmpcache}*)  rel=${path/$tmpcache/} ;;
+      ${tmpcache}*)    rel=${path/$tmpcache/} ;;
+      ${u4mesh}*)      rel=${path/$u4mesh/}  ;; 
    esac 
    rel=${rel/\.jpg}
    rel=${rel/\.png}

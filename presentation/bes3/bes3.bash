@@ -7,7 +7,8 @@ BES3
 
 Dear Simon, 
 
-This is the link to the article, and you have editing permission. Thank you very much for your help！
+This is the link to the article, and you have editing permission. Thank you
+very much for your help！
 
 https://latex.ihep.ac.cn/8656799587zrxztssqzjps
 

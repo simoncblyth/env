@@ -2220,6 +2220,30 @@
     ntds3_V1J011_A49820_LPMT_apex_degenerate_in_red.png
     GEOM/V1J011/ntds3/ALL1/p001/figs/ntds3/mpcap/ntds3_V1J011_A49820_LPMT_apex_degenerate_in_red.png 1280px_720px
 
+    G4CXTest_FewPMT_one_pmt_rectangle_inwards_A_mask_virtual_side_also_degenerate.png 
+    GEOM/FewPMT/G4CXTest/ALL0/p001/figs/ntds3/mpcap/G4CXTest_FewPMT_one_pmt_rectangle_inwards_A_mask_virtual_side_also_degenerate.png 1280px_720px 
+
+    U4Mesh_test2_xjfcSolid_review.png
+    U4Mesh_test2/pvcap/U4Mesh_test2_xjfcSolid_review.png 1280px_720px
+
+    U4Mesh_test2_xjacSolid_review.png
+    U4Mesh_test2/pvcap/U4Mesh_test2_xjacSolid_review.png 1280px_720px
+
+    U4Mesh_test2_sjclSolid_review.png 
+    U4Mesh_test2/pvcap/U4Mesh_test2_sjclSolid_review.png 1280px_720px
+
+    U4Mesh_test2_sjfxSolid_review.png
+    U4Mesh_test2/pvcap/U4Mesh_test2_sjfxSolid_review.png 1280px_720px
+
+    U4Mesh_test2_sjrcSolid_review.png 
+    U4Mesh_test2/pvcap/U4Mesh_test2_sjrcSolid_review.png 1280px_720px
+
+    U4Mesh_test2_sjrfSolid_review.png
+    U4Mesh_test2/pvcap/U4Mesh_test2_sjrfSolid_review.png 1280px_720px
+
+    U4Mesh_test2_facrSolid_review.png
+    U4Mesh_test2/pvcap/U4Mesh_test2_facrSolid_review.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

@@ -1,0 +1,654 @@
+% https://latex.ihep.ac.cn/project/63d5f0c2e31bc50081b059d4
+%
+\documentclass[aps,preprint,showkeys,superscriptaddress]{revtex4}
+%%\documentclass[aps,showkeys,superscriptaddress,12pt,tightenlines]{revtex4}
+%\documentclass[12pt]{article}
+\usepackage{times}
+\usepackage{amsmath}
+\usepackage{epsfig}
+\usepackage{dcolumn}
+\usepackage{bm}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{float} 
+\usepackage{subfigure}
+%\usepackage{subcaption}
+
+% use Chinese
+\usepackage{CJKutf8}
+\newcommand{\chinese}[1]{\begin{CJK}{UTF8}{gbsn}#1\end{CJK}}
+
+\usepackage{color}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+
+% definitions of particles
+\newcommand{\pp}{$p$}
+\newcommand{\pim}{$\pi^-$}
+\newcommand{\nbar}{$\bar{n}$}
+\newcommand{\jpsi}{$J/\psi$}
+
+% definitions of resolutions
+\newcommand{\pres}{$\sigma_p$}
+\newcommand{\tres}{$\sigma_\theta$}
+\newcommand{\phires}{$\sigma_\phi$}
+
+\newcommand{\tbd}{\red{[tbd]}\ }
+
+\parskip=5pt plus 1pt minus 1pt
+
+\begin{document}
+
+\title{\boldmath An approach to study interactions of antineutrons with CsI \\
+at a \jpsi~factory}
+\author{Si-Cheng Yuan}\email{yuansicheng@ihep.ac.cn} 
+\author{Liang-Liang Wang}\email{llwang@ihep.ac.cn} 
+\author{Wei-Dong Li}\email{liwd@ihep.ac.cn} 
+
+\affiliation{Institute of High Energy Physics, Chinese Academy of Sciences, Beijing 100049, China}
+\affiliation{University of Chinese Academy of Sciences, Beijing 100049, China}
+
+\date{\today}
+
+\begin{abstract}
+
+Cesium Iodide (CsI) crystals are widely used in high-energy physics 
+for their scintillation properties that enable detection of charged and neutral 
+particles via direct and indirect ionization and form the basis of electromagnetic
+calorimeters. However, knowledge of antineutron interactions with CsI 
+is limited due to the difficulty of obtaining sources of antineutron
+of sufficient intensity and energy definition. 
+As antineutron are abundantly produced by many processes it would be 
+particularly useful to improve understanding of the interactions of antineutrons
+with CsI crystals. 
+
+We propose to use the decay $J/\psi\to p\pi^-\bar{n}$ at the BEPCII $J/\psi$ factory
+as a source of antineutrons using the BESIII detector with a CsI target added between 
+the beam pipe and the detector. The BESIII Monte Carlo simulation with varying thicknesses of CsI target 
+is used to validate the approach and optimize the target thickness. 
+Selecting $p\pi^-$ charged particle tracks from the Monte Carlo we obtain clean antineutron samples 
+with well defined momentum and direction. 
+The selection efficiency, momentum and angular resolutions, as well as the interaction probability 
+between antineutron and the CsI target are estimated. 
+
+As the CsI thickness is increased more antineutron CsI interactions are obtained,
+however the quality of the $p\pi^-$ selection is degraded. The Monte Carlo study yields
+an optimum thickness that balances these effects. 
+This approach can be applied to similar experiments with other types of target materials to measure baryons 
+such as liquid hydrogen/deuterium and $\Lambda/\Xi$ hyperons.
+\end{abstract}
+
+\keywords{Antineutron, Cesium Iodide, Calorimeter, $J/\psi$ decays}
+
+\maketitle
+
+\section{Introduction}
+
+Many decays of $J/\psi$, $\psi(2S)$, $\Lambda_c$, and $B$~\cite{pdg} have final
+states that include the antineutron, but the detection of antineutron is
+limited as it is a neutral particle that does not directly cause ionisation.
+In some cases the antineutron is inferred from the recoil of the other final
+state particles~\cite{BESIII:2012imn,CLEO:2008aum}.  Alternatively it is
+identified by examining the shower produced by its annihilation interaction 
+with a calorimeter~\cite{BESIII:2021tbq}.  Detection with a calorimeter requires
+reliable Monte Carlo (MC) simulation of the interaction of the antineutron the
+calorimeter material to provide the selection efficiency and effective
+background suppression. 
+
+Cesium Iodide (CsI) has high luminous intensity, high luminescence, small
+radiation length and is chemically stable. It is widely used as the
+interaction matter of electromagnetic calorimeters for particle and nuclear
+physics experiments, such as BESIII~\cite{bes3}, CLEO-c~\cite{cleoc}, and
+Belle~II~\cite{belle2}. In these experiments, the interaction of antineutron
+and CsI is simulated with {\sc geant4}~\cite{geant4}, however the agreement
+between data and MC simulation is usually poor and data driven methods are used
+to estimate the efficiency but the precision remains
+limited and the full event shape information is not fully utilised~\cite{Liu:2021rrx}.  
+
+To achieve better precision for the antineutron involved measurements, more
+reliable MC simulation is needed, and knowledge on the antineutron and the
+calorimeter material interaction is necessary while so far it is not available
+due to extremely rare experimental data on antineutron interaction with any
+material. The main reason of the lack of data is due to the fact that
+antineutron beams with suitable intensity and momentum control are typically
+difficult to be obtained. 
+
+The best antineutron sources obtained so far are from
+BNL E-767~\cite{E767} and the CERN OBELIX~\cite{OBELIX} experiments with
+limited statistics and momentum range ($<500$~MeV/$c$), and the experimental
+measurements are more related to the interaction with light nuclei~\cite{nbarPhysics}.
+
+Because of the high cross section of $e^+e^-\to J/\psi$ and large decay
+branching fractions of $J/\psi$ to antineutrons like $J/\psi\to p\pi^-\bar{n}$,
+super \jpsi~factories are proposed to provide antineutron sources by tagging
+the accompanying particles like $p$ and $\pi^-$ in $J/\psi\to p\pi^-\bar{n}$
+and to perform rich experiments related to nuclear and particle physics by
+placing specific custom-made targets just outside of the beam
+pipe~\cite{hypronProjectileFromJpsi}. 
+
+Such antineutron sources have the advantage of high statistics 
+and also the maximum momentum of antineutrons from $J/\psi\to p\pi^-\bar{n}$ 
+can reach $1174$~MeV/$c$ uniquely enabling studies beyond 500~MeV/$c$.
+
+The BESIII experiment~\cite{bes3} is an $e^+e^-$ annihilation experiment which
+can provide a copious source of antineutrons enabling novel measurements.
+We propose a measurement of antineutron interactions with CsI 
+using antineutron produced in $e^+e^-\to J/\psi\to p\pi^-\bar{n}$ by 
+using a CsI target placed between the beam pipe and the BESIII detector. 
+%This will allow a measurement of many final states of the interactions and the data will be
+%essential for the experiments, whether in operation or being proposed, which
+%use CsI as the electromagnetic calorimeter. 
+
+In this article, we propose to study the interaction between
+antineutrons and CsI, using antineutron source from $J/\psi$ decays and a CsI
+target. By taking BESIII~\cite{bes3} as a demonstration, we perform
+quantitative validations of the proposal based on full MC simulation. Adding a
+CsI target in the full simulation of BESIII is described in
+Sec.~\ref{sec:target}, the simulation results of single $p$, single $\pi^+$,
+single $\bar{n}$, and $J/\psi\to p\pi^-$\nbar\ events are shown in
+Sec.~\ref{sec:results}, and the conclusion and perspectives are discussed in
+Sec.~\ref{sec:conclusion}. 
+
+\section{\boldmath The ${\rm CsI}$ target and antineutron source at BESIII}
+\label{sec:target}
+%    
+The BESIII~\cite{bes3} detector at the BEPCII~\cite{bepc2} $e^+e^-$ collider
+runs in the tau-charm energy region, enabling a rich physics program 
+including light hadron spectroscopy, charmonium and charmoniumlike exotic states, 
+charm physics, QCD studies with light meson decays, tau physics 
+and more~\cite{bes3physics,bes3physicsFuture}.
+Due to the large production rate of $e^+e^-\to J/\psi$, it is also a $J/\psi$
+factory. The BESIII detector, as described in detail in Ref.~\cite{bes3},
+consists of a multi-layer drift chamber (MDC) filled with helium-based gas
+outside of a beryllium beam pipe, time-of-flight (TOF) counters made of plastic
+scintillators, an electromagnetic calorimeter made of CsI(Tl) crystals, a
+superconducting magnet providing a field of 1~Tesla, and a muon system made of
+resistive plate chambers.
+    
+The outer radius and the length of the BESIII beam pipe are 33.7~mm and 296~mm,
+respectively. The inner radius of MDC is 59.2~mm. The gap between the beam pipe
+and MDC is filled with air. Adding some target material within this gap does
+not affect the beam, although some degradation in detector performance is expected.  
+%
+The proposed target material, CsI (we use pure CsI in the simulation, 
+neglecting the Thallium), has a one to one ratio of Cesium and Iodide atoms 
+with a density of $4.51$~g/cm$^3$. The target is formed into a tube shape 
+of the same length as the outer beryllium tube of the beam pipe which it is attached to. 
+The thickness of additional CsI is the most critical parameter, greater thickness 
+of CsI yields more antineutron interactions, however it also reduces the efficiency 
+and resolution of tagging the proton and $\pi^-$ hence reducing efficiency
+and angular and energy resolution of the tagged antineutrons.
+For these reasons, the optimum thickness is a balance between the
+quantity of interactions and the quality with which they are measured as
+detailed below.   
+
+
+The BESIII experiment~\cite{bes3} collects 10~billion \jpsi\ events each year.
+The branching fraction for $\jpsi \to p\pi^-\bar{n}$ is $(2.12\pm 0.09)\times 10^{-3}$~\cite{pdg}
+giving this approach strong potential to provide a copious source of antineutrons. 
+Identification of the proton and the $\pi^-$ allows a recoil mass of the $p\pi^-$ system
+to be determined. A clear antineutron signal at recoil mass of 0.94~GeV/$c^2$ 
+over a very low background is obtained, providing a sample of antineutrons with more 
+than 99\% purity. Selecting events with antineutron interactions within the additional CsI target
+is similar to the standard selection with an additional requirement that the
+charged tracks excluding \pp\ and \pim\ originate from a secondary vertex
+located within the CsI tube. 
+
+% THIS PARAGRAPH SAYS NOTHING NEW : SO I REMOVE IT 
+%The goal of our designed experiment is to study the antineutron and CsI
+%interactions, and the quantity and quality of the tagged antineutrons and the
+%quantity of the antineutron and CsI interactions. 
+%As mentioned in the previous section, quantity refers to how many
+%antineutrons can be produced and the efficiency of the tagging process, while
+%quality refers to the resolutions, including momentum resolution and angular
+%resolution of the predicted antineutrons, both of which are important for the
+%following physics analysis. 
+
+In Geant4, the simulation of \pp\ and \pim\ is
+regarded as trustworthy, so the effect of the added additional CsI on them can be simulated
+reasonably well. This contrasts with the simulation of the interaction between 
+antineutron and the CsI target which only provides a rough indication. 
+
+% THE FOLLOWING PARAGRAPH PROVIDES NO USEFUL INFORMATION 
+% EITHER ADD LOTS OF DETAIL TO EXPLAIN YOUR VAGUE STATEMENTS 
+% OR REMOVE AS I HAVE DONE
+%
+%the incorrect EMC simulation results indicate that the
+%simulation is not very reliable, nonetheless, we can get a rough feeling about
+%the reliability by comparing the interactions between antineutron with beam
+%pipe and antineutron with additional CsI. Although not accurate enough, it
+%still provide useful information.
+    
+The official BESIII software {\sc boss} is used for simulation and 
+reconstruction~\cite{boss,bes3physics,bes3hough} with modifications
+for the additional CsI target. The simulation is modified by adding the CsI tube 
+of the target into the detector structure definition. 
+The reconstruction is modified to account for effects of additional energy loss 
+and multiple scattering on the track fitting which uses a Kalman filter~\cite{kalFit}.
+A global service is implemented to ensure consistency of the material properties and geometry  
+used by the simulation and reconstruction. 
+
+Single proton, $\pi^-$, and antineutron particle samples, as well as $J/\psi\to p \pi^- \bar{n}$ 
+samples are generated for each of the configured thicknesses of the CsI tube. 
+These simulated samples allow studies of efficiencies and resolutions and a determination 
+of the optimum thickness of the CsI tube. 
+
+%%%%%%%%% HERE
+
+\section{Study of simulated samples}
+\label{sec:results}
+
+Firstly, we study how the additional CsI layer affects track reconstruction 
+for protons, pions, and antineutrons. Subsequenly we examine how the degraded track 
+reconstruction combines for the selection of $J/\psi\to p \pi^- \bar{n}$. 
+For simplicity, background particles introduced by the accelerator beam are not taken 
+into account in the simulation.
+
+\subsection{Study of single proton and pion samples}
+
+The tagged particles in our study are \pp\ and \pim. Within the same material 
+\pp\ looses more energy than \pim due to its large mass, thus at low
+momentum the efficiency of \pp\ is much lower than that of \pim. For this
+reason, different momentum ranges are set in \pp\ and \pim simulations. The
+minimum momentum is 0.3~GeV/$c$ for \pp\ and 0.1~GeV/$c$ for \pim; meanwhile,
+the maximum momentum is 1.2~GeV/$c$ for both \pp\ and \pim. As for the polar
+angle $\theta$, the range of $\cos\theta$ is set to $[0,~0.93]$, half of the
+detector coverage. The particles are distributed uniformly in both momentum and
+$\cos\theta$. In total, $10^6$ events of each \pp\ and \pim\ sample are
+simulated.
+        
+For the tagged particles, we are mainly concerned with the efficiency of
+reconstruction and the resolutions of momentum and direction. A Kalman filter is
+applied to the reconstructed tracks and the efficiency is defined as the number
+of selected tracks divided by the number of generated ones. After selection,
+the tracks are divided into momentum bins of width 0.05~GeV/$c$ 
+and polar angle bins of width 0.05~radian.
+The difference between the reconstructed momentum and polar angle and the MC truth 
+for each track is used to estimate the resolution, these are combined for all 
+tracks with a Gaussian fit to yield the resolutions of momentum and polar angle.
+        
+Figure~\ref{tracking} shows the comparison of the proton and $\pi^-$ tracking
+efficiency loss ($1-\varepsilon$) without and with 10~mm CsI as a function of
+momentum and $\cos\theta$. As expected the added CsI material 
+causes a greater reduction if the reconstruction efficiency at lower momentum 
+and larger angles. Also the impact with \pp\ is far greater than with \pim\ 
+due to the large $dE/dx$ for low momentum protons.
+        
+        \begin{figure}[htbp]
+        	\centering  %图片全局居中
+        	\subfigbottomskip=2pt %两行子图之间的行间距
+        	\subfigcapskip=-5pt %设置子图与子标题之间的距离
+        	\subfigure[]{
+        		\includegraphics[width=0.4\linewidth]{figs/single_ppi/single_p+_1-efficiency_0.eps}}
+        	\subfigure[]{
+        		\includegraphics[width=0.4\linewidth]{figs/single_ppi/single_p+_1-efficiency_10.eps}}
+        	\subfigure[]{
+        		\includegraphics[width=0.4\linewidth]{figs/single_ppi/single_pi-_1-efficiency_0.eps}}
+        	\subfigure[]{
+        		\includegraphics[width=0.4\linewidth]{figs/single_ppi/single_pi-_1-efficiency_10.eps}}
+        	\caption{ Loss of tracking efficiency as a function of momentum and $\cos\theta$ for: 
+(a) protons without a CsI layer, 
+(b) protons with additional 10 mm thick CsI layer, 
+(c) pions without a CsI layer, 
+(d) pions with additional 10 mm thick CsI layer.  }
+        	\label{tracking}
+        \end{figure}
+        
+The momentum resolution~(\pres), the polar angle resolution~(\tres), and the
+azimuthal angle resolution~(\phires) are also checked with respect to the track
+momentum for different thickness of the added CsI tube.
+Figure~\ref{fig:p_resolution} shows \pres\ of \pp\ and \pim. We can see that
+additional CsI mainly affects the \pp\ with momentum lower than 0.8~GeV/$c$,
+but for \pim, 20~mm thick CsI worsens the \pres\ by less than 1~MeV/$c$ in the
+full momentum range. The CsI effect on \tres\ and \phires\ for \pp\ and \pim\
+is shown in Fig.~\ref{fig:t_resolution} and Fig.~\ref{fig:phi_resolution}.
+Without any additional CsI, the \tres\ and \phires\ is below 10~milliradians for
+most of the momentum range.  Additional CsI material has a greater impact for
+the low momentum tracks. With the increase of CsI thickness, the impact of
+adding the same additional thickness of CsI decreases gradually.  With the
+thickness of additional CsI increasing, the tracking efficiency of low momentum
+particles is low, thus it is more difficult to obtain accurate \pres, \tres\
+and \phires\ (missing points in
+Figs.~\ref{fig:p_resolution},~\ref{fig:t_resolution} and
+\ref{fig:phi_resolution}).
+        
+        \begin{figure}[htbp]
+        	\centering  %图片全局居中
+        	\subfigbottomskip=2pt %两行子图之间的行间距
+        	\subfigcapskip=-5pt %设置子图与子标题之间的距离
+        	\subfigure[]{
+        		\includegraphics[width=0.45\linewidth]{figs/single_ppi/single_p+_p_resolution.eps}}
+        	\subfigure[]{
+        		\includegraphics[width=0.45\linewidth]{figs/single_ppi/single_pi-_p_resolution.eps}}
+        	\caption{Momentum resolution \pres~ as a function of momentum for: (a) protons, (b) pions generated within the range of $0.1 < \cos\theta < 0.2$ for adding a CsI layer with the thickness of 0, 5, 10, 15, and 20 mm.}
+        	\label{fig:p_resolution}
+        \end{figure}
+
+        \begin{figure}[htbp]
+        	\centering  %图片全局居中
+        	\subfigbottomskip=2pt %两行子图之间的行间距
+        	\subfigcapskip=-5pt %设置子图与子标题之间的距离
+        	\subfigure[]{
+        		\includegraphics[width=0.45\linewidth]{figs/single_ppi/single_p+_theta_resolution.eps}}
+        	\subfigure[]{
+        		\includegraphics[width=0.45\linewidth]{figs/single_ppi/single_pi-_theta_resolution.eps}}
+        	\caption{Polar angle resolution, \tres, as a function of of momentum for: (a) protons, (b) pions generated within the range of $0.1 < \cos\theta < 0.2$ for adding a CsI layer with the thickness of 0, 5, 10, 15, and 20 mm. }
+        	\label{fig:t_resolution}
+        \end{figure}
+        
+        \begin{figure}[htbp]
+        	\centering  %图片全局居中
+        	\subfigbottomskip=2pt %两行子图之间的行间距
+        	\subfigcapskip=-5pt %设置子图与子标题之间的距离
+        	\subfigure[]{
+        		\includegraphics[width=0.45\linewidth]{figs/single_ppi/single_p+_phi_resolution.eps}}
+        	\subfigure[]{
+        		\includegraphics[width=0.45\linewidth]{figs/single_ppi/single_pi-_phi_resolution.eps}}
+        	\caption{Azimuth angle resolution, \phires, as a function of of momentum for: (a) protons, (b) pions generated within the range of $0.1 < \cos\theta < 0.2$ for adding a CsI layer with the thickness of 0, 5, 10, 15, and 20 mm. }
+        	\label{fig:phi_resolution}
+        \end{figure}
+        
+\subsection{Study of single antineutron sample}
+        
+Although not very reliable, we may still get a rough feeling about the
+probability of the antineutron and CsI interactions by simulating a single
+antineutron and adding CsI tube with different thickness in the detector. The
+range of antineutron momentum is set to $[0,~1.2]$~GeV/$c$ while the polar
+angle is the same as that of \pp\ and \pim. In total, $10^6$ events of \nbar\,
+sample are simulated. We can get the fractions of \nbar\ annihilation and
+\nbar-nuclei elastic scattering in the additional CsI. For \nbar\ annihilation
+events the final position of the antineutron indicates where the annihilation
+happened, it can be obtained from the MC truth information; for \nbar-nuclei
+elastic scattering events, the difference in the momentum between entering and leaving 
+the additional CsI indicates whether elastic scattering occurred. 
+The threshold of momentum change is set to 0.01~GeV/$c$ although
+the momentum change is strictly zero when no scattering occured. 
+        
+The above method of identifying the annihilation and elastic scattering events
+is validated with the simulation of antineutron and beam pipe interactions. The
+simulation shows that 4.7\% of events include an antineutron interaction in the CsI 
+or beam pipe interaction. The 4.7\% total includes 3.7\% of annihilation 
+and 1.0\% of elastic scattering. If the threshold of momentum is increased 
+to 0.3~GeV/$c$, the results become 2.6\%, 1.8\%, and 0.8\%, respectively, 
+which are consistent with the estimation of 1--2\% in Ref.~\cite{hypronProjectileFromJpsi}. 
+
+Figure~\ref{fig:fraction_nbar} shows the fractions of \nbar\ annihilation and
+\nbar-nuclei elastic scattering in the additional CsI tube with thickness of 0,
+5, 10, 15, and 20~mm. We find that the fractions increase almost linearly as a
+function of the thickness of the additional CsI tube, each additional 1~mm of
+CsI results in 2.5\% of antineutron interaction, of which 1.2\% is
+annihilation and 1.3\% is elastic scattering. The ratio of elastic scattering
+and annihilation is different from that in the beam pipe. 
+        
+        \begin{figure}[htbp]
+        	\centering  %图片全局居中
+        	\subfigbottomskip=2pt %两行子图之间的行间距
+        	\subfigcapskip=-5pt %设置子图与子标题之间的距离
+        	\subfigure[]{
+        		\includegraphics[width=0.45\linewidth]{figs/single_nbar/annihilate_ratio.eps}}
+        	\subfigure[]{
+        		\includegraphics[width=0.45\linewidth]{figs/single_nbar/scatter_ratio.eps}}
+        	\caption{
+Interaction probabilities for (a) annihilation, (b) elastic scattering between
+anti-neutron and CsI as a function of momentum with the addition of a CsI layer with the
+thickness of 0, 5, 10, 15, and 20 mm. }
+
+        	\label{fig:fraction_nbar}
+        \end{figure}
+
+With a 10~mm thick CsI tube added, we find that about 24\% of the antineutrons
+interact with it, of which 11\% are annihilation and 13\% are elastic
+scattering. The chance for multiple interactions will be increased if more CsI
+material is added and this may make the study of the antineutron interaction
+more complicated. This should be considered in the design of the experiment. 
+
+\subsection{\boldmath Study of the $J/\psi\to $\pp\pim\nbar~sample}
+
+MC samples of $J/\psi\to $\pp\pim\nbar\ are simulated with additional CsI tube
+of thickness 0, 5, 10, 15, and 20~mm and subject to event selection to tag the
+antineutrons. Two charged tracks with opposite charge originating from the
+interaction point are required in each event, after particle identification,
+they are marked as \pp\ and \pim. The recoil mass of \pp\ and \pim\ is required
+to be between 0.90 and 0.98~GeV/$c^2$.:
+In total, $10^6$ events of $J/\psi\to
+$\pp\pim\nbar\ sample are simulated. 
+%
+%After the above selection, the efficiency and the resolutions of recoiled antineutron are calculated and shown in Figs.~\ref{fig:ppinbar}(b) and~(d), respectively. 
+
+The additional CsI has an obvious influence on the resolutions of the recoiling
+antineutrons. After thicker CsI tube is added, the distribution of the
+recoiling mass is significantly widened, thus the resolution of the recoiling
+mass is reduced as shown in Fig.~\ref{fig:nbar_resolutions}(a).
+Figure~\ref{fig:nbar_resolutions}(b, c, d) show \pres, \tres\ and \phires\ of
+the tagged antineutrons without or with different thicknesses of additional CsI tube
+added, they decrease with the increase of momentum.
+
+\begin{figure}[htbp]
+	\centering  %图片全局居中
+	\subfigbottomskip=2pt %两行子图之间的行间距
+	\subfigcapskip=-5pt %设置子图与子标题之间的距离
+	\subfigure[]{
+	    \includegraphics[width=0.45\linewidth]{figs/ppinbar/recoil_mass.eps}}
+	\subfigure[]{
+		\includegraphics[width=0.45\linewidth]{figs/ppinbar/p_resolution.eps}}
+	\subfigure[]{
+		\includegraphics[width=0.45\linewidth]{figs/ppinbar/theta_resolution.eps}}
+	\subfigure[]{
+		\includegraphics[width=0.45\linewidth]{figs/ppinbar/phi_resolution.eps}}
+	\caption{
+Differences between the reconstructed and true values (a) shows the resolution
+of recoil mass of \pp and \pim as a function of the thickness of additional CsI
+layer. (b) (c) (d) show respectively \pres, $\sigma_\theta$ and $\sigma_\phi$
+(d) of the recoiling antineutron as a function of momentum for adding a CsI
+layer with the thickness of 0, 5, 10, 15, and 20 ~mm.
+}
+	\label{fig:nbar_resolutions}
+\end{figure}
+
+With additional CsI of different thickness, the selection efficiencies of the
+recoiling antineutron in different momentum ranges are shown in
+Fig.~\ref{fig:ppinbar}(a). The efficiency decreases almost uniformly as the CsI
+thickness increases and the low valley in the range of 0.8 to 1.0~GeV/$c$ 
+arises due to the kinematics causing the corresponding tagged proton to have a 
+low momentum resulting in a low efficiency.
+When a 10~mm thick CsI tube is added, the total efficiency is 67.5\%, which is
+reduced by 10.8\% compared to 78.3\% without additional CsI; when a 20~mm thick
+CsI tube is added, the total efficiency and the reduction become 57.3\% and
+21.0\%.
+        
+With the recoiling antineutron efficiency and the fraction of interactions
+between antineutron and additional CsI, the fraction of the antineutrons that
+can be observed is obtained by simply multiplying them. Although the efficiency
+decreases, the antineutron interactions that can be selected still increases
+almost monotonically, as shown in Fig.~\ref{fig:ppinbar}(b). 
+However, the growth rate slows down as the CsI thickness increases.
+        
+Figure~\ref{fig:ppinbar}(c) shows the total efficiency of antineutron and CsI interactions 
+and the resolutions at each of the various thicknesses of CsI tube.
+We also studied the changes in total efficiency and resolution when using stricter
+selection criteria. We have added the following conditions: the distance
+between the vertex and the xy-plane is less than 0.5cm, while the distance from
+the z-axis is less than 5cm, the fitted chi2 of the vertex is less than 30, and
+the recoil mass is between 0.92 and 0.96~Gev/c. It can be seen that when the
+thickness of CsI is greater than 15~mm, the total efficiency almost does not
+increase, while the resolution still decreases linearly.
+
+\begin{figure}[htbp]
+	\centering  %图片全局居中
+	\subfigbottomskip=2pt %两行子图之间的行间距
+	\subfigcapskip=-5pt %设置子图与子标题之间的距离
+	\subfigure[]{
+		\includegraphics[width=0.45\linewidth]{figs/ppinbar/efficiency.eps}}
+	\subfigure[]{
+		\includegraphics[width=0.45\linewidth]{figs/ppinbar/total_efficiency.eps}}
+	\subfigure[]{
+		\includegraphics[width=0.45\linewidth]{figs/ppinbar/efficiency_and_resolutions.eps}}
+		\subfigure[]{
+		\includegraphics[width=0.45\linewidth]{figs/ppinbar/efficiency_and_resolutions_new.eps}}
+	\caption{(a) (b) respectively show antineutron selection efficiencies and yields in different momentum ranges for adding a CsI layer with the thickness of 0, 5, 10, 15, and 20 ~mm. (c) The variation trends for antineutron yield, \pres\, \tres\ and \phires\ (d) as a function of the thickness of the additional CsI layer. For the left y-axis, the unit is percent. For the right y-axis, the unit for \pres\ is MeV/$c$ and the units for \tres\ and \phires\ are mrad; (d) shows the similar results to (c) after applying stricter select criteria. }
+	\label{fig:ppinbar}
+\end{figure}
+        
+        
+\section{Conclusion and discussion}
+\label{sec:conclusion}
+
+From a MC simulation study of single proton, \pim\, and \nbar, as well as
+$J/\psi\to p \pi^- \bar{n}$ samples, without and with an additional CsI tube of
+various thickness, we find that the thicker CsI tube yields more antineutron-CsI 
+interactions. However, the \pres, \tres\ and \phires\ of the antineutrons 
+decrease and make the measurement of the interactions less precise as the 
+thickness is increased. Optimization of the thickness of the
+additional CsI tube is a balance between event rate and the resolutions of
+the antineutrons as shown by Fig.~\ref{fig:ppinbar}(c). Therefore, we can draw the
+following conclusion. Firstly, based on the specific research content of the
+experiment, a reasonable thickness range can be obtained by referring to the
+Figure~\ref{fig:ppinbar}. In order to ensure the accuracy of the
+antineutron tagging, the thickness of CsI should not exceed 15~mm. Secondly,
+the efficiency and resolution of tagged antineutrons vary significantly in
+different momentum ranges. When studying antineutrons with high momentum (above
+0.8~GeV/c), thicker CsI needs to be added to ensure the quantity of tagged
+antineutrons. Although thicker CsI will results in more interactions recorded,
+the events may suffer from multiple interactions which will complicate the analysis. 
+The reconstruction and identification of the \nbar\ and CsI interaction events 
+should be investigated further and it is out of the scope of
+this work. Meanwhile, when selecting the thickness of CsI, the duration of the
+experiment should be taken into account. Prolonged time can result in some
+uncertainty, as the state of the detector changes over time.
+
+In the BESIII experiment, with the ability of generating 10 billion \jpsi\ events
+per year, we estimate that when the thickness of the additional CsI tube is
+10~mm, 2.6 million events of interaction between antineutron and CsI tube can
+be collected per year according to the total efficiency shown in Fig.~\ref{fig:ppinbar}(d). 
+The most interesting prospect for this approach is the presence of significant numbers  
+of antineutron above 500~MeV, which is unique in the world~\cite{hypronProjectileFromJpsi}, 
+which may enable novel measurements.
+% This unprecedented data sample will benefit the antineutron simulation very significantly.
+    
+% \chinese{[对比其他实验]}\red{There was no data on \nbar+CsI, just estimate the number of events at BESIII in one-year running (about 10 billion \jpsi~events) here?}
+% For comparison, while adding \tbd mm thick CsI, the same measurement accuracy as the experiment \tbd can be obtained at \tbd GeV. At the same time, more antineutron events than this experiment can be selected by collecting data for \tbd years in BESIII.
+    
+There is room for improvement in the experimental design. With the increase of
+$\cos\theta$, the efficiency and resolution of \pp, $\pi^-$, and antineutron
+decrease significantly, because the particles need to pass through thicker CsI
+material before entering the detector. To ensure that the particle at different
+polar angle passes through the same amount of material, the thickness of
+additional CsI tube can be different at different polar angle, for example, to
+be $t_0\sin\theta$, where $t_0$ is the thickness at $\theta=90^\circ$.
+    
+The study presented in this article could be extended to other materials,
+especially other kinds of crystals, such as NaI, PbWO$_4$, and BGO which are used 
+as the materials of electromagnetic calorimeters or even thin layers of iron 
+and lead which are used as the materials of hadronic calorimeters. 
+
+%    \chinese{\red{[类似的方法可以研究在束流管外加入液氢和液氘靶后对于超子与核子相互作用测量的影响，我们尝试了在现在有限的空间内加入2cm靶后的情形。]}}
+    
+A similar method can be used to study the interaction between hyperons and
+nucleons. Many hyperons can be produced and tagged from \jpsi\ decays as
+proposed in Ref.~\cite{hypronProjectileFromJpsi}. In this case, the target must
+be changed into liquid hydrogen or liquid deuterium. We also simulated the
+efficiency and resolutions of \pp\ and \pim\ by adding a layer of liquid
+hydrogen and liquid deuterium contained between two solid tubes. Limited by the
+space inside the BESIII detector~\cite{bes3}, only about 20~mm of matter can be
+added at most, which is far from enough for the study of hyperon and nucleon
+interactions. Future experiments planning to perform light target material 
+measurements would need a design with greater space to allow sufficient interactions.  
+    
+\section{Acknowledgments}
+
+Thank Weimin Song and Liang Liu for their help with the software.
+This work is supported in part by National Key Research and Development Program of China under Contract No.~2020YFA0406300, National Natural Science Foundation of China (NSFC) under contract No.~12275297.    
+    
+\begin{thebibliography}{40}
+
+\bibitem{pdg}
+R.~L.~Workman \textit{et al.} (Particle Data Group),
+%``Review of Particle Physics,''
+PTEP \textbf{2022}, 083C01 (2022)
+doi:10.1093/ptep/ptac097
+%712 citations counted in INSPIRE as of 01 Mar 2023
+
+%\cite{CLEO:2008aum}
+\bibitem{CLEO:2008aum}
+S.~B.~Athar \textit{et al.} (CLEO Collaboration),
+%``First Observation of the Decay D(s)+ ---\ensuremath{>} p anti-n,''
+Phys. Rev. Lett. \textbf{100}, 181802 (2008).
+
+%\cite{BESIII:2012imn}
+\bibitem{BESIII:2012imn}
+M.~Ablikim \textit{et al.} (BESIII Collaboration),
+%``Measurement of $\chi_{cJ}$ decaying into $p\bar{n}\pi^{-}$ and $p\bar{n}\pi^{-}\pi^{0}$,''
+Phys. Rev. D \textbf{86}, 052011 (2012).
+
+%\cite{BESIII:2021tbq}
+\bibitem{BESIII:2021tbq}
+M.~Ablikim \textit{et al.} (BESIII Collaboration),
+%``Oscillating features in the electromagnetic structure of the neutron,''
+Nature Phys. \textbf{17}, no.11, 1200-1204 (2021).
+
+\bibitem{bes3} M.~Ablikim {\it et al.} (BESIII Collaboration), Nucl.\ Instrum.\ Methods Phys. Res., Rect.\ A {\bf 614}, 245 (2010).
+
+\bibitem{cleoc}
+R.~A.~Briere \textit{et al.} (CLEO Collaboration),
+%``CLEO-c and CESR-c: A New frontier of weak and strong interactions,''
+CLNS-01-1742.
+%59 citations counted in INSPIRE as of 03 Mar 2023
+
+%\cite{Belle-II:2018jsg}
+\bibitem{belle2}
+E.~Kou \textit{et al.} (Belle-II Collaboration),
+%``The Belle II Physics Book,''
+PTEP \textbf{2019}, no.12, 123C01 (2019)
+[erratum: PTEP \textbf{2020}, no.2, 029201 (2020)].
+
+\bibitem{geant4} S.~Agostinelli {\it et al.}, (GEANT4 Collaboration), Nucl.\ Instrum.\ Meth.\ A {\bf 506}, 250 (2003). %``GEANT4: A Simulation toolkit,''
+
+%\cite{Liu:2021rrx}
+\bibitem{Liu:2021rrx}
+L.~Liu, X.~Zhou and H.~Peng,
+%``Development of a data-driven method to simulate the detector response of anti-neutron at BESIII,''
+Nucl. Instrum. Meth. A \textbf{1033}, 166672 (2022).
+
+\bibitem{E767} %\cite{BROOKHAVEN-HOUSTON-PENNSYLVANIASTATE-RICE:1987vhf}
+T.~Armstrong \textit{et al.} [BROOKHAVEN-HOUSTON-PENNSYLVANIA STATE-RICE],
+%``Measurement of Anti-neutron Proton Total and Annihilation Cross-sections From 100-{MeV}/c to 500-{MeV}/c,''
+Phys. Rev. D \textbf{36}, 659-673 (1987).
+
+\bibitem{OBELIX} 
+M.~Agnello %, E.~Botta, T.~Bressani, D.~Calvo, A.~Feliciello, A.~Filippi, P.~Gianotti, F.~Iazzi, S.~Marcello and B.~Minetti, 
+\textit{et al.},
+%``The antineutron beam at OBELIX,''
+Nucl. Instrum. Meth. A \textbf{399}, 11-26 (1997).
+
+\bibitem{nbarPhysics} %For a review, see 
+T.~Bressani and A.~Filippi,
+%``Antineutron physics,''
+Phys. Rept. \textbf{383}, 213-297 (2003).
+
+\bibitem{hypronProjectileFromJpsi} 
+C.~Z.~Yuan and M.~Karliner,
+%``Cornucopia of Antineutrons and Hyperons from a Super J/\ensuremath{\psi} Factory for Next-Generation Nuclear and Particle Physics High-Precision Experiments,''
+Phys. Rev. Lett. \textbf{127}, no.1, 012003 (2021).
+
+\bibitem{bepc2} Q. Qin, L. Ma, J. Wang, and C. Zhang,  Conf. Proc. C {\bf 100523}, 2359 (2010), IPAC-2010-WEXMH01, http://accelconf.web.cern.ch/AccelConf/IPAC10/papers/wexmh01.pdf.
+
+\bibitem{bes3physics} 
+D.~M.~Asner {\it et al.}, Int.\ J.\ Mod.\ Phys.\ A {\bf 24}, S1 (2009).
+
+\bibitem{bes3physicsFuture} 
+M.~Ablikim \textit{et al.} (BESIII Collaboration),
+%``Future Physics Programme of BESIII,''
+Chin. Phys. C \textbf{44}, no.4, 040001 (2020).
+
+\bibitem{boss}
+ W.~Li {\it et al.}, Proc. Int. Conf. Comput. High Energy and Nucl. Phys. 225 (2006).
+
+\bibitem{bes3hough}
+J.~Zhang  {\it et al.}, Radiat. Detect. Technol. Methods {\bf 2}, 20 (2018).
+ 
+\bibitem{kalFit}
+ J. Wang {\it et al.}, Chin. Phys. C {\bf 33}, 870-879 (2009)
+
+\end{thebibliography}
+
+\end{document}
+

@@ -15,6 +15,15 @@ See Also
 
 * slides-;slides-vi
 
+
+Upcoming presentation : Hohhot
+-------------------------------
+
+Tentative title::
+
+    Standalone C++ software testing, debugging and analysis with python packages:  NumPy, matplotlib, pyvista, ...
+
+
 FUNCTIONS
 ---------
 
@@ -1290,7 +1299,11 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo ${INAME:-opticks_20230721_kaiping_pwg_afg} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20230726_kaiping_software_review} ; }
 #presentation-iname(){ echo ${INAME:-opticks_202309XX_3inch_fix} ; }
-presentation-iname(){ echo ${INAME:-opticks_20230907_release} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20230907_release} ; }
+#presentation-iname(){ echo ${INAME:-opticks_202310XX_release} ; }
+
+presentation-iname(){ echo ${INAME:-standalone_20230930_cpp_test_debug_ana_with_numpy} ; }
+
 
 presentation-notes(){ cat << EON
 
