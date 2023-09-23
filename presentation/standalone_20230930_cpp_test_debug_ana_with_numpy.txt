@@ -70,9 +70,10 @@
 
    * Loading Serialized U4Mesh with NumPy, Visualize with PyVista
 
+   * Another Standalone Test Example : mandelbrot.sh, mandelbrot.cc
+
    * TODO : Brief Description of PyVista and MatPlotLib
 
-   * TODO : Adapt env/mandelbrot/mandelbrot2.sh example 
 
 
 .. raw:: html
@@ -656,6 +657,290 @@ U4Mesh_test2_xjfcSolid_review.png
 
 
 
+
+
+Standalone Test Example : mandelbrot.sh
+---------------------------------------------------
+
+.. sidebar:: :small:`Very Similar to U4Mesh_test.sh`
+
+    .. class:: small 
+
+        * Fast cycle : changing code, param 
+        * C++ -> .npy -> IPython
+        * include metadata for labelling 
+        * :r:`envvar communication across C++/bash/py`   
+
+
+.. sidebar:: :small:`<= eg: Standalone Bash Script`
+
+
+    ::
+    
+         ./mandelbrot.sh build
+         ./mandelbrot.sh run
+         ./mandelbrot.sh ana
+
+
+    .. class:: tiny
+
+        https://bitbucket.org/simoncblyth/env/src/master/mandelbrot/mandelbrot.sh 
+
+
+
+
+.. comment
+
+   ~/env/doc/rstbox.py ~/env/mandelbrot/mandelbrot.sh 
+
+.. class:: small
+
+    +-----------------------------------------------------------------+
+    |                                                                 |
+    | .. raw:: html                                                   |
+    |                                                                 |
+    |    <pre class="mypretiny">                                      |
+    |    &#35;!/bin/bash -l                                           |
+    |    usage(){ cat << EOU                                          |
+    |    mandelbrot.sh                                                |
+    |    ===============                                              |
+    |                                                                 |
+    |    FOCUS=-1.45,0,0.05 ~/env/mandelbrot/mandelbrot.sh            |
+    |    FOCUS=-1.45,0,0.05 MIT=80 ~/env/mandelbrot/mandelbrot.sh     |
+    |    FOCUS=-1.45,0,0.05 MIT=50 ~/env/mandelbrot/mandelbrot.sh     |
+    |                                                                 |
+    |    EOU                                                          |
+    |    }                                                            |
+    |    cd $(dirname $BASH_SOURCE)                                   |
+    |    name=mandelbrot                                              |
+    |    defarg="build_run_ana"                                       |
+    |    arg=${1:-$defarg}                                            |
+    |                                                                 |
+    |    <span class="r">export FOLD=/tmp/$name</span>                |
+    |    mkdir -p $FOLD                                               |
+    |    bin=$FOLD/$name                                              |
+    |                                                                 |
+    |    if [ "${arg/build}" != "$arg" ]; then                        |
+    |        gcc $name.cc -I$HOME/np -std=c++11 -lstdc++ -o $bin      |
+    |        [ $? -ne 0 ] && echo $BASH_SOURCE build error && exit 1  |
+    |    fi                                                           |
+    |    if [ "${arg/run}" != "$arg" ]; then                          |
+    |        $bin                                                     |
+    |        [ $? -ne 0 ] && echo $BASH_SOURCE run error && exit 2    |
+    |    fi                                                           |
+    |    if [ "${arg/ana}" != "$arg" ]; then                          |
+    |        ${IPYTHON:-ipython} --pdb -i $name.py                    |
+    |        [ $? -ne 0 ] && echo $BASH_SOURCE ana error && exit 1    |
+    |    fi                                                           |
+    |    exit 0                                                       |
+    |    </pre>                                                       |
+    |                                                                 |
+    +-----------------------------------------------------------------+
+
+
+
+
+
+
+Standalone Test Example : mandelbrot.cc
+---------------------------------------------------
+
+.. sidebar:: :small:`Continued : C++ Mandelbrot calc`
+
+   .. class:: small
+
+        +---------------------------------------------------------------------------------+
+        |                                                                                 |
+        | .. raw:: html                                                                   |
+        |                                                                                 |
+        |    <pre class="mypretiny">...                                                   |
+        |      std::complex&lt;double&gt; c0(X[0],Y[0]) ;                                 |
+        |                                                                                 |
+        |      for(int iy=0 ; iy&lt;NY ;iy++)                                             | 
+        |      for(int ix=0 ; ix&lt;NX ;ix++)                                             |
+        |      {                                                                          |
+        |        std::complex&lt;double&gt; c(ix*X[2], iy*Y[2]);                          |
+        |        std::complex&lt;double&gt; z(0.0, 0.0);                                  |
+        |        int count(0) ;                                                           |
+        |        while(<span class="r">std::norm(z)&lt;MZZ && ++count &lt; MIT-1)</span>  |
+        |        {                                                                        |
+        |            <span class="r">z=z*z + c0 + c; </span>                              |
+        |        }                                                                        |
+        |        aa[iy*NX+ix] = std::min(count,MIT) ;                                     |
+        |      }                                                                          |
+        |    }                                                                            |
+        |    int main()                                                                   |
+        |    {                                                                            |
+        |        Mandelbrot m ;                                                           |
+        |        m.a-&gt;save("$FOLD/a.npy");                                             |
+        |        return 0 ;                                                               |
+        |    }                                                                            |
+        |    </pre>                                                                       |
+        |                                                                                 |
+        +---------------------------------------------------------------------------------+
+
+   .. class:: small
+
+       * C++ => Python/matplotlib : Presentation 
+       * :r:`Connected with NP.hh serialization`
+
+
+.. comment
+
+   ~/env/doc/rstbox.py ~/env/mandelbrot/mandelbrot.cc
+
+
+.. class:: small
+
+    +-----------------------------------------------------------------------+
+    |                                                                       |
+    | .. raw:: html                                                         |
+    |                                                                       |
+    |    <pre class="mypretiny">                                            |
+    |    &#35;include &lt;complex&gt;                                       |
+    |    &#35;include &lt;array&gt;                                         |
+    |    &#35;include &lt;vector&gt;                                        |
+    |    &#35;include "NP.hh"                                               |
+    |                                                                       |
+    |    struct Mandelbrot                                                  |
+    |    {                                                                  |
+    |        const int    MIT, NX, NY ;                                     |
+    |        const double MZZ, aspect ;                                     |
+    |        std::vector&lt;double&gt;  F ;                                 |
+    |        std::array&lt;double,3&gt; X ;                                 |
+    |        std::array&lt;double,3&gt; Y ;                                 |
+    |        NP*                  a ;                                       |
+    |        unsigned char*      aa ;                                       |
+    |        Mandelbrot();                                                  |
+    |    };                                                                 |
+    |    inline Mandelbrot::Mandelbrot()                                    |
+    |        :                                                              |
+    |        MIT(U::GetE&lt;int&gt;("MIT",255)),                            |
+    |        NX(1280), NY(720),                                             |
+    |        MZZ(U::GetE&lt;double&gt;("MZZ",4.0)),                         |
+    |        aspect(double(NX)/double(NY)),                                 |
+    |        F(*U::GetEnvVec&lt;double&gt;("FOCUS","-0.7,0,0.84375")),      |
+    |        a(NP::Make&lt;unsigned char&gt;(NY,NX)),                       |
+    |        aa(a-&gt;values&lt;unsigned char&gt;())                        |
+    |    {                                                                  |
+    |        X[0] = F[0] - F[2]*aspect ;                                    |
+    |        X[1] = F[0] + F[2]*aspect ;                                    |
+    |        X[2] = 2.*F[2]*aspect/double(NX) ;                             |
+    |                                                                       |
+    |        Y[0] = F[1] - F[2] ;                                           |
+    |        Y[1] = F[1] + F[2] ;                                           |
+    |        Y[2] = 2.*F[2]/double(NY) ;                                    |
+    |        ...                                                            |
+    |    </pre>                                                             |
+    +-----------------------------------------------------------------------+
+
+
+
+
+
+
+:i:`mandelbrot001.png`
+------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:168mm;" />
+   
+
+``~/env/mandelbrot/mandelbrot.sh``
+
+
+
+
+:i:`mandelbrot000.png`
+-----------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:168mm;" />
+   
+
+``FOCUS=-1.45,0,0.05 MIT=50 ~/env/mandelbrot/mandelbrot.sh``
+
+
+
+
+
+Standalone Test Example : mandelbrot.py
+------------------------------------------
+
+.. sidebar:: :small:`read_npy : standard file format`
+
+     .. class:: small
+
+         * NumPy : read ``a.npy`` : standard file format 
+         * read metadata "sidecar" ``a_meta.txt``
+
+         **main : matplotlib/imshow**
+
+         * also present metadata label 
+
+
+.. comment
+
+   ~/env/doc/rstbox.py ~/env/mandelbrot/mandelbrot.py
+
+
+.. class:: small
+
+    +------------------------------------------------------------+
+    |                                                            |
+    | .. raw:: html                                              |
+    |                                                            |
+    |    <pre class="mypretiny">                                 |
+    |    &#35;!/usr/bin/env python                               |
+    |    <span class="r">import numpy as np</span>               |
+    |    SIZE = np.array([1280, 720])                            |
+    |    <span class="b">import matplotlib.pyplot as plt</span>  |
+    |                                                            |
+    |    def read_npy(path, d):                                  |
+    |        path = os.path.expandvars(path)                     |
+    |        <span class="r">a = np.load(path)</span>            |
+    |        if not d is None:                                   |
+    |            txtpath = path.replace(".npy","_meta.txt")      |
+    |            lines = open(txtpath).read().splitlines()       |
+    |            for line in lines:                              |
+    |                key, val = line.split(":")                  |
+    |                d[key] = val                                |
+    |            pass                                            |
+    |        pass                                                |
+    |        return a                                            |
+    |    </pre>                                                  |
+    |                                                            |
+    +------------------------------------------------------------+
+
+
+    +-------------------------------------------------------------------------------------+
+    |                                                                                     |
+    | .. raw:: html                                                                       |
+    |                                                                                     |
+    |    <pre class="mypretiny">                                                          |
+    |    if __name__ == '__main__':                                                       |
+    |        d = dict()                                                                   |
+    |        a = read_npy("$FOLD/a.npy", d)                                               |
+    |        d["CMAP"] = os.environ.get("CMAP", "prism")                                  |
+    |        cmap = getattr(plt.cm, d["CMAP"], None)                                      |
+    |        d["extent"] = list(map(float,(d["xmin"], d["xmax"], d["ymin"], d["ymax"] ))) |
+    |                                                                                     |
+    |        label = "mandelbrot.sh : CMAP %(CMAP)s FOCUS %(FOCUS)s MZZ %(MZZ)s"          |
+    |        label += " MIT %(MIT)s extent %(extent)s "                                   |
+    |                                                                                     |
+    |        fig, ax = plt.subplots(figsize=SIZE/100.)                                    |
+    |        fig.suptitle(label % d)                                                      |
+    |        <span class="r">ax.imshow(a, extent=d["extent"], cmap=cmap)</span>           |
+    |        fig.show()                                                                   |
+    |    </pre>                                                                           |
+    |                                                                                     |
+    +-------------------------------------------------------------------------------------+
+
+
+
+
 TODO : Brief Description of PyVista and MatPlotLib
 ----------------------------------------------------
 
@@ -664,3 +949,8 @@ TODO : Brief Description of PyVista and MatPlotLib
 
      PyVista 
          Interface on top of VTK 
+
+
+
+
+

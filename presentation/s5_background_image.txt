@@ -2244,6 +2244,12 @@
     U4Mesh_test2_facrSolid_review.png
     U4Mesh_test2/pvcap/U4Mesh_test2_facrSolid_review.png 1280px_720px
 
+    mandelbrot000.png
+    mandelbrot/mandelbrot000.png 1280px_720px
+
+    mandelbrot001.png
+    mandelbrot/mandelbrot001.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

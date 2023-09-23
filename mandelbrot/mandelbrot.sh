@@ -3,11 +3,9 @@ usage(){ cat << EOU
 mandelbrot.sh
 ===============
 
-FOCUS=-1.4,0,0.3 ~/env/mandelbrot/mandelbrot.sh 
-
-FOCUS=-1.3,0,0.3 ~/env/mandelbrot/mandelbrot.sh
-
 FOCUS=-1.45,0,0.05 ~/env/mandelbrot/mandelbrot.sh
+FOCUS=-1.45,0,0.05 MIT=80 ~/env/mandelbrot/mandelbrot.sh
+FOCUS=-1.45,0,0.05 MIT=50 ~/env/mandelbrot/mandelbrot.sh
 
 EOU
 }
@@ -33,4 +31,3 @@ if [ "${arg/ana}" != "$arg" ]; then
     [ $? -ne 0 ] && echo $BASH_SOURCE ana error && exit 1 
 fi 
 exit 0 
-
