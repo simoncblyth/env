@@ -4,7 +4,7 @@ sed-edir(){ echo $(dirname $(sed-source)) ; }
 sed-ecd(){  cd $(sed-edir); }
 sed-dir(){  echo $LOCAL_BASE/env/tools/sed ; }
 sed-cd(){   cd $(sed-dir); }
-sed-vi(){   vi $(sed-source) ; }
+sed-vi(){   vi $(sed-source) + $(sed-edir)/sed1line.txt ; }
 sed-env(){  elocal- ; }
 sed-usage(){ cat << EOU
 
@@ -26,6 +26,41 @@ sed
     8
     9
     10
+
+
+Quote All Lines of a File
+--------------------------
+
+::
+
+    sed -e 's/^/"/' -e 's/$/"/' test.txt
+
+
+Extract a stretch of lines containing paths and quote them : eg when contain spaces
+--------------------------------------------------------------------------------------
+
+::
+
+    sed -n -e 's/^/"/' -e 's/$/"/' -e 1000,1010p  test.txt 
+    sed -n -e 's/^/"/' -e 's/$/"/' -e 1000,1010p  test.txt | xargs open -n 
+
+
+    sed -n '1011q;1000,1010p' test.txt 
+    # supposed faster to quit at the line beyond selection 
+
+    sed -n -e 's/^/"/' -e 's/$/"/'  -e "1011q;1000,1010p"  test.txt
+
+
+    sed -n 's/^/"/;s/$/"/;1011q;1000,1010p'  test.txt
+    # can be used a one compound commans  
+
+    sed -n 's/^/"/;s/$/"/;1000,1010p;1011q'  test.txt
+    # hmm does the order make any difference : seems not 
+
+    sed -n "s/^/\"/;s/$/\"/;${idx0},${idx1}p;${idx2}q"  test.txt | xargs stat -l
+    # needs escaping when use with substitution 
+
+
 
 Extract a line from a file
 -----------------------------

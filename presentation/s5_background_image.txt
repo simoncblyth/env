@@ -2250,6 +2250,120 @@
     mandelbrot001.png
     mandelbrot/mandelbrot001.png 1280px_720px
 
+    PyVista_Logo.png
+    pyvista/PyVista_Logo.png 1280px_720px
+
+    ntds3_ana
+    pyvista/ntds3_ana.png 1280px_720px 
+
+    ntds3_ana 2
+    pyvista/ntds3_ana.png 1280px_720px 
+
+    NumPy_Logo.png
+    NumPy/NumPy_Logo.png 1280px_720px
+   
+    NumPy_Broad.png
+    NumPy/NumPy_Broad.png 1280px_720px
+
+    NumPy_views
+    NumPy/NumPy_views.png 1280px_720px
+
+    Matplotlib_Logo.png
+    matplotlib/Matplotlib_Logo.png 1280px_720px
+
+    sklearn_Logo
+    SciKitLearn/sklearn_Logo.png 1280px_720px
+
+    Python Data Science Handbook
+    PythonDataScienceHandbook/cover.png 516px_720px 750px_0px
+
+    Python Data Science Handbook1
+    PythonDataScienceHandbook/cover.png 516px_720px 750px_0px
+
+    Best_IDE_bash_command_line.png
+    Finder/Best_IDE_bash_command_line.png 1280px_720px
+
+    IPython_help_?
+    PDSH/IPython_help.png 1280px_720px 
+
+    IPython_source_??
+    PDSH/IPython_source.png 1280px_720px 
+
+    IPython_tab
+    PDSH/IPython_tab.png 1280px_720px 
+
+    IPython_paste
+    PDSH/IPython_paste_0.png 1280px_720px
+
+    IPython_cpaste
+    PDSH/IPython_paste_1.png 1280px_720px
+
+    IPython_run
+    PDSH/IPython_run.png 1280px_720px
+
+    IPython_timeit
+    PDSH/IPython_timeit.png 1280px_720px
+
+    IPython_shell
+    PDSH/IPython_shell.png 1280px_720px
+
+    NumPy_np
+    PDSH/NumPy_np.png 1280px_720px
+
+    NumPy_array
+    PDSH/NumPy_array.png 1280px_720px
+
+    NumPy_zeros
+    PDSH/NumPy_zeros.png 1280px_720px
+
+    NumPy_types
+    PDSH/NumPy_types.png 1280px_720px
+
+    NumPy_slice
+    PDSH/NumPy_slice.png 1280px_720px
+
+    NumPy_subarray
+    PDSH/NumPy_subarray.png 1280px_720px
+
+    NumPy_reshape
+    PDSH/NumPy_reshape.png 1280px_720px
+
+    NumPy_wrong
+    PDSH/NumPy_wrong.png 1280px_720px
+
+    NumPy_right
+    PDSH/NumPy_right.png 1280px_720px
+
+    NumPy_scipy
+    PDSH/NumPy_scipy.png 1280px_720px
+
+    NumPy_broadcasting
+    PDSH/NumPy_broadcasting.png 1280px_720px
+
+    NumPy_mask
+    PDSH/NumPy_mask.png 1280px_720px
+
+    NumPy_count_nonzero
+    PDSH/NumPy_count_nonzero.png 1280px_720px
+
+    NumPy_masking
+    PDSH/NumPy_masking.png 1280px_720px
+
+    Matplotlib_script
+    PDSH/Matplotlib_plot.png 1280px_720px
+
+    Matplotlib_IPython
+    PDSH/Matplotlib_IPython.png 1280px_720px
+
+    Matplotlib_IPython_demo
+    PDSH/Matplotlib_IPython_demo.png 1280px_720px
+
+    Matplotlib_scatter
+    PDSH/Matplotlib_scatter.png 1280px_720px
+
+    Matplotlib_scatter_demo
+    PDSH/Matplotlib_scatter_demo.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

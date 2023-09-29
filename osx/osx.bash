@@ -647,3 +647,41 @@ osx_simon()
 {
     sudo su - simon
 }
+
+
+osx_hide_desktop_icons_notes(){ cat << EON
+https://setapp.com/how-to/hide-icons-on-mac
+
+EON
+}
+osx_desktop_icons_hide()
+{
+    defaults write com.apple.finder CreateDesktop false
+    killall Finder 
+}
+osx_desktop_icons_hide_not()
+{
+    defaults write com.apple.finder CreateDesktop true
+    killall Finder 
+}
+
+
+osx_pkgutil_notes(){ cat << EON
+
+epsilon:ac3 blyth$ pkgutil --payload-files Anaconda3-2023.07-2-MacOSX-x86_64.pkg | grep seaborn
+./anaconda3/pkgs/seaborn-0.12.2-py311hecd8cb5_0
+./anaconda3/pkgs/seaborn-0.12.2-py311hecd8cb5_0/info
+./anaconda3/pkgs/seaborn-0.12.2-py311hecd8cb5_0/info/repodata_record.json
+./anaconda3/pkgs/seaborn-0.12.2-py311hecd8cb5_0.conda
+epsilon:ac3 blyth$ 
+epsilon:ac3 blyth$ 
+epsilon:ac3 blyth$ pwd
+/Users/blyth/ac3
+epsilon:ac3 blyth$ 
+
+EON
+}
+
+
+
+

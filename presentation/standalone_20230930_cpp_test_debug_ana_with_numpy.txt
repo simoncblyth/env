@@ -10,6 +10,16 @@
 .. include:: s5_background_image.txt
 
 
+.. comment 
+
+    DEMO Commandlines
+
+    ~/opticks/u4/tests/U4Mesh_test.sh 
+
+    GEOM=xjfcSolid ~/opticks/u4/tests/U4Mesh_test2.sh ana
+
+
+
 .. comment
 
     Things to cover
@@ -35,7 +45,7 @@
 
 
 
-:i:`Standalone C++ software testing, debugging and analysis with python packages:  NumPy, matplotlib, pyvista, ...` 
+:i:`Standalone C++ software testing, debugging and analysis with python packages:  NumPy, matplotlib, ...` 
 =====================================================================================================================
 
 .. raw:: html
@@ -50,29 +60,37 @@
     <p style="margin-bottom:25mm;" />
     <p style="margin-bottom:50mm;" />
 
-.. class:: normal
+.. class:: small
 
-   * Three Laws of Good Software Design + Development
+   * (p1) Three Laws of Good Software Design + Development
 
-   * Standalone Software Test Example : U4Mesh_test.sh 
+   * (p2) Power of Serialization + De-Serialization 
 
-   * Power of Serialization + De-Serialization 
+   * (p3-12) Opticks : Example Open Source Package 
 
-   * Using *NP.hh NPFold.h* Serialization from *U4Mesh.h*
+   * (p13-14) Best IDE to use : Unix Command Line + bash shell
 
-   * NumPy : Fundamental to Python Data Ecosystem
+   * (p15-16) Anaconda Distribution 
 
-   * The Zen of Numpy, by its creator, Travis Oliphant
+   * (p17-22) NumPy : Fundamental to Python Data Ecosystem
 
-   * NumPy : Python flexibility+brevity at C speed
+   * (p23) NPY minimal file format : metadata header + data buffer : trivial to parse
 
-   * NPY minimal file format : metadata header + data buffer : trivial to parse
+   * (p24-27) Matplotlib, PyVista
 
-   * Loading Serialized U4Mesh with NumPy, Visualize with PyVista
+   * (p28-31) Standalone Software Test Example : U4Mesh_test.sh 
 
-   * Another Standalone Test Example : mandelbrot.sh, mandelbrot.cc
+   * (p32-36) stamp_test.sh : remote/local workflow example  
 
-   * TODO : Brief Description of PyVista and MatPlotLib
+   * (p37-43) Standalone Test Example : mandelbrot.sh, mandelbrot.cc
+
+   * (p44) Bash function Tip
+
+   * (p45) IPython launch customization 
+
+   * (p46-87) Python Data Science Handbook 
+
+   * (p89-90) Concluding
 
 
 
@@ -142,17 +160,17 @@ Three Laws of Good Software Design + Development
    |  * just good design : code more useful                       |
    |  * organize code by dependency, NOT TOPIC                    |
    |  * dependency is fundamental, topic just opinion             |
+   |  * use serialization to cut dependencies                     |
    |                                                              |
    |  .. raw:: html                                               |
    |                                                              |
    |       <p style="margin-bottom:5mm;" />                       |
    +--------------------------------------------------------------+
    |                                                              |
-   |  3. **Apply serialization wherever useful**                  |
+   |  3. **Unit tests are your most powerful tool**               |
    |                                                              |
-   |  * dont repeat processing, load objects from file            |
-   |  * dependencies to create very different to use              |
-   |  * inherent dependency reduction                             |   
+   |  * not just for testing, also for development+documenting    |
+   |  * use serialization + mocking to simplify tests             |   
    |                                                              |
    |  .. raw:: html                                               |
    |                                                              |
@@ -161,89 +179,6 @@ Three Laws of Good Software Design + Development
 
 
 
-
-Standalone Software Test Example : U4Mesh_test.sh 
-----------------------------------------------------
-
-.. sidebar:: :small:`What is a Standalone Test ?`
-
-    .. class:: small
-
-         * :r:`Very Simple => Very Fast` 
-         * tests small "unit" of software 
-
-           * ``U4Mesh.h``
-           * => simple fast build (no Makefile,..) 
-
-         * Serialization : C++ -> .npy -> NumPy 
-
-           * => analyse in python
-
-         * Communicate bash/C++/py : envvar ``FOLD``
-
-
-.. sidebar:: :small:`<= eg: Standalone Bash Script`
-
-
-    ::
-    
-         ./U4Mesh_test.sh info
-         ./U4Mesh_test.sh build
-         ./U4Mesh_test.sh run
-         ./U4Mesh_test.sh ana
-
-
-    .. class:: tiny
-
-        https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4Mesh_test.sh 
-
-
-.. class:: small
-
-   +--------------------------------------------------------------------+
-   |                                                                    | 
-   |                                                                    |
-   | .. raw:: html                                                      |
-   |                                                                    |
-   |    <pre class="mypretiny">&#35;!/bin/bash -l                       |
-   |    cd $(dirname $BASH_SOURCE)                                      |
-   |    name=U4Mesh_test                                                |
-   |    <span class="r">export FOLD=/tmp/$name </span>                  |
-   |    bin=$FOLD/$name                                                 |
-   |    mkdir -p $FOLD                                                  |
-   |    vars="BASH_SOURCE name FOLD bin"                                |
-   |                                                                    |
-   |    defarg="info_build_run_ana"                                     |
-   |    arg=${1:-$defarg}                                               |
-   |    g4- ; clhep-                                                    |
-   |                                                                    |
-   |    if [ "${arg/info}" != "$arg" ]; then                            |
-   |        for var in $vars ; do                                       |
-   |             printf "%20s : %s \n" "$var" "${!var}" ; done          |
-   |    fi                                                              |
-   |    if [ "${arg/build}" != "$arg" ]; then                           |
-   |         gcc $name.cc                                               |
-   |             -g -std=c++11 -lstdc++ -I.. -I$HOME/np                 |
-   |             -I$(clhep-prefix)/include -L$(clhep-prefix)/lib        |
-   |             -I$(g4-prefix)/include/Geant4 -L$(g4-prefix)/lib       |
-   |             -lG4global -lG4geometry -lG4graphics_reps -lCLHEP      |
-   |             -o $bin                                                |
-   |         [ $? -ne 0 ] && echo $BASH_SOURCE build error && exit 1    |
-   |    fi                                                              |
-   |    if [ "${arg/run}" != "$arg" ]; then                             |
-   |        $bin                                                        |
-   |        [ $? -ne 0 ] && echo $BASH_SOURCE run error && exit 2       |
-   |    fi                                                              |
-   |    if [ "${arg/ana}" != "$arg" ]; then                             |
-   |        ${IPYTHON:-ipython} --pdb -i $name.py                       |
-   |        [ $? -ne 0 ] && echo $BASH_SOURCE ana error && exit 3       |
-   |    fi                                                              |
-   |    exit 0                                                          |
-   |    </pre>                                                          |
-   |                                                                    |
-   +--------------------------------------------------------------------+
-    
-   
 
 
 
@@ -287,91 +222,456 @@ Power of Serialization + De-Serialization
 
 
 
-Using *NP.hh NPFold.h* Serialization from *U4Mesh.h*
-------------------------------------------------------------
 
 
-.. sidebar:: :small:`Serialize + Save`
 
-    .. class:: tiny
+Opticks : GPU Optical Photon Simulation Package 
+--------------------------------------------------
 
-        https://bitbucket.org/simoncblyth/opticks/src/master/u4/U4Mesh.h
 
-    .. class:: small
+.. sidebar:: :small:`Opticks bitbucket`
 
-       +-----------------------------------------------------------------+
-       |                                                                 |
-       | .. raw:: html                                                   |
-       |                                                                 |
-       |    <pre class="mypretiny">                                      |
-       |    inline NPFold* U4Mesh::serialize() const                     |
-       |    {                                                            |
-       |        <span class="r">NPFold* fold = new NPFold ;</span>       |
-       |        fold->add("vtx", vtx );                                  |
-       |        fold->add("fpd", fpd );                                  |
-       |        return fold ;                                            |
-       |    }                                                            |
-       |    inline void U4Mesh::save(const char* base) const             |
-       |    {                                                            |
-       |        NPFold* fold = serialize();                              |
-       |        fold->save(base);                                        |
-       |    }                                                            |
-       |    </pre>                                                       |
-       +-----------------------------------------------------------------+
-
-    .. class:: small
-
-         *NP.hh*
-              NumPy ``.npy`` file format serialization
-
-         *NPFold.h*
-              In memory folders-of-folders of NP.hh arrays
-
+    .. image:: /env/presentation/opticks/opticks_repo.png
+       :width: 500px
+       :align: right
 
 
 .. class:: small
 
-   ::
+   Opticks : Open source project 
 
-        https://github.com/simoncblyth/np
+   * based on NVIDIA OptiX : GPU ray tracing 
+   * many thousands of classes, structs 
+   * :r:`thousands of unit tests` 
+   * accelerates optical photon simulation 
+
+     * speedup factor > 1500x 
 
 
-   +-------------------------------------------------------------------+
-   |                                                                   |
-   | .. raw:: html                                                     |
-   |                                                                   |
-   |    <pre class="mypretiny">                                        |
-   |    &#35;include "G4Polyhedron.hh"                                 |
-   |    <span class="b">&#35;include "NP.hh" </span>                   |
-   |    <span class="b">&#35;include "NPFold.h" </span>                |
-   |                                                                   |
-   |    struct U4Mesh {                                                |
-   |        const G4VSolid* solid ;                                    |
-   |        G4Polyhedron*   poly ;                                     |
-   |        int             nv,nf ;                                    |
-   |        <span class="r">NP*             vtx ;</span>               |
-   |        double*         vtx_ ;                                     |
-   |        <span class="r">NP*             fpd ;</span>               |
-   |        ...                                                        |
-   |    };                                                             |
-   |    inline U4Mesh::U4Mesh(const G4VSolid* solid_):                 |
-   |        solid(solid_),                                             |
-   |        poly(solid->CreatePolyhedron()),                           |
-   |        nv(poly->GetNoVertices()),                                 |
-   |        nf(poly->GetNoFacets()),                                   |
-   |        <span class="r">vtx(NP::Make&lt;double&gt;(nv, 3)),</span> |
-   |        vtx_(vtx->values&lt;double&gt;()),                         |
-   |        fpd(nullptr)                                               |
-   |    {                                                              |
-   |        for(int i=0 ; i < nv ; i++){                               |
-   |            G4Point3D point = poly->GetVertex(i+1) ;               |
-   |            vtx_[3*i+0] = point.x() ;                              |
-   |            vtx_[3*i+1] = point.y() ;                              |
-   |            vtx_[3*i+2] = point.z() ;                              |
-   |        }                                                          |
-   |        ...                                                        |
-   |    }                                                              |
-   +-------------------------------------------------------------------+
+   **Importance of Unit tests**
+
+   * not just for testing 
+
+     * ideal way to recall functionality 
+
+   * integral part of development 
+
+     * run tests as add new features 
+
+
+.. class:: huge
+
+   https://bitbucket.org/simoncblyth/opticks/
+
+
+ 
+
+
+`Optical Photon Simulation Problem...`
+---------------------------------------------------------
+
+.. raw:: html
+
+     <p style="margin-bottom:7cm;" />
+
+.. sidebar:: :small:`Huge CPU Memory+Time Expense`
+
+    .. class:: small
+
+         **JUNO Muon Simulation Bottleneck**
+           ~99% CPU time, memory constraints
+
+         **Ray-Geometry intersection Dominates**
+           simulation is not alone in this problem...
+
+         **Optical photons : naturally parallel, simple :**
+           * produced by Cherenkov+Scintillation 
+           * yield only Photomultiplier hits
+
+
+.. s5_talk::
+
+   A muon travelling across the JUNO scintillator yields tens of millions 
+   of optical photons, presenting memory and time challenges for simulation.
+
+   Most of the time is taken finding intersections between photons and geometry 
+   Simulation is not alone in this bottleneck.
+
+.. comment
+
+   Optical photons are naturally parallel : they can be considered 
+   to be produced only by two processes : Cherenkov and Scintillation and we
+   are interested in photons that hit the PMTs.  
+
+   These characteristics make it straightforward integrate an external optical
+   simulation.
+ 
+
+   
+
+
+:small:`Optical Photon Simulation ≈ Ray Traced Image Rendering`
+-------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Not a Photo, a Calculation`
+
+    .. image:: ../optix/samples/optix-ray-tracing-glasses.png 
+       :width: 450px
+       :align: right
+
+    .. class:: tiny
+
+        http://on-demand.gputechconf.com/siggraph/2013/presentation/SG3106-Building-Ray-Tracing-Applications-OptiX.pdf
+
+
+.. raw:: html
+
+    <p style="margin-bottom:2cm;" />
+
+.. class:: small
+
+    :b:`simulation` 
+       photon parameters at sensors (PMTs) 
+
+    :b:`rendering` 
+       pixel values at image plane
+
+
+.. raw:: html
+
+    <p style="margin-bottom:2cm;" />
+
+
+.. class:: small
+
+    **Much in common : geometry, light sources, optical physics**
+
+    * :redbold:`both limited by ray geometry intersection, aka ray tracing`
+
+.. raw:: html
+
+    <p style="margin-bottom:2cm;" />
+
+.. class:: small
+
+    **Many Applications of ray tracing** :
+
+    * advertising, design, architecture, films, games,...
+    * -> huge efforts to improve hw+sw over 30 yrs
+
+
+.. s5_talk::
+
+    Ray traced image rendering in computer graphics has exactly the same bottleneck.
+    Actually, there is a lot in common between optical photon simulation and ray traced image rendering.   
+    Simulation gives photon parameters at PMTs, rendering gives pixel values at the image plane.
+
+    Both these are limited by ray geometry intersection, which is also known as ray tracing.
+
+    Ray tracing is widely used resulting in huge efforts to improve ray tracing perfromance.
+    
+    
+
+
+Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow
+-------------------------------------------------------------
+
+.. class:: small
+
+    .. table::
+        :align: center
+
+        +--------------------------------------------------+
+        | :b:`https://bitbucket.org/simoncblyth/opticks`   |
+        +--------------------------------------------------+
+
+
+.. raw:: html
+
+    <p style="margin-bottom:13cm;" />
+
+.. class:: small
+
+    Opticks API : split according to dependency -- Optical photons are GPU "resident", only hits need to be copied to CPU memory 
+
+
+.. s5_talk::
+
+    This shows how Opticks is integrated with Geant4. The geometry is translated 
+    and uploaded to the GPU at initialization.
+
+    Cerenkov or Scintillation gensteps, the blue lines, are the generation parameters 
+    uploaded to the GPU so optical photon generation can be done there.
+
+    This allows the optical photon simulation to be entirely offloaded  
+    to the GPU with only collected hits requiring memory on the CPU.
+ 
+
+
+:i:`[9]cxr_i0_t8,_-1 : EXCLUDE SLOWEST`
+-----------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:2cm;" />
+
+
+.. sidebar:: :small:`JUNO Opticks OptiX 7 Ray-trace`
+
+    .. class:: small
+
+        CSGFoundry CPU/GPU Geometry 
+
+        * :redbold:`purely analytic CSG, no triangles` 
+
+
+.. s5_talk::
+
+   Here is a ray trace render of JUNO using OptiX 7 
+   Note that there are no triangles here, this is a purely analytic ray trace with 
+   the geometry that the simulation uses.
+
+   [Notes: ~10s slide, just the comment] 
+
+
+
+
+
+:i:`cxr_min__eye_-10,0,0__zoom_0.5__tmin_0.1__sChimneyAcrylic_increased_TMAX.jpg`
+-----------------------------------------------------------------------------------
+
+``ELV=t94,95 ./cxr_min.sh  ## skip sTarget sAcrylic``
+
+.. s5_talk::
+
+   As geometry is updated, I redid render checks. 
+   This render skips acrylic sphere and scintillator.
+ 
+
+
+:i:`cxr_min__eye_-10,0,-30__zoom_0.5__tmin_0.1__sChimneyAcrylic_photon_eye_view.jpg`
+--------------------------------------------------------------------------------------
+
+``ELV=t94,95 ./cxr_min.sh ## skip sTarget sAcrylic : upwards view`` 
+
+.. s5_talk::
+
+   Here is an upwards view from inside the scintillator, looking towards the Chimney. 
+
+
+
+:i:`scan-pf-check-GUI-TO-SC-BT5-SD`
+--------------------------------------
+
+.. s5_talk::
+
+   This GUI allows interactive selection between tens of millions 
+   of photons based on their histories.  
+
+   Here its showing the photons that scattered before boundary transmitting straight 
+   through to surface detect.
+
+   Its implemented by indexing the photon histories using some very fast 
+   GPU big integer sorting provided by CUDA Thrust, 
+   and using OpenGL shaders to switch between selections.
+
+   The 64-bit integers hold up to 16 4-bit flags for each step of the photon.
+
+   All of this is done using interop capabilities of OpenGL/CUDA/Thrust and OptiX
+   so GPU buffers can be written to and rendered inplace with no copying around.
+
+
+:i:`scan-pf-check-GUI-TO-BT5-SD`
+----------------------------------
+
+.. s5_talk::
+
+   The GUI also provides interactive time scrubbing of the propagation 
+   of tens of millions of photons. 
+
+   This is some nanoseconds later for a different history category. 
+  
+   I created this GUI to help with debugging the simulation. 
+
+
+.. comment
+
+     * DELL Precision 7920T Workstation
+     * Intel Xeon Silver 4114, 2.2GHz, 40 cores, 65G 
+     * NVIDIA Quadro RTX 8000, 48G 
+
+     * DELL Precision 7920T Workstation
+     * Intel Xeon Gold 5118, 2.3GHz, 48 cores, 65G  
+     * NVIDIA TITAN RTX, 24G
+     * NVIDIA TITAN V, 12G
+
+
+
+
+
+Large packages like Opticks are built test-by-test
+-----------------------------------------------------
+
+
+.. sidebar:: Standalone Test 
+
+    .. class:: normal 
+
+         * runs without many dependencies
+         * sometime dependencies are "mocked"
+          
+
+.. class:: normal 
+
+   Complex functionality built from thousands of simple units 
+
+   * each unit is simple  
+   * each unit has its own simple test 
+   * where possible tests are designed to be standalone 
+
+   Unit tests: 
+
+   * written at the same time as the unit  
+   * kept in a "tests" directory next to the unit 
+   * updated as functionality is added to the unit    
+
+   Act of writing test while adding functionality
+
+   * improves API : as developer sees user perspective 
+
+
+
+    
+
+Best IDE to use : Unix Command Line + bash shell 
+--------------------------------------------------- 
+
+
+.. sidebar:: :small:`What is wrong with IDEs like "Visual Studio Code"?`
+
+   .. class:: small 
+
+      * hides commands and errors
+      
+        * :r:`like typing while wearing boxing gloves`
+
+      * pain to describe setup : this window, this box,... 
+      * megabytes of bloat-ware : slow
+      * big project files, vendor lock in  
+      * often not the target build system 
+      * :r:`prevents learning tools directly`
+
+
+.. sidebar:: :small:`Suggest: Avoid IDEs when learning`
+
+   .. class:: small 
+
+        * Just adds extra complex layer
+        * Imperfect interface ontop of tools 
+        
+        :r:`Using tools directly : you will learn faster`
+    
+
+
+.. class:: small 
+
+
+   bash shell 
+       coordinate an infinity of tools
+   vim (or other minimal editor)
+       text editor 
+   compiler (gcc/clang etc..)
+       build code
+   ipython (interactive python shell)
+       analysis and debugging 
+   rsync 
+       transfer files between machines 
+   git,zip,curl,...
+       plethora of tools : whatever you need
+  
+   **Advantages of NOT using an IDE**   
+
+   * Standard tools : that work almost anywhere 
+   * Easy to automate : just write bash scripts 
+   * Nothing hidden : commands and errors directly
+   * Freedom to use(or create) the tool appropriate to the task 
+   * Arrange same environment on remote server anywhere
+   * Work with Open source projects : :r:`Cross-Platform`
+
+
+
+:i:`Best_IDE_bash_command_line.png`
+-------------------------------------
+
+
+
+
+
+
+Anaconda : Distribution of ~500 Data Science Pkgs
+--------------------------------------------------
+
+.. class:: huge
+
+   :r:`MIXING ENVIRONMENTS CAUSES BREAKAGES`
+
+.. class:: normal
+
+   What will happen ? Mysterious bugs when trying to run/build packages in all environments. 
+
+   +----------+------------------------------------------------------------------------------------+
+   |          |                                                                                    |
+   | BEST     |  * create separate bash functions for each environment you use                     |
+   | PRACTICE |  * :b:`do not enable more than one environment at once`                            |
+   |          |                                                                                    |
+   +----------+------------------------------------------------------------------------------------+
+
+   Example bash function that enables anaconda environment:
+
+.. raw:: html
+    
+    <pre class="mypre">
+    bes3_conda () 
+    { 
+    type $FUNCNAME;
+    eval "$(/cvmfs/bes3.ihep.ac.cn/bes3sw/ExternalLib/contrib/anaconda/2023.07/bin/conda shell.bash hook)"
+    }
+    </pre>
+       
+.. class:: huge
+
+     * :b:`THAT WILL CLASH WITH BES3 ENVIRONMENT`
+
+
+
+
+
+Anaconda Distribution : Highlight packages
+--------------------------------------------
+
+.. class:: small
+   
+    **Foundation Packages**   (:r:`This presentation focusses on Foundation Packages`)
+
+    * numpy : core array  
+    * ipython : enhanced interactive python shell
+    * matplotlib : plotting 
+
+    **Details**
+
+    * scipy : optimization, integration, interpolation, ...
+    * sympy : symbolic algebraic manipulations 
+    * pandas : data analysis and manipulation tool
+    * scikit-image : python image processing
+    * scikit-learn : python machine learning 
+
+    **Utilities**
+
+    * pillow : Python Imaging Library
+    * lxml : python XML handling binding to C libraries libxml2 libxslt
+    * zeromq : message queue system 
+    * sphinx : RST based documentation system  
+
 
 
 
@@ -409,6 +709,23 @@ Using *NP.hh NPFold.h* Serialization from *U4Mesh.h*
 
 
 
+:i:`NumPy_Logo.png`
+--------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:171mm;" />
+
+.. class:: huge
+
+    ``https://numpy.org/``
+
+
+:i:`NumPy_Broad.png`
+-----------------------
+
+
 
 
 
@@ -416,13 +733,26 @@ Using *NP.hh NPFold.h* Serialization from *U4Mesh.h*
 :small:`The Zen of Numpy, by its creator, Travis Oliphant`
 --------------------------------------------------------------------------
 
+.. sidebar:: :small:`Explanation`
+
+    .. class:: small
+
+        * C++ **new** scatters memory allocation
+        * Arrays use contiguous blocks of memory       
+        * C++ std::vector uses contiguous memory 
+          (but reallocs as it grows)
+
+        :r:`Allocated memory layout is critical`
+
+
 .. raw:: html
 
     <pre class="mypre" >
 
     Strided is better than scattered.
     Contiguous is better than strided.
-    Descriptive is better than imperative[1] (e.g. data-types).
+    Descriptive is better than imperative[1] 
+    (e.g. data-types).
     <b>Array-orientated is better than object-oriented.</b>
     <b>Broadcasting is a great idea -- use where possible!</b>
     <b>Vectorized is better than an explicit loop.</b>
@@ -446,6 +776,22 @@ Using *NP.hh NPFold.h* Serialization from *U4Mesh.h*
 
    [2] but not so large that has trouble fitting in memory, np.memmap is possible but better to avoid for simplicity  
 
+
+.. s5_talk::
+
+    Why would you scatter data ? 
+
+
+
+:i:`NumPy_views`
+------------------
+
+
+.. sidebar:: :small:`NumPy views : same data, diff. view`
+
+   .. class:: small
+
+        **b** is a view of **a** with different shape 
 
 
 :small:`NumPy : Python flexibility+brevity at C speed`
@@ -568,6 +914,228 @@ Using *NP.hh NPFold.h* Serialization from *U4Mesh.h*
 
 
 
+:i:`Matplotlib_Logo.png`
+-------------------------
+
+
+:i:`PyVista_Logo.png`
+------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:55mm;" />
+
+.. class:: small 
+
+    ``https://docs.pyvista.org/version/stable/``
+
+
+:i:`ntds3_ana`
+-----------------
+
+.. raw:: html
+
+    <p style="margin-bottom:40mm;" />
+
+.. class:: normal
+
+    ``~/j/ntds/ntds3.sh info_ana``
+
+
+
+
+:i:`ntds3_ana 2`
+-----------------
+
+.. sidebar:: :small:`PyVista : 3D Plotting`
+
+     * GPU accelerated : handles millions of data points 
+     * :r:`Much better than Matplotlib for 3D`
+
+
+
+
+
+
+
+Standalone Software Test Example : U4Mesh_test.sh 
+----------------------------------------------------
+
+.. sidebar:: :small:`What is a Standalone Test ?`
+
+    .. class:: small
+
+         * :r:`Very Simple => Very Fast` 
+         * tests small "unit" of software 
+
+           * ``U4Mesh.h``
+           * => simple fast build (no Makefile,..) 
+
+         * Serialization : C++ -> .npy -> NumPy 
+
+           * => analyse in python
+
+         * Communicate bash/C++/py : envvar ``FOLD``
+
+
+.. sidebar:: :small:`<= eg: Standalone Bash Script`
+
+
+    ::
+    
+         ./U4Mesh_test.sh info
+         ./U4Mesh_test.sh build
+         ./U4Mesh_test.sh run
+         ./U4Mesh_test.sh ana
+
+
+    .. class:: tiny
+
+        https://bitbucket.org/simoncblyth/opticks/src/master/u4/tests/U4Mesh_test.sh 
+
+
+.. class:: small
+
+   +--------------------------------------------------------------------+
+   |                                                                    | 
+   |                                                                    |
+   | .. raw:: html                                                      |
+   |                                                                    |
+   |    <pre class="mypretiny">&#35;!/bin/bash -l                       |
+   |    cd $(dirname $BASH_SOURCE)                                      |
+   |    name=U4Mesh_test                                                |
+   |    <span class="r">export FOLD=/tmp/$name </span>                  |
+   |    bin=$FOLD/$name                                                 |
+   |    mkdir -p $FOLD                                                  |
+   |    vars="BASH_SOURCE name FOLD bin"                                |
+   |                                                                    |
+   |    defarg="info_build_run_ana"                                     |
+   |    arg=${1:-$defarg}                                               |
+   |    g4- ; clhep-                                                    |
+   |                                                                    |
+   |    if [ "${arg/info}" != "$arg" ]; then                            |
+   |        for var in $vars ; do                                       |
+   |             printf "%20s : %s \n" "$var" "${!var}" ; done          |
+   |    fi                                                              |
+   |    if [ "${arg/build}" != "$arg" ]; then                           |
+   |         gcc $name.cc                                               |
+   |             -g -std=c++11 -lstdc++ -I.. -I$HOME/np                 |
+   |             -I$(clhep-prefix)/include -L$(clhep-prefix)/lib        |
+   |             -I$(g4-prefix)/include/Geant4 -L$(g4-prefix)/lib       |
+   |             -lG4global -lG4geometry -lG4graphics_reps -lCLHEP      |
+   |             -o $bin                                                |
+   |         [ $? -ne 0 ] && echo $BASH_SOURCE build error && exit 1    |
+   |    fi                                                              |
+   |    if [ "${arg/run}" != "$arg" ]; then                             |
+   |        $bin                                                        |
+   |        [ $? -ne 0 ] && echo $BASH_SOURCE run error && exit 2       |
+   |    fi                                                              |
+   |    if [ "${arg/ana}" != "$arg" ]; then                             |
+   |        ${IPYTHON:-ipython} --pdb -i $name.py                       |
+   |        [ $? -ne 0 ] && echo $BASH_SOURCE ana error && exit 3       |
+   |    fi                                                              |
+   |    exit 0                                                          |
+   |    </pre>                                                          |
+   |                                                                    |
+   +--------------------------------------------------------------------+
+    
+   
+
+
+
+
+Using *NP.hh NPFold.h* Serialization from *U4Mesh.h*
+------------------------------------------------------------
+
+
+.. sidebar:: :small:`Serialize + Save`
+
+    .. class:: tiny
+
+        https://bitbucket.org/simoncblyth/opticks/src/master/u4/U4Mesh.h
+
+    .. class:: small
+
+       +-----------------------------------------------------------------+
+       |                                                                 |
+       | .. raw:: html                                                   |
+       |                                                                 |
+       |    <pre class="mypretiny">                                      |
+       |    inline NPFold* U4Mesh::serialize() const                     |
+       |    {                                                            |
+       |        <span class="r">NPFold* fold = new NPFold ;</span>       |
+       |        fold->add("vtx", vtx );                                  |
+       |        fold->add("fpd", fpd );                                  |
+       |        return fold ;                                            |
+       |    }                                                            |
+       |    inline void U4Mesh::save(const char* base) const             |
+       |    {                                                            |
+       |        NPFold* fold = serialize();                              |
+       |        fold->save(base);                                        |
+       |    }                                                            |
+       |    </pre>                                                       |
+       +-----------------------------------------------------------------+
+
+    .. class:: small
+
+         *NP.hh*
+              NumPy ``.npy`` file format serialization
+
+         *NPFold.h*
+              In memory folders-of-folders of NP.hh arrays
+
+
+
+.. class:: small
+
+   ::
+
+        https://github.com/simoncblyth/np
+
+
+   +-------------------------------------------------------------------+
+   |                                                                   |
+   | .. raw:: html                                                     |
+   |                                                                   |
+   |    <pre class="mypretiny">                                        |
+   |    &#35;include "G4Polyhedron.hh"                                 |
+   |    <span class="b">&#35;include "NP.hh" </span>                   |
+   |    <span class="b">&#35;include "NPFold.h" </span>                |
+   |                                                                   |
+   |    struct U4Mesh {                                                |
+   |        const G4VSolid* solid ;                                    |
+   |        G4Polyhedron*   poly ;                                     |
+   |        int             nv,nf ;                                    |
+   |        <span class="r">NP*             vtx ;</span>               |
+   |        double*         vtx_ ;                                     |
+   |        <span class="r">NP*             fpd ;</span>               |
+   |        ...                                                        |
+   |    };                                                             |
+   |    inline U4Mesh::U4Mesh(const G4VSolid* solid_):                 |
+   |        solid(solid_),                                             |
+   |        poly(solid->CreatePolyhedron()),                           |
+   |        nv(poly->GetNoVertices()),                                 |
+   |        nf(poly->GetNoFacets()),                                   |
+   |        <span class="r">vtx(NP::Make&lt;double&gt;(nv, 3)),</span> |
+   |        vtx_(vtx->values&lt;double&gt;()),                         |
+   |        fpd(nullptr)                                               |
+   |    {                                                              |
+   |        for(int i=0 ; i < nv ; i++){                               |
+   |            G4Point3D point = poly->GetVertex(i+1) ;               |
+   |            vtx_[3*i+0] = point.x() ;                              |
+   |            vtx_[3*i+1] = point.y() ;                              |
+   |            vtx_[3*i+2] = point.z() ;                              |
+   |        }                                                          |
+   |        ...                                                        |
+   |    }                                                              |
+   +-------------------------------------------------------------------+
+
+
+
+
+
+
 
 
 :small:`Loading Serialized U4Mesh with NumPy, Visualize with PyVista`
@@ -655,6 +1223,167 @@ Using *NP.hh NPFold.h* Serialization from *U4Mesh.h*
 U4Mesh_test2_xjfcSolid_review.png
 ----------------------------------
 
+.. raw:: html
+
+    <p style="margin-bottom:140mm;" />
+
+``GEOM=xjfcSolid ~/opticks/u4/tests/U4Mesh_test2.sh ana``
+
+
+stamp_test.cc example
+--------------------------
+
+.. sidebar:: :small:`Check time stamp overhead`
+
+    .. class:: small
+
+         1. allocate NP array for 25M uint64_t 
+         2. collect 25M time stamps
+         3. persist the stamps to .npy file 
+
+
+.. raw:: html
+
+    <pre class="mypre">
+    &#35;include "stamp.h"
+    &#35;include "NP.hh"
+
+    void test_performance()
+    {
+        static const int N = 1000000*25 ;
+        NP* t = NP::Make&lt;uint64_t&gt;(N) ;
+        uint64_t* tt = t->values&lt;uint64_t&gt;();
+        for(int i=0 ; i < N ; i++) tt[i] = stamp::Now();
+        t->save("$FOLD/tt.npy");
+    }
+    int main()
+    {
+        test_performance();
+        return 0 ;
+    }
+
+.. class:: huge
+
+    * https://github.com/simoncblyth/stamp
+    * https://code.ihep.ac.cn/blyth/stamp
+
+
+
+stamp.h
+----------
+
+
+.. sidebar:: :small:`C++ Timestamp Header`
+
+    .. class:: small
+
+         * convert std::chrono:::time_point into uint64_t  
+
+
+
+
+.. raw:: html
+
+    <pre class="mypre">
+    &#35;pragma once                                                                        
+    &#35;include &lt;chrono&gt;                                                  
+    &#35;include &lt;string&gt;                                                 
+    &#35;include &lt;sstream&gt;                                                
+    &#35;include &lt;iomanip&gt;                                                
+                                                                                
+    struct stamp                                                                
+    {                                                                           
+       static uint64_t Now();                                                   
+       static std::string Format(uint64_t t=0, const char* fmt="%FT%T.");       
+    };                                                                          
+                                                                                
+    inline uint64_t stamp::Now()                                                
+    {                                                                           
+       using Clock = std::chrono::system_clock;                                 
+       using Unit  = std::chrono::microseconds ;                                
+       std::chrono::time_point&lt;Clock&gt; t0 = Clock::now();                         
+       return std::chrono::duration_cast&lt;Unit&gt;(t0.time_since_epoch()).count() ; 
+    }                                                                           
+    ...                                                                         
+    </pre>
+
+
+
+stamp_test.sh : Demonstrates Local/Remote Workflow
+------------------------------------------------------------------
+
+::
+
+    ./stamp_test.sh info   ## list bash variable values
+    ./stamp_test.sh build  ## compile C++ test into executable 
+    ./stamp_test.sh run    ## run the executable
+    ./stamp_test.sh grab   ## rsync FOLD files from remote to local 
+    ./stamp_test.sh ana    ## python analysis, plotting 
+    ./stamp_test.sh ls     ## list files in FOLD   
+
+
+Simply by having this same code cloned from a git repo 
+on local and remote machines : you can adopt a simple 
+Local/Remote workflow. 
+
+The script automates what you could laboriously do
+in a manual way.  
+
+
+
+:i:`STAMP_ProcessHits_56us_Hama_0_0.png`
+------------------------------------------
+
+``STAMP_TT=257400,600 STAMP_ANNO=1 ~/j/ntds/stamp.sh ## inpho => Hama:0:0``
+
+.. raw:: html
+
+    <p style="margin-bottom:152mm;" />
+    
+.. class:: small
+
+    :r:`(s0) beginPhoton` :b:`(s1) finalPhoton` :g:`( ) pointPhoton` :c:`(h0) ProcessHits[` :c:`(i0) ProcessHits]` 
+    -- **ProcessHits taking ~56us for SD** 
+
+
+
+
+
+
+
+Exercise 0 : Clone, build, run time stamp example
+----------------------------------------------------------
+
+.. sidebar:: :small:`Remote/Local`
+
+     .. class:: small
+
+           Common workflow : combining remote + local 
+ 
+
+.. class:: small
+
+    1. Clone the **stamp** repo onto both: 
+
+    * remote server eg lxslc707.ihep.ac.cn 
+    * local laptop/workstation  
+    
+    ::
+
+         ## clone from public repos on github.com (using git+https)
+         git clone https://github.com/simoncblyth/stamp
+         git clone https://github.com/simoncblyth/np
+
+         ## OR from internal repos on code.ihep.ac.cn (using git+ssh)
+         git clone git@code.ihep.ac.cn:blyth/stamp.git
+         git clone git@code.ihep.ac.cn:blyth/np.git
+
+   
+    2. Build and run the test on remote server
+    3. Grab timestamps from remote server onto local laptop  
+    4. Load timestamps into IPython on local laptop and examine the values 
+
+
 
 
 
@@ -684,7 +1413,7 @@ Standalone Test Example : mandelbrot.sh
 
     .. class:: tiny
 
-        https://bitbucket.org/simoncblyth/env/src/master/mandelbrot/mandelbrot.sh 
+        https://github.com/simoncblyth/mandelbrot/blob/master/mandelbrot.sh
 
 
 
@@ -705,9 +1434,9 @@ Standalone Test Example : mandelbrot.sh
     |    mandelbrot.sh                                                |
     |    ===============                                              |
     |                                                                 |
-    |    FOCUS=-1.45,0,0.05 ~/env/mandelbrot/mandelbrot.sh            |
-    |    FOCUS=-1.45,0,0.05 MIT=80 ~/env/mandelbrot/mandelbrot.sh     |
-    |    FOCUS=-1.45,0,0.05 MIT=50 ~/env/mandelbrot/mandelbrot.sh     |
+    |    FOCUS=-1.45,0,0.05 ~/mandelbrot/mandelbrot.sh                |
+    |    FOCUS=-1.45,0,0.05 MIT=80 ~/mandelbrot/mandelbrot.sh         |
+    |    FOCUS=-1.45,0,0.05 MIT=50 ~/mandelbrot/mandelbrot.sh         |
     |                                                                 |
     |    EOU                                                          |
     |    }                                                            |
@@ -847,7 +1576,7 @@ Standalone Test Example : mandelbrot.cc
     <p style="margin-bottom:168mm;" />
    
 
-``~/env/mandelbrot/mandelbrot.sh``
+``~/mandelbrot/mandelbrot.sh``
 
 
 
@@ -860,7 +1589,7 @@ Standalone Test Example : mandelbrot.cc
     <p style="margin-bottom:168mm;" />
    
 
-``FOCUS=-1.45,0,0.05 MIT=50 ~/env/mandelbrot/mandelbrot.sh``
+``FOCUS=-1.45,0,0.05 MIT=50 ~/mandelbrot/mandelbrot.sh``
 
 
 
@@ -939,18 +1668,823 @@ Standalone Test Example : mandelbrot.py
     +-------------------------------------------------------------------------------------+
 
 
+    
 
+Exercise 1 : Clone, build and run the Mandelbrot example
+------------------------------------------------------------
 
-TODO : Brief Description of PyVista and MatPlotLib
-----------------------------------------------------
 
 .. class:: small 
 
+   Assuming you already have : bash, git, python, ipython, matplotlib  
 
-     PyVista 
-         Interface on top of VTK 
+   * python related packages can conveniently be installed using **conda**
+
+   1. clone **mandelbrot** and **np** repos::
+
+        cd
+        git clone https://github.com/simoncblyth/mandelbrot
+        git clone https://github.com/simoncblyth/np
+
+   2. read the code downloaded, ask about things you do not understand
+
+   3. build and run::
+
+        cd ~/mandelbrot
+        ./mandelbrot.sh 
 
 
+   4. read the mandelbrot README and try FOCUS and max iterations MIT 
+      parameters as suggested
+
+   5. try changing the code : change the formula  
+
+
+Exercise 1 : Alternative URLs 
+----------------------------------
+
+.. class:: small
+
+    If github is blocked for you::
+
+         cd
+         git clone git@code.ihep.ac.cn:blyth/mandelbrot.git
+         git clone git@code.ihep.ac.cn:blyth/np.git
+
+
+
+.. comment
+
+    When git is blocked(it often will be) use rsync(over ssh)
+    -----------------------------------------------------------
+
+
+    .. sidebar:: :small:`Better Inflexible When Dangerous`
+
+        .. class:: small
+
+             * rsync has potential to delete many files 
+             * so inflexible very simple scripts are wise
+
+        .. class:: small
+
+             * github, bitbucket are very often blocked (even from IHEP)
+             * rsync which transfers files over ssh is seldom blocked     
+
+
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+        &#35;!/bin/bash -l
+
+        defarg="info_all"
+        arg=${1:-$defarg}
+
+        ## for rsync a trailing slash on 
+        ## source directory means copy contents of this directory
+        src=/Users/blyth/np/     
+        dst=L7:bes3/np
+        cmd="rsync -zarv --delete  $src $dst"
+
+        vars="BASH_SOURCE defarg arg src dst cmd"
+
+        if [ "${arg/info}" != "$arg" ]; then
+           for var in $vars ; do printf "%20s : %s \n" "$var" "${!var}" ; done 
+        fi 
+
+        if [ "${arg/all}" != "$arg" ]; then
+           date 
+           echo $cmd
+           eval $cmd
+           [ $? -ne 0 ] && echo $BASH_SOURCE : all error && exit 1 
+           date
+        fi 
+        </pre>
+
+
+        
+
+    
+
+.. comment
+
+    Graphics from Remote Server Via X11 forwarding ?
+    ----------------------------------------------------
+
+    .. sidebar:: :small:`X11 Forwarded Graphics`
+
+       .. class:: small
+
+             * :r:`Its been terrible for 20 years`
+             * Dont expect any improvement 
+
+               * vendors not interested 
+               * potential to break their business models
+
+             **Advice : dont bother using remote graphics**
+
+             * set up graphics locally on your laptop
+             * rsync reduced data, analyse locally 
+             
+
+
+    .. class:: small 
+
+        It is possible to display graphics from remote server
+
+        * using X11 forwarding (ssh -Y L7) 
+        * but once you succeed (and it will not be easy) 
+        * the performance will be so terrible you will wonder why you bothered 
+
+
+        Much better to setup graphics locally on your laptop 
+
+        * use rsync to move data to you laptop, where you analyse 
+
+
+
+
+.. comment
+
+    Python Tools
+    ---------------
+
+    .. class:: small
+
+        NumPy
+           fundamental basis of numerical python : arrays 
+
+           * https://numpy.org
+
+        matplotlib
+           mainly 2D plotting  
+
+           * https://matplotlib.org/stable/gallery/index.html
+
+        pyvista
+           3D plotting 
+
+           * built on top of VTK (Visalization Toolkit)
+           * GPU accelerated : handle millions of data points 
+           * https://docs.pyvista.org/version/stable/
+
+
+
+
+Bash Function Tip : Define Bash function "t"
+------------------------------------------------
+
+.. class:: small 
+
+    Useful bash function "t" shows definition of argument::
+
+        t(){ typeset -f $*; }
+
+    Example, apply "t" to itself::
+
+        epsilon:~ blyth$ t t 
+        t () 
+        { 
+            typeset -f $*;
+            : opticks.bash
+        }
+
+    The colon ":" line is a comment, here identifying where defined. 
+
+
+
+IPython Launch Customization via Bash Function "i"
+----------------------------------------------------
+
+::
+      
+        epsilon:~ blyth$ t i 
+        i () 
+        { 
+            local opt="";
+            [ -n "$DEBUG" ] && opt="--debug";
+            ${IPYTHON:-ipython} $opt --matplotlib --pdb -i $*;
+            : ~/.python_config;
+            : see also ~/.ipython/profile_default/ipython_config.py
+        }
+
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    epsilon:~ blyth$ DEBUG=1 i 
+    [TerminalIPythonApp] IPYTHONDIR set to: /Users/blyth/.ipython
+    [TerminalIPythonApp] Using existing profile dir: '/Users/blyth/.ipython/profile_default'
+    [TerminalIPythonApp] Searching path ['/Users/blyth', '/Users/blyth/.ipython/profile_default', '/Users/blyth/miniconda3/etc/ipython', '/usr/local/etc/ipython', '/etc/ipython'] for config files
+    [TerminalIPythonApp] Attempting to load config file: ipython_config.py
+    [TerminalIPythonApp] Looking for ipython_config in /etc/ipython
+    [TerminalIPythonApp] Looking for ipython_config in /usr/local/etc/ipython
+    [TerminalIPythonApp] Looking for ipython_config in /Users/blyth/miniconda3/etc/ipython
+    [TerminalIPythonApp] Looking for ipython_config in /Users/blyth/.ipython/profile_default
+    [TerminalIPythonApp] Loaded config file: /Users/blyth/.ipython/profile_default/ipython_config.py
+    [TerminalIPythonApp] Looking for ipython_config in /Users/blyth
+
+    [TerminalIPythonApp] Enabling GUI event loop integration, eventloop=osx, matplotlib=MacOSX
+    Using matplotlib backend: MacOSX
+    [TerminalIPythonApp] Loading IPython extensions...
+    [TerminalIPythonApp] Loading IPython extension: storemagic
+    [TerminalIPythonApp] Running code from IPythonApp.exec_lines...
+    [TerminalIPythonApp] Running code in user namespace: 
+    [TerminalIPythonApp] Running code in user namespace: import os, sys, logging
+    [TerminalIPythonApp] Running code in user namespace: log = logging.getLogger(__name__)
+    [TerminalIPythonApp] Running code in user namespace: import numpy as np
+    [TerminalIPythonApp] Running code in user namespace: import matplotlib.pyplot as plt
+    [TerminalIPythonApp] Running code in user namespace: from mpl_toolkits.mplot3d import Axes3D
+    [TerminalIPythonApp] Running code in user namespace: os.environ["TMP"] = os.path.expandvars("/tmp/$USER/opticks") 
+    [TerminalIPythonApp] Running code in user namespace: sys.path.append(os.path.expanduser("~"))
+    [TerminalIPythonApp] Running code in user namespace: np.set_printoptions(suppress=True, precision=3, linewidth=200)
+    [TerminalIPythonApp] Running code in user namespace: 
+    [TerminalIPythonApp] Starting IPythons mainloop...
+
+    In [1]:                          
+    </pre>
+
+
+
+.. comment
+     
+    What IPython Shell Should be used for
+    ---------------------------------------------------
+
+    .. class:: small
+
+       * use IPython shell as environment to learn and develop plain python scripts 
+
+       * natural to integrate IPython developed python scripts 
+         with other tools via bash scripts
+
+         * python is just one tool 
+
+       * ease of customization 
+       * notebook cells are too different from simple python scripts
+
+       Objective is to develop plain python automated scripts
+
+       * using IPython is just a phase to do that development 
+
+
+
+
+Python Data Science Handbook 
+------------------------------
+
+.. comment
+
+    .. sidebar:: :i:`PythonDataScienceHandbook`
+
+        .. image:: /env/presentation/PythonDataScienceHandbook/cover.png
+           :width: 400px
+           :align: right
+
+
+.. class:: small
+
+   * https://jakevdp.github.io/PythonDataScienceHandbook/
+   * a good resource to get comfortable with python  
+
+   All these packages, features, can be overwhelming 
+
+   * dont be overwhelmed 
+   * just need basic familiarity 
+   * then can find whatever you need, when you need it
+
+
+   **Objective is NOT to learn commands, Aims:** 
+
+   * :b:`get comfortable with IPython` 
+   * learn to play/discover functionality from various python packages 
+
+
+
+View HTML Locally : To Avoid Network Issues
+---------------------------------------------
+
+.. class:: small
+
+    Use browser to download ZIP of html pages from:
+
+    * https://code.ihep.ac.cn/blyth/pythondatasciencehandbook/-/tree/gh-pages
+    * https://github.com/jakevdp/PythonDataScienceHandbook/tree/gh-pages
+
+.. class:: small
+
+    Expand the zip archive of html pages::
+
+        mkdir PDSH
+        cp PythonDataScienceHandbook-gh-pages.zip PDSH/
+        cd PDSH/
+
+        unzip -l PythonDataScienceHandbook-gh-pages.zip  # check paths in the zip 
+        unzip PythonDataScienceHandbook-gh-pages.zip
+        ln -s PythonDataScienceHandbook-gh-pages PythonDataScienceHandbook
+        ln -s PythonDataScienceHandbook-gh-pages/theme 
+
+        python -m http.server    ## start local web server 
+
+        open http://localhost:8000/PythonDataScienceHandbook/index.html
+
+
+
+Exercise 3 : IPython copy/paste follow along
+-----------------------------------------------
+
+.. class:: huge
+
+    As I copy/paste handbook items into IPython...
+
+    * follow along in browser looking at handbook html
+    * copy/paste from your browser into your local IPython session 
+
+.. class:: normal 
+
+    * Following slides are bitmapped, they are just a backup.
+    * Continue in your browser looking at Handbook html. 
+
+ 
+
+IPython : 01.01-help-and-documentation
+----------------------------------------
+
+.. class:: normal 
+
+    http://localhost:8000/PythonDataScienceHandbook/01.01-help-and-documentation.html
+
+    https://jakevdp.github.io/PythonDataScienceHandbook/01.01-help-and-documentation.html
+
+.. class:: huge
+
+    * :b:`IPython_help_?`
+    * :b:`IPython_source_??`
+    * :b:`IPython_tab`
+
+
+:small:`IPython_help_?`
+-------------------------
+
+:small:`IPython_source_??`
+---------------------------
+
+:small:`IPython_tab`
+---------------------------
+
+
+IPython : 01.03-magic-commands
+---------------------------------
+
+.. class:: normal 
+
+    http://localhost:8000/PythonDataScienceHandbook/01.03-magic-commands.html
+
+    https://jakevdp.github.io/PythonDataScienceHandbook/01.03-magic-commands.html
+
+.. class:: huge
+
+    * :b:`IPython_paste`
+    * :b:`IPython_cpaste`
+    * :b:`IPython_run`
+    * :b:`IPython_timeit`
+
+
+:small:`IPython_paste`
+--------------------------
+
+:small:`IPython_cpaste`
+--------------------------
+
+:small:`IPython_run`
+---------------------
+
+:small:`IPython_timeit`
+------------------------
+
+
+
+
+IPython : 01.05-ipython-and-shell-commands
+-------------------------------------------
+
+.. class:: normal 
+
+    http://localhost:8000/PythonDataScienceHandbook/01.05-ipython-and-shell-commands.html
+
+    https://jakevdp.github.io/PythonDataScienceHandbook/01.05-ipython-and-shell-commands.html
+
+.. class:: huge
+
+    * :b:`IPython_shell`
+
+
+
+:small:`IPython_shell`
+------------------------
+
+
+
+
+
+NumPy : 02.00-introduction-to-numpy
+-------------------------------------
+
+.. class:: normal 
+
+    http://localhost:8000/PythonDataScienceHandbook/02.00-introduction-to-numpy.html
+
+    https://jakevdp.github.io/PythonDataScienceHandbook/02.00-introduction-to-numpy.html
+
+
+.. class:: huge
+
+    * :b:`NumPy_np`             
+
+
+:small:`NumPy_np`
+-------------------
+
+
+
+NumPy : 02.01-understanding-data-types
+----------------------------------------
+
+.. class:: normal 
+
+    http://localhost:8000/PythonDataScienceHandbook/02.01-understanding-data-types.html
+
+    https://jakevdp.github.io/PythonDataScienceHandbook/02.01-understanding-data-types.html
+
+.. class:: huge 
+
+    * :b:`NumPy_array`          
+    * :b:`NumPy_zeros`                                  
+    * :b:`NumPy_types`                                  
+
+
+
+:small:`NumPy_array`
+---------------------
+
+:small:`NumPy_zeros`
+---------------------
+
+:small:`NumPy_types`
+---------------------
+
+
+
+NumPy : 02.02-the-basics-of-numpy-arrays
+-------------------------------------------
+
+.. class:: normal 
+
+    http://localhost:8000/PythonDataScienceHandbook/02.02-the-basics-of-numpy-arrays.html  
+
+    https://jakevdp.github.io/PythonDataScienceHandbook/02.02-the-basics-of-numpy-arrays.html
+
+.. class:: huge 
+
+    * :b:`NumPy_slice`                                  
+    * :b:`NumPy_subarray`                               
+    * :b:`NumPy_reshape`                                
+
+
+
+:small:`NumPy_slice`
+---------------------
+
+:small:`NumPy_subarray`
+------------------------
+
+:small:`NumPy_reshape`
+------------------------
+
+
+
+NumPy : 02.03-computation-on-arrays-ufuncs 
+---------------------------------------------
+
+.. class:: normal 
+
+    http://localhost:8000/PythonDataScienceHandbook/02.03-computation-on-arrays-ufuncs.html
+
+    https://jakevdp.github.io/PythonDataScienceHandbook/02.03-computation-on-arrays-ufuncs.html
+
+
+.. class:: huge 
+
+    * :b:`NumPy_wrong`      
+    * :b:`NumPy_right`      
+    * :b:`NumPy_scipy`      
+
+
+
+:small:`NumPy_wrong`
+------------------------
+
+.. raw:: html
+   
+    <pre class="mypre">
+    +----------------------+
+    | Large Loops in NumPy | 
+    | almost always        |
+    | wrong approach       |
+    | (very sloooooooow)   | 
+    +----------------------+
+    </pre>
+
+
+:small:`NumPy_right`
+------------------------
+
+
+.. raw:: html
+   
+    <pre class="mypre">
+
+
+
+
+
+
+
+
+
+
+
+
+    +----------------------+
+    | Correct approach     | 
+    | MUCH MUCH FASTER     |
+    | ALSO SIMPLER         |
+    +----------------------+
+    </pre>
+
+
+
+
+:small:`NumPy_scipy`      
+----------------------
+
+
+
+
+
+
+
+
+
+
+NumPy : 02.05-computation-on-arrays-broadcasting 
+--------------------------------------------------
+
+.. class:: small
+
+    http://localhost:8000/PythonDataScienceHandbook/02.05-computation-on-arrays-broadcasting.html 
+
+    https://jakevdp.github.io/PythonDataScienceHandbook/02.05-computation-on-arrays-broadcasting.html
+
+
+.. class:: huge 
+
+    * :b:`NumPy_broadcasting`      
+
+
+
+
+:small:`NumPy_broadcasting`      
+----------------------------
+
+
+
+
+NumPy : 02.06-boolean-arrays-and-masks
+----------------------------------------
+
+.. class:: small 
+
+    http://localhost:8000/PythonDataScienceHandbook/02.06-boolean-arrays-and-masks.html
+
+    https://jakevdp.github.io/PythonDataScienceHandbook/02.06-boolean-arrays-and-masks.html
+
+.. class:: huge 
+
+    * :b:`NumPy_mask`      
+    * :b:`NumPy_count_nonzero`      
+    * :b:`NumPy_masking`      
+
+
+
+:small:`NumPy_mask`      
+----------------------
+
+:small:`NumPy_count_nonzero`      
+-----------------------------
+
+:small:`NumPy_masking`      
+-----------------------
+
+
+.. comment 
+
+    up to http://localhost:8000/PythonDataScienceHandbook/02.07-fancy-indexing.html
+    considering binning and np.add.at 
+
+
+
+
+
+Matplotlib : 04.00-introduction-to-matplotlib
+------------------------------------------------
+
+.. class:: small
+
+    http://localhost:8000/PythonDataScienceHandbook/04.00-introduction-to-matplotlib.html
+
+    https://jakevdp.github.io/PythonDataScienceHandbook/04.00-introduction-to-matplotlib.html
+
+
+.. class:: huge
+
+    * :b:`Matplotlib_script`
+    * :b:`Matplotlib_IPython`
+    * :b:`Matplotlib_IPython_demo`
+    * :b:`Matplotlib_scatter`
+    * :b:`Matplotlib_scatter_demo`
+     
+
+:small:`Matplotlib_script`
+---------------------------
+
+:small:`Matplotlib_IPython`
+----------------------------
+
+:small:`Matplotlib_IPython_demo`
+---------------------------------
+
+
+:small:`Matplotlib_scatter`
+----------------------------
+
+:small:`Matplotlib_scatter_demo`
+---------------------------------
+
+
+  
+
+:i:`FewPMT_demo.png`
+-----------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:172mm;" />
+
+.. class:: small
+
+    **Example of Matplotlib scatter plot, with some dotted lines**
+
+
+
+
+
+Python Data Science Handbook1
+------------------------------------
+
+.. comment
+
+    .. sidebar:: :i:`PythonDataScienceHandbook`
+
+        .. image:: /env/presentation/PythonDataScienceHandbook/cover.png
+           :width: 400px
+           :align: right
+
+
+.. class:: small
+
+   * https://jakevdp.github.io/PythonDataScienceHandbook/
+   * a good resource to get comfortable with python  
+
+
+   :b:`We only skimmed the fundamental sections from book` 
+
+   Many more sections for you to explore, eg:
+
+   +------------------------------------+    
+   |                                    |
+   | * Data Manipulation with Pandas    |
+   |                                    |
+   |   * Pivot Tables                   |
+   |   * Working with Time Series       | 
+   |                                    |
+   | * Machine Learning                 |
+   |                                    |
+   |   * Introduction to Scikit-Learn   |
+   |   * Decision Trees                 |
+   |   * Face Detection Pipeline        |
+   |                                    |
+   +------------------------------------+    
+
+
+   Now that you are familiar with IPython shell:
+
+   * you can easily continue exploring ...
+
+  
+
+:i:`sklearn_Logo`
+------------------
+
+
+
+Three Laws of Good Software Design + Development
+---------------------------------------------------
+
+.. sidebar:: :small:`KEY : Units + Unit testing`
+
+    .. class:: small
+
+        Complex problems : Many simple units 
+
+        * each unit with test ready to run 
+        * dive into code in seconds 
+
+        Tame complexity : :r:`Divide and Conquer`
+
+
+
+.. raw:: html
+
+    <p style="margin-bottom:25mm;" />
+
+.. class:: small 
+
+   +--------------------------------------------------------------+
+   |                                                              |
+   |  1. **Arrange fast development cycle** : :b:`TOP PRIORITY`   | 
+   |                                                              |
+   |  * seconds to make change and see outcome, not minutes       |  
+   |  * <1s cycletime : no waiting, :r:`focussed development`     | 
+   |  * cheap cycles => great code                                |
+   |                                                              |
+   |  .. raw:: html                                               |
+   |                                                              |
+   |       <p style="margin-bottom:5mm;" />                       |
+   +--------------------------------------------------------------+
+   |                                                              |
+   |  2. **Always minimize dependencies**                         |
+   |                                                              |
+   |  * just good design : code more useful                       |
+   |  * organize code by dependency, NOT TOPIC                    |
+   |  * dependency is fundamental, topic just opinion             |
+   |  * use serialization to cut dependencies                     |
+   |                                                              |
+   |  .. raw:: html                                               |
+   |                                                              |
+   |       <p style="margin-bottom:5mm;" />                       |
+   +--------------------------------------------------------------+
+   |                                                              |
+   |  3. **Unit tests are your most powerful tool**               |
+   |                                                              |
+   |  * not just for testing, also for development+documenting    |
+   |  * use serialization + mocking to simplify tests             |   
+   |                                                              |
+   |  .. raw:: html                                               |
+   |                                                              |
+   |       <p style="margin-bottom:5mm;" />                       |
+   +--------------------------------------------------------------+
+
+
+
+
+
+
+
+:i:`Lao Tzu`
+--------------
+
+.. class:: huge
+
+
+    |  To attain knowledge, add things everyday. 
+    |  To attain wisdom, remove things every day.
+    |  *Lao Tzu*
+
+
+.. class:: normal
+
+   You need to learn so many things...  : Actually no, you do not 
+ 
+   * you need to learn (or re-learn) what you need, when you need it
+
+   Retain core principals that enable you to learn quickly
+
+   * unit tests : not just for testing
+
+     * :r:`hugely useful for learning+reminding too` 
 
 
 

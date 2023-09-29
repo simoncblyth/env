@@ -645,6 +645,9 @@ setuptools-(){  . $(env-home)/python/setuptools.bash && setuptools-env $* ; }
 sqlalchemy-(){  . $(env-home)/python/sqlalchemy.bash && sqlalchemy-env $* ; }
 virtualenv-(){  . $(env-home)/python/virtualenv.bash && virtualenv-env $* ; }
 
+pdsh-(){        . $(env-home)/python_course/pdsh.bash && pdsh-env $* ; }
+pyc-(){         . $(env-home)/python_course/pyc.bash && pyc-env $* ; }
+
 mysql-(){       . $(env-home)/mysql/mysql.bash    && mysql-env $* ; }
 log-(){         . $(env-home)/log/log.bash        && log-env $* ; }
 phpbb-(){       . $(env-home)/phpbb/phpbb.bash    && phpbb-env $* ; }

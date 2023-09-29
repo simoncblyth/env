@@ -213,6 +213,14 @@ Opticks Presentations
 2023
 ~~~~~~~~
 
+`env/presentation/standalone_20230930_cpp_test_debug_ana_with_numpy.html <env/presentation/standalone_20230930_cpp_test_debug_ana_with_numpy.html>`_
+
+    Standalone C++ software testing, debugging and analysis with python packages: NumPy, matplotlib, pyvista, ...
+
+    Hohhot School, Inner Mongolia, China, Sept 30, 2023
+
+    **WIP: Presentation In Preparation**
+
 
 `env/presentation/opticks_20230907_release.html <env/presentation/opticks_20230907_release.html>`_
 
