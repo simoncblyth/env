@@ -684,4 +684,78 @@ EON
 
 
 
+osx_sips_notes(){ cat << EON
 
+epsilon:opticks_refs blyth$ sips -g all  Earth.jpg 
+/Users/blyth/tree/opticks_refs/Earth.jpg
+  pixelWidth: 8192
+  pixelHeight: 4096
+  typeIdentifier: public.jpeg
+  format: jpeg
+  formatOptions: default
+  dpiWidth: 72.000
+  dpiHeight: 72.000
+  samplesPerPixel: 3
+  bitsPerSample: 8
+  hasAlpha: no
+  space: RGB
+epsilon:opticks_refs blyth$ 
+
+https://nancyisanerd.com/flip-rotate-resize-images-via-command-line-with-sips/
+
+By default, sips rotates clockwise, so you’ll need to specify in degrees if you want to rotate an image:
+
+sips -r 90 image.jpg
+
+https://osxdaily.com/2010/07/13/immediately-resize-rotate-and-flip-images-via-the-command-line/
+
+For anyone wondering how to rotate COUNTER-CLOCKWISE, you have to put the angle
+in single quotes. The following code rotates test.image -30 degrees:
+
+sips -r ‘-30’ test.jpg
+
+
+https://coderwall.com/p/ekhe8g/batch-processing-images-on-mac-with-sips
+
+
+sips mdls disagreement
+
+https://www.macscripter.net/t/sips-vs-mdls/72332
+
+
+sips -g pixelHeight -g pixelWidth
+
+mdls -name kMDItemPixelHeight -name kMDItemPixelWidth
+
+
+Shane_Stanley
+May '20
+
+Width and height mean different things in different contexts.
+
+Orientation is a purely metadata concept, designed so photos can automatically be rotated when opened. It makes sense that Spotlight metadata reflects the orientation in its values, given its use for things like Finder info – user-facing values. It’s possible the EXIF result reflects its use in the days before orientation metadata, and is avoiding potential ambiguity.
+
+In the case of sips, the values are used for clipping, scaling, etc, and they therefore need to reflect the pixel values in the actual image data of the file, ignoring any metadata. When sips opens a file, it doesn’t consult the metadata for orientation (or anything else).
+
+So which tool you use should depend on what you’re using the values for.
+
+Here’s an alternative that returns values similar to sips.
+
+use AppleScript version "2.5"
+use scripting additions
+use framework "Foundation"
+use framework "AppKit"
+
+set theFile to posix path of (choose file)
+set imageRep to current application's NSBitmapImageRep's imageRepWithContentsOfFile:theFile
+set theWidth to imageRep's pixelsWide()
+set theHeight to imageRep's pixelsHigh()
+
+
+* https://www.macscripter.net/t/sips-vs-mdls/72332/20
+
+
+
+
+EON
+}

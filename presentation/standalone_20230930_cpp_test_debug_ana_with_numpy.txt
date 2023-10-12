@@ -9,7 +9,6 @@
 
 .. include:: s5_background_image.txt
 
-
 .. comment 
 
     DEMO Commandlines
@@ -18,6 +17,7 @@
 
     GEOM=xjfcSolid ~/opticks/u4/tests/U4Mesh_test2.sh ana
 
+    ~/j/ntds/ntds3.sh ana
 
 
 .. comment
@@ -101,6 +101,23 @@
     </div>
 
 
+.. s5_talk::
+
+
+    My work on the GPU optical photon simulation means that I have developed
+    lots of code. Far more than is typical.  So that has given me experience on 
+    the best way of working. 
+
+    Although this presentation is going to describe some specific packages and techniques 
+    that is not the main thing that I hope to convey.  Rather it is the approach to development 
+    and learning that I want you to take away from this presentation. 
+    Actually, there are so many things to learn : that being taught them is not practical. 
+
+    You need to learn how to explore and teach yourself : as what you need to 
+    know will be specific to you and what you work on.  
+
+
+
 
 
 Three Laws of Good Software Design + Development
@@ -178,7 +195,19 @@ Three Laws of Good Software Design + Development
    +--------------------------------------------------------------+
 
 
+.. s5_talk::
 
+    These are the three rules you need to follow in order to 
+    become effective in software development. 
+
+    First one is simple enough...  If you find yourself 
+    in a development cycle of minutes it becomes really difficult 
+    to create software.  You need to split things to enable a fast cycle. 
+
+    Dependencies of software is everything that code depends on. 
+    The more you have the more difficult it is to work with code. 
+
+    Unit testing is the key to becoming a good developer. 
 
 
 
@@ -217,7 +246,15 @@ Power of Serialization + De-Serialization
     * => flexible data handling 
 
 
+.. s5_talk::
 
+    What is serialization...
+    How does that relate to dependencies 
+
+    Dependencies are what slow you down...
+    Cutting dependencies and serialization 
+    allows you to do things in seconds that would 
+    previously take minutes. 
 
 
 
@@ -264,6 +301,11 @@ Opticks : GPU Optical Photon Simulation Package
    https://bitbucket.org/simoncblyth/opticks/
 
 
+.. s5_talk::
+
+
+   Opticks is an open source project that I developer. It simulates optical 
+   photons usinf a GPU to achieve very large speedups.  
  
 
 
@@ -541,6 +583,10 @@ Large packages like Opticks are built test-by-test
 
 
 
+.. s5_talk::
+
+   Large software packages like Opticks are built test-by-test 
+
     
 
 Best IDE to use : Unix Command Line + bash shell 
@@ -599,11 +645,17 @@ Best IDE to use : Unix Command Line + bash shell
    * Work with Open source projects : :r:`Cross-Platform`
 
 
+.. s5_talk::
+
+   Why you should NOT be using an IDE while you are learning... 
+
 
 :i:`Best_IDE_bash_command_line.png`
 -------------------------------------
 
+.. s5_talk::
 
+   So this is the best IDE : simply the Unix command line with the bash shell 
 
 
 
@@ -643,7 +695,11 @@ Anaconda : Distribution of ~500 Data Science Pkgs
      * :b:`THAT WILL CLASH WITH BES3 ENVIRONMENT`
 
 
+.. s5_talk::
 
+   Warning : Anaconda is a large software distribution : it is a big complicates 
+   tree of software packages.   Because of the complexity you need to avoid mixing 
+   up enviroments : because it will cause breakages.
 
 
 Anaconda Distribution : Highlight packages
@@ -673,7 +729,10 @@ Anaconda Distribution : Highlight packages
     * sphinx : RST based documentation system  
 
 
+.. s5_talk::
 
+   Here are some highlight packages, there are hundreds more and further hundreds
+   that can be installed by the conda package manager 
 
 
 
@@ -708,6 +767,12 @@ Anaconda Distribution : Highlight packages
 
 
 
+.. s5_talk::
+
+   Centrality of NumPy means that almost any numerical work 
+   will be enhanced by a knowledge of NumPy 
+
+
 
 :i:`NumPy_Logo.png`
 --------------------
@@ -722,12 +787,20 @@ Anaconda Distribution : Highlight packages
     ``https://numpy.org/``
 
 
+.. s5_talk::
+
+    NumPy is like the plumbing of data science : skill in 
+    using it will enable you to do lots of things very quickly
+
+
+
 :i:`NumPy_Broad.png`
 -----------------------
 
 
+.. s5_talk::
 
-
+    Here you can see the broadness of the packages that build upon NumPy 
 
 
 :small:`The Zen of Numpy, by its creator, Travis Oliphant`
@@ -779,7 +852,7 @@ Anaconda Distribution : Highlight packages
 
 .. s5_talk::
 
-    Why would you scatter data ? 
+    Why would you scatter data ? C++ does
 
 
 
@@ -792,6 +865,12 @@ Anaconda Distribution : Highlight packages
    .. class:: small
 
         **b** is a view of **a** with different shape 
+
+
+.. s5_talk::
+
+   You can deal with arrays of millions of items from 
+   a convenient python interface and benefit from C type speed. 
 
 
 :small:`NumPy : Python flexibility+brevity at C speed`
@@ -853,6 +932,11 @@ Anaconda Distribution : Highlight packages
 
 
 
+.. s5_talk::
+
+    I developed the np package to enable integration of C++ codes
+    with python analysis
+
 
 
 :small:`NPY minimal file format : metadata header + data buffer : trivial to parse`
@@ -911,11 +995,20 @@ Anaconda Distribution : Highlight packages
     * very stable 
 
 
+.. s5_talk::
+
+    The demonstrates saving and loading arrays from IPython 
+
 
 
 
 :i:`Matplotlib_Logo.png`
 -------------------------
+
+.. s5_talk::
+
+    Matplotlib is a package that adds diverse plotting abilities 
+    and it is integrated with NumPy 
 
 
 :i:`PyVista_Logo.png`
@@ -930,6 +1023,15 @@ Anaconda Distribution : Highlight packages
 
     ``https://docs.pyvista.org/version/stable/``
 
+.. s5_talk::
+
+    For dealing with 3D data, I recomment the PyVista package 
+    which is built ontop of a C++ package called the Visualization Toolkit. 
+    Because it uses GPU acceleration it can give very high performance visualization.
+    The great thing about PyVista is that it gives you the power of GPU acceleration 
+    from a simple python interface.
+
+
 
 :i:`ntds3_ana`
 -----------------
@@ -943,6 +1045,10 @@ Anaconda Distribution : Highlight packages
     ``~/j/ntds/ntds3.sh info_ana``
 
 
+.. s5_talk::
+
+   This example is presenting the points on the simulation tracks 
+   of many thousands of photons. 
 
 
 :i:`ntds3_ana 2`
@@ -954,7 +1060,12 @@ Anaconda Distribution : Highlight packages
      * :r:`Much better than Matplotlib for 3D`
 
 
-
+.. s5_talk::
+ 
+    PyVista is not installed with Anaconda by default, but the 
+    conda package manager can install it.  Although because of the
+    dependency on Visual Toolkit and your GPU you might find some issues. 
+ 
 
 
 
@@ -1041,7 +1152,10 @@ Standalone Software Test Example : U4Mesh_test.sh
    +--------------------------------------------------------------------+
     
    
+.. s5_talk::
 
+    This is an example of a simple standalone test. 
+    Central to the test is a bash script that coordinates between different tools.  
 
 
 
@@ -1133,8 +1247,18 @@ Using *NP.hh NPFold.h* Serialization from *U4Mesh.h*
 
 
 
+.. s5_talk::
 
+    I am not sure how much experience you have with C++
+    so I will explain what this code is doing. 
+    This method is called the constructor of the U4Mesh struct. 
+    And this list of items here is an initializer list.  So this 
+    runs whenever an instance of U4Mesh is instanciated. 
+    So the vtx array is allocated and filled in the constructor. 
 
+    The serialize method collects together information for the 
+    vertices and the faces into an NPFold object which the save 
+    method saves to directory.   
 
 
 
@@ -1217,6 +1341,17 @@ Using *NP.hh NPFold.h* Serialization from *U4Mesh.h*
    |    </pre>                                                         |
    |                                                                   |
    +-------------------------------------------------------------------+
+
+
+.. s5_talk::
+
+   The main here shows how this is used.  A Geant4 solid is created and 
+   and then the vertices and faces of the solid are saved into the file system. 
+   So thats from C++.  Then the information is loaded from the file system into 
+   python and plotted using capabilities of PyVista.  Notice the way serialization
+   and the use of standard file formats cuts the dependencies.  You dont need
+   Geant4 to visualize the object.  
+
    
 
 
@@ -1228,6 +1363,13 @@ U4Mesh_test2_xjfcSolid_review.png
     <p style="margin-bottom:140mm;" />
 
 ``GEOM=xjfcSolid ~/opticks/u4/tests/U4Mesh_test2.sh ana``
+
+
+.. s5_talk::
+
+   Visualizing a sphere is not so useful.  But for more complicates shapes
+   it becomes very useful to visualize the faces and vertices of the solid. 
+
 
 
 stamp_test.cc example
@@ -1266,6 +1408,11 @@ stamp_test.cc example
 
     * https://github.com/simoncblyth/stamp
     * https://code.ihep.ac.cn/blyth/stamp
+
+
+.. s5_talk::
+
+   This is a simple test of the functionality provided by the stamp.h header. 
 
 
 
@@ -1309,6 +1456,19 @@ stamp.h
 
 
 
+.. s5_talk::
+
+   stamp.h is a simple header : the Now method creates a timestamp.
+   Notice that it is returning a standard uint64_t type.  
+   When you are designing an API you need to pay special attention 
+   to the types that are used in your API.  Using standard types 
+   mininimizes dependencies of the API. 
+
+
+
+
+
+
 stamp_test.sh : Demonstrates Local/Remote Workflow
 ------------------------------------------------------------------
 
@@ -1329,6 +1489,11 @@ Local/Remote workflow.
 The script automates what you could laboriously do
 in a manual way.  
 
+.. s5_talk::
+
+   The bash script controls the test. 
+   This also demonstrates a common pattern of remote/local working. 
+
 
 
 :i:`STAMP_ProcessHits_56us_Hama_0_0.png`
@@ -1347,8 +1512,15 @@ in a manual way.
 
 
 
+.. s5_talk::
 
+    Collecting time stamps is a very simple thing... but it also turns out to 
+    be very useful.  For example when you have some code that you find is slow
+    it can be very helpful to collect timestamps at various places in the code 
+    and then analyse those stamps to find where most of the time is being taken. 
 
+    This is called profiling code, and it is a form of optimization.  You can see
+    which part of the code you need to work on in order to improve performance. 
 
 
 Exercise 0 : Clone, build, run time stamp example
@@ -1384,8 +1556,10 @@ Exercise 0 : Clone, build, run time stamp example
     4. Load timestamps into IPython on local laptop and examine the values 
 
 
+.. s5_talk::
 
-
+    We might come back to this exercise later, depending 
+    on how long it takes to do the next exercise.  
 
 
 Standalone Test Example : mandelbrot.sh
@@ -1467,7 +1641,10 @@ Standalone Test Example : mandelbrot.sh
     +-----------------------------------------------------------------+
 
 
+.. s5_talk::
 
+    The bash script controls the test. It is integrating functionality 
+    of C++ and python.  
 
 
 
@@ -1564,6 +1741,13 @@ Standalone Test Example : mandelbrot.cc
     +-----------------------------------------------------------------------+
 
 
+.. s5_talk::
+
+    Lets go through the code. The input parameters come in from environment 
+    variables.   The U::GetE method is accessing the envvar string and 
+    converting it into doubles in vectors or values. The most important imputs 
+    are the FOCUS variable which provides three values that specifies a point 
+    in the complex plain and an extent corresponding to a rectangle around the point.  
 
 
 
@@ -1579,6 +1763,14 @@ Standalone Test Example : mandelbrot.cc
 ``~/mandelbrot/mandelbrot.sh``
 
 
+.. s5_talk::
+
+    Wandering around the complex plane and changing the options
+    gives an infinite variety of images.  Note the fractal nature
+    somehow the shapes at smaller scales echo the shapes at larger scales. 
+
+    Mandelbrot is good for demonstrations because it has very few dependencies. 
+
 
 
 :i:`mandelbrot000.png`
@@ -1592,6 +1784,11 @@ Standalone Test Example : mandelbrot.cc
 ``FOCUS=-1.45,0,0.05 MIT=50 ~/mandelbrot/mandelbrot.sh``
 
 
+
+.. s5_talk::
+
+    Changing the MIT value changes the maximum number of iterations. 
+    Which changes the appearance a lot. 
 
 
 
@@ -1668,6 +1865,11 @@ Standalone Test Example : mandelbrot.py
     +-------------------------------------------------------------------------------------+
 
 
+.. s5_talk::
+
+   This is the python that is displaying the image.  So the C++ is calculating the pixel 
+   values and the python is presenting that. 
+
     
 
 Exercise 1 : Clone, build and run the Mandelbrot example
@@ -1700,6 +1902,17 @@ Exercise 1 : Clone, build and run the Mandelbrot example
    5. try changing the code : change the formula  
 
 
+.. s5_talk::
+
+    Beware that github urls are often blocked. So you will need 
+    to use the alternative URLs on the next page.  
+
+    Notice that there is no build or install step for the np repository 
+    because everything is implemented in headers.  Actually header only 
+    implementions are a very good way to organize very focussed code. 
+
+
+
 Exercise 1 : Alternative URLs 
 ----------------------------------
 
@@ -1712,123 +1925,12 @@ Exercise 1 : Alternative URLs
          git clone git@code.ihep.ac.cn:blyth/np.git
 
 
-
-.. comment
-
-    When git is blocked(it often will be) use rsync(over ssh)
-    -----------------------------------------------------------
-
-
-    .. sidebar:: :small:`Better Inflexible When Dangerous`
-
-        .. class:: small
-
-             * rsync has potential to delete many files 
-             * so inflexible very simple scripts are wise
-
-        .. class:: small
-
-             * github, bitbucket are very often blocked (even from IHEP)
-             * rsync which transfers files over ssh is seldom blocked     
-
-
-
-    .. raw:: html
-
-        <pre class="mypretiny">
-        &#35;!/bin/bash -l
-
-        defarg="info_all"
-        arg=${1:-$defarg}
-
-        ## for rsync a trailing slash on 
-        ## source directory means copy contents of this directory
-        src=/Users/blyth/np/     
-        dst=L7:bes3/np
-        cmd="rsync -zarv --delete  $src $dst"
-
-        vars="BASH_SOURCE defarg arg src dst cmd"
-
-        if [ "${arg/info}" != "$arg" ]; then
-           for var in $vars ; do printf "%20s : %s \n" "$var" "${!var}" ; done 
-        fi 
-
-        if [ "${arg/all}" != "$arg" ]; then
-           date 
-           echo $cmd
-           eval $cmd
-           [ $? -ne 0 ] && echo $BASH_SOURCE : all error && exit 1 
-           date
-        fi 
-        </pre>
-
-
         
 
-    
+.. s5_talk::
 
-.. comment
-
-    Graphics from Remote Server Via X11 forwarding ?
-    ----------------------------------------------------
-
-    .. sidebar:: :small:`X11 Forwarded Graphics`
-
-       .. class:: small
-
-             * :r:`Its been terrible for 20 years`
-             * Dont expect any improvement 
-
-               * vendors not interested 
-               * potential to break their business models
-
-             **Advice : dont bother using remote graphics**
-
-             * set up graphics locally on your laptop
-             * rsync reduced data, analyse locally 
-             
-
-
-    .. class:: small 
-
-        It is possible to display graphics from remote server
-
-        * using X11 forwarding (ssh -Y L7) 
-        * but once you succeed (and it will not be easy) 
-        * the performance will be so terrible you will wonder why you bothered 
-
-
-        Much better to setup graphics locally on your laptop 
-
-        * use rsync to move data to you laptop, where you analyse 
-
-
-
-
-.. comment
-
-    Python Tools
-    ---------------
-
-    .. class:: small
-
-        NumPy
-           fundamental basis of numerical python : arrays 
-
-           * https://numpy.org
-
-        matplotlib
-           mainly 2D plotting  
-
-           * https://matplotlib.org/stable/gallery/index.html
-
-        pyvista
-           3D plotting 
-
-           * built on top of VTK (Visalization Toolkit)
-           * GPU accelerated : handle millions of data points 
-           * https://docs.pyvista.org/version/stable/
-
+    As you try to do the exercise. Tao and I will be wandering around     
+    checking on the issues you are finding.  
 
 
 
@@ -1852,6 +1954,10 @@ Bash Function Tip : Define Bash function "t"
 
     The colon ":" line is a comment, here identifying where defined. 
 
+
+.. s5_talk::
+
+   One very useful bash function is "t" that describes the argument using typeset. 
 
 
 IPython Launch Customization via Bash Function "i"
@@ -1904,6 +2010,12 @@ IPython Launch Customization via Bash Function "i"
 
     In [1]:                          
     </pre>
+
+
+
+.. s5_talk::
+
+   Bash functions are a good way to customize how you launch tools. 
 
 
 
@@ -1962,15 +2074,30 @@ Python Data Science Handbook
 
 
 
+.. s5_talk::
+
+   The Handbook is a good resource for getting familar with python tools. 
+   Notice that you will usually be combining functionality.  C++ is good
+   at some things and python is good at others, especially plotting and analysis. 
+ 
+
+
 View HTML Locally : To Avoid Network Issues
 ---------------------------------------------
+
+.. comment
+
+    * https://github.com/jakevdp/PythonDataScienceHandbook/tree/gh-pages
 
 .. class:: small
 
     Use browser to download ZIP of html pages from:
 
     * https://code.ihep.ac.cn/blyth/pythondatasciencehandbook/-/tree/gh-pages
-    * https://github.com/jakevdp/PythonDataScienceHandbook/tree/gh-pages
+
+    OR copy from IHEP to your laptop using **scp**::
+
+        scp lxslc7.ihep.ac.cn:~blyth/g/PythonDataScienceHandbook-gh-pages.zip .
 
 .. class:: small
 
@@ -1978,17 +2105,20 @@ View HTML Locally : To Avoid Network Issues
 
         mkdir PDSH
         cp PythonDataScienceHandbook-gh-pages.zip PDSH/
-        cd PDSH/
-
+        cd PDSH
         unzip -l PythonDataScienceHandbook-gh-pages.zip  # check paths in the zip 
         unzip PythonDataScienceHandbook-gh-pages.zip
         ln -s PythonDataScienceHandbook-gh-pages PythonDataScienceHandbook
         ln -s PythonDataScienceHandbook-gh-pages/theme 
 
         python -m http.server    ## start local web server 
-
         open http://localhost:8000/PythonDataScienceHandbook/index.html
 
+.. s5_talk::
+
+    Getting the html locally can avoid network issues.
+
+    
 
 
 Exercise 3 : IPython copy/paste follow along
@@ -2005,6 +2135,10 @@ Exercise 3 : IPython copy/paste follow along
 
     * Following slides are bitmapped, they are just a backup.
     * Continue in your browser looking at Handbook html. 
+
+.. s5_talk::
+
+   Follow along  
 
  
 

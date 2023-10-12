@@ -12,6 +12,13 @@ VR
 ===
 
 
+Guides
+--------
+
+* https://github.com/mikeroyal/AR-VR-Guide
+
+
+
 Surveying available devices, Q1 2019
 ---------------------------------------
 

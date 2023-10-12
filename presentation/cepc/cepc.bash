@@ -5,6 +5,17 @@ cepc-notes(){ cat << EON
 CEPC 
 =====
 
+
+The 2023 international workshop on the high energy Circular Electron-Positron
+Collider (CEPC) will take place at Nanjing, Oct 23-27, 2023. The opening
+session will be held in the Science and Technology Building of Nanjing
+University at its Gulou Campus. All other sessions will be at the Grand Hotel
+Nanjing.
+
+The abstract submission deadline is Sept 16, 2023. The registration deadline is
+Oct 1, 2023. 
+
+
 2023 CEPC Workshop in Nanjing
 -----------------------------
 

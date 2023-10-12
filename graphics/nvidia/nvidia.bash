@@ -10,6 +10,61 @@ NVIDIA
 ========
 
 
+
+Micro-benchmarking
+--------------------
+
+2018 : Dissecting the NVIDIA Volta GPU Architecture via Microbenchmarking
+
+* https://arxiv.org/pdf/1804.06826.pdf
+
+2019 : Low Overhead Instruction Latency Characterization for NVIDIA GPGPUs
+
+* https://arxiv.org/pdf/1905.08778.pdf
+
+
+Laptop GPUs check Oct 2023
+----------------------------
+
+* https://www.anandtech.com/show/18781/nvidia-unveils-rtx-ada-lovelace-gpus-for-laptops-desktop-rtx-4000-sff
+
+* RTX 5000 Ada Laptop GPU : 9728 CUDA Cores : 16 GB VRAM : 03/2023
+
+* :google:`RTX 5000 Ada Laptop GPU`
+
+* https://www.notebookcheck.net/NVIDIA-RTX-5000-Ada-Generation-Laptop-GPU-GPU-Benchmarks-and-Specs.742159.0.html
+* https://www.notebookcheck.net/HP-ZBook-Fury-16-G10-mobile-workstation-review-100-W-Nvidia-RTX-5000-Ada.751426.0.html
+* https://www.notebookcheck.net/Dell-Precision-5680-review-Ada-Lovelace-dominates-on-workstations.741263.0.html
+
+
+* https://www.notebookcheck.net/Nvidia-RTX-Studio-could-spell-trouble-for-the-long-running-HP-ZBook-Dell-Precision-and-Lenovo-ThinkPad-P-series.422999.0.html
+
+
+06/04/2019
+Traditionally, users who wanted a mobile workstation with Quadro or FirePro
+graphics would almost always turn towards the HP ZBook, Lenovo ThinkPad P
+series, or the Dell Precision series. These three OEMs control nearly the
+entire mobile workstation market. While there are a very small handful of
+exceptions like the Fujitsu Celsius, Clevo series, or MSI W series, none offer
+anything close to the scale or warranties of the aforementioned big three. 
+
+This is all set to change post Computex 2019 with the Nvidia Studio program.
+Instead of limiting the mobile Quadro series to just three or four big OEMs,
+the chipmaker will open up the platform to well-known makers of sleek and sexy
+gaming laptops. Consumer-grade models like the Asus ZenBook Pro, Gigabyte Aero
+15, Alienware m15, and even the Razer Blade series will begin offering Quadro
+GPUs to complement the standard GeForce GPU SKUs. Workstation users will now
+have a much larger pool of lighter, more portable, and arguably more visually
+attractive options to choose from that is only expected to grow bigger over
+time. 
+
+
+* https://www.notebookcheck.net/MSI-Stealth-17-Studio-review-A-laptop-with-a-quiet-RTX-4080-for-almost-every-occasion.708750.0.html
+
+
+
+
+
 Cluster Management
 ---------------------
 

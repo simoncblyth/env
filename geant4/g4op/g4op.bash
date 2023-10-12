@@ -12,6 +12,24 @@ g4op-usage(){ cat << EOU
 G4 Optical Notes
 ==================
 
+
+Papers
+-------
+
+GODDeSS: a Geant4 extension for easy modelling of optical detector components
+
+* April 26, 2017
+* https://iopscience.iop.org/article/10.1088/1748-0221/12/04/P04026/pdf
+
+
+Forum Comment from Darren Sawkey on Unified model
+---------------------------------------------------
+
+* https://geant4-forum.web.cern.ch/t/roughness-of-surfaces/4095
+* ~/opticks_refs/UNIFIED_model_diagram.png
+* ~/opticks_refs/UNIFIED_model_diagram.txt
+
+
 Objectives
 ----------
 

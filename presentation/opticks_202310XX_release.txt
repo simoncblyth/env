@@ -68,6 +68,28 @@
     </div>
 
 
+Progress
+---------
+
+
+* done one merge : to allow junosw to work with current Opticks
+* another MR is pending : regarding PMT serialization updates, making it fully standalone and adding tests
+* also need to update junoenv custom4 version to 0.1.7
+
+  * fixes polarization bug 
+
+* and beyond that I have at least two further merge requests in my pipeline
+
+  1. envvar controls of SPMT and LPMT geometry offsets + change defaults 
+     (mostly changing offsets from 1e-3 mm to 0.1 mm) : that avoids near-degeneracy 
+     in the geometry and allows DetSim and Opticks to agree (at least in current input photon tests)
+
+  2. while I was in covid isolation without internet access : worked locally 
+     on the problem solids : making 7 problem solids standalone testable.
+     This change has no effect on geometry, just makes then easy to bring into Opticks. 
+
+
+
 
 U4Mesh_test2
 ---------------
@@ -138,10 +160,10 @@ Handling these solids
 
 
     
+.. comment
 
-
-xjacSolid : XJanchorConstruction : lWaterPool
------------------------------------------------
+    xjacSolid : XJanchorConstruction : lWaterPool
+    -----------------------------------------------
 
       
 

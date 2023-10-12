@@ -2,13 +2,51 @@ ai-vi(){ vi $BASH_SOURCE ; }
 ai-env(){ echo -n ; }
 ai-usage(){ cat << EON
 
+
+
+AI Teacher (Univ of Queensland) : Jeremy Howard
+------------------------------------------------
+
+* https://www.youtube.com/@howardjeremyp
+* https://course.fast.ai/
+
+
+Models
+-------
+
+* https://en.wikipedia.org/wiki/Foundation_models
+
+
+August 24, 2023 : Code Llama
+-------------------------------
+
+* https://gizmodo.com/meta-ai-open-source-coding-bot-llama-code-1850770376
+* https://ai.meta.com/blog/code-llama-large-language-model-coding/
+
+* ~/opticks_refs/meta_code_llama_369856151_1754812304950972_1159666448927483931_n.pdf
+
+
+LLMs
+-----
+
+* https://deci.ai/blog/list-of-large-language-models-in-open-source/
+
+
+3D Gaussian Splatting for Real-Time Radiance Field Rendering
+-------------------------------------------------------------
+
+https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/
+
+https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/3d_gaussian_splatting_low.pdf
+
+
+
+
 AIs
 
 * ChatGPT
 * Dall-E 
 * Midjourney
-
-
 
 A Comprehensive Capability Analysis of GPT-3 and GPT-3.5 Series
 https://arxiv.org/ftp/arxiv/papers/2303/2303.10420.pdf

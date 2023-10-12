@@ -1300,9 +1300,9 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo ${INAME:-opticks_20230726_kaiping_software_review} ; }
 #presentation-iname(){ echo ${INAME:-opticks_202309XX_3inch_fix} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20230907_release} ; }
-#presentation-iname(){ echo ${INAME:-opticks_202310XX_release} ; }
+presentation-iname(){ echo ${INAME:-opticks_202310XX_release} ; }
 
-presentation-iname(){ echo ${INAME:-standalone_20230930_cpp_test_debug_ana_with_numpy} ; }
+#presentation-iname(){ echo ${INAME:-standalone_20230930_cpp_test_debug_ana_with_numpy} ; }
 
 
 presentation-notes(){ cat << EON

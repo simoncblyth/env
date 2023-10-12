@@ -28,12 +28,13 @@ sed
     10
 
 
-Quote All Lines of a File
---------------------------
+Quote All Lines of a File : eg to handle filesystem paths with spaces in them when passing to xargs
+----------------------------------------------------------------------------------------------------
 
 ::
 
     sed -e 's/^/"/' -e 's/$/"/' test.txt
+
 
 
 Extract a stretch of lines containing paths and quote them : eg when contain spaces

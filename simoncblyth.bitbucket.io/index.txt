@@ -219,8 +219,6 @@ Opticks Presentations
 
     Hohhot School, Inner Mongolia, China, Sept 30, 2023
 
-    **WIP: Presentation In Preparation**
-
 
 `env/presentation/opticks_20230907_release.html <env/presentation/opticks_20230907_release.html>`_
 

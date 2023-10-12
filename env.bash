@@ -1612,6 +1612,8 @@ scenekit-(){      . $(env-home)/graphics/scenekit/scenekit.bash && scenekit-env 
 g4daeplay-(){      . $(env-home)/geant4/geometry/collada/swift/g4daeplay.bash && g4daeplay-env $* ; }
 chromacpp-(){      . $(env-home)/chroma/chromacpp/chromacpp.bash && chromacpp-env $* ; }
 
+etherealengine-(){ . $(env-home)/graphics/etherealengine/etherealengine.bash && etherealengine-env $* ; }
+webxr-(){          . $(env-home)/graphics/webxr/webxr.bash && webxr-env $* ; }
 
 mocksim-(){      . $(env-home)/geant4/mocksim/mocksim.bash && mocksim-env $* ; }
 utilities-(){      . $(env-home)/nuwa/utilities.bash && utilities-env $* ; }
@@ -1645,7 +1647,7 @@ envcap-(){      . $(env-home)/base/envcap.bash && envcap-env $* ; }
 realtime-(){      . $(env-home)/base/time/realtime.bash && realtime-env $* ; }
 fdp-(){      . $(env-home)/tools/graphviz/fdp.bash && fdp-env $* ; }
 osx_(){      . $(env-home)/osx/osx.bash && osx_env $* ; }
-
+curl-(){     . $(env-home)/tools/curl/curl.bash && curl-env $* ; }
 
 oppr-(){         . $(env-home)/optix/OppositeRenderer/oppr.bash && oppr-env $* ; }
 optixsample1-(){ . $(env-home)/cuda/optix/optix301/sample1manual/optixsample1.bash && optixsample1-env $* ; }
