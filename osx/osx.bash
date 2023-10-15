@@ -759,3 +759,106 @@ set theHeight to imageRep's pixelsHigh()
 
 EON
 }
+
+osx_open_notes(){ cat << EON
+
+man open::
+    --args
+         All remaining arguments are passed to the opened application in the argv parameter to main().  
+         These arguments are not opened or interpreted by the open tool.
+
+google:"macOS open --args swift handle argv"
+
+
+* https://stackoverflow.com/questions/24009050/how-do-i-access-program-arguments-in-swift
+* Swift2: Process.arguments
+* Swift3: CommandLine.arguments
+
+
+let args = NSProcessInfo.processInfo().arguments
+print(args)
+
+
+* https://developer.apple.com/documentation/os/logging
+
+
+EON
+}
+
+
+osx_environment(){ cat << EON
+
+* https://developer.apple.com/documentation/foundation/processinfo/1417911-environment
+* https://stackoverflow.com/questions/12165385/how-to-set-environment-variables-to-an-application-on-osx-mountain-lion
+* https://stackoverflow.com/questions/603785/environment-variables-in-mac-os-x/4567308#4567308
+* https://stackoverflow.com/questions/54724324/access-user-environment-variable-in-swift-for-macos
+
+::
+
+    sudo launchctl setenv EVAR HELLO_WORLD
+    sudo launchctl getenv EVAR 
+    HELLO_WORLD
+
+Never saw the app getting this one though. 
+
+Starting app from Contents/MacOS with an EVAR succeeds to get the envvar into the 
+app : but launcing like this sends no logging to Console::
+
+    epsilon:MacOS blyth$ EVAR=HELLO ./AppName 
+    EVAR HELLO
+
+In other launch situations such as when opening .app from Finder
+get some logging but envvar values are obfuscated to "<private>"
+
+When launching from Xcode get the values from the 
+Product > Scheme menu
+
+
+EON
+}
+
+
+osx_install_macOS_app_into_applications(){ cat << EON
+
+
+https://stackoverflow.com/questions/58355389/is-it-possible-to-add-macos-app-from-a-xcode-project-to-launchpad
+
+Yes. Open the Xcode project for the app that you want. Make sure that the
+target for your build is "My Mac". Then click Product→Archive. Once a new
+window opens with your archive, click Distribute App, then Copy App. Click Next
+then choose a location for the app to be put.
+
+Note: you can skip this if you pay for a developer's account (I think). Next,
+right-click the app file and click Open. It will say it's from an untrusted
+developer (you) because you don't pay for the developer's program.
+
+Now move the app into the Applications folder.
+
+
+
+Yes, GO to Product→Archive→Distribute App→Copy App and move to application folder. 
+
+
+The "Copy App" does : "Export a copy of the archived app"
+
+
+
+EON
+}
+
+osx_app_path(){ 
+   local app=${1:-ImagePreview}
+   osascript -e "POSIX path of (path to application \"$app\")"
+}
+
+osx_lsregister(){
+    /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister $* 
+}
+
+osx_app_find(){
+   local app=${1:-ImagePreview}
+   osx_lsregister -dump | grep -o "/.*${app}.app" | grep -v -E "Caches|TimeMachine|Temporary|/Volumes/$app" | uniq
+}
+
+
+

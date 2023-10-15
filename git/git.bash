@@ -244,14 +244,75 @@ git log
     git --no-pager log 636e^.. --pretty=oneline 
 
 
+git log/diff : between two commits
+------------------------------------------------
 
-git show : to look at a file from a different branch
------------------------------------------------------
+::
+
+    git log 98a8d81..4facbde 
+    git diff 98a8d81..4facbde 
+
+    git diff 4facbde^-1
+       # shorthand for diff between commit and its parent ? 
+       # makes sense for simple commits, unclear with merge commits as 2 parents?
+ 
+    git diff 5e0cb90^-1
+       # doesnt work for initial commit as there us no parent 
+
+
+git checkout 98a8d81 : back to prior commit in detached HEAD state
+--------------------------------------------------------------------
+
+Return to normal with::
+
+   git checkout main
+   git checkout master
+
+
+git clone : locally 
+---------------------
+
+::
+
+    git clone existing_repo_dir new_repo_dir
+
+But this looses the remote info, so better for clone repo of interest on github first 
+and then clone that to laptop. 
+  
+
+
+git show : to look at a file from a different branch or at earlier commit
+----------------------------------------------------------------------------
 
 ::
 
     epsilon:junosw blyth$ git show main:Simulation/DetSimV2/PMTSim/src/junoSD_PMT_v2.cc > /tmp/conflict/junoSD_PMT_v2.cc 
 
+    git show 98a8d8:ImagePreview/DestinationView.swift 
+
+
+git archive : extract distrib archive without repo metadata/history
+---------------------------------------------------------------------
+
+Looses git history, starting fresh from some commit. 
+Great for speculative investigations:: 
+
+    # create zip archive of some commit  
+    git archive -o /tmp/98a8d81.zip 98a8d81 
+    unzip -l /tmp/98a8d81.zip
+
+    # create reponame in bitbucket web interface 
+    cd
+    git clone git@bitbucket.org:simoncblyth/reponame.git   # clone the empty 
+
+    unzip /tmp/98a8d81.zip -d reponame                     # populate from zip
+
+    git add . 
+    git commit -m "initial commit from ..."
+    git push 
+
+
+ 
 
 git show : quick look at earlier versions without needing to checkout
 -------------------------------------------------------------------------

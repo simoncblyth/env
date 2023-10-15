@@ -28,6 +28,14 @@ sed
     10
 
 
+Reverse lines 
+----------------
+
+::
+
+   cat demo.txt | sed '1!G;h;$!d'
+
+
 Quote All Lines of a File : eg to handle filesystem paths with spaces in them when passing to xargs
 ----------------------------------------------------------------------------------------------------
 

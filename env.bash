@@ -1647,7 +1647,10 @@ envcap-(){      . $(env-home)/base/envcap.bash && envcap-env $* ; }
 realtime-(){      . $(env-home)/base/time/realtime.bash && realtime-env $* ; }
 fdp-(){      . $(env-home)/tools/graphviz/fdp.bash && fdp-env $* ; }
 osx_(){      . $(env-home)/osx/osx.bash && osx_env $* ; }
+console-(){  . $(env-home)/osx/console.bash && console-env $* ; }
 curl-(){     . $(env-home)/tools/curl/curl.bash && curl-env $* ; }
+api-(){      . $(env-home)/graphics/api/api.bash && api-env $* ; }
+mojo-(){     . $(env-home)/mojo/mojo.bash && mojo-env $* ; }
 
 oppr-(){         . $(env-home)/optix/OppositeRenderer/oppr.bash && oppr-env $* ; }
 optixsample1-(){ . $(env-home)/cuda/optix/optix301/sample1manual/optixsample1.bash && optixsample1-env $* ; }

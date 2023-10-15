@@ -1,14 +1,45 @@
 ai-vi(){ vi $BASH_SOURCE ; }
+ai-info(){ echo $BASH_SOURCE ; }
 ai-env(){ echo -n ; }
 ai-usage(){ cat << EON
-
-
 
 AI Teacher (Univ of Queensland) : Jeremy Howard
 ------------------------------------------------
 
 * https://www.youtube.com/@howardjeremyp
 * https://course.fast.ai/
+
+
+AI IHEP
+-------
+
+* https://ai.ihep.ac.cn/
+* https://chat.ihep.ac.cn/
+
+* https://note.ihep.ac.cn/s/aGJRd4g65#
+
+AI for Particle Physics: Papers & Datasets
+
+
+zipnerf : Zip-NeRF: Anti-Aliased Grid-Based Neural Radiance Fields
+-------------------------------------------------------------------
+
+* https://jonbarron.info/zipnerf/
+* https://arxiv.org/abs/2304.06706
+* https://arxiv.org/pdf/2304.06706.pdf
+* ~/opticks_refs/zipnerf_2304.06706.pdf
+
+* https://github.com/SuLvXiangXin/zipnerf-pytorch
+
+Interesting : C based ML libs
+--------------------------------
+
+* https://github.com/ggerganov/ggml
+* C : tensor library for machine learning 
+
+
+* https://bellard.org/ts_server/
+* TextSynth 
 
 
 Models

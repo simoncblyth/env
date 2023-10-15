@@ -119,6 +119,109 @@ macports
     port info vtk   
 
 
+Looking at the vtk that pyvista is using
+------------------------------------------
+
+::
+
+    In [1]: import vtk
+
+    In [2]: vtk.__file__
+    Out[2]: '/Users/blyth/miniconda3/lib/python3.7/site-packages/vtkmodules/all.py'
+
+    epsilon:site-packages blyth$ pwd
+    /Users/blyth/miniconda3/lib/python3.7/site-packages
+    epsilon:site-packages blyth$ cat vtk-8.2.0.egg-info
+    Metadata-Version: 2.1
+    Name: vtk
+    Version: 8.2.0
+    Summary: VTK is an open-source toolkit for 3D computer graphics, image processing, and visualization
+    Platform: UNKNOWN
+    epsilon:site-packages blyth$ 
+
+
+VTK issue : notes lots to do with OpenXR
+-------------------------------------------
+
+* https://gitlab.kitware.com/vtk/vtk/-/issues
+* https://examples.vtk.org/site/
+
+
+VTK C++ Example
+-----------------
+
+* https://examples.vtk.org/site/Cxx/GeometricObjects/CylinderExample/
+
+
+* pyvista VTK on macOS is too old::
+
+   cd ~/env/graphics/vtk/vtk_examples/CylinderExample
+   cmake -DVTK_DIR:PATH=$(vtk-dir)/lib/cmake/vtk-8.2
+   ## NOPE LOTS OF MISSING MODULES : THAT MUST BE TOO OLD
+
+* https://examples.vtk.org/site/Cxx/IO/ReadPLOT3D/
+
+
+
+N install into /data/blyth/vtk/source aka ~/vtk/source
+--------------------------------------------------------
+
+* https://docs.vtk.org/en/latest/build_instructions/index.html
+* used ccmake to configure with prefix /usr/local/vtk following 
+  instructions at above link 
+
+::
+
+   git clone --recursive https://gitlab.kitware.com/vtk/vtk.git ~/vtk/source
+   
+Installed into /usr/local/vtk/lib64/cmake/vtk-9.3/
+
+
+VTK Shaders
+--------------
+
+* https://gitlab.kitware.com/vtk/vtk/-/tree/master/Rendering/OpenGL2/glsl
+* https://gitlab.kitware.com/vtk/vtk/-/blob/master/Rendering/OpenGL2/glsl/readme.txt
+
+* https://examples.vtk.org/site/Cxx/Shaders/BozoShaderDemo/
+
+Has example of updating a uniform in the shader
+
+* https://examples.vtk.org/site/Cxx/Utilities/BrownianPoints/
+* https://examples.vtk.org/site/Cxx/VolumeRendering/OpenVRVolume/
+
+
+VTK Geometry Shader
+--------------------
+
+* https://discourse.vtk.org/t/geometry-shader-implementation/1189
+
+how to inject Geometry Shader Code?
+
+In VTK 8: vtkOpenGLPolyDataMapper::AddShaderReplacement 8
+In VTK 9 (and current master): vtkShaderProperty::AddGeometryShaderReplacement 20
+
+I found that AddShaderReplacement didn’t work from Python for geometry shaders,
+so I have used vtkOpenGLPolyDataMapper::SetGeometryShaderCode 6.
+
+You can see a simple example here 45 that takes in a cube and replaces each
+vertex with a pyramid. The example uses the FURY 11 library, but the shader
+part is raw VTK.
+
+* https://github.com/dmreagan/fury-shaders/blob/master/geometry.py
+
+
+
+VTK USD
+---------
+
+* https://discourse.vtk.org/t/universal-scene-description-usd-scene-importer-exporter/6452/3
+* https://docs.omniverse.nvidia.com/connect/latest/paraview.html
+
+NVIDIA Omniverse ParaView plugin  
+
+
+
 EOU
 }
 vtk-dir(){ echo $HOME/miniconda3/pkgs/vtk-8.2.0-py37hd5eadda_218 ; }

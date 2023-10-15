@@ -16,6 +16,22 @@ The abstract submission deadline is Sept 16, 2023. The registration deadline is
 Oct 1, 2023. 
 
 
+Registration
+--------------
+
+* https://indico.ihep.ac.cn/event/19316/registrations/1581/
+
+Arrival: Oct 22, 2023 (Sun)
+Departure: Oct 28, 2023 (Sat)
+Accommodation: Nanjing Grand Hotel (Single Room) ￥450/night 
+
+Registration fee:
+- 2000 CNY/person for staff and postdocs
+- 1000 CNY/person for students
+- No registration fee for online participants
+
+
+
 2023 CEPC Workshop in Nanjing
 -----------------------------
 

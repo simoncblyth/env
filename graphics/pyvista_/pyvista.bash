@@ -25,6 +25,10 @@ domain-scientists so they can focus on the research questions at hand.
 
 
 
+TODO : Locate GUI window navigation control in pyvista as guide for doing similar
+-----------------------------------------------------------------------------------
+
+
 Exit Speedup
 --------------
 
@@ -100,6 +104,23 @@ Plotter Interactive Key Mappings
     plotting.py:        self.add_key_event('plus', lambda: self.increment_point_size_and_line_width(1))
     plotting.py:        self.add_key_event('minus', lambda: self.increment_point_size_and_line_width(-1))
     epsilon:plotting blyth$ 
+
+
+plotting.iren : vtk.vtkRenderWindowInteractor
+-----------------------------------------------
+
+::
+
+    3758         else:  # Allow user to interact
+    3759             self.iren = vtk.vtkRenderWindowInteractor()
+    3760             self.iren.LightFollowCameraOff()
+    3761             self.iren.SetDesiredUpdateRate(30.0)
+    3762             self.iren.SetRenderWindow(self.ren_win)
+    3763             self.enable_trackball_style()
+    3764             self._observers = {}    # Map of events to observers of self.iren
+    3765             self._add_observer("KeyPressEvent", self.key_press_event)
+    3766             self.update_style()
+
 
 
 
