@@ -71,23 +71,85 @@
 Progress
 ---------
 
+* MERGED : allow junosw to work with current Opticks
+* MERGED : PMT serialization fully standalone and adding tests
+* MERGED : LPMT SPMT virtual wrapper thickness envvar controls 
+* MERGED : SJFixtureConstruction.cc bugfix use of uninitialized constituent, issue 123
+* MERGED : add PMTSIM_STANDALONE debug interface to seven fixture solids
+* TODO : update junoenv/custom4 version to 0.1.7 (fixes polarization bug) 
+* TODO : update junoenv/opticks version to 0.2.? (currently testing with head) 
 
-* done one merge : to allow junosw to work with current Opticks
-* another MR is pending : regarding PMT serialization updates, making it fully standalone and adding tests
-* also need to update junoenv custom4 version to 0.1.7
 
-  * fixes polarization bug 
+About : LPMT SPMT virtual wrapper thickness 
+----------------------------------------------
 
-* and beyond that I have at least two further merge requests in my pipeline
+**Defaults not yet changed, still too small**
 
-  1. envvar controls of SPMT and LPMT geometry offsets + change defaults 
-     (mostly changing offsets from 1e-3 mm to 0.1 mm) : that avoids near-degeneracy 
-     in the geometry and allows DetSim and Opticks to agree (at least in current input photon tests)
+For opticks to match detsim need to increase offsets::
 
-  2. while I was in covid isolation without internet access : worked locally 
-     on the problem solids : making 7 problem solids standalone testable.
-     This change has no effect on geometry, just makes then easy to bring into Opticks. 
+  export NNVTMaskManager__MAGIC_virtual_thickness_MM=0.10      # def: 0.05
+  export HamamatsuMaskManager__MAGIC_virtual_thickness_MM=0.10 # def: 0.05 
+  export Tub3inchPMTV3Manager__VIRTUAL_DELTA_MM=0.10           # def: 1.e-3 
 
+* TODO: check for potential overlaps before increase defaults
+* TODO: check how small Opticks can handle, suspect:
+
+  * 0.07 mm maybe OK
+  * 0.05 mm at edge
+  * 1e-3 mm no way  
+
+
+:small:`SJFixtureConstruction.cc bugfix use of uninitialized, issue 123`
+-------------------------------------------------------------------------------------
+
+* https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/123  SPOT THE BUG:
+
+.. raw:: html
+
+   <pre class="mypretiny">
+   G4SubtractionSolid* solidSphere_sub ; 
+   G4SubtractionSolid* solidSJFixture_sub ;
+   solidSphere_sub = new G4SubtractionSolid("solidSphere_sub", solidSJFixture_box, solidSJFixture_ball);
+   solidSJFixture_sub = new G4SubtractionSolid("solidSJFixture_sub",solidSJFixture_down, solidSJFixture_sub, 0, 
+           G4ThreeVector(0.*mm, 0*mm, m_radLS     - 0.025*mm  /*17699.975*mm*/ ));
+   </pre>
+
+Compilation warning, unfortunately drowned by all the others.
+
+.. raw:: html
+
+   <pre class="mypretiny">
+   warning: variable 'solidSJFixture_sub' is uninitialized when used within its own initialization
+   </pre>
+
+* USE UNINITIALIZED : SEGV EVERY TIME => **CODE NOT BEING RUN ?**
+
+
+.. sidebar:: :small:`Four solids using this : > 1yr`
+
+    .. class:: small
+
+        +----------------------------+ 
+        | XJanchorConstruction.cc    |
+        +----------------------------+ 
+        | SJCLSanchorConstruction.cc |
+        +----------------------------+ 
+        | SJFixtureConstruction.cc   |
+        +----------------------------+ 
+        | SJReceiverConstruction.cc  | 
+        +----------------------------+ 
+
+
+.. class:: small
+
+    *Examples/Tutorial/python/Tutorial/JUNODetSimModule.py* reveals:
+
+    * default  ``m_simplify_calib_anchor:true``
+    * ``--simplify-calib-anchor`` always ON 
+    * used by 4 solids since SVN times
+    * **ACRYLIC OVERLAPS ALREADY DONE > 1YR** 
+
+    :r:`The bug turned out to be useful`
 
 
 
