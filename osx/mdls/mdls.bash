@@ -7,7 +7,22 @@ mdls-usage(){ cat << EOU
 
 
 
+macos app programmatically swift access to mdls metadata
 
+Programmatic access to mdls metadata ? ::
+
+    MDItemRef item = MDItemCreateWithURL(NULL, (__bridge CFURLRef)url);
+    NSArray* names = @[ (__bridge NSString*)kMDItemAlbum, /* ... */ ];
+    NSDictionary* dictionary = CFBridgingRelease(MDItemCopyAttributes(item, (__bridge CFArrayRef)names));
+    CFRelease(item);
+
+
+
+* https://github.com/RhetTbull/osxmetadata
+
+* https://developer.apple.com/documentation/foundation/nsurltagnameskey
+
+* https://developer.apple.com/documentation/coreservices/file_metadata/mditem
 
 EOU
 }

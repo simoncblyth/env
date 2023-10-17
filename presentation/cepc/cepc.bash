@@ -32,6 +32,18 @@ Registration fee:
 
 
 
+CEPC Talk : Fri Oct 29 : 09:00-09:30 
+---------------------------------------
+
+* https://indico.ihep.ac.cn/event/19316/timetable/
+* https://indico.ihep.ac.cn/event/19316/sessions/12209/#20231027
+
+
+Opticks : GPU Optical Photon Simulation via NVIDIA OptiX
+CEPC Room 4, GrandHotelNanjing
+09:00 - 09:30
+
+
 2023 CEPC Workshop in Nanjing
 -----------------------------
 

@@ -1282,6 +1282,7 @@ chomp(){   perl -pi -e 'chomp if eof' $* ; : env/env.bash ;  }
 djext-(){    . $(env-home)/dj/djext.bash && djext-env $* ; }
 nosedjango-(){      . $(env-home)/dj/nosedjango.bash && nosedjango-env $* ; }
 git-(){             . $(env-home)/git/git.bash && git-env $* ; }
+gitu-(){            . $(env-home)/git/gitu.bash && gitu-env $* ; }
 grep-(){            . $(env-home)/grep/grep.bash && grep-env $* ; }
 formalchemy-(){     . $(env-home)/sa/formalchemy.bash && formalchemy-env $* ; }
 #rum-(){             . $(env-home)/rum/rum.bash && rum-env $* ; }

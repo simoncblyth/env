@@ -33,6 +33,31 @@ Good Reference
 * https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow
 
 
+git stash : clean dirty working copy without loosing the changes
+---------------------------------------------------------------------
+
+When want to get some changes against the main but are on 
+some other branch. Essentially when want to move working copy changes
+to another branch.
+
+::
+
+    git stash            ## without untracked 
+    git stash -u                          
+    git stash --include-untracked    
+ 
+    git stash list
+
+    git stash apply 
+
+HUH: was a bit surprised that "git stash apply" auto-added the changes,
+I had to reset HEAD in order to check the diffs : which is my normal 
+workflow before adding and committing. 
+   
+
+* https://www.freecodecamp.org/news/git-stash-commands/
+
+
 Git Help
 ----------
 

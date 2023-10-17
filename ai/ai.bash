@@ -21,6 +21,12 @@ AI IHEP
 AI for Particle Physics: Papers & Datasets
 
 
+macOS app : PromptToImage using StableDiffusion with CoreML
+-------------------------------------------------------------
+
+* https://github.com/TheMurusTeam/PromptToImage
+
+
 zipnerf : Zip-NeRF: Anti-Aliased Grid-Based Neural Radiance Fields
 -------------------------------------------------------------------
 

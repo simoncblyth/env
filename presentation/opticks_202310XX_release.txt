@@ -97,14 +97,14 @@ U4Mesh_test2
 ::
 
     GEOM=xjfcSolid ~/opticks/u4/tests/U4Mesh_test2.sh
-    GEOM=xjacSolid ~/opticks/u4/tests/U4Mesh_test2.sh
+    GEOM=sjrfSolid ~/opticks/u4/tests/U4Mesh_test2.sh
+    GEOM=facrSolid ~/opticks/u4/tests/U4Mesh_test2.sh
 
+    GEOM=xjacSolid ~/opticks/u4/tests/U4Mesh_test2.sh
     GEOM=sjclSolid ~/opticks/u4/tests/U4Mesh_test2.sh
     GEOM=sjfxSolid ~/opticks/u4/tests/U4Mesh_test2.sh
     GEOM=sjrcSolid ~/opticks/u4/tests/U4Mesh_test2.sh
-    GEOM=sjrfSolid ~/opticks/u4/tests/U4Mesh_test2.sh
 
-    GEOM=facrSolid ~/opticks/u4/tests/U4Mesh_test2.sh
  
 
 
@@ -119,24 +119,27 @@ Handling these solids
     | xjfcSolid | XJfixtureConstruction         | lWaterPool : monstrous many box + cyl union                          |
     |           | (PE_PA)                       |                                                                      |
     +-----------+-------------------------------+----------------------------------------------------------------------+
-    | xjacSolid | XJanchorConstruction    [2]   | lWaterPool : cone subtract big sphere union cylinder                 | 
-    |           | (Acrylic)                     | (small-big subtraction precision + perf issue, expect coin)          |
-    +-----------+-------------------------------+----------------------------------------------------------------------+
-    | sjclSolid | SJCLSanchorConstruction [1]   | lTarget : bizarre union box and cone-(bigBox-bigSphere)              |
-    |           | (Acrylic)                     |                                                                      | 
-    +-----------+-------------------------------+----------------------------------------------------------------------+
-    | sjfxSolid | SJFixtureConstruction   [1]   | lTarget : similar bizarre union box and cone-(bigBox-bigSphere)      |
-    |           | (Acrylic)                     | ORIGINAL WITH COMPILATION WARNING + SEGV BUG !!!!                    |
-    +-----------+-------------------------------+----------------------------------------------------------------------+
-    | sjrcSolid | SJReceiverConstruction  [1]   | lTarget : again union cyl and cone-(bigBox-bigSphere)                |
-    |           | (Acrylic)                     |                                                                      |
-    +-----------+-------------------------------+----------------------------------------------------------------------+
     | sjrfSolid | SJReceiverFasternConstruction | lTarget : another monstrous many box and cyl union                   |
     |           | (PE_PA)                       |                                                                      |
     +-----------+-------------------------------+----------------------------------------------------------------------+
     | facrSolid | FastenerAcrylicConstruction   | lWaterPool, no overlap annulus + 8 screw can become single listnode  |  
     |           | (Steel)                 [3]   |                                                                      |
     +-----------+-------------------------------+----------------------------------------------------------------------+
+    | xjacSolid | XJanchorConstruction    [2]   | lWaterPool : cone subtract big sphere union cylinder                 | 
+    |           | (Acrylic)                     | (small-big subtraction precision + perf issue, expect coin)          |
+    |           |                               |  **SIMPLIFIED : FLAT TOP**                                           |  
+    +-----------+-------------------------------+----------------------------------------------------------------------+
+    | sjclSolid | SJCLSanchorConstruction [1]   | lTarget : bizarre union box and cone-(bigBox-bigSphere)              |
+    |           | (Acrylic)                     | **SIMPLIFIED : FLAT BOT**                                            | 
+    +-----------+-------------------------------+----------------------------------------------------------------------+
+    | sjfxSolid | SJFixtureConstruction   [1]   | lTarget : similar bizarre union box and cone-(bigBox-bigSphere)      |
+    |           | (Acrylic)                     | ORIGINAL WITH COMPILATION WARNING + SEGV BUG !!!!                    |
+    |           |                               | **SIMPLIFIED : FLAT BOT**                                            | 
+    +-----------+-------------------------------+----------------------------------------------------------------------+
+    | sjrcSolid | SJReceiverConstruction  [1]   | lTarget : again union cyl and cone-(bigBox-bigSphere)                |
+    |           | (Acrylic)                     | **SIMPLIFIED : FLAT BOT**                                            |
+    +-----------+-------------------------------+----------------------------------------------------------------------+
+
     
 
 .. class:: small
@@ -156,7 +159,7 @@ Handling these solids
     that will both need tree + listnode handling.
 
 
-
+    
 
 
     
