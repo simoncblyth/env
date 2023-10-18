@@ -32,6 +32,19 @@ EOU
 }
 
 
+gitu-checkout-branch-created-upstream(){ cat << EOU
+
+::
+
+    git fetch origin
+    branch=blyth-custom4-update-fixing-polarization-bug-plus-tidy
+    git checkout -b $branch origin/$branch
+
+
+EOU
+}
+
+
 
 
 

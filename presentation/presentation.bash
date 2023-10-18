@@ -1300,10 +1300,9 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo ${INAME:-opticks_20230726_kaiping_software_review} ; }
 #presentation-iname(){ echo ${INAME:-opticks_202309XX_3inch_fix} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20230907_release} ; }
-presentation-iname(){ echo ${INAME:-opticks_202310XX_release} ; }
-
+#presentation-iname(){ echo ${INAME:-opticks_202310XX_release} ; }
 #presentation-iname(){ echo ${INAME:-standalone_20230930_cpp_test_debug_ana_with_numpy} ; }
-
+presentation-iname(){ echo ${INAME:-opticks_20231027_nanjing_cepc_workshop} ; }
 
 presentation-notes(){ cat << EON
 
@@ -1438,7 +1437,7 @@ presentation-writeup(){
 
 presentation-url-local(){ echo http://localhost/env/presentation/$(presentation-oname).html?page=${1:-0} ; }
 presentation-open(){
-   open $(presentation-url-local $*)
+   open -a Safari $(presentation-url-local $*)
    sleep 0.3
    slides-
    slides-safari    ## just resizes browser
@@ -1516,10 +1515,5 @@ presentation-rst2talk-(){
    echo $msg cmd $cmd
    eval $cmd
 }
-
-
-
-
-
 
 
