@@ -14,6 +14,9 @@ EOU
 }
 
 gitu-following-upstream-merge-tidy-and-get-back-to-main(){ cat << EOU
+FOLLOWING UPSTREAM MERGE TIDY UP OLD BRANCH AND GET BACK TO MAIN
+------------------------------------------------------------------
+
 For example upstream is a gitlab repo where merges are controlled by web interface::
 
     git status            # clean : on the old development branch 

@@ -1193,7 +1193,7 @@ EOU
 presentation-dir(){ echo $(env-home)/presentation ; }
 presentation-bdir(){ echo $HOME/simoncblyth.bitbucket.io/env/presentation ; }
 presentation-index-(){ index.py $(presentation-bdir) ; }
-presentation-index(){ open http://localhost/env/presentation/index.html ; }
+presentation-index(){ open -a Safari.app http://localhost/env/presentation/index.html ; }
 
 
 presentation-c(){   cd $(presentation-dir); }

@@ -13,6 +13,170 @@ See Also
 * clt- regarding CommandLineTools, xcode-select, xcrun
 
 
+connect view to IBOutlet in code
+----------------------------------
+
+1. open the storyboard with the view
+2. open assistant editor (sumbol is two intersecting circles)
+3. control drag a line from storyboard view representation into code
+   to plant an IBOutlet and connect it 
+
+
+ISSUE OF CERTIFICATES IN NEW EMPTY PROJECT 
+----------------------------------------------
+
+WAS GETTING BUILD ERRORS RE CERTIFICATES IN A NEW EMPTY Xcode PROJECT 
+BUT ON TRYING AGAIN GOT codesign permissions dialog to access Keychain 
+which managed to get the empty project to build
+
+see "man codesign" (NB that means code-sign NOT co-design)
+
+Looking at Keychain.app observe a new certificate with expiry date 
+exactly one year hence : "Oct 17, 2024 7:17:27 PM"
+
+SUSPECT THE PROBLEM WAS DUE TO AN EXPIRED CERTIFICATE 
+TOGETHER WITH NETWORK ISSUES THAT PREVENTED GETTING A NEW ONE
+
+
+settings to allow building new xcode project 
+---------------------------------------------
+
+Signing
+
+* YES : Automatically manage signing 
+
+  * Xcode will create and update profiles, app IDs and certificates
+
+* Team : Simon Blyth (Personal Team)
+
+* Provisioning Profile None Required
+* Signing certificate Mac Developer : blyth@hep1.phys.ntu.edu.tw (K6...  
+
+
+FURTHER ISSUE : "Message from debugger: unable to attach" : FIX BY SWITCH OFF SANDBOX
+-----------------------------------------------------------------------------------------
+
+* https://stackoverflow.com/questions/67491801/xcode-message-from-debugger-unable-to-attach
+
+::
+
+    I had the same problem today. Also still using High Sierra. Every year, after
+    the automatic renewal of the Mac Developer certificate, I have to 'trust' it in
+    Keychain Access (look up new certificate, Get Info in the contextual menu, open
+    Trust section, next to When using the certificate: Always Trust). Afterwards, I
+    also did Clean Build Folder in Xcode, don't know if that was needed. But my
+    debugger is now happy again.
+
+
+Trusting New Certificates
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* KeyChain Access > Certificates > Select Certificate  > Get Info > Trust
+
+  * When using this certificate : [Use System Defaults/Always Trust/Never Trust] 
+  * select **Always Trust** at the top selector : it changes them all 
+
+
+Sandbox failure issue
+~~~~~~~~~~~~~~~~~~~~~~~
+
+After trusting the new certificate, get further but still get an lldb 
+assembly stack dump : starting "_libsecinit_setup_secinitd_client" 
+readable text within the assembly dump makes it look sandbox related
+
+* https://www.simplykyra.com/how-to-debug-and-solve-an-app-sandbox-related-issue-within-the-xcode-ide/
+
+Switching off the Sandbox in the entitlements file enables the app to run and to
+see output in console and debugger.   Seems that these are both sandboxed.  
+
+
+apple free developer account certificate expired
+--------------------------------------------------
+
+* https://www.lifewire.com/renew-apple-developers-certificate-1994289
+
+
+macOS app certificates needed ? 
+--------------------------------
+
+* https://developer.apple.com/forums/thread/671008
+
+That depends on what your goals are. macOS supports three distribution models:
+
+* Development
+* Mac App Store / TestFlight
+* Developer ID
+
+
+* https://developer.apple.com/documentation/xcode/distributing-your-app-to-registered-devices
+
+Prepare for your buildin page link
+
+To prepare to distribute your build, you need:
+
+* An App ID that you set up for your app in your developer account.
+
+* A signing certificate with the public and private key. 
+  
+  * On iOS, iPadOS, watchOS, or tvOS you need a distribution certificate; 
+  * on macOS you need a development certificate. 
+
+  For more information on signing certificates, see Certificates.
+
+  * https://developer.apple.com/support/certificates/
+
+
+* A list of test devices registered in your developer account.
+
+* A provisioning profile for your app and list of test devices. 
+  
+  * On iOS, iPadOS, watchOS, or tvOS you need a distribution profile; 
+  * on macOS you need a development profile.
+
+
+
+
+Build Fails with messages about Certificates/Signing
+--------------------------------------------------------
+
+* https://developer.apple.com/forums/thread/67366
+
+
+Try:
+
+1. Xcode->Preferences->Accounts reenter AppleID password to signin again
+   (possibly this is caused by using/starting Xcode when not connected to network)
+
+2. 
+
+Apple 2FA
+------------
+
+* https://support.apple.com/en-us/HT204915
+
+
+
+
+No Signing Certificate
+-------------------------
+
+* https://developer.apple.com/forums/thread/106226
+
+
+Config Xcode to use proxy ?
+-------------------------------
+
+* https://stackoverflow.com/questions/72030527/how-to-force-xcode-to-use-proxy-settings-for-source-control
+
+Maybe at system level with::
+
+   System Preferences->Network->Advanced->Proxies 
+
+
+* https://forums.swift.org/t/xcode-not-follows-system-proxy-settings-to-resolve-swiftpm-dependencies/34137/7
+
+
+
 Versions
 ---------
 
