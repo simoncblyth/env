@@ -622,6 +622,12 @@ slides-ppath(){     echo $(apache-htdocs $1)/env/$(slides-branch)/$(slides-name)
 slides-url-page(){  echo "$(slides-url)?p=$1" ; }
 
 slides-url-pagecount(){ curl $(slides-url) 2> /dev/null | grep div\ class=\"slide\" /dev/stdin | wc -l ; }
+slides-url-pagecount-notes(){ cat << EON
+If this returns zero then check if curl proxy usage is configured via envvar or ~/.curlrc
+and if so disable that.
+EON
+}
+
 
 slides-urls(){
    local pc=$(slides-url-pagecount)
@@ -740,7 +746,7 @@ slides-capture(){
       else
 
           echo $msg opening url "$url" 
-          open "$url"
+          open -a Safari.app "$url"
           #slides-safaria    # pressing key a : makes the page selector GUI invisible via javascript
           cmd="screencapture -T0 -t$fmt -w -i -o $name"
           #

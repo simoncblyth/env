@@ -2364,6 +2364,15 @@
     Matplotlib_scatter_demo
     PDSH/Matplotlib_scatter_demo.png 1280px_720px
 
+    Opticks : CEPC Calorimeter Sim?
+    cepc/210608_shKo_EIC/titlepage.png 640px_360px 640px_0px
+    cepc/210608_shKo_EIC/speeding_up_optical_photon_tracking_1.png 640px_360px 0px_360px
+    cepc/210608_shKo_EIC/speeding_up_optical_photon_tracking_2.png 640px_360px 640px_360px
+
+    OptiX Title Banner
+    optix/optix_title_banner.png 1280px_221px 0px_0px
+    optix/optix_in_the_news.png 1280px_519px 0px_221px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

@@ -1073,4 +1073,6 @@ nvidia-version(){
    cat /proc/driver/nvidia/version      # Linux Only 
 }
 
+nvidia-smi-loop(){ nvidia-smi --loop=1 ; }
+
 

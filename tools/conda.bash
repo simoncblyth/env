@@ -11,6 +11,8 @@ Conda
 Refs
 -----
 
+* https://edcarp.github.io/introduction-to-conda-for-data-scientists/05-configuration/index.html
+
 * http://jakevdp.github.io/blog/2016/08/25/conda-myths-and-misconceptions/
 * https://github.com/conda-forge
 * https://conda-forge.org/
@@ -20,6 +22,60 @@ Refs
 
    mv Miniconda3-latest-MacOSX-x86_64.sh Miniconda3-4.5.11-MacOSX-x86_64.sh
    # identified by digest after making mistake of installing "latest"
+
+
+conda info
+------------
+
+Basic info including channel urls
+
+
+Listing channels
+-----------------
+
+::
+
+    N[blyth@localhost ~]$ conda config --show channels
+    channels:
+      - defaults
+
+
+    epsilon:opticks blyth$ conda config --show channels
+    channels:
+      - conda-forge
+      - defaults
+
+
+conda list
+------------
+
+::
+
+    epsilon:opticks blyth$ conda list | grep pyvista
+    pyvista                   0.25.3                     py_0    conda-forge
+    pyvistaqt                 0.1.1                      py_0    conda-forge
+
+
+conda install pyvista==0.25.3
+-------------------------------
+
+::
+
+    N[blyth@localhost ~]$ conda install pyvista==0.25.3
+
+
+
+
+Adding conda-forge
+--------------------
+
+::
+
+    N[blyth@localhost ~]$ conda config --add channels conda-forge
+    N[blyth@localhost ~]$ conda config --show channels
+    channels:
+      - conda-forge
+      - defaults
 
 
 conda source
