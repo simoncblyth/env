@@ -12,7 +12,6 @@ EOU
 cats-base(){ echo ${CATS_BASE:-/data/blyth/cats} ; }
 cats-clhep-url(){  echo https://proj-clhep.web.cern.ch/proj-clhep/dist1/clhep-2.4.6.2.tgz ; }
 cats-geant4-url(){ echo https://geant4-data.web.cern.ch/releases/geant4-v11.1.2.tar.gz ; } 
-cats-root-url(){   echo 
 
 cats-init(){
     local base=$(cats-base)
@@ -44,11 +43,17 @@ cats-clhep(){
 
     cd $edir
     local bdir=CLHEP-build
+    local idir=CLHEP-install
     mkdir -p $bdir && cd $bdir
 
-    cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCLHEP_BUILD_CXXSTD=-std=c++17 ../CLHEP
-    ninja
-    #sudo ninja install
+    # -GNinja
+    cmake \
+        -DCMAKE_INSTALL_PREFIX=$idir \ 
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCLHEP_BUILD_CXXSTD=-std=c++17 \
+        ../CLHEP
+    make
+    make install
 }
 
 
@@ -65,8 +70,8 @@ cats-geant4(){
 
     mkdir -p $bdir && cd $bdir
 
+    # -GNinja 
     cmake  \
-        -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=../$idir \
         -DGEANT4_BUILD_BUILTIN_BACKTRACE=OFF \
@@ -81,8 +86,8 @@ cats-geant4(){
         -DGEANT4_USE_OPENGL_X11=ON \
          ../$edir
 
-    ninja
-    ninja install
+    make
+    make install
 }
 
 cats-root(){
@@ -120,8 +125,9 @@ cats-cats(){
     #cd ../
     #mkdir CaTS-build
     #cd CaTS-build
+    #-GNinja \
 
-    cmake -GNinja \
+    cmake \
       -DCMAKE_BUILD_TYPE=Release \
       -DWITH_G4CXOPTICKS=ON \
       -DCMAKE_PREFIX_PATH="${LOCAL_BASE}/opticks/externals;${LOCAL_BASE}/opticks" \
@@ -130,7 +136,7 @@ cats-cats(){
       -DCMAKE_INSTALL_PREFIX=../CaTS-install \
       ../CaTS
 
-    ninja install
+    make install
     cd ../CaTS-install/bin
 }
 

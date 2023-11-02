@@ -13,6 +13,19 @@ See Also
 
 * github-
 
+Adding a remote
+-----------------
+
+::
+
+    git remote add ihep git@code.ihep.ac.cn:blyth/j.git
+
+
+Pulling from an additional remote::
+
+    git pull ihep master
+
+
 
 Reference
 ------------

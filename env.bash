@@ -2125,5 +2125,6 @@ pytorch-(){      . $(env-home)/pytorch/pytorch.bash && pytorch-env $* ; }
 usd-(){       . $(env-home)/graphics/usd/usd.bash && usd-env $* ; }
 
 cats-(){      . $(env-home)/cats/cats.bash && cats-env $* ; }
+slurm-(){     . $(env-home)/slurm/slurm.bash && slurm-env $* ; }
 
 
