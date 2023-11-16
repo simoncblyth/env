@@ -13,6 +13,143 @@ See Also
 
 * github-
 
+
+
+HUH : git pull via proxy dropping file 127.0.0.1:8080::
+
+    L7[blyth@lxslc708 opticks]$ git pull 
+    Ncat: Version 7.50 ( https://nmap.org/ncat )
+    Ncat: Connected to 2406:da00:ff00::22cd:e0db:22.
+    Already up to date.
+    L7[blyth@lxslc708 opticks]$ l
+    total 533
+     1 -rw-r--r--   1 blyth dyw 42364 Nov 15 21:06 127.0.0.1:8080
+     4 drwxr-xr-x   8 blyth dyw  4096 Nov 15 21:06 .git
+     4 drwxr-xr-x  43 blyth dyw  4096 Nov 15 21:06 .
+    20 drwxr-xr-x   4 blyth dyw 20480 Nov 15 21:00 sysrap
+     4 drwxr-xr-x   9 blyth dyw  4096 Nov 15 20:58 ..
+
+
+Looks like xxd dump:: 
+
+  1 [0000]   53 53 48 2D 32 2E 30 2D   4F 70 65 6E 53 53 48 5F   SSH-2.0- OpenSSH_
+  2 [0010]   37 2E 34 0D 0A                                      7.4..
+  3 [0000]   53 53 48 2D 32 2E 30 2D   63 6F 6E 6B 65 72 5F 61   SSH-2.0- conker_a
+  4 [0010]   62 34 63 65 38 38 39 63   65 20 32 36 39 34 30 65   b4ce889c e 26940e
+  5 [0020]   61 35 61 66 65 30 0D 0A                             a5afe0..
+  6 [0000]   00 00 02 5C 0F 14 55 36   7E E2 4B E5 ED B7 62 B1   ...\..U6 ~.K...b.
+  7 [0010]   A5 A1 87 4B 9A B7 00 00   00 97 63 75 72 76 65 32   ...K.... ..curve2
+  8 [0020]   35 35 31 39 2D 73 68 61   32 35 36 40 6C 69 62 73   5519-sha 256@libs
+  9 [0030]   73 68 2E 6F 72 67 2C 65   63 64 68 2D 73 68 61 32   sh.org,e cdh-sha2
+
+
+
+git clone : ssh 
+------------------
+
+::
+
+    L7[blyth@lxslc708 ~]$ git clone git@github.com:simoncblyth/j.git
+    Cloning into 'j'...
+    Ncat: Version 7.50 ( https://nmap.org/ncat )
+    Ncat: Proxy connection failed: Connection refused.
+    ssh_exchange_identification: Connection closed by remote host
+    fatal: Could not read from remote repository.
+
+    Please make sure you have the correct access rights
+    and the repository exists.
+
+    L7[blyth@lxslc708 ~]$ vi ~/.ssh/config 
+
+    L7[blyth@lxslc708 ~]$ git clone git@github.com:simoncblyth/j.git
+    Cloning into 'j'...
+    Ncat: Version 7.50 ( https://nmap.org/ncat )
+    Ncat: Connected to 20.205.243.166:22.
+    Enter passphrase for key '/afs/ihep.ac.cn/users/b/blyth/.ssh/id_rsa': 
+    remote: Enumerating objects: 3295, done.
+    remote: Counting objects: 100% (202/202), done.
+    remote: Compressing objects: 100% (153/153), done.
+    remote: Total 3295 (delta 115), reused 129 (delta 49), pack-reused 3093
+    Receiving objects: 100% (3295/3295), 1.77 MiB | 947.00 KiB/s, done.
+    Resolving deltas: 100% (2320/2320), done.
+    L7[blyth@lxslc708 ~]$ 
+
+
+
+
+git clone : http via socks proxy
+----------------------------------
+
+
+::
+
+    epsilon:tt blyth$ grep -A0 -B1 socks5 ~/.gitconfig 
+    #[http]
+    #    proxy = socks5://127.0.0.1:8080
+
+
+Commenting that and the clone just hangs and may after a few minutes fail or might even work sometimes::
+
+    epsilon:tt blyth$ git clone https://github.com/simoncblyth/plog.git
+    Cloning into 'plog'...
+
+Variety of errors::
+
+    fatal: unable to access 'https://github.com/simoncblyth/plog.git/': Failed connect to github.com:443; Connection timed out
+
+    fatal: unable to access 'https://github.com/simoncblyth/plog.git/': Encountered end of file
+
+Alternatively with the config present and the tunnel not running::
+
+    epsilon:tt blyth$ git clone https://github.com/simoncblyth/plog.git
+    Cloning into 'plog'...
+    fatal: unable to access 'https://github.com/simoncblyth/plog.git/': Failed to connect to 127.0.0.1 port 8080: Connection refused
+
+
+
+Create socks5 tunnel
+---------------------
+
+::
+
+    epsilon:~ blyth$ t socks-fg
+    socks-fg () 
+    { 
+        local msg="=== $FUNCNAME :";
+        local count=0;
+        while [ $count -lt 1000 ]; do
+            echo $msg $count $(date);
+            count=$(( $count + 1 ));
+            socks-fg-start;
+        done
+    }
+    epsilon:~ blyth$ t socks-fg-start
+    socks-fg-start () 
+    { 
+        local cmd=$(${FUNCNAME}-);
+        echo $cmd;
+        eval $cmd
+    }
+    epsilon:~ blyth$ t socks-fg-start-
+    socks-fg-start- () 
+    { 
+        cat <<EOC
+    ssh -C -ND localhost:$(socks-port) $(socks-node)
+    EOC
+
+    }
+    epsilon:~ blyth$ socks-port
+    8080
+    epsilon:~ blyth$ socks-node
+    B
+    epsilon:~ blyth$ 
+
+
+
+
+
+
+
 Adding a remote
 -----------------
 
@@ -24,7 +161,6 @@ Adding a remote
 Pulling from an additional remote::
 
     git pull ihep master
-
 
 
 Reference

@@ -17,6 +17,73 @@ Refs
 * https://sourceware.org/gdb/onlinedocs/gdb/Set-Breaks.html
 
 
+How to inform GDB of a change in source tree path ?
+----------------------------------------------------
+
+* https://ftp.gnu.org/old-gnu/Manuals/gdb/html_node/gdb_48.html
+
+
+* "directory" seems not to work ?
+
+
+Wrong paths in backtrace::
+
+    Program received signal SIGABRT, Aborted.
+    0x00007ffff652e387 in raise () from /lib64/libc.so.6
+    (gdb) bt
+    #0  0x00007ffff652e387 in raise () from /lib64/libc.so.6
+    #1  0x00007ffff652fa78 in abort () from /lib64/libc.so.6
+    #2  0x00007ffff65271a6 in __assert_fail_base () from /lib64/libc.so.6
+    #3  0x00007ffff6527252 in __assert_fail () from /lib64/libc.so.6
+    #4  0x00007ffff7b39f7d in SCurandState::RngMax (
+        path=0x421ab0 "/afs/ihep.ac.cn/users/b/blyth/.opticks/rngcache/RNG/QCurandState_3000000_0_0.bin")
+        at /home/simon/opticks/sysrap/SCurandState.cc:80
+    #5  0x00007ffff7b39e37 in SCurandState::RngMax () at /home/simon/opticks/sysrap/SCurandState.cc:71
+    #6  0x00007ffff7b39a03 in SCurandState::Desc[abi:cxx11]() () at /home/simon/opticks/sysrap/SCurandState.cc:17
+    #7  0x0000000000403b6e in main (argc=1, argv=0x7fffffffc7b8) at /home/simon/opticks/sysrap/tests/SCurandStateTest.cc:21
+    (gdb) 
+
+
+
+::
+
+    L7[blyth@lxslc710 blyth]$ cat fixlib.sh 
+    #!/bin/bash -l 
+    src=/home/simon
+    dst=/home/blyth
+    cd $OPTICKS_RELEASE_PREFIX/lib64
+    for path in $(ls -1 *.so) ; do 
+        echo $path
+        sed -i -e "s,$src,$dst,g" $path 
+    done
+    L7[blyth@lxslc710 blyth]$ 
+
+
+::
+
+    Program received signal SIGABRT, Aborted.
+    0x00007ffff652e387 in raise () from /lib64/libc.so.6
+    (gdb) bt
+    #0  0x00007ffff652e387 in raise () from /lib64/libc.so.6
+    #1  0x00007ffff652fa78 in abort () from /lib64/libc.so.6
+    #2  0x00007ffff65271a6 in __assert_fail_base () from /lib64/libc.so.6
+    #3  0x00007ffff6527252 in __assert_fail () from /lib64/libc.so.6
+    #4  0x00007ffff7b39f7d in SCurandState::RngMax (
+        path=0x421ab0 "/afs/ihep.ac.cn/users/b/blyth/.opticks/rngcache/RNG/QCurandState_3000000_0_0.bin")
+        at /home/blyth/opticks/sysrap/SCurandState.cc:80
+    #5  0x00007ffff7b39e37 in SCurandState::RngMax () at /home/blyth/opticks/sysrap/SCurandState.cc:71
+    #6  0x00007ffff7b39a03 in SCurandState::Desc[abi:cxx11]() () at /home/blyth/opticks/sysrap/SCurandState.cc:17
+    #7  0x0000000000403b6e in main (argc=1, argv=0x7fffffffc818) at /home/blyth/opticks/sysrap/tests/SCurandStateTest.cc:21
+    (gdb) 
+
+
+Could arrange for the source build to think 
+its building into a tree with root::
+
+   /afs/ihep.ac.cn/users/b/blyth 
+
+
+
 Building On GDB : eg for stack sampling to find hotspots
 ----------------------------------------------------------
 

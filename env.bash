@@ -2047,7 +2047,13 @@ rpath-(){      . $(env-home)/tools/cmake/rpath.bash && rpath-env $* ; }
 pandas-(){      . $(env-home)/numerics/pandas/pandas.bash && pandas-env $* ; }
 epjconf-(){      . $(env-home)/doc/epjconf/epjconf.bash && epjconf-env $* ; }
 sed-(){      . $(env-home)/tools/sed.bash && sed-env $* ; }
+scp-(){      . $(env-home)/tools/scp.bash && scp-env $* ; }
+ctest-(){      . $(env-home)/tools/ctest.bash && ctest-env $* ; }
+firefox-(){      . $(env-home)/tools/firefox.bash && firefox-env $* ; }
+
 pipeline-(){      . $(env-home)/graphics/pipeline/pipeline.bash && pipeline-env $* ; }
+applegpu-(){      . $(env-home)/graphics/apple/applegpu.bash && applegpu-env $* ; }
+
 license-(){      . $(env-home)/license/license.bash && license-env $* ; }
 synergy-(){      . $(env-home)/tools/synergy.bash && synergy-env $* ; }
 dnf-(){      . $(env-home)/tools/dnf/dnf.bash && dnf-env $* ; }

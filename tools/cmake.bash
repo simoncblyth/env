@@ -15,6 +15,43 @@ CMAKE
 
 
 
+Creating an umbrella cmake config for Opticks ? 
+-------------------------------------------------
+
+Problem with this is that its very much a virtual package 
+as there is no top level Opticks CMakeLists.txt its a 
+bunch of packages strapped together with bash. 
+
+* maybe with BCM ? 
+
+* https://iamsorush.com/posts/cpp-cmake-config/
+* https://cmake.org/cmake/help/latest/module/CMakePackageConfigHelpers.html
+* https://cmake.org/cmake/help/latest/manual/cmake-packages.7.html
+
+Custom4 takes a minimal approach at doing this : probably a 
+good approach, BCM is too involved.  Could generate frm G4CX the 
+the top level package. 
+
+See /usr/local/opticks_externals/custom4/0.1.9/lib/Custom4-0.1.9
+
+
+LOOKS LIKE A GOOD CMAKE COURSE
+--------------------------------
+
+* https://enccs.github.io/cmake-workshop/
+* https://github.com/ENCCS/cmake-workshop
+
+* https://github.com/ENCCS/cmake-workshop/blob/main/content/code/day-1/06_bash-ctest/solution/CMakeLists.txt
+
+
+EuroCC National Competence Center Sweden 
+-------------------------------------------
+
+* https://github.com/ENCCS
+* https://github.com/orgs/ENCCS/repositories?type=all
+
+* https://enccs.se/lessons/
+
 
 Manual Target Deployment is just too ugly : use BCMExport
 ------------------------------------------------------------

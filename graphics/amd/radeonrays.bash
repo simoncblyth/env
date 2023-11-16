@@ -27,8 +27,6 @@ The below works:
 
 Looks like it is just a triangles only system.
 
-
-
 * https://www.pcgamer.com/amd-rdna2-release-date-big-navi-specs-price-performance/
 
   AMD RDNA 2 GPU, late 2020 release with hardware ray tracing  

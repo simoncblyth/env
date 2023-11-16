@@ -12,6 +12,33 @@ VIM Tips
 * http://www.astrohandbook.com/ch20/vi_guide.html
 
 
+
+
+
+vim key bindings in bash shell
+---------------------------------
+
+Just found this out today and its amazing. I always felt like Ctrl-a was
+cumbersome and not as good as being able to use vim bindings. I found out that
+you can get vim bindings in bash and zsh!
+
+zsh: bindkey -v
+
+bash: set -o vi
+
+this has helped me so much!
+
+
+* https://unix.stackexchange.com/questions/30454/advantages-of-using-set-o-vi
+* https://www.techrepublic.com/article/using-vi-key-bindings-in-bash-and-zsh/
+
+ESC to enter command mode then
+
+* ^:start-of-line
+* $:end-of-line
+
+
+
 replace mode
 --------------
 

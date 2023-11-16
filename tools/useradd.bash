@@ -18,8 +18,22 @@ Create new user
 
 ::
 
-    name=noopticks
+    #name=noopticks
+    name=charles
     sudo useradd $name
+
+To enable ssh access had to chanhe config file and restart
+------------------------------------------------------------
+
+N::
+
+    sudo su                           # attain root
+    vi /etc/ssh/sshd_config           # add to AllowUsers
+    systemctl restart sshd.service    # 
+
+Now can connet from laptop with::
+ 
+    ssh C
 
 
 Must set the password to be able to login to the new account
@@ -27,7 +41,8 @@ Must set the password to be able to login to the new account
 
 ::
 
-    name=noopticks
+    #name=noopticks
+    name=charles
     sudo passwd $name
 
     [blyth@localhost ~]$ sudo passwd noopticks

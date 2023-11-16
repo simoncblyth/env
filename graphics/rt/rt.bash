@@ -33,6 +33,13 @@ RT : Ray Tracing APIs
 * https://www.willusher.io/blog
 
 
+Ray trace comparisons between GPUs/APIs
+------------------------------------------
+
+* https://arstechnica.com/civis/threads/the-m3-max-pro-performance-comparison-thread.1496840/
+
+
+
 Books
 ------
 

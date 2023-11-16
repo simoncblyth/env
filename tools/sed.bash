@@ -13,6 +13,29 @@ sed
 
 * http://www.catonmat.net/blog/wp-content/uploads/2008/09/sed1line.txt
 
+
+
+
+
+remove comments from here doc lines 
+--------------------------------------
+
+::
+
+    vip-paths-(){ sed 's/#.*//' << EOP
+
+       $HOME/.bash_profile            # top level umbrella : DONT PLACE DETAILS HERE 
+
+          $G/vip/vip.bash             # bash functions needed everywhere eg for prompt and ssh environment
+          $G/.local.bash              # machine specifics eg setting up for compiler
+
+    EOP
+    }
+
+
+Test file
+-----------
+
 ::
 
     cat demo.txt 

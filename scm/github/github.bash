@@ -17,6 +17,19 @@ See Also
 * git-
 
 
+forking opticks to opticks_ancient doesnt work 
+-----------------------------------------------------
+
+* https://stackoverflow.com/questions/72738008/github-cant-create-a-fork-from-a-branch-repository-already-exists
+
+Well, I will answer my own question. Forking a repo with a different name
+within the same org is not available yet, but it will be added very soon it
+seems.
+
+https://github.com/github/roadmap/issues/330
+
+
+
 RSA key incident 24 March 2023
 ---------------------------------
 

@@ -10,6 +10,13 @@ Vulkan
 
 
 
+Ray Tracing Extension
+-----------------------
+
+* https://www.khronos.org/blog/ray-tracing-in-vulkan
+
+
+
 Provisional Ray Tracing Extension 
 -------------------------------------
 
