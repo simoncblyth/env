@@ -10,6 +10,13 @@ Vulkan
 
 
 
+Lumibench
+-----------
+
+* https://people.ece.ubc.ca/~aamodt/publications/papers/lumibench.iiswc2023.pdf
+* ~/opticks_refs/lumibench.iiswc2023.pdf
+
+
 Ray Tracing Extension
 -----------------------
 

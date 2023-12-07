@@ -10,6 +10,14 @@ C++
 ====
 
 
+Leaks
+-------
+
+* https://blog.nelhage.com/post/three-kinds-of-leaks/
+* https://github.com/google/sanitizers/wiki/AddressSanitizer
+* https://stackoverflow.com/questions/42821991/how-can-i-practically-use-addresssanitizer-and-memorysanitizer
+
+
 Sampling profilers
 --------------------
 

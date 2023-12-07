@@ -4,11 +4,27 @@ python-source(){ echo ${BASH_SOURCE:-$ENV_HOME/$(python-src)} ; }
 python-vi(){     vi $(python-source) ; }
 python-url(){    echo $(env-url)/$python-src ; }
 python-syspath(){ python -c "import sys ; print '\n'.join(sys.path) " ; }
-python-usage(){ cat << EOU
+python-usage(){ cat << "EOU"
 
 Python
 =======
 
+
+Redirecting logging
+---------------------
+
+Logging by default is going to sys.stderr which is not 
+so convenient for GPU cluster running which returns
+separate .out and .err logs 
+
+
+* https://stackoverflow.com/questions/16061641/python-logging-split-between-stdout-and-stderr
+
+::
+
+    import logging
+    import sys
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 Avoid the pyc
@@ -304,7 +320,7 @@ python-incdir(){
 python-site(){
    [ -n "$PYTHON_SITE__" ] && echo $PYTHON_SITE__ && return
    [ -n "$VIRTUAL_ENV" ] && echo $VIRTUAL_ENV/lib/python$(python-major)/site-packages && return 
-   python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"  
+   python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"  
 }
 
 

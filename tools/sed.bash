@@ -174,6 +174,15 @@ Eating away at the file you end up with a zero length one::
 
 
 
+LIKE GREP::
+
+    env | sed -n '/^OPTICKS/p'
+
+NOT WORKING : TRY TO FORMAT OUTPUT FROM ENV::
+
+    env | sed -n 's/^(OPTICKS.*)=(.*)$/\1  \2/p'   
+
+
 EOU
 }
 sed-get(){

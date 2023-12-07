@@ -31,9 +31,11 @@ N::
     vi /etc/ssh/sshd_config           # add to AllowUsers
     systemctl restart sshd.service    # 
 
-Now can connet from laptop with::
+Now can connect from laptop with::
  
     ssh C
+
+* https://askubuntu.com/questions/462968/take-changes-in-file-sshd-config-file-without-server-reboot
 
 
 Must set the password to be able to login to the new account

@@ -63,6 +63,29 @@ split string into array using IFS and "read -a"
 
 
 
+trim extension, extract string after char
+--------------------------------------------
+
+::
+
+    epsilon:env blyth$ echo $name
+    clhep-2.4.6.2.tgz
+    epsilon:env blyth$ echo ${name%.*}
+    clhep-2.4.6.2
+
+    epsilon:env blyth$ stem=clhep-2.4.6.2
+    epsilon:env blyth$ echo ${stem%-*}   # string before - 
+    clhep
+    epsilon:env blyth$ echo ${stem#*-}   # string after -
+    2.4.6.2
+
+    epsilon:env blyth$ echo ${vers//[.]/_}
+    2_4_6_2
+    epsilon:env blyth$ echo ${vers//./_}
+    2_4_6_2
+
+
+
 bash arguments
 ----------------
 

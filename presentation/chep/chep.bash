@@ -11,6 +11,12 @@ CHEP 2023 : May 8-12
 * https://simoncblyth.bitbucket.io/
 
 
+
+Proceedings accepted : Thu Dec 7 2023
+---------------------------------------
+
+* https://indico.jlab.org/event/459/papers/11811/
+
 Proceedings submission : Wed Sep 6 
 -------------------------------------
 

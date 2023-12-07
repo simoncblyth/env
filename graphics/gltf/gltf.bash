@@ -8,6 +8,28 @@ gltf-usage(){ cat << EOU
 glTF
 =====
 
+
+Impls
+-------
+
+* https://github.com/syoyo/tinygltf
+
+
+Projects using tinygltf include:
+
+* http://www.open3d.org/
+* http://www.open3d.org/docs/release/
+
+
+
+* https://github.com/google/usd_from_gltf
+
+
+
+
+Intro 
+-------
+
 GL Transmission Format (glTF) from The Khronos Group aims to provide a
 lightweight, efficient format meant for 3d scene representation in a way that
 could be easily streamed, e.g. over the internet.

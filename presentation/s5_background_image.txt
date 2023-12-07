@@ -17,8 +17,8 @@
     ## to disable the title background image simply change the 
     ## below title of "slide0" to "slide0_D"
     ##
-    ##slide0_D
-    slide0
+    ##slide0
+    slide0_D
     ../graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -2372,6 +2372,30 @@
     OptiX Title Banner
     optix/optix_title_banner.png 1280px_221px 0px_0px
     optix/optix_in_the_news.png 1280px_519px 0px_221px
+
+    NPFold_profile_test_PWE_mach.png
+    GEOM/J23_1_0_rc3_ok0/jok-tds/ALL0/NPFold_profile/mpcap/NPFold_profile_test_PWE_mach.png 1280px_720px
+
+    N6_Substamp_ONE_maxb_scan_A_expensive_tail.png
+    GEOM/J23_1_0_rc3_ok0/CSGOptiXSMTest/ALL3_sreport/figs/cxs_min/mpcap/N6_Substamp_ONE_maxb_scan_A_expensive_tail.png 1280px_720px
+
+    N6_Substamp_ONE_maxb_scan_HIT__slow_hit_increase.png
+    GEOM/J23_1_0_rc3_ok0/CSGOptiXSMTest/ALL3_sreport/figs/cxs_min/mpcap/N6_Substamp_ONE_maxb_scan_HIT__slow_hit_increase.png 1280px_720px
+
+    ALL4_seqnib_small_truncation_bump.png
+    GEOM/J23_1_0_rc3_ok0/CSGOptiXSMTest/ALL4/A000/figs/cxs_min/mpcap/ALL4_seqnib_small_truncation_bump.png 1280px_720px 
+
+    ALL4_thit_high_time_tail.png
+    GEOM/J23_1_0_rc3_ok0/CSGOptiXSMTest/ALL4/A000/figs/cxs_min/mpcap/ALL4_thit_high_time_tail.png 1280px_720px
+
+    ALL1_scatter_10M_photon_22pc_hit.png
+    GEOM/J23_1_0_rc3_ok0/CSGOptiXSMTest/ALL1/A000/figs/cxs_min/pvcap/ALL1_scatter_10M_photon_22pc_hit.png 1280px_720px
+
+    ALL1_scatter_10M_photon_22pc_hit_alt.png
+    GEOM/J23_1_0_rc3_ok0/CSGOptiXSMTest/ALL1/A000/figs/cxs_min/pvcap/ALL1_scatter_10M_photon_22pc_hit_alt.png 1280px_720px
+  
+    amdahl_p_sensitive.png
+    figs/amdahl/mpcap/amdahl_p_sensitive.png 1280px_720px
 
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored

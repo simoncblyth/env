@@ -1,0 +1,1125 @@
+.. meta::
+
+   :title: Opticks + JUNO : 
+   :name: opticks_20231211_release.txt
+   :description: (11 Dec 2023)
+   :notes: Sim
+   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?conferenceid=1166
+
+.. include:: my_s5defs.txt
+
+.. include:: s5_background_image.txt
+
+
+:i:`JUNOSW + Opticks : Profiling + Status` 
+========================================================
+
+.. raw:: html
+
+    <div class="mytitle">
+        <header>
+            <h1 style="background-color:lightgrey"> 
+                JUNOSW + Opticks : Profiling + Status 
+            </h1>
+        </header>
+    </div>
+    <p style="margin-bottom:25mm;" />
+    <p style="margin-bottom:50mm;" />
+
+.. class:: normal
+
+
+   * NVIDIA Driver + CUDA + OptiX versions : Versions for GPU Cluster ?
+
+   * Info on GPU Cluster from Du Ran
+
+   * JUNOSW + Opticks : "Technical" Release : Which versions ?
+
+   * Opticks : Geometry Translation now using minimal intermediate model
+
+   * A/B Comparison : input photon bi-simulation : insitu and standalone
+
+   * Insitu input photon bi-simulation comparison : Histories involving 3inch PMT discrepant
+
+   * Insitu input photon bi-simulation comparison : After increase tub3 delta 1e-3=>0.1
+
+
+.. raw:: html
+
+    <div class="mycredit">
+       <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS  &mdash; Simulation Meeting &mdash; 11 Dec 2023 </h2>
+    </div>
+
+
+
+
+
+
+:small:`Amdahls "Law" : Expected Speedup Limited by Serial Processing`
+--------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`S(n) Expected Speedup`
+
+    .. comment
+
+       :width: 1176px
+       :height: 358px
+       :width: 588px 
+       :height: 179px
+            
+    .. image:: /env/presentation/parallel/amdahl.png
+       :width: 392px 
+       :height: 112px
+       :align: center
+
+
+    .. class:: small
+
+        *P* 
+             parallelizable proportion
+        *1-P*
+             non-parallelizable portion
+        *n*
+             parallel speedup factor  
+
+
+
+optical photon simulation, P ~ 99% of CPU time  
+
+* -> potential overall speedup S(n) is 100x 
+* even with parallel speedup factor >> 1000x  
+
+
+
+**Must consider processing "big picture"**
+
+* remove bottlenecks one by one
+* re-evaluate "big picture" after each  
+
+
+.. s5_talk::
+
+   Serial Portion of processing determines the overall 
+   speedup because this goes to zero 
+
+
+
+
+:i:`amdahl_p_sensitive.png`
+-----------------------------
+
+.. class:: small
+
+    .. image:: /env/presentation/parallel/amdahl.png
+       :width: 392px 
+       :height: 112px
+       :align: center
+
+
+
+:i:`ALL1_scatter_10M_photon_22pc_hit_alt.png`
+----------------------------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:150mm;" />
+ 
+
+
+``~/o/cxs_min.sh  ## 10M "TORCH" photons 22pc hit, 3.6 seconds``
+
+
+
+:i:`ALL1_scatter_10M_photon_22pc_hit.png`
+-------------------------------------------
+
+.. comment
+
+   PLOT=scatter MODE=3 PUB=10M_photon_22pc_hit ~/o/cxs_min.sh pvpub
+
+
+
+
+:i:`N6_Substamp_ONE_maxb_scan_A_expensive_tail.png`
+----------------------------------------------------
+
+:i:`N6_Substamp_ONE_maxb_scan_HIT__slow_hit_increase.png`
+----------------------------------------------------------
+
+
+:i:`ALL4_thit_high_time_tail.png`
+---------------------------------
+
+
+Creating that MAX_BOUNCE scan plot
+------------------------------------
+
+.. class:: small
+
+    Using ~/o/cxs_min.sh script with::
+
+        OPTICKS_RUNNING_MODE : SRM_TORCH
+        OPTICKS_EVENT_MODE   : HitPhoton   (picked with VERSION 3)
+        OPTICKS_NUM_PHOTON   : H1          (100K)
+        OPTICKS_MAX_PHOTON   : M1
+
+.. class:: tiny
+
+    Workstation::
+
+        ~/o/cxs_min_scan.sh      ## o is symbolic link to opticks
+
+    Laptop::
+        
+        ~/o/cxs_min.sh grab   
+
+        PLOT=Substamp_ONE_maxb_scan PICK=A ~/o/sreport.sh 
+        PLOT=Substamp_ONE_maxb_scan PICK=A ~/o/sreport.sh mpcap
+        PLOT=Substamp_ONE_maxb_scan PICK=A PUB=expensive_tail ~/o/sreport.sh mppub
+        vi ~/opticks/notes/issues/OPTICKS_MAX_BOUNCE_scanning.rst  ## notes 
+
+.. comment
+
+        PLOT=Substamp_ONE_maxb_scan_HIT ~/o/sreport.sh 
+        PLOT=Substamp_ONE_maxb_scan_HIT ~/o/sreport.sh mpcap
+        PLOT=Substamp_ONE_maxb_scan_HIT PUB=slow_hit_increase ~/o/sreport.sh mppub
+
+
+
+
+:i:`ALL4_seqnib_small_truncation_bump.png`
+---------------------------------------------
+
+
+
+
+Creating that seqnib plot
+---------------------------------
+
+.. class:: small
+
+    Using ~/o/cxs_min.sh script with::
+
+        OPTICKS_RUNNING_MODE : SRM_TORCH
+        OPTICKS_EVENT_MODE   : HitPhotonSeq   (picked with VERSION 4)
+        OPTICKS_NUM_PHOTON   : M1          
+        OPTICKS_MAX_PHOTON   : M1
+
+.. class:: tiny
+
+    Workstation::
+
+        VERSION=4 ~/o/cxs_min.sh   
+
+    Laptop::
+        
+        VERSION=4 ~/o/cxs_min.sh grab   
+        VERSION=4 MODE=2 PLOT=seqnib ~/o/cxs_min.sh ana
+        VERSION=4 MODE=2 PLOT=seqnib ~/o/cxs_min.sh mpcap
+        VERSION=4 MODE=2 PLOT=seqnib PUB=small_truncation_bump ~/o/cxs_min.sh mppub
+
+
+
+
+
+
+
+
+
+:i:`NPFold_profile_test_PWE_mach.png`
+---------------------------------------
+
+
+Creating Profile Plots
+---------------------------
+
+::
+ 
+    /data/blyth/opticks/GEOM/J23_1_0_rc3_ok0/jok-tds/ALL0 
+    PICK=CF PLOT=PWE ~/np/tests/NPFold_profile_test.sh 
+    PICK=CF PLOT=PWE ~/np/tests/NPFold_profile_test.sh ana
+
+    PYTHONPATH=$HOME MODE=0 ~/np/tests/NPFold_profile_test.sh ana
+
+.. class:: tiny
+
+    defaults, full debug 
+    Profile.ABPlot
+    A:ProfileWithinEvent  J23_1_0_rc3_ok0/jok-tds/ALL0 GPUMeta:0:NVIDIA_TITAN_V 1:NVIDIA_TITAN_RTX prefix://p creator:jok-tds
+    B:ProfileWithinEvent  J23_1_0_rc3_ok0/jok-tds/ALL0 prefix://n creator:jok-tds
+    BOA : 35.1 75.3 73.4 71.9 71.9 72.6 71.9 72.1 73.1 72.4   avg(BOA[1:]) 72.7  
+
+    set CVD:0
+    Profile.ABPlot
+    A:ProfileWithinEvent stampFmt:2023-11-20T16:53:25.315104  J23_1_0_rc3_ok0/jok-tds/ALL0 GPUMeta:0:NVIDIA_TITAN_V prefix://p creator:jok-tds
+    B:ProfileWithinEvent stampFmt:2023-11-20T16:53:07.719859  J23_1_0_rc3_ok0/jok-tds/ALL0 prefix://n creator:jok-tds
+    BOA : 32.4 75.6 81.8 76.2 87.6 77.3 75.6 92.5 90.8 74.1   avg(BOA[1:]) 81.3  
+
+    set CVD:1
+    Profile.ABPlot
+    A:ProfileWithinEvent stampFmt:2023-11-20T16:46:34.757874  J23_1_0_rc3_ok0/jok-tds/ALL0 GPUMeta:1:NVIDIA_TITAN_RTX prefix://p creator:jok-tds
+    B:ProfileWithinEvent stampFmt:2023-11-20T16:46:17.668147  J23_1_0_rc3_ok0/jok-tds/ALL0 prefix://n creator:jok-tds
+    BOA : 26.7 115.0 113.2 109.8 114.1 109.3 109.8 111.7 109.2 110.0   avg(BOA[1:]) 111.3  
+
+
+
+   
+ 
+
+
+Progress
+---------
+
+* MERGED : allow junosw to work with current Opticks
+* MERGED : PMT serialization fully standalone and adding tests
+* MERGED : LPMT SPMT virtual wrapper thickness envvar controls 
+* MERGED : SJFixtureConstruction.cc bugfix use of uninitialized constituent, issue 123
+* MERGED : add PMTSIM_STANDALONE debug interface to seven fixture solids
+* TODO : update junoenv/custom4 version to 0.1.7 (fixes polarization bug) 
+* TODO : update junoenv/opticks version to 0.2.? (currently testing with head) 
+
+
+About : LPMT SPMT virtual wrapper thickness 
+----------------------------------------------
+
+**Defaults not yet changed, still too small**
+
+For opticks to match detsim need to increase offsets::
+
+  export NNVTMaskManager__MAGIC_virtual_thickness_MM=0.10      # def: 0.05
+  export HamamatsuMaskManager__MAGIC_virtual_thickness_MM=0.10 # def: 0.05 
+  export Tub3inchPMTV3Manager__VIRTUAL_DELTA_MM=0.10           # def: 1.e-3 
+
+* TODO: check for potential overlaps before increase defaults
+* TODO: check how small Opticks can handle, suspect:
+
+  * 0.07 mm maybe OK
+  * 0.05 mm at edge
+  * 1e-3 mm no way  
+
+
+:small:`SJFixtureConstruction.cc bugfix use of uninitialized, issue 123`
+-------------------------------------------------------------------------------------
+
+* https://code.ihep.ac.cn/JUNO/offline/junosw/-/issues/123  SPOT THE BUG:
+
+.. raw:: html
+
+   <pre class="mypretiny">
+   G4SubtractionSolid* solidSphere_sub ; 
+   G4SubtractionSolid* solidSJFixture_sub ;
+   solidSphere_sub = new G4SubtractionSolid("solidSphere_sub", solidSJFixture_box, solidSJFixture_ball);
+   solidSJFixture_sub = new G4SubtractionSolid("solidSJFixture_sub",solidSJFixture_down, solidSJFixture_sub, 0, 
+           G4ThreeVector(0.*mm, 0*mm, m_radLS     - 0.025*mm  /*17699.975*mm*/ ));
+   </pre>
+
+Compilation warning, unfortunately drowned by all the others.
+
+.. raw:: html
+
+   <pre class="mypretiny">
+   warning: variable 'solidSJFixture_sub' is uninitialized when used within its own initialization
+   </pre>
+
+* USE UNINITIALIZED : SEGV EVERY TIME => **CODE NOT BEING RUN ?**
+
+
+.. sidebar:: :small:`Four solids using this : > 1yr`
+
+    .. class:: small
+
+        +----------------------------+ 
+        | XJanchorConstruction.cc    |
+        +----------------------------+ 
+        | SJCLSanchorConstruction.cc |
+        +----------------------------+ 
+        | SJFixtureConstruction.cc   |
+        +----------------------------+ 
+        | SJReceiverConstruction.cc  | 
+        +----------------------------+ 
+
+
+.. class:: small
+
+    *Examples/Tutorial/python/Tutorial/JUNODetSimModule.py* reveals:
+
+    * default  ``m_simplify_calib_anchor:true``
+    * ``--simplify-calib-anchor`` always ON 
+    * used by 4 solids since SVN times
+    * **ACRYLIC OVERLAPS ALREADY DONE > 1YR** 
+
+    :r:`The bug turned out to be useful`
+
+
+What the switches do 
+-----------------------
+
+.. class:: small
+
+    +--------------------------+-------------------------------+-----------------------+------+
+    | Option                   |  LSExpDetectorConstruction.cc | default name          | STDN |
+    +==========================+===============================+=======================+======+
+    | --debug-disable-xj       |  m_xjanchor_name              | XJanchor              | xjac |
+    | JUNO_DEBUG_DISABLE_XJ    |  m_xjfixture_name             | XJfixture             | xjfc |
+    +--------------------------+-------------------------------+-----------------------+------+
+    | --debug-disable-sj       |  m_sjclsanchor_name           | SJCLSanchor           | sjcl |
+    | JUNO_DEBUG_DISABLE_SJ    |  m_sjfixture_name             | SJFixture             | sjfx |
+    |                          |  m_sjreceiver_name            | SJReceiver            | sjrc |
+    |                          |  m_sjreceiver_fastener_name   | SJReceiverFastern     | sjrf |
+    +--------------------------+-------------------------------+-----------------------+------+
+    | --debug-disable-fa       |  m_fastener_name              | FastenerAcrylic       | facr |                     
+    | JUNO_DEBUG_DISABLE_FA    |                               |                       |      |
+    +--------------------------+-------------------------------+-----------------------+------+
+
+
+
+Handling these solids
+-----------------------
+
+.. class:: small
+
+    +-----------+-------------------------------+----------------------------------------------------------------------+
+    | j/PMTSim  |  Classname                    |  Notes                                                               |
+    +===========+===============================+======================================================================+
+    | xjfcSolid | XJfixtureConstruction         | lWaterPool : monstrous many box + cyl union                          |
+    |           | (PE_PA)                       |                                                                      |
+    +-----------+-------------------------------+----------------------------------------------------------------------+
+    | sjrfSolid | SJReceiverFasternConstruction | lTarget : another monstrous many box and cyl union                   |
+    |           | (PE_PA)                       |                                                                      |
+    +-----------+-------------------------------+----------------------------------------------------------------------+
+    | facrSolid | FastenerAcrylicConstruction   | lWaterPool, no overlap annulus + 8 screw can become single listnode  |  
+    |           | (Steel)                 [3]   |                                                                      |
+    +-----------+-------------------------------+----------------------------------------------------------------------+
+    | xjacSolid | XJanchorConstruction    [2]   | lWaterPool : cone subtract big sphere union cylinder                 | 
+    |           | (Acrylic)                     | (small-big subtraction precision + perf issue, expect coin)          |
+    |           |                               |  **SIMPLIFIED : FLAT TOP**                                           |  
+    +-----------+-------------------------------+----------------------------------------------------------------------+
+    | sjclSolid | SJCLSanchorConstruction [1]   | lTarget : bizarre union box and cone-(bigBox-bigSphere)              |
+    |           | (Acrylic)                     | **SIMPLIFIED : FLAT BOT**                                            | 
+    +-----------+-------------------------------+----------------------------------------------------------------------+
+    | sjfxSolid | SJFixtureConstruction   [1]   | lTarget : similar bizarre union box and cone-(bigBox-bigSphere)      |
+    |           | (Acrylic)                     | ORIGINAL WITH COMPILATION WARNING + SEGV BUG !!!!                    |
+    |           |                               | **SIMPLIFIED : FLAT BOT**                                            | 
+    +-----------+-------------------------------+----------------------------------------------------------------------+
+    | sjrcSolid | SJReceiverConstruction  [1]   | lTarget : again union cyl and cone-(bigBox-bigSphere)                |
+    |           | (Acrylic)                     | **SIMPLIFIED : FLAT BOT**                                            |
+    +-----------+-------------------------------+----------------------------------------------------------------------+
+
+    
+
+.. class:: small
+
+    The within lTarget SJ shapes marked [1] use eg cone-(bigBox-bigSphere) in order to conform the shape 
+    to the inside of the Acrylic ... but they are all Acrylic anyway ... suspect overlaps
+    between these shapes into the Acrylic would give exactly the same simuluation results
+    with much less cost.... as its all just Acrylic things poking into the Acrylic sphere. 
+
+    Also the lWaterPool xjacSolid [2] subtracts bigSphere to conform to outside of the Acrylic :
+    but again why worry about Acrylic overlapping Acrylic : its all the same material. 
+
+    The facrSolid [3] looks highly amenable to being a single list node, as the 9 constituents
+    do not overlap. 
+
+    It looks likely that five of the above can be greatly improved...  leaving the two monstrous PE_PA 
+    that will both need tree + listnode handling.
+
+
+
+Validation Check with the MERGES applied
+-------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    c2sum :   191.8697 c2n :   189.0000 c2per:     1.0152  C2CUT:   30 
+    c2sum/c2n:c2per(C2CUT)  191.87/189:1.015 (30)
+    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][0:25]  ## A-B history frequency chi2 comparison 
+     0   TO BT BT BT BT SD                                                  0 33389  33516  0.2411     1      1
+     1   TO BT BT BT BT SA                                                  1 28134  27994  0.3492     8      0
+     2   TO BT BT BT BT BT SR SA                                            2  6268   6181  0.6080 10363  10454
+     3   TO BT BT BT BT BT SA                                               3  4627   4714  0.8103  8398   8449
+     4   TO BT BT BT BT BT SR BR SR SA                                      4  1154   1198  0.8231 21156  20987
+     5   TO BT BT BT BT BR BT BT BT BT BT BT AB                             5   947    970  0.2760 10389   9811
+     6   TO BT BT BT BT BT SR BR SA                                         6   923    961  0.7665 20241  20276
+     7   TO BT BT BT BT BT SR SR SA                                         7   901    886  0.1259 10399  10419
+     8   TO BT BT AB                                                        8   879    900  0.2479    26      8
+     9   TO BT BT BT BT BT SR BT BT BT BT BT BT BT AB                       9   615    657  1.3868 20974  21894
+    10   TO BT BT BT BT BR BT BT BT BT AB                                  10   573    577  0.0139   646   5420
+    11   TO BT BT BT BT BR BT BT BT BT BT BT BT BT SA                      11   538    560  0.4408  7312   7300
+    <span class="r">12   TO BT BT BT BT BR BT BT BT BT BT BT BT BT BT BT BT BT SD          12   504    389 14.8096 12018  11473</span>
+    13   TO BT BT BT BT BR BT BT BT BT BT BT BT BT SD                      13   470    463  0.0525  7974   7971
+    14   TO BT BT BT BT BR BT BT BT BT BT BT BT BT BT BT BT BT SA          14   406    411  0.0306 11467  11464
+    15   TO BT BT BT BT BT SR SR SR SA                                     15   383    391  0.0827 10362  10410
+    16   TO BT BT BT BT BR BT BT BT BT BT BT SC BT BT BT BT BT BT SD       16   390    372  0.4252 16444  17073
+    17   TO BT BT BT BT BR BT BT BT BT BT BT SC BT BT BT BT BT BT SA       17   356    334  0.7014 16401  16235
+    18   TO BT BT BT BT BT SR BR SR SR SA                                  18   353    337  0.3710 20996  21008
+    19   TO BT BT BT BT BR BT BT BT BT BT SA                               19   308    344  1.9877   665    666
+    20   TO BT BT BT BT BR BT BT BT BT BT BT SC AB                         20   313    342  1.2840 16582  16920
+    21   TO BT BT BT BT AB                                                 21   315    316  0.0016   651    107
+    22   TO BT BT BT BT BT SR BT BT BT BT BT BT BT BT BT BT BT BT BT SD    22   269    253  0.4904 22370  22414
+    23   TO BT BT BT BT BT SR BT BT BT BT BT BT BT SC BT BT BT BT BT BT SA 23   223    242  0.7763 22976  23408
+    24   TO BT BT BT BT BT SR BT BT BT BT BT BT BT SC BT BT BT BT BT BT SD 24   232    236  0.0342 22684  22616
+
+    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][bzero]  ## in A but not B    []
+    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][azero]  ## in B but not A    []
+    </pre>
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    ntds3_noxjsjfa     # workstation using 0.1 mm LPMT,SPMT virtual thicknesses, GEOM V1J011
+    GEOM tmpget        # laptop : rsync evt from workstation  
+    ~/j/ntds/ntds3.sh  # AB comparison 
+    CHK="TO BT BT BT BT BR BT BT BT BT BT BT BT BT BT BT BT BT SD" ~/j/ntds/ntds3.sh
+    </pre>
+    
+
+
+CHK the most discrepant 504/389 
+----------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    sel="TO BT BT BT BT BR BT BT BT BT BT BT BT BT BT BT BT BT SD"
+    SEL=$sel PICK=A MODE=3 ~/j/ntds/ntds3.sh
+    SEL=$sel PICK=A MODE=3 ONLYSEL=1 ~/j/ntds/ntds3.sh
+    SEL=$sel PICK=B MODE=3 ONLYSEL=1 ~/j/ntds/ntds3.sh
+
+    SEL=$sel MODE=0 ~/j/ntds/ntds3.sh  ## non graphical session to provide indices
+
+    In [1]: wa[:10]
+    Out[1]: array([12018, 16780, 16786, 16931, 17127, 17221, 17224, 17280, 17342, 17366])
+
+    In [2]: wb[:10]
+    Out[2]: array([11473, 11495, 11498, 12037, 16417, 16546, 16837, 17132, 17164, 17460])
+
+    MODE=3 PICK=A APID=12018 ~/j/ntds/ntds3.sh  # bounce off, propagates in water until detected at not so far away PMT 
+    MODE=3 PICK=A APID=16780 ~/j/ntds/ntds3.sh  # bounce off, propagates back into target and out again before detection
+    MODE=3 PICK=A APID=16786 ~/j/ntds/ntds3.sh  # ditto 
+
+    MODE=3 PICK=B BPID=11473 ~/j/ntds/ntds3.sh  # similar, note some skims
+    MODE=3 PICK=B BPID=11495 ~/j/ntds/ntds3.sh  # hmm, also skims 
+    MODE=3 PICK=B BPID=11498 ~/j/ntds/ntds3.sh  # hmm, also skims 
+
+    In [4]: set(wa) & set(wb)       # common indices : accidental random alignment? 
+    Out[4]: {26994, 69979, 72793}
+
+    idx=26994
+    MODE=3 PICK=AB APID=$idx BPID=$idx ~/j/ntds/ntds3.sh 
+
+
+
+     In [17]: b.f.record[idx,:20,0]
+    Out[17]: 
+    array([[ -3159.498,  10415.47 ,  15822.213,      0.1  ],
+           [ -3165.352,  10434.771,  15851.911,      0.266],
+           [ -3168.53 ,  10445.245,  15868.029,      0.355],
+           [ -3169.82 ,  10449.499,  15875.097,      0.398],
+           [ -3170.166,  10450.638,  15876.845,      0.408],
+           [ -3170.98 ,  10453.323,  15881.266,      0.435],
+           [ -3171.11 ,  10453.752,  15876.051,      0.461],
+           [ -3171.182,  10453.989,  15873.952,      0.471],
+           [ -3171.38 ,  10454.64 ,  15865.643,      0.514],
+           [ -3172.158,  10457.208,  15842.7  ,      0.621],
+           [ -3238.037,  10674.388,  13902.069,      9.628],
+           [ -3238.995,  10677.546,  13740.048,     10.464],
+           [ -3428.052,  11300.876, -13184.41 ,    148.414],
+           [ -3429.369,  11305.219, -13346.401,    149.25 ],
+           [ -3389.547,  11173.947, -15359.342,    158.551],
+           [ -3389.199,  11172.801, -15376.924,    158.633],
+           [ -3388.476,  11172.572, -15386.283,    158.681],
+           [ -3388.433,  11172.407, -15388.767,    158.693],
+           [ -3388.011,  11172.234, -15394.727,    158.723],
+           [     0.   ,      0.   ,      0.   ,      0.   ]], dtype=float32)
+
+    In [18]: a.f.record[idx,:20,0] - b.f.record[idx,:20,0]
+    Out[18]: 
+    array([[ 0.   ,  0.   ,  0.   ,  0.   ],
+           [ 0.   ,  0.   ,  0.001,  0.   ],
+           [ 0.   ,  0.   ,  0.001,  0.   ],
+           [ 0.   ,  0.   ,  0.   , -0.   ],
+           [ 0.   , -0.001, -0.001, -0.   ],
+           [ 0.   , -0.001, -0.001, -0.   ],
+           [ 0.   , -0.001,  0.   , -0.   ],
+           [ 0.   , -0.001,  0.   , -0.   ],
+           [ 0.   ,  0.   ,  0.   , -0.   ],
+           [ 0.   , -0.001, -0.001, -0.   ],
+           [ 0.004,  0.009, -0.005,  0.   ],
+           [ 0.004,  0.01 , -0.007,  0.   ],
+           [ 0.055,  0.109,  0.077, -0.   ],
+           [ 0.056,  0.11 ,  0.078, -0.   ],
+           [ 0.059,  0.116,  0.071, -0.   ],
+           [ 0.059,  0.116,  0.076, -0.   ],
+           [ 0.059,  0.116,  0.078, -0.   ],
+           [ 0.058,  0.115,  0.079, -0.   ],
+           [ 0.058,  0.115,  0.081, -0.   ],
+           [ 0.   ,  0.   ,  0.   ,  0.   ]], dtype=float32)
+
+
+    idx=69979
+    MODE=3 PICK=AB APID=$idx BPID=$idx ~/j/ntds/ntds3.sh 
+
+    In [2]: idx=69979
+    In [3]: a.f.record[idx,:20,0] - b.f.record[idx,:20,0]
+    Out[3]:
+    array([[ 0.   ,  0.   ,  0.   ,  0.   ],
+           [ 0.   ,  0.   ,  0.   ,  0.   ],
+           [ 0.   ,  0.   ,  0.   , -0.   ],
+           [ 0.   ,  0.   ,  0.   , -0.   ],
+           [ 0.   ,  0.   , -0.001, -0.   ],
+           [ 0.   ,  0.   ,  0.   , -0.   ],
+           [-0.   ,  0.001,  0.   , -0.   ],
+           [ 0.   ,  0.   ,  0.   , -0.   ],
+           [ 0.   , -0.001, -0.001, -0.   ],
+           [ 0.   ,  0.001,  0.   , -0.   ],
+           [ 0.002,  0.01 , -0.006, -0.   ],
+           [ 0.002,  0.011, -0.006, -0.   ],
+           [ 0.071, -0.004, -0.141,  0.   ],
+           [ 0.07 , -0.002, -0.141,  0.   ],
+           [ 0.072,  0.006, -0.144,  0.   ],
+           [ 0.105, -0.104, -0.208,  0.001],
+           [ 0.107, -0.115, -0.21 ,  0.001],
+           [ 0.11 , -0.123, -0.215,  0.001],
+           [ 0.112, -0.133, -0.216,  0.001],
+           [ 0.   ,  0.   ,  0.   ,  0.   ]], dtype=float32)
+
+    idx=72793
+    MODE=3 PICK=AB APID=$idx BPID=$idx ~/j/ntds/ntds3.sh 
+
+    In [1]: idx=72793
+    In [2]: a.f.record[idx,:20,0] - b.f.record[idx,:20,0]
+    Out[2]:
+    array([[ 0.   ,  0.   ,  0.   ,  0.   ],
+           [ 0.   ,  0.   ,  0.   , -0.   ],
+           [ 0.   , -0.001,  0.   , -0.   ],
+           [ 0.   ,  0.   ,  0.   , -0.   ],
+           [ 0.   ,  0.   , -0.001, -0.   ],
+           [ 0.   , -0.001, -0.002, -0.   ],
+           [ 0.   ,  0.001, -0.002, -0.   ],
+           [ 0.   ,  0.001, -0.002, -0.   ],
+           [ 0.   ,  0.001, -0.002, -0.   ],
+           [ 0.   ,  0.001, -0.003, -0.   ],
+           [ 0.001,  0.024, -0.014, -0.   ],
+           [ 0.001,  0.026, -0.015, -0.   ],
+           [ 0.129, -0.055, -0.254,  0.001],
+           [ 0.129, -0.053, -0.255,  0.001],
+           [ 0.093,  0.09 , -0.195,  0.   ],
+           [ 0.08 ,  0.133, -0.173, -0.   ],
+           [ 0.08 ,  0.133, -0.172, -0.   ],
+           [ 0.079,  0.135, -0.171, -0.   ],
+           [ 0.079,  0.135, -0.17 , -0.   ],
+           [ 0.   ,  0.   ,  0.   ,  0.   ]], dtype=float32)
+    </pre>
+
+
+
+U4Mesh_test2
+---------------
+
+::
+
+    GEOM=xjfcSolid ~/opticks/u4/tests/U4Mesh_test2.sh
+    GEOM=sjrfSolid ~/opticks/u4/tests/U4Mesh_test2.sh
+    GEOM=facrSolid ~/opticks/u4/tests/U4Mesh_test2.sh
+
+    GEOM=xjacSolid ~/opticks/u4/tests/U4Mesh_test2.sh
+    GEOM=sjclSolid ~/opticks/u4/tests/U4Mesh_test2.sh
+    GEOM=sjfxSolid ~/opticks/u4/tests/U4Mesh_test2.sh
+    GEOM=sjrcSolid ~/opticks/u4/tests/U4Mesh_test2.sh
+
+ 
+    
+
+
+    
+.. comment
+
+    xjacSolid : XJanchorConstruction : lWaterPool
+    -----------------------------------------------
+
+      
+
+
+U4Mesh_test2_xjfcSolid_review.png
+----------------------------------
+
+U4Mesh_test2_xjacSolid_review.png
+----------------------------------
+
+
+U4Mesh_test2_sjclSolid_review.png
+----------------------------------
+
+U4Mesh_test2_sjfxSolid_review.png
+----------------------------------
+
+U4Mesh_test2_sjrcSolid_review.png 
+----------------------------------
+
+U4Mesh_test2_sjrfSolid_review.png
+----------------------------------
+
+U4Mesh_test2_facrSolid_review.png
+----------------------------------
+
+
+:small:`NVIDIA Driver + CUDA + OptiX versions : Versions for GPU Cluster ?`
+---------------------------------------------------------------------------
+
+.. class:: small 
+
+    * Minimal Opticks development expected to update from OptiX 7.0 to 7.1,7.2,...,8.0 (as only minor API changes)
+
+      * Opticks users from Fermilab Geant4 group + elsewhere already using OptiX 7.5, 7.6 
+      * :b:`BUT : OptiX updates require : minimum NVIDIA Driver + specific CUDA version` 
+      * CUDA version => Minimum Linux kernel versions => default gcc version
+
+    * :r:`strong potential for performance improvements just from updates`
+    * Measurements on Workstation as upgrade => desired GPU cluster versions : :b:`GPU cluster version constraints ?`
+
+    +------------------+-------------------+-----------------+----------------+---------+---------+--------------------------------+
+    |  Release Date    |   NVIDIA OptiX    |  Notes          |  Driver        |  CUDA   |  gcc    |                                |
+    +==================+===================+=================+================+=========+=========+================================+
+    |  July 2019       |   :r:`7.0.0`      | **NEW API**     | 435.12(435.21) |  10.1   |  8.3.0  | <=current workstation versions |
+    +------------------+-------------------+-----------------+----------------+---------+---------+--------------------------------+
+    |  June 2020       |   7.1.0           | Added Curves    | 450            |  11.0   |         | Maybe: torus for guide tube    |
+    +------------------+-------------------+-----------------+----------------+---------+---------+--------------------------------+
+    |  Oct 2020        |   7.2.0           | Specialization  | 455            |  11.1   |         |                                |
+    +------------------+-------------------+-----------------+----------------+---------+---------+--------------------------------+
+    |  Apr 2021        |   7.3.0           |                 | 465            |  11.1   |         |                                |
+    +------------------+-------------------+-----------------+----------------+---------+---------+--------------------------------+
+    |  Oct 2021        |   7.4.0           | Catmull-Rom     | 495            |  11.4   |         |                                |
+    +------------------+-------------------+-----------------+----------------+---------+---------+--------------------------------+
+    |  June 2022       | :b:`7.5.0` [1]    | Debug, Sphere   | 515            |  11.7   |         | :b:`LOOKS POSSIBLE ON CLUSTER` |
+    +------------------+-------------------+-----------------+----------------+---------+---------+--------------------------------+
+    |  Oct 2022        |   7.6.0 [1]       |                 | 520            |  11.8   |         |                                |
+    +------------------+-------------------+-----------------+----------------+---------+---------+--------------------------------+
+    |  Mar 2023        |   7.7.0           | More Curves     | 530            |  12.0   |         |                                |
+    +------------------+-------------------+-----------------+----------------+---------+---------+--------------------------------+
+    |  Aug 2023        |   8.0.0           | SER, Perf       | 535            |  12.0   |         |                                |
+    +------------------+-------------------+-----------------+----------------+---------+---------+--------------------------------+
+
+.. class:: tiny 
+
+    [1] minor Opticks changes to support NVIDIA OptiX 7.5, 7.6 done already for Opticks users from Fermilab Geant4 group  
+
+
+
+
+:small:`Info on GPU Cluster from Du Ran`
+-----------------------------------------
+
+::
+     
+    NVIDIA driver : 515.65.01
+    CUDA : 11.7
+    Linux kernel  :  3.10.0-1160.80.1.el7.x86_64
+    OS : CentOS Linux release 7.9.2009
+    GCC : 
+    - default version on worker node: gcc 4.8.5
+    - higher version : gcc 7.5.0, 
+      /cvmfs/slurm.ihep.ac.cn/centos7.8/gcc-7.5.0/bin/gcc
+     
+
+    182 v100 32GB nvlink GPU cards 
+      1 a100 40GB pci-e GPU card in partition gpu  
+
+    JUNO can use 128 GPU cards at most.
+
+
+.. class:: small
+
+   * => CAN REQUEST Install : NVIDIA OptiX 7.5.0 
+   * Any timeline for Driver updates ? 
+
+     * 520 (CUDA 11.8) :
+     * 530, 536 (CUDA 12.0) ? 
+
+
+
+
+
+:small:`JUNOSW + Opticks : "Technical" Release : Which versions ?`
+-------------------------------------------------------------------
+
+.. class:: small
+
+   * Objective : enable more people to get involved with Opticks validation 
+
+   +------------------+----------------------------------------------------------------------------+ 
+   | Geant4 10.4.2    | Changing Geant4 ? high delay potential to : Custom4 + Opticks + JUNOSW     |
+   +------------------+----------------------------------------------------------------------------+
+   | Custom4 0.1.7    | * small package : but deeply coupled with : Geant4 + JUNOSW + Opticks      |
+   +------------------+----------------------------------------------------------------------------+ 
+   | OptiX 7.5        | * 7.0 -> 7.5 : expect straightforward                                      | 
+   +------------------+----------------------------------------------------------------------------+ 
+   | Opticks v0.2.0 ? | last release  https://github.com/simoncblyth/opticks/releases/tag/v0.1.6   |
+   |                  |                                                                            |
+   +------------------+----------------------------------------------------------------------------+ 
+
+   Deferred geometry:
+
+   +--------------------+-----------------------------------------------------------------------------+
+   | --no-guide_tube    |  OptiX 7.1 has curves which might allow G4Torus translation (dev. needed)   | 
+   +--------------------+---------------------------------------------+-------------------------------+
+   | --debug-disable-xj |  XJfixture XJanchor                         |  Deep CSG trees               |
+   +--------------------+---------------------------------------------+  require dev.                 |
+   | --debug-disable-sj |  SJCLSanchor SJFixture SJReceiver SJFixture |  to see if "listnode"         |
+   +--------------------+---------------------------------------------+  (similar to G4MultiUnion)    |
+   | --debug-disable-fa |  FastenerAcrylic                            |  can provide solution         |
+   +--------------------+---------------------------------------------+-------------------------------+
+
+
+   Known missing physics:
+
+   * sigma_alpha/polish ground surface handling : impl in progress
+
+     * DONE : G4RandGauss::shoot with CUDA using erfcinvf : Inverse complementary error function
+     * TODO : normal smearing following G4OpBoundaryProcess::GetFacetNormal
+     * TODO : qsim::propagate generalization to handle sigma_alpha/polish surfaces
+
+
+
+:small:`Opticks : Geometry Translation now using minimal intermediate model`
+--------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`OLD : Extraneous full GGeo model`
+
+    .. class:: small
+
+        **GGeo** : Historical baggage from export/import era  
+
+    .. raw:: html
+
+        <pre class="mypretiny">+-------------------------------------+
+        | Geant4 ----> GGeo ----> CSGFoundry  |
+        |         X4       CSG_GGeo           |
+        +-------------------------------------+</pre>
+ 
+    .. class:: small
+
+        +-----------------------------------------------------------+
+        |   Progress with adoption of minimal approach              |
+        +--------------------------------------+--------------------+
+        |  Aspect of translation               |     Status         |
+        +======================================+====================+
+        | structural factorization             |    MATCHED         | 
+        +--------------------------------------+--------------------+
+        | instance transforms                  |    MATCHED         |
+        +--------------------------------------+--------------------+
+        | standard CSG                         |    MATCHED         | 
+        +--------------------------------------+--------------------+
+        | material/surf/boundary               |    MATCHED         |
+        +--------------------------------------+--------------------+
+        | :r:`CSG uncoincidence`  **NEW**      |:r:`MATCHED`        |
+        +--------------------------------------+--------------------+
+        | CSG tree balancing                   |    DEFERRED        |
+        +--------------------------------------+--------------------+
+
+        :b:`HUGE CODE REDUCTION : > HALVED`
+
+        * 6 pkgs inactive : hundreds of classes/structs
+   
+
+.. class:: small
+
+   Geometry translation:
+
+   +-------------------------------------------------------+
+   | Geant4 -> stree.h -> CSGFoundry -> IAS,GAS (OptiX 7+) |
+   +-------------------------------------------------------+
+
+   * :b:`Minimal intermediate stree.h model` :r:`(much less code, faster)`
+   * full translation now taking ~15s (formerly > 1min) 
+   * profit from experience : eg n-ary tree serialization, NPFold
+
+   +------------+----------------------------------------------------+
+   | U4Tree     | G4VPhysicalVolume -> stree/snode  (n-ary tree)     |
+   +------------+----------------------------------------------------+
+   | U4Solid    | G4VSolid -> s_csg/sn.h  (n-ary tree of constituent)|
+   +------------+----------------------------------------------------+
+   | U4Material | G4Material -> NPFold/NP                            | 
+   +------------+----------------------------------------------------+
+   | U4Surface  | G4LogicalSurface -> NPFold/NP                      |
+   +------------+----------------------------------------------------+
+
+   +------------------------------------------------------+
+   |  CSGFoundry/CSGImport                                |
+   |     CSGSolid/CSGPrim/CSGNode <- stree/snode/s_csg/sn |
+   +------------------------------------------------------+
+
+
+.. comment
+
+   `opticks/src/master/notes/progress.rst <https://bitbucket.org/simoncblyth/opticks/src/master/notes/progress.rst>`_
+
+
+.. comment 
+
+   faster translation
+
+   2023-09-06 18:50:47.465 INFO  [423215] [G4CXOpticks::setGeometry@263]  G4VPhysicalVolume world 0x59f4150
+   2023-09-06 18:51:10.386 INFO  [423215] [G4CXOpticks::setGeometry_@379] ] fd 0xc1e9440
+
+   2023-09-06 18:59:00.722 INFO  [427075] [G4CXOpticks::setGeometry@263]  G4VPhysicalVolume world 0x59f4450
+   2023-09-06 18:59:16.986 INFO  [427075] [G4CXOpticks::setGeometry_@379] ] fd 0xc1e97a0
+
+
+
+
+.. s5_talk::
+
+    Some other work on the geometry translation is getting close
+    to concluding with a major reduction in Opticks code. 
+
+
+:small:`A/B Comparison : input photon bi-simulation : insitu and standalone` 
+--------------------------------------------------------------------------------
+
+.. class:: small
+
+
+    +---+-----------------------------------------------------------+
+    | A | Opticks (stree workflow, no GGeo) -> Opticks/SEvt -> .npy |            
+    +---+-----------------------------------------------------------+
+    | B | Geant4 with Opticks/U4Recorder  -> Opticks/SEvt -> .npy   |
+    +---+-----------------------------------------------------------+
+
+    * SEvt : full optical history => statistical comparison of histories
+
+    +----------------------------------------------------+----------------------------------------------------+
+    |  Insitu : Full Geometry (with some skips)          |  Standalone : selected few volumes                 |
+    +====================================================+====================================================+
+    |  ``~/j/jx.bash:ntds3_noxjsjfa`` [1]                |  ``~/opticks/g4cx/tests/G4CXTest.sh``              |
+    +----------------------------------------------------+----------------------------------------------------+
+    |  * tut_detsim.py : "main" steering                 |  * G4CXTest.cc : main                              |
+    |  * GtOpticksTool : integrate Opticks input photons |  * G4CXApp.h : Geant4+Opticks App in single header | 
+    |                                                    |  * G4CXTest.py : SEvt comparison                   |   
+    |  * OPTICKS_INTEGRATION_MODE:3  bi-simulate         |                                                    |
+    |  * ~/j/ntds/ntds3.sh  : SEvt comparison            |                                                    |
+    +----------------------------------------------------+----------------------------------------------------+
+        
+
+.. class:: small
+
+    **Investigation Steps:**
+
+    * insitu : find deviant histories for photons touching 3 inch PMT tube  
+    * standalone : Tub3inchPMTV3Manager reproduces history deviation 
+    * simtrace : shows pmt_solid degenerate with cntr_solid (cylindrical tube)
+    * standalone : add Tub3inchPMTV3Manager__VIRTUAL_DELTA_MM control 
+
+      * increase delta 1e-3 => 0.1 avoids degeneracy, fixes issue
+
+    * insitu : confirms fix, SPMT now behaving : BUT LPMT virtual apex degeneracy issue 
+    * TODO : standalone LPMT check : NEED TO MOVE LPMT Virtual outwards by ~0.1 mm
+
+
+.. class:: tiny
+
+   [1] https://github.com/simoncblyth/j/blob/main/jx.bash 
+
+
+
+:small:`ntds3 : insitu input photon bi-simulation comparison A(OK)/B(G4) : Hist involving 3inch PMT discrepant`
+----------------------------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+   <pre class="mypretiny">QCF qcf : c2sum :  2063.1819 c2n :   114.0000 c2per:    18.0981  C2CUT:   30 
+    c2sum/c2n:c2per(C2CUT)  2063.18/114:18.098 (30)
+
+    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][0:25]  ## A-B history frequency chi2 comparison 
+    [[' 0' 'TO BT BT BT BT SA                                         ' ' 0' ' 37494  37425' ' 0.0635' '     8      3']
+     [' 1' 'TO BT BT BT BT SD                                         ' ' 1' ' 30866  30874' ' 0.0010' '     4      4']
+     [' 2' 'TO BT BT BT BT BT SA                                      ' ' 2' ' 12382  12477' ' 0.3630' '  9412   9096']
+     [' 3' 'TO BT BT BT BT BT SR SA                                   ' ' 3' '  3810   3794' ' 0.0337' ' 11059  10892']
+     [' 4' 'TO BT BT BT BT BT SR SR SA                                ' ' 4' '  1998   1996' ' 0.0010' ' 10899  10879']
+     [' 5' 'TO BT BT AB                                               ' ' 5' '   884    893' ' 0.0456' '    26     28']
+     [' 6' 'TO BT BT BT BT BT SR SR SR SA                             ' ' 6' '   572    563' ' 0.0714' ' 14725  14727']
+     [' 7' 'TO BT BT BT BT BR BT BT BT BT BT BT AB                    ' ' 7' '   473    440' ' 1.1928' '  3182   4895']
+     [' 8' 'TO BT BT BT BT AB                                         ' ' 8' '   319    352' ' 1.6230' '   651     46']
+     [' 9' 'TO BT BT BT BT BR BT BT BT BT BT BT SD                    ' ' 9' '   326    342' ' 0.3832' '  5262   5279']
+     ['10' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT SA              ' '10' '   326    332' ' 0.0547' '  7444   7463']
+     ['11' 'TO BT BT BT BT BT SR BR SA                                ' '11' '   309    328' ' 0.5667' ' 33584  33575']
+     <span class="r">['12' 'TO BT BT BT BT BR BT BT BT BT BT AB                       ' '12' '   321     52' '193.9973' '  1021  17293']</span>
+     <span class="r">['13' 'TO BT BT BT BT BR BT BT BT BT BT SA                       ' '13' '    24    318' '252.7368' '  4471   1017']</span>
+     ['14' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT SD              ' '14' '   312    263' ' 4.1757' '  8147   8138']
+     ['15' 'TO BT BT BT BT BR BT BT BT BT AB                          ' '15' '   279    264' ' 0.4144' '   646    940']
+     ['16' 'TO BT BT BT BT BT SR SR SR BR SA                          ' '16' '   212    240' ' 1.7345' ' 14749  14746']
+     <span class="r">['17' 'TO BT BT BR BT BT BT SA                                   ' '17' '    10    238' '209.6129' '  2991     17']</span>
+     <span class="r">['18' 'TO BT BT BT BT BT SR SR SR BR BT BT BT BT BT BT SA        ' '18' '     0    197' '197.0000' '    -1  15508']</span>
+     <span class="r">['19' 'TO BT BT BT BR BT BT BT BT SA                             ' '19' '     9    194' '168.5961' '  3510    194']</span>
+     ['20' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT BT BT BT BT SD  ' '20' '   190    171' ' 1.0000' ' 16931  17569']
+     <span class="r">['21' 'TO BT BT BT BR BT BT BT BT AB                             ' '21' '   187      4' '175.3351' '   206  22156']</span>
+     <span class="r">['22' 'TO BT BT BR BT BT BT AB                                   ' '22' '   183      3' '174.1935' '     2  39342']</span>
+
+    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][bzero]  ## in A but not B 
+    [['38' 'TO BT BT BT BT BT SR SR SR BR BT BT BT BT BT BT BT AB     ' '38' '    91      0' '91.0000' ' 16654     -1']
+     ['44' 'TO BT BT BT BT BT SR SR SR BR BT BT BT BT BT BT AB        ' '44' '    83      0' '83.0000' ' 15529     -1']
+     ['56' 'TO BT BT BT BT BT SR SR BT BT BT BT BT BT BT BT SD        ' '56' '    56      0' '56.0000' ' 26920     -1']
+     ['63' 'TO BT BT BT SA                                            ' '63' '    42      0' '42.0000' ' 49820     -1']
+     ['76' 'TO BT BT BT SD                                            ' '76' '    34      0' '34.0000' ' 49823     -1']
+     ['81' 'TO BT BT BT BT BT BT BT BT BT BT BT AB                    ' '81' '    31      0' '31.0000' '  9297     -1']
+     ['92' 'TO BT BT BT BT BT SR SR BT BT BT BT BT BT BT BT SA        ' '92' '    26      0' ' 0.0000' ' 27573     -1']
+     ['105' 'TO BT BT BT BT BT SR SR BT BT BT BT BT BT BT SD           ' '105' '    22      0' ' 0.0000' ' 26717     -1']]
+
+    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][azero]  ## in B but not A 
+    [['18' 'TO BT BT BT BT BT SR SR SR BR BT BT BT BT BT BT SA        ' '18' '     0    197' '197.0000' '    -1  15508']
+     ['26' 'TO BT BT BT BT BT SR SR BT BT BT BT BT BT SA              ' '26' '     0    161' '161.0000' '    -1  26558']
+     ['77' 'TO BT BT BT BT BT BT BT BT BT BT BT SA                    ' '77' '     0     33' '33.0000' '    -1   9210']]
+    PICK=A MODE=2 SEL=0 ~/j/ntds/ntds3.sh 
+    </pre>
+
+
+
+
+
+ntds3_V1J010_A16654_3inch_issue.png
+----------------------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:155mm;" />
+ 
+
+``MODE=2 PICK=A APID=16654 ~/j/ntds/ntds3.sh ana``
+
+
+FewPMT_tub3_degenerate.png
+----------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:155mm;" />
+
+.. class:: small
+
+   Murky edge : indicates pmt_solid degenerate with cntr_solid
+
+
+
+
+G4CXTest_FewPMT_one_pmt_circle_inwards_100_A1000_Tub3_delta_1.png
+------------------------------------------------------------------
+
+.. class:: small
+   
+   export Tub3inchPMTV3Manager__VIRTUAL_DELTA_MM=1 # avoids issue 
+
+
+.. raw:: html
+
+    <p style="margin-bottom:115mm;" />
+
+``PICK=A D=2 APID=1000 FOCUS=0,0,80 ~/opticks/g4cx/tests/G4CXTest.sh ana``
+
+
+
+
+
+:small:`ntds3 : insitu input photon bi-simulation comparison A(OK)/B(G4) : After increase tub3 delta 1e-3=>0.1`
+----------------------------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+   <pre class="mypretiny">QCF qcf :  c2sum :   162.4843 c2n :   108.0000 c2per:     1.5045  C2CUT:   30 
+    c2sum/c2n:c2per(C2CUT)  162.48/108:1.504 (30)
+    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][0:25]  ## A-B history frequency chi2 comparison 
+    [[' 0' 'TO BT BT BT BT SA                                             ' ' 0' ' 37494  37620' ' 0.2114' '     8      1']
+     [' 1' 'TO BT BT BT BT SD                                             ' ' 1' ' 30866  30749' ' 0.2222' '     4     13']
+     [' 2' 'TO BT BT BT BT BT SA                                          ' ' 2' ' 12382  12416' ' 0.0466' '  9412   8882']
+     [' 3' 'TO BT BT BT BT BT SR SA                                       ' ' 3' '  3810   3831' ' 0.0577' ' 11059  11054']
+     [' 4' 'TO BT BT BT BT BT SR SR SA                                    ' ' 4' '  1998   1969' ' 0.2120' ' 10899  10889']
+     [' 5' 'TO BT BT AB                                                   ' ' 5' '   884    895' ' 0.0680' '    26     20']
+     [' 6' 'TO BT BT BT BT BT SR SR SR SA                                 ' ' 6' '   572    604' ' 0.8707' ' 14725  14758']
+     [' 7' 'TO BT BT BT BT BR BT BT BT BT BT BT AB                        ' ' 7' '   411    451' ' 1.8561' ' 11875   5071']
+     [' 8' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT SA                  ' ' 8' '   337    346' ' 0.1186' '  7444   7444']
+     [' 9' 'TO BT BT BT BT AB                                             ' ' 9' '   319    345' ' 1.0181' '   651     14']
+     ['10' 'TO BT BT BT BT BR BT BT BT BT BT BT SD                        ' '10' '   314    335' ' 0.6795' '  5262   5252']
+     ['11' 'TO BT BT BT BT BR BT BT BT BT BT SA                           ' '11' '   332    312' ' 0.6211' '  1021   1025']
+     ['12' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT SD                  ' '12' '   320    289' ' 1.5780' '  8147   8170']
+     ['13' 'TO BT BT BT BT BT SR BR SA                                    ' '13' '   309    319' ' 0.1592' ' 33584  33568']
+     ['14' 'TO BT BT BT BT BR BT BT BT BT AB                              ' '14' '   279    248' ' 1.8235' '   646   9164']
+     ['15' 'TO BT BT BR BT BT BT SA                                       ' '15' '   243    211' ' 2.2555' '     2      2']
+     ['16' 'TO BT BT BT BT BT SR SR SR BR SA                              ' '16' '   212    239' ' 1.6164' ' 14749  14761']
+     ['17' 'TO BT BT BT BR BT BT BT BT SA                                 ' '17' '   216    214' ' 0.0093' '   206    226']
+     ['18' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT BT BT BT BT SD      ' '18' '   190    166' ' 1.6180' ' 16931  11835']
+     ['19' 'TO BT BT BT BT BT SR SR SR BR BT BT BT BT BT BT SA            ' '19' '   176    187' ' 0.3333' ' 15529  15388']
+     ['20' 'TO BT BT BT BT BR BT BT BT BT BT BT SC BT BT BT BT BT BT SA   ' '20' '   148    171' ' 1.6583' ' 17266  16930']
+     ['21' 'TO BT BT BT BT BT SR SR SR BR BR SR SA                        ' '21' '   168    155' ' 0.5232' ' 15414  15512']
+     ['22' 'TO BT BT BT BT BR BT BT BT BT BT BT BT BT BT BT BT BT SA      ' '22' '   163    167' ' 0.0485' ' 11832  17198']
+     ['23' 'TO BT BT BT BT BR BT BT BT BT BT BT SC BT BT BT BT BT BT SD   ' '23' '   149    159' ' 0.3247' ' 16930  16725']
+     ['24' 'TO BT BT BT BT BT SR SR BT BT BT BT BT BT SA                  ' '24' '   143    151' ' 0.2177' ' 26577  26568']]
+
+    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][bzero]  ## in A not in B 
+    <span class="r">[['55' 'TO BT BT BT SA                                                ' '55' '    42      0' '42.0000' ' 49820     -1']</span>
+    <span class="r"> ['68' 'TO BT BT BT SD                                                ' '68' '    34      0' '34.0000' ' 49823     -1']]</span>
+   </pre>
+
+
+.. comment
+
+    PICK=A D=2 APID=49820 ~/j/ntds/ntds3.sh ana 
+    PICK=A D=2 APID=49820 ~/j/ntds/ntds3.sh mpcap
+    PICK=A D=2 APID=49820 PUB=LPMT_virtual_apex_degeneracy ~/j/ntds/ntds3.sh mppub
+
+
+
+ntds3_V1J011_A49820_LPMT_virtual_apex_degeneracy.png
+-------------------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:155mm;" />
+
+
+``PICK=A D=2 APID=49820 ~/j/ntds/ntds3.sh ana`` 
+
+
+
+
+.. comment
+
+
+    PICK=A D=2 APID=49820 SEL="TO BT BT BT SA,TO BT BT BT SD" ~/j/ntds/ntds3.sh ana
+    PICK=A D=2 APID=49820 SEL="TO BT BT BT SA,TO BT BT BT SD" ~/j/ntds/ntds3.sh mpcap
+    PICK=A D=2 APID=49820 SEL="TO BT BT BT SA,TO BT BT BT SD" PUB="LPMT_apex_degenerate_in_red" ~/j/ntds/ntds3.sh mppub
+
+
+
+ntds3_V1J011_A49820_LPMT_apex_degenerate_in_red.png
+------------------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:150mm;" />
+
+
+``PICK=A D=2 APID=49820 SEL="TO BT BT BT SA,TO BT BT BT SD" ~/j/ntds/ntds3.sh ana``
+
+
+.. comment
+
+   Change u4/tests/FewPMT.sh geomlist:hmskLogicMaskVirtual
+   Change g4cx/tests/G4CXTest.sh check:rain_line_205 
+
+   PICK=B D=2 ~/opticks/g4cx/tests/G4CXTest.sh ana
+   PICK=B D=2 ~/opticks/g4cx/tests/G4CXTest.sh
+
+   ~/opticks/g4cx/tests/G4CXTest.sh        
+   ~/opticks/g4cx/tests/G4CXTest.sh grab 
+
+   PICK=AB D=2 ~/opticks/g4cx/tests/G4CXTest.sh ana 
+
+   HMM : DO NOT SEE APEX DEGEN ISSUE STANDALONE WITH 10k : TRY UPPING TO 100k 
+
+
+
+
+
+

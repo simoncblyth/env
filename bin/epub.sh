@@ -21,14 +21,17 @@ epub_relative_stem()
    local path=$1
    local dotopticks=$HOME/.opticks/
    local tmpcache=/tmp/$USER/opticks/
+   local tmpdata=/data/$USER/opticks/ 
    local u4mesh=/tmp/U4Mesh_test2/figs/
 
    local rel  
    case $path in 
       ${dotopticks}*)  rel=${path/$dotopticks/} ;;
       ${tmpcache}*)    rel=${path/$tmpcache/} ;;
+      ${tmpdata}*)     rel=${path/$tmpdata/} ;;
       ${u4mesh}*)      rel=${path/$u4mesh/}  ;; 
    esac 
+
    rel=${rel/\.jpg}
    rel=${rel/\.png}
    echo $rel 
@@ -51,7 +54,7 @@ epub_pub()
     local pub=$HOME/simoncblyth.bitbucket.io$s5p
     local s5p_line="$s5p 1280px_720px"
 
-    local vars="BASH_SOURCE FUNCNAME cap_path cap_ext rel_stem PUB extra s5p pub s5p_line"
+    local vars="0 BASH_SOURCE FUNCNAME cap_path cap_ext rel_stem PUB extra s5p pub s5p_line"
     for var in $vars ; do printf "%20s : %s\n" $var "${!var}" ; done  
 
     mkdir -p $(dirname $pub)

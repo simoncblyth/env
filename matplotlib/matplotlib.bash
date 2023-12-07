@@ -20,10 +20,40 @@ Version
     /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/matplotlib/__init__.pyc 1.3.1
 
 
-OSX installation 
+controlling window position ?
+--------------------------------
+
+* https://stackoverflow.com/questions/8202228/make-matplotlib-plotting-window-pop-up-as-the-active-one_
+
+::
+
+    In [1]: mngr = plt.get_current_fig_manager()
+
+    In [2]: mngr.window.setGeometry(50,100,640, 545)
+
+    AttributeError: 'FigureManagerMac' object has no attribute 'window'
+
+    In [3]: mngr.show()   ## brings to front 
+
+    In [4]: mngr.num
+    Out[4]: 2
+
+    In [5]: mngr.canvas
+    Out[5]: FigureCanvas object 0x1616420f0 wrapping NSView 0x7fb2106e9300
+
+    In [16]: mngr.canvas?
+    Type:        FigureCanvasMac
+    String form: FigureCanvas object 0x1616420f0 wrapping NSView 0x7fb2106e9300
+    File:        ~/miniconda3/lib/python3.7/site-packages/matplotlib/backends/backend_macosx.py
+
+    In [6]: mngr.get_window_title()
+    Out[6]: 'Figure 2'
+
+
+OSX installation
 ------------------
 
-On trying a basic plot using matplotlib installed into virtual python based on 
+On trying a basic plot using matplotlib installed into virtual python based on
 macports python26::
 
 

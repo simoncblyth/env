@@ -213,6 +213,13 @@ Opticks Presentations
 2023
 ~~~~~~~~
 
+`env/presentation/opticks_20231211_profile.html <env/presentation/opticks_20231211_profile.html>`_
+
+    Profiling + Status
+
+    Simulation Meeting, IHEP, China, Dec 11, 2023
+
+
 `env/presentation/standalone_20230930_cpp_test_debug_ana_with_numpy.html <env/presentation/standalone_20230930_cpp_test_debug_ana_with_numpy.html>`_
 
     Standalone C++ software testing, debugging and analysis with python packages: NumPy, matplotlib, pyvista, ...
