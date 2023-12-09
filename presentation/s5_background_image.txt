@@ -2397,6 +2397,12 @@
     amdahl_p_sensitive.png
     figs/amdahl/mpcap/amdahl_p_sensitive.png 1280px_720px
 
+    N7_Substamp_ALL_Etime_vs_Photon__34s_100M_debug.png
+    GEOM/J23_1_0_rc3_ok0/CSGOptiXSMTest/ALL1_sreport/figs/cxs_min/mpcap/N7_Substamp_ALL_Etime_vs_Photon__34s_100M_debug.png 1280px_720px 
+
+    S7_Substamp_ALL_Etime_vs_Photon__100M_31s_Release.png 
+    GEOM/J23_1_0_rc3_ok0/CSGOptiXSMTest/ALL1_sreport/figs/cxs_min/mpcap/S7_Substamp_ALL_Etime_vs_Photon__100M_31s_Release.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

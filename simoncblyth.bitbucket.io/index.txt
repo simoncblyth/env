@@ -219,6 +219,8 @@ Opticks Presentations
 
     Simulation Meeting, IHEP, China, Dec 11, 2023
 
+    **WIP : PRESENTATION IN PREPARATION**
+
 
 `env/presentation/standalone_20230930_cpp_test_debug_ana_with_numpy.html <env/presentation/standalone_20230930_cpp_test_debug_ana_with_numpy.html>`_
 

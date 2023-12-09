@@ -53,6 +53,13 @@
 
 
 
+:i:`N7_Substamp_ALL_Etime_vs_Photon__34s_100M_debug.png`
+---------------------------------------------------------
+
+:i:`S7_Substamp_ALL_Etime_vs_Photon__100M_31s_Release.png`
+-----------------------------------------------------------
+
+
 
 
 :small:`Amdahls "Law" : Expected Speedup Limited by Serial Processing`

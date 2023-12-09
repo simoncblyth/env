@@ -22,6 +22,7 @@ epub_relative_stem()
    local dotopticks=$HOME/.opticks/
    local tmpcache=/tmp/$USER/opticks/
    local tmpdata=/data/$USER/opticks/ 
+   local datasimon=/data/simon/opticks/ 
    local u4mesh=/tmp/U4Mesh_test2/figs/
 
    local rel  
@@ -29,6 +30,7 @@ epub_relative_stem()
       ${dotopticks}*)  rel=${path/$dotopticks/} ;;
       ${tmpcache}*)    rel=${path/$tmpcache/} ;;
       ${tmpdata}*)     rel=${path/$tmpdata/} ;;
+      ${datasimon}*)   rel=${path/$datasimon/} ;;
       ${u4mesh}*)      rel=${path/$u4mesh/}  ;; 
    esac 
 
