@@ -58,6 +58,9 @@
 
 .. |nbsp10| unicode:: U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 .. 10 nbsp fail to add up  
 
+.. |nbsp1| unicode:: 0xA0 
+   :trim:
+
 
 
 
