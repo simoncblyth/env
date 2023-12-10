@@ -2403,6 +2403,45 @@
     S7_Substamp_ALL_Etime_vs_Photon__100M_31s_Release.png 
     GEOM/J23_1_0_rc3_ok0/CSGOptiXSMTest/ALL1_sreport/figs/cxs_min/mpcap/S7_Substamp_ALL_Etime_vs_Photon__100M_31s_Release.png 1280px_720px
 
+    S7_Ranges_SPAN__fast_downloads.png 
+    GEOM/J23_1_0_rc3_ok0/CSGOptiXSMTest/ALL1_sreport/figs/cxs_min/mpcap/S7_Ranges_SPAN__fast_downloads.png 1280px_720px
+
+    N7_Ranges_SPAN__slow_downloads.png
+    GEOM/J23_1_0_rc3_ok0/CSGOptiXSMTest/ALL1_sreport/figs/cxs_min/mpcap/N7_Ranges_SPAN__slow_downloads.png 1280px_720px
+
+    S7_Ranges_ONE__Release.png 
+    GEOM/J23_1_0_rc3_ok0/CSGOptiXSMTest/ALL1_sreport/figs/cxs_min/mpcap/S7_Ranges_ONE__Release.png 1280px_720px
+
+    N7_Ranges_ONE__Debug.png
+    GEOM/J23_1_0_rc3_ok0/CSGOptiXSMTest/ALL1_sreport/figs/cxs_min/mpcap/N7_Ranges_ONE__Debug.png 1280px_720px
+
+    N7_Substamp_ALL_Hit_vs_Photon__linear.png
+    GEOM/J23_1_0_rc3_ok0/CSGOptiXSMTest/ALL1_sreport/figs/cxs_min/mpcap/N7_Substamp_ALL_Hit_vs_Photon__linear.png 1280px_720px
+
+    S7_Substamp_ALL_Hit_vs_Photon__linear.png
+    GEOM/J23_1_0_rc3_ok0/CSGOptiXSMTest/ALL1_sreport/figs/cxs_min/mpcap/S7_Substamp_ALL_Hit_vs_Photon__linear.png 1280px_720px
+
+    N5_Substamp_ALL_Etime_vs_Photon__U4Recorder_OOM_100M.png
+    GEOM/J23_1_0_rc3_ok0/G4CXTest/ALL3_sreport/figs/cxs_min/mpcap/N5_Substamp_ALL_Etime_vs_Photon__U4Recorder_OOM_100M.png 1280px_720px
+
+    N5_Substamp_ALL_RATIO_vs_Photon__approach_200.png
+    GEOM/J23_1_0_rc3_ok0/G4CXTest/ALL3_sreport/figs/cxs_min/mpcap/N5_Substamp_ALL_RATIO_vs_Photon__approach_200.png 1280px_720px
+
+    N5_Subprofile_ALL__leaking.png
+    GEOM/J23_1_0_rc3_ok0/G4CXTest/ALL3_sreport/figs/cxs_min/mpcap/N5_Subprofile_ALL__leaking.png 1280px_720px
+
+    S7_Subprofile_ALL__no_leak.png
+    GEOM/J23_1_0_rc3_ok0/CSGOptiXSMTest/ALL1_sreport/figs/cxs_min/mpcap/S7_Subprofile_ALL__no_leak.png 1280px_720px 
+
+    cxr_min__eye_0,1.5,0__zoom_4__tmin_1.3__ALL.jpg 
+    GEOM/J23_1_0_rc3_ok0/CSGOptiXRMTest/cxr_min__eye_0,1.5,0__zoom_4__tmin_1.3__ALL.jpg 1280px_720px
+
+    S5_Substamp_ALL_Etime_vs_Photon__U4Recorder_benefits_more.png
+    GEOM/J23_1_0_rc3_ok0/G4CXTest/ALL3_sreport/figs/cxs_min/mpcap/S5_Substamp_ALL_Etime_vs_Photon__U4Recorder_benefits_more.png 1280px_720px
+
+    G4CXTest_GEOM_A_chimney_issue.png
+    GEOM/J23_1_0_rc3_ok0/G4CXTest/ALL99/A000/figs/G4CXTest_GEOM/pvcap/G4CXTest_GEOM_A_chimney_issue.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

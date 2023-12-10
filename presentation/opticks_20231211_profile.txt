@@ -28,20 +28,22 @@
 
 .. class:: normal
 
+   * "Technical" Opticks release onto /cvmfs/opticks.ihep.ac.cn
 
-   * NVIDIA Driver + CUDA + OptiX versions : Versions for GPU Cluster ?
+   * A/B Validation Comparison : TORCH photon bi-simulation 
 
-   * Info on GPU Cluster from Du Ran
+   * Started Optimization of separate "Release" build 
 
-   * JUNOSW + Opticks : "Technical" Release : Which versions ?
+   * Developed performance profiling/reporting machinery  
 
-   * Opticks : Geometry Translation now using minimal intermediate model
+   * Performance Profiling Results 
 
-   * A/B Comparison : input photon bi-simulation : insitu and standalone
+   * Comparison with ancient Opticks 
 
-   * Insitu input photon bi-simulation comparison : Histories involving 3inch PMT discrepant
+   * PMT Optical Model (POM) Speedup Ideas 
 
-   * Insitu input photon bi-simulation comparison : After increase tub3 delta 1e-3=>0.1
+   * OPTICKS_MAX_BOUNCE scan 
+
 
 
 .. raw:: html
@@ -53,11 +55,584 @@
 
 
 
+:small:`(November 13, 2023) Technical Test Release on /cvmfs/opticks.ihep.ac.cn`
+-----------------------------------------------------------------------------------
+
+
+::
+
+    /cvmfs/opticks.ihep.ac.cn/ok/releases/Opticks-v0.2.1/
+    x86_64-CentOS7-gcc1120-geant4_10_04_p02-dbg
+
+
+
+.. class:: small
+
+    Opticks-v0.2.1 "Debug" binary distribution, using:
+
+    * gcc11.2.0, C++17, NVIDIA OptiX 7.5, CUDA 11.7, Geant4 10.4.2
+
+    Updated environment setup + distribution scripts:
+
+    * distrib slimmed to 218 MB (started at several GB) 
+    * distrib includes ctests : :b:`~210 unit tests`
+    * all tests passed in GPU cluster jobs (after avoiding /tmp blackhole)
+
+    ::
+
+        cd $OPTICKS_PREFIX/tests     ## testing distribution using ctests 
+        ctest -N   # list tests 
+        ctest  —-output-on-failure   # run all
+        ctest -R CSGFoundry_CreateFromSimTest --output-on-failure # run selected
+
+  
+
+:i:`cxr_min__eye_0,1.5,0__zoom_4__tmin_1.3__ALL.jpg`
+--------------------------------------------------------
+
+::
+
+    EYE=0,1.5,0 TMIN=1.3 ZOOM=4 ~/opticks/cxr_min.sh  ## CSGOptiXRMTest
+
+
+.. raw:: html
+
+    <p style="margin-bottom:100mm;" />
+    
+
+.. class:: center
+
+   ``Using GEOM J23_1_0_rc3_ok0`` 
+
+
+
+:small:`Three Opticks test scripts`
+--------------------------------------------------------------
+
+
+.. class:: small
+
+    * https://github.com/simoncblyth/j
+    * https://bitbucket.org/simoncblyth/opticks/
+
+    +------+------------------------------------------+---------------------+--------------------------------------------------------------------+ 
+    |  idx |  control script                          | initialization time |  Notes                                                             |   
+    |      |                                          | (seconds)           |                                                                    | 
+    +======+==========================================+=====================+====================================================================+
+    |  1   |  ~/j/okjob.sh                            |   149               |  JUNOSW+Opticks (tut_detsim.py "main")                             |   
+    +------+------------------------------------------+---------------------+--------------------------------------------------------------------+
+    |  2   |  ~/opticks/g4cx/tests/G4CXTest_GEOM.sh   |   127               |  InputPhoton, TorchGenstep, NOT InputGenstep                       |   
+    +------+------------------------------------------+---------------------+--------------------------------------------------------------------+
+    |  3   |  ~/opticks/CSGOptiX/cxs_min.sh           |    <2               |  InputPhoton, TorchGenstep, InputGenstep                           |   
+    +------+------------------------------------------+---------------------+--------------------------------------------------------------------+
+
+
+    1. "insitu" test of Opticks embedded into JUNOSW 
+    2. standalone optical only bi-simulation for A:Opticks <=> B:Geant4 comparison
+    3. pure Opticks (no Geant4 dependency) GPU optical simulation 
+
+       * fast initialization : loads CSGFoundry geometry and uploads to GPU in <2 seconds  
+       * fast cycle for development and Opticks performance measurements 
+
+    **TorchGenstep**
+        disc, sphere, line, point, circle, rectangle : shapes of photon sources implemented in ``sysrap/storch.h``
+
+    **InputGenstep**
+        general gensteps eg obtained from 1:okjob.sh can be used in 3:cxs_min.sh 
+
+        * using these in 2:G4CXTest not yet implemented (could be straightforwardly)
+
+
+
+:small:`G4CXTest_GEOM.sh : standalone optical bi-simulation for validation`
+-----------------------------------------------------------------------------
+.. sidebar:: :small:`G4CXTest.cc usinh G4CXApp.h`
+
+    .. raw:: html
+
+        <pre class="mypre20">
+        &#35;include "OPTICKS_LOG.hh"
+        <span class="r">&#35;include "G4CXApp.h"</span>
+
+        int main(int argc, char** argv)
+        {   
+            OPTICKS_LOG(argc, argv);
+            return G4CXApp::Main();
+        }
+        </pre>
+
+
+.. class:: small
+
+    **G4CXApp.h** 
+        standalone pure optical Geant4 + Opticks in single header
+
+    * operates from GDML 
+    * GDML translated into Opticks GPU geometry
+    * "primary" photons passed to Geant4 in **G4CXApp::GeneratePrimaries**
+
+    :b:`Enables pure optical simulation comparison`
+
+
+.. raw:: html
+
+    <p style="margin-bottom:30mm;" />
+
+
+.. class:: small
+
+    +--------------------------------+----------------------------------+ 
+    |  Test                          |   Status                         |
+    +================================+==================================+
+    | InputPhotons targetting PMTs   |  chi2 matched, no known issues   | 
+    +--------------------------------+----------------------------------+ 
+    | TorchGenstep from CD center    |  chi2 marginal : chimney issue ? |
+    +--------------------------------+----------------------------------+ 
+    
+
+
+:small:`A/B Validation Comparison` : ``~/o/G4CXTest_GEOM.sh ana``
+------------------------------------------------------------------
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    QCF qcf :  a.q 1000000 b.q 1000000       
+    <span class="r">c2sum :   567.1130 c2n :   506.0000 c2per:     1.1208  C2CUT:  200 </span>   <span class="b"> CHI2 ISSUE WITH TORCH RUNNING </span> 
+    <span class="r">c2sum/c2n:c2per(C2CUT)  567.11/506:1.121 (200) pv[0.031,< 0.05 : NOT:null-hyp ] </span>  <span class="b"> INPUT PHOTONS TARGETTING PMT CHI2 OK </span>
+
+    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][0:40]  ## A-B history frequency chi2 comparison 
+    [[' 0' 'TO AB                                               ' ' 0' '126549 126732' ' 0.1322' '     2      5']
+     [' 1' 'TO BT BT BT BT BT BT SD                             ' ' 1' ' 70494  70173' ' 0.7325' '    18      2']
+     [' 2' 'TO BT BT BT BT BT BT SA                             ' ' 2' ' 57103  56944' ' 0.2217' '     5     25']
+     [' 3' 'TO SC AB                                            ' ' 3' ' 51434  51739' ' 0.9016' '     4      9']
+     [' 4' 'TO SC BT BT BT BT BT BT SD                          ' ' 4' ' 35878  36119' ' 0.8067' '    58     45']
+     [' 5' 'TO SC BT BT BT BT BT BT SA                          ' ' 5' ' 29676  30164' ' 3.9797' '   124      4']
+     [' 6' 'TO SC SC AB                                         ' ' 6' ' 19993  19499' ' 6.1794' '   137    124']
+     [' 7' 'TO BT BT SA                                         ' ' 7' ' 18932  18837' ' 0.2390' '    71     14']
+     [' 8' 'TO RE AB                                            ' ' 8' ' 18319  18272' ' 0.0604' '     9     64']
+     [' 9' 'TO SC SC BT BT BT BT BT BT SD                       ' ' 9' ' 15454  15701' ' 1.9582' '    19     85']
+     ['10' 'TO SC SC BT BT BT BT BT BT SA                       ' '10' ' 12785  12696' ' 0.3109' '    24      3']
+     ['11' 'TO BT BT AB                                         ' '11' ' 10993  11100' ' 0.5182' '    72    188']
+     <span class="r">['12' 'TO BT AB                                            ' '12' '  9250   9727' '11.9897' '    36     96'] ## ABSLEN ACRYLIC ? </span>
+     ['13' 'TO BT BT BT BT BT BT BT SA                          ' '13' '  7476   7627' ' 1.5097' '   176    162']
+     ['14' 'TO SC SC SC AB                                      ' '14' '  7544   7545' ' 0.0001' '    90     84']
+     ['15' 'TO RE BT BT BT BT BT BT SD                          ' '15' '  7419   7364' ' 0.2046' '   197      6']
+     ['16' 'TO SC RE AB                                         ' '16' '  7137   7191' ' 0.2035' '   110     93']
+     ['17' 'TO RE BT BT BT BT BT BT SA                          ' '17' '  7126   7104' ' 0.0340' '    48    181']
+     ['18' 'TO SC BT BT AB                                      ' '18' '  6419   6527' ' 0.9010' '   153     89']
+     ['19' 'TO BT BT BT BT BT BT BT SR SA                       ' '19' '  6385   6367' ' 0.0254' '    16    139']
+     ['20' 'TO BT BT BT BT SD                                   ' '20' '  6146   6190' ' 0.1569' '    13     99']
+     ['21' 'TO SC SC SC BT BT BT BT BT BT SD                    ' '21' '  6148   6175' ' 0.0592' '   145    194']
+     ['22' 'TO SC BT BT SA                                      ' '22' '  6087   6170' ' 0.5620' '   120    185']
+     ['23' 'TO SC BT AB                                         ' '23' '  5589   5782' ' 3.2758' '     8     17']
+     ['24' 'TO BT BT DR BT SA                                   ' '24' '  5449   5543' ' 0.8039' '   600    246']
+     ['25' 'TO RE RE AB                                         ' '25' '  5538   5420' ' 1.2707' '   267    125']
+     ['26' 'TO BT BT BT SA                                      ' '26' '  5532   5259' ' 6.9066' '   745      7']
+     ['27' 'TO SC SC SC BT BT BT BT BT BT SA                    ' '27' '  5084   4974' ' 1.2030' '    23     31']
+     ['28' 'TO SC BT BT BT BT BT BT BT SA                       ' '28' '  4609   4610' ' 0.0001' '    20     63']
+     ['29' 'TO BT BT BT BT BT BT BR BT BT BT BT BT BT BT BT SD  ' '29' '  3809   3813' ' 0.0021' '   362    812']
+     ['30' 'TO RE SC AB                                         ' '30' '  3660   3565' ' 1.2491' '    54     30']
+     ['31' 'TO SC RE BT BT BT BT BT BT SD                       ' '31' '  3192   3134' ' 0.5318' '   292    136']
+     ['32' 'TO SC BT BT BT BT BT BT BT SR SA                    ' '32' '  3145   3173' ' 0.1241' '   243    419']
+     ['33' 'TO BT BT BT BT BT BT BT SD                          ' '33' '  3168   3138' ' 0.1427' '   181    424']
+     ['34' 'TO BT BT BT BT BT BT BR BT BT BT BT BT BT BT BT SA  ' '34' '  3142   3163' ' 0.0699' '    22    257']
+     ['35' 'TO BT BT BT BT BT BT BT SR SR SA                    ' '35' '  3043   3096' ' 0.4576' '   286   1591']
+     ['36' 'TO SC SC BT BT AB                                   ' '36' '  2878   2987' ' 2.0257' '   636    252']
+     ['37' 'TO SC RE BT BT BT BT BT BT SA                       ' '37' '  2877   2960' ' 1.1802' '   151    301']
+     ['38' 'TO BT BT BT BT AB                                   ' '38' '  2857   2834' ' 0.0930' '   225    228']
+     ['39' 'TO SC BT BT BT BT SD                                                                           ' '39' '  2841   2800' ' 0.2980' '   224    323']]
+     </pre>
+
+
+:small:`One Issue : Photons going up the Chimney discrepant ?`
+---------------------------------------------------------------------
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][bzero]  ## in A but not B 
+    [['1107' 'TO BT BT BT BT BT BT BT BT SD                                                                  ' '1107' '    41      0' ' 0.0000' ' 11355     -1']
+     ['1305' 'TO BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT' '1305' '    33      0' ' 0.0000' ' 11040     -1']
+     ['1623' 'TO BT BT DR BT BT BT SD                                                                        ' '1623' '    26      0' ' 0.0000' '  1930     -1']
+     ['2375' 'TO BT BT BT BT BT BT BR BT BT BT BT BT BT BT BT BT SD                                          ' '2375' '    17      0' ' 0.0000' ' 10972     -1']
+     ['3264' 'TO SC BT BT BT BT BT BT BR BT BT BT BT BT BT BT BT BT SD                                       ' '3264' '    12      0' ' 0.0000' ' 22140     -1']]
+
+    In [1]: w = a.q_startswith("TO BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT") ; w 
+    Out[1]: 
+    array([ 11040,  15219, 118322, 152607, 165838, 215978, 299136, 374379, 395244, 422394, 427598, 434101, 443666, 445392, 479186, 531698, 549984, 592656, 604821, 637582, 656052, 736283, 777988, 789501,
+           821402, 837105, 853410, 898084, 903045, 923645, 927731, 974750, 989689])
+
+    In [2]: a.f.record[w[0],:,0]    ## <span class="r">PHOTON STEP POINT POSITIONS : ALL SIMILAR : GOING UP THE CHIMNEY </span>
+    Out[2]: 
+    array([[   -1.594,     0.835,    99.984,     0.   ],        ## <span class="r"> photon step point (x,y,z,t)  </span>
+           [ -284.142,   148.854, 17823.998,    81.302],
+           [ -315.513,   165.289, 20000.   ,    88.563],
+           [ -332.369,   174.119, 21750.   ,    94.401],
+           [ -332.383,   174.127, 21752.   ,    94.407],
+           [ -344.817,   180.641, 23500.   ,   103.396],
+           [ -368.795,   193.202, 25752.   ,   110.911],
+           [ -409.762,   214.663, 29599.7  ,   123.75 ],
+           [ -409.764,   214.664, 29599.85 ,   123.75 ],
+           ...
+           [ -412.414,   216.053, 29848.799,   124.581],
+           [ -412.424,   216.058, 29849.7  ,   124.584],
+           [ -412.426,   216.059, 29849.85 ,   124.585],
+           [ -412.532,   216.114, 29859.85 ,   124.618],
+           [ -412.534,   216.115, 29860.   ,   124.618],
+           [ -412.543,   216.12 , 29860.9  ,   124.621],
+           [ -412.55 ,   216.124, 29861.5  ,   124.623],
+           [ -412.56 ,   216.129, 29862.5  ,   124.627]], dtype=float32)
+    </pre>
+
+
+
+:i:`G4CXTest_GEOM_A_chimney_issue.png`
+---------------------------------------
+
+
+.. class:: small
+
+    
+    +--------------------------------+
+    | :w:`G4CXTest_GEOM.sh`          |
+    +--------------------------------+
+    | :w:`1M photon Torch Genstep    |
+    | at CD center`                  |
+    +=============+==================+
+    | :r:`Red`    | :r:`End points`  |
+    +-------------+------------------+
+    | :g:`Green`  | :g:`Step points` |       
+    +-------------+------------------+
+    | :c:`Cyan`   | :c:`Hit points`  |       
+    +-------------+------------------+
+
+
+
+:small:`Pure Optical TORCH Run : 20 events from 0.1M to 100M photons`
+----------------------------------------------------------------------
+
+::
+
+    TEST=large_scan ~/opticks/cxs_min.sh 
+    
+
+
+.. class:: small
+
+    Generate 20 optical only events with 0.1M->100M photons starting from CD center, 
+    gather and save only Hits.
+
+    * uses CSGOptiXSMTest executable (no Geant4 dependency)
+
+::
+
+    OPTICKS_RUNNING_MODE=SRM_TORCH
+    OPTICKS_NUM_PHOTON=H1:10,M2,3,5,7,10,20,40,60,80,100
+    OPTICKS_NUM_EVENT=20
+    OPTICKS_EVENT_MODE=Hit
+
+
+.. class:: small
+
+   * no Geant4 initialization (~150s)
+   * load and upload geometry in ~2s 
+   * BUT with MAX_PHOTON 100M, uploading curandState costs 20s
+
+
+
+
+
+:i:`ALL1_scatter_10M_photon_22pc_hit_alt.png`
+----------------------------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:150mm;" />
+ 
+
+
+``~/o/cxs_min.sh  ## 2.2M hits from 10M photon TorchGenstep, 3.1 seconds``
+
+
+
+:i:`ALL1_scatter_10M_photon_22pc_hit.png`
+-------------------------------------------
+
+.. comment
+
+   PLOT=scatter MODE=3 PUB=10M_photon_22pc_hit ~/o/cxs_min.sh pvpub
+
+
+
+
+
+
+:small:`Optimizing separate "Release" build in addition to "Debug" build`
+---------------------------------------------------------------------------
+
+
+.. class:: small
+
+   **Release** preprocessor macros : adds: **PRODUCTION** , removes: **DEBUG_TAG, DEBUG_PIDX,...**
+
+   * remove debug array collection (eg photon step point records)
+   * remove debug code from GPU kernels 
+   * :r:`lots more mileage here : more can be removed from Release kernel`
+
+
+   **Examine flattened kernel source CSGOptiX/CSGOptiX7.cu (103k lines) : all includes included**
+
+   ::
+
+       ~/opticks/preprocessor.sh > /tmp/out.cc   ## using gcc -E -C -P 
+
+   * :b:`see what the compiler sees` 
+   * enables finding inadvertent doubles + printf
+
+   **Grepping Kernel PTX : Parallel Thread Execution ~Assembly code** 
+
+   * :b:`examine first stage output from compilation`
+
+   Grepping PTX for doubles and printf, and then removing from source
+
+   ``grep \\.f64 $OPTICKS_PREFIX/ptx/CSGOptiX_generated_CSGOptiX7.cu.ptx`` 
+
+   * with OptiX 6.5 these gave large performance improvements, no big effects yet with 7.5
+
+
+
+:small:`sreport.{sh,cc,py} : Opticks Event metadata reports and plots`
+-----------------------------------------------------------------------
+
+.. sidebar:: :small:`Opticks SEvt Metadata`
+
+     .. class:: small 
+
+        * config : GPU, preprocessor switches, ... 
+        * profile "stamps" ``sprof.h``
+
+          * **{int64_t[us], VM[kb], RSS[kb]}** 
+          * beginOfEvent, endOfEvent, GPU launch ...  
+
+        * https://github.com/simoncblyth/np/
+
+.. class:: small
+
+    Opticks Event => folders of NumPy .npy (``NPFold.h/NP.hh``) 
+
+    ``sreport`` executable:
+
+    1. loads SEvt metadata in folders below eg **ALL1**
+       (using ``NPFold::LoadNoData`` : :r:`metadata only`)
+    2. saves summary NPFold to **../ALL1_sreport**
+    3. ``sreport.py`` loads summary and makes plots  
+
+    **Usage on workstation/GPU job and laptop**::
+
+        ~/o/cxs_min.sh  ## create SEvt 
+
+    Laptop, :b:`rsync small metadata summary from remote`::
+
+        JOB=N7 ~/o/sreport.sh grab 
+        JOB=N7 PLOT=Substamp_ALL_Etime_vs_Photon ~/o/sreport.sh
+
+
+.. class:: normal 
+
+    :r:`Effective automated reporting+plotting are essential for optimization`
+
+
+
+
+
+
+:i:`N7_Substamp_ALL_Hit_vs_Photon__linear.png`
+------------------------------------------------
+
+:i:`S7_Substamp_ALL_Hit_vs_Photon__linear.png`
+------------------------------------------------
+
+
 :i:`N7_Substamp_ALL_Etime_vs_Photon__34s_100M_debug.png`
 ---------------------------------------------------------
 
 :i:`S7_Substamp_ALL_Etime_vs_Photon__100M_31s_Release.png`
 -----------------------------------------------------------
+
+
+:i:`N7_Ranges_SPAN__slow_downloads.png`
+----------------------------------------
+
+:i:`S7_Ranges_SPAN__fast_downloads.png`
+----------------------------------------
+
+
+:i:`N7_Ranges_ONE__Debug.png`
+-------------------------------
+
+:i:`S7_Ranges_ONE__Release.png`
+-------------------------------
+
+
+
+:i:`N5_Substamp_ALL_Etime_vs_Photon__U4Recorder_OOM_100M.png`
+---------------------------------------------------------------
+
+
+:i:`S5_Substamp_ALL_Etime_vs_Photon__U4Recorder_benefits_more.png`
+-------------------------------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:60mm;" />
+
+.. class:: center
+
+    "Release" benefits B:U4Recorder more than A:CSGOptiX 
+
+
+
+:i:`N5_Substamp_ALL_RATIO_vs_Photon__approach_200.png`
+-------------------------------------------------------
+
+
+
+
+
+:i:`scan-pf-1_Opticks_vs_Geant4 2`
+------------------------------------
+
+
+.. raw:: html
+
+    <p class="mytopbox">Absolute Comparison with ancient Opticks Measurements.. ? [Below presented at CHEP 2019]</p>
+    <pre>
+   
+
+
+ 
+    </pre>
+
+
+.. class:: small
+
+    .. table:: 
+        :align: center
+
+        +--------------------+----------------------------+------------------+
+        | JUNO analytic, 400M photons from center         |  Speedup         |
+        +====================+============================+==================+
+        | Geant4 Extrap.     | 95,600 s (26 hrs)          |                  | 
+        +--------------------+----------------------------+------------------+
+        | Opticks RTX ON (i) | 58 s                       |   1650x          |
+        +--------------------+----------------------------+------------------+
+
+
+.. s5_talk::
+
+   This compares the extrapolated Geant4 propagation time with the Opticks launch
+   interval with RTX on.   The speedup is more than a factor of 1000.   Need to 
+   use a log scale to make them both visible. 
+
+   For 400M photons, Geant4 takes more than a day, Opticks takes less than a minute.   
+
+   This is with analytic geometry. Speedup is a lot more with triangles.
+
+
+
+
+:small:`Absolute Comparison with ancient Opticks Measurements ?`
+--------------------------------------------------------------------------
+
+
+.. class:: small
+
+    .. table:: 
+        :align: center
+
+        +------------------------+----------------------------+------------------+-----------------------------------+
+        | JUNO analytic, 400M photons from center             |  Speedup         |   Notes                           |
+        +========================+============================+==================+===================================+
+        | Geant4 Extrap.         | 95,600 s (26 hrs)          |                  |  Ancient (2019)                   |
+        +------------------------+----------------------------+------------------+-----------------------------------+
+        | Opticks RTX ON (i)     | 58 s                       |   1650x          |  Ancient (2019)                   |
+        +------------------------+----------------------------+------------------+-----------------------------------+
+        | :r:`Current Opticks`   | :r:`124 s (~2x slower)`    |  :r:`770x`       |  extrapolated from 31s for 100M   |
+        +------------------------+----------------------------+------------------+-----------------------------------+ 
+        
+
+.. class:: small
+
+   Practically everything different between these measurements : :b:`nevertheless : its natural to compare`  
+ 
+   1. NVIDIA OptiX 6.5 -> 7.5 [entirely new API] => Opticks almost entirely re-implemented 
+   2. JUNO geometry : more complex than 4 years ago(?) : despite efforts to simplify 
+   3. :r:`JUNO PMT Optical Model (POM) (traditional vs "bouncy" with complex {A,R,T} TMM calculation)` 
+   4. NVIDIA RTX 8000 (48G) vs NVIDIA TITAN RTX (24G)  [similar spec other than VRAM]  
+   5. Geant4 setup : :b:`Geant4 is not a good candle : far too flexible`
+
+.. sidebar:: :small:`~300 ns photon lifetime limit ?`
+
+   .. class:: small
+
+        * long path photons likely irrelevant ?  
+        * :r:`IDEA : chop the tail`
+
+        :: 
+ 
+            OPTICKS_MAX_BOUNCE=32 ## curr.
+            OPTICKS_MAX_NS=300    ## IDEA
+
+.. class:: small
+
+   **Expected Primary Cause of 2x slowdown** : :r:`"bouncy" POM`
+
+   * many more photons living longer, not "mopped" up by PMTs
+   * bouncing around inside PMT, visiting multiple PMTs
+   * more bounces -> :r:`every bounce costing a ray trace` 
+   * more divergence -> less parallelism 
+
+   
+
+
+TODO : G4CXTest ratio plot
+----------------------------
+
+
+
+:i:`N5_Subprofile_ALL__leaking.png`
+-------------------------------------
+
+
+.. raw:: html 
+
+    <p style="margin-bottom:80mm;" />
+
+
+.. class:: center
+
+    U4Recorder leaking badly! [Geant4 propagation recorded into Opticks SEvt]
+
+
+
+:i:`S7_Subprofile_ALL__no_leak.png`
+-------------------------------------
+
+.. raw:: html 
+
+    <p style="margin-bottom:80mm;" />
+
+
+.. class:: center
+
+    Pure Opticks (no Geant4 or U4Recorder) : no leak
+
+
+
+
+
 
 
 
@@ -124,26 +699,19 @@ optical photon simulation, P ~ 99% of CPU time
 
 
 
-:i:`ALL1_scatter_10M_photon_22pc_hit_alt.png`
-----------------------------------------------
-
-
-.. raw:: html
-
-    <p style="margin-bottom:150mm;" />
- 
-
-
-``~/o/cxs_min.sh  ## 10M "TORCH" photons 22pc hit, 3.6 seconds``
+TODO : StandardFullDebug 1M FOR validation table
+---------------------------------------------------
 
 
 
-:i:`ALL1_scatter_10M_photon_22pc_hit.png`
--------------------------------------------
 
-.. comment
+TODO : okjob jok-tds 
+-----------------------
 
-   PLOT=scatter MODE=3 PUB=10M_photon_22pc_hit ~/o/cxs_min.sh pvpub
+
+TODO : GUN=1 ~/j/okjob.sh 
+-----------------------------
+
 
 
 

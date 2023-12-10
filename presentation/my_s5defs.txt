@@ -94,6 +94,7 @@
         span.m { color: magenta; font-weight:bold ; }
         span.y { color: yellow; font-weight:bold ; }
         span.e { color: grey; font-weight:bold ; }
+        span.w { color: white; font-weight:bold ; }
 
         span.alarm { color: red; } 
         span.blue { color: blue; } 
@@ -177,6 +178,16 @@
              position: absolute; top:86%; left:4%; width:50%; height:10% ;
         }
 
+        p.mytopbox { 
+             position:fixed;
+             top:-10px;
+             left:10px;
+             font-size:25px;
+             background-color:yellow;
+             border:1px solid black;
+             padding:5px;
+         }
+
         a.mylink {
              display: block;
              font-family: monospace;
@@ -249,6 +260,7 @@
 .. role:: m
 .. role:: y
 .. role:: e
+.. role:: w
 
 .. role:: m20
 .. role:: m18
