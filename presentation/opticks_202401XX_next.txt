@@ -1,10 +1,10 @@
 .. meta::
 
-   :title: Opticks + JUNO : Profiling + Status
-   :name: opticks_20231211_profile.txt
+   :title: Opticks + JUNO : 
+   :name: opticks_20231211_release.txt
    :description: (11 Dec 2023)
    :notes: Sim
-   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=10929
+   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?conferenceid=1166
 
 .. include:: my_s5defs.txt
 
@@ -62,6 +62,18 @@
     <div class="mycredit">
        <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS  &mdash; Simulation Meeting &mdash; 11 Dec 2023 </h2>
     </div>
+
+
+
+
+:i:`ilker_cxr_min__eye_0,0.5,0__zoom_1__tmin_0.5__NNVT:0:0.jpg`
+-----------------------------------------------------------------
+
+.. class:: center
+
+
+    Ilker Parmaksiz, NEXT (Neutrino Experiment with a Xenon TPC) ? 
+
 
 
 

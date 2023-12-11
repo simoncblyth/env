@@ -2445,6 +2445,9 @@
     G4CXTest_GEOM_A_chimney_issue.png
     GEOM/J23_1_0_rc3_ok0/G4CXTest/ALL99/A000/figs/G4CXTest_GEOM/pvcap/G4CXTest_GEOM_A_chimney_issue.png 1280px_720px
 
+    ilker_cxr_min__eye_0,0.5,0__zoom_1__tmin_0.5__NNVT:0:0.jpg
+    GEOM/ilker/CSGOptiXRdrTest/cxr_min__eye_0,0.5,0__zoom_1__tmin_0.5__NNVT:0:0.jpg 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

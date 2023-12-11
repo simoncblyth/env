@@ -1207,105 +1207,6 @@ presentation-ls(){   presentation-cd ; ls -1t *.txt ; }
 presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 
 
-#presentation-iname(){ echo gpu_accelerated_geant4_simulation ; }
-#presentation-iname(){ echo optical_photon_simulation_with_nvidia_optix ; }
-#presentation-iname(){ echo optical_photon_simulation_progress ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_psroc ; }
-
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_march2016 ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_april2016_gtc ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_may2016_lecospa ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2016_weihai ; }
-#presentation-iname(){ echo jnu_cmake_ctest ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_oct2016_chep ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2016_llr ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jan2017_psroc ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2017_ihep ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_sep2017_jinan ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_sep2017_wollongong ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2018_chep ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2018_ihep ; }    ## LOTS OF ISSUES : HAS OWN s5_background_image list 
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_sep2018_qingdao ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_oct2018_ihep ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jan2019_sjtu ; }   ## REMOVED INDIV s5_background_image list 
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2019_ihep ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_oct2019_dance ; }  ## NOT FOUND
-
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep_TALK ; }
-
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar_TALK ; }
-
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou_TALK ; }
-
-#presentation-iname(){ echo ${INAME:-opticks_may2020_hsf} ; }
-
-#presentation-iname(){ echo ${INAME:-opticks_jul2020_juno} ; }   ## PROBLEMS
-
-#presentation-iname(){ echo ${INAME:-opticks_aug2020_sjtu_neutrino_telescope_workshop} ; }
-#presentation-iname(){ echo ${INAME:-opticks_aug2020_sjtu_neutrino_telescope_workshop_TALK} ; }
-
-# instead of manually changing to _TALK use the p2.sh script
-
-#presentation-iname(){ echo ${INAME:-opticks_jan2021_juno_sim_review} ; }
-
-#presentation-iname(){  echo ${INAME:-lz_opticks_optix7} ; }  ## NOT FOUND
-#presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210208} ; }
-#presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210225} ; }
-
-#presentation-iname(){  echo ${INAME:-opticks_detector_geometry_caf_mar2021} ; }
-#presentation-iname(){  echo ${INAME:-opticks_detector_geometry_caf_mar2021_TALK} ; }
-
-#presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210315} ; }
-#presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210406} ; }
-
-#presentation-iname(){  echo ${INAME:-juno_opticks_20210426} ; }
-#presentation-iname(){   echo ${INAME:-lz_opticks_optix7_20210504} ; }
-#presentation-iname(){   echo ${INAME:-opticks_vchep_2021_may19} ; }
-#presentation-iname(){   echo ${INAME:-lz_opticks_optix7_20210518} ; }
-
-
-#presentation-iname(){  echo ${INAME:-juno_opticks_20210712} ; }
-#presentation-iname(){   echo ${INAME:-lz_opticks_optix7_20210727} ; }
-
-#presentation-iname(){  echo ${INAME:-juno_opticks_cerenkov_20210902} ; }
-#presentation-iname(){  echo ${INAME:-opticks_autumn_20211019} ; }
-#presentation-iname(){  echo ${INAME:-opticks_20211117} ; }
-
-
-#presentation-iname(){  echo ${INAME:-opticks_20211223_pre_xmas} ; }
-#presentation-iname(){ echo ${INAME:-opticks_20220115_innovation_in_hep_workshop_hongkong} ; }
-#presentation-iname(){ echo ${INAME:-opticks_20220115_innovation_in_hep_workshop_hongkong_TALK} ; }
-#presentation-iname(){ echo ${INAME:-opticks_20220118_juno_collaboration_meeting} ; }
-#presentation-iname(){ echo ${INAME:-opticks_20220118_juno_collaboration_meeting_TALK} ; }
-#presentation-iname(){  echo ${INAME:-opticks_20220227_LHCbRich_UK_GPU_HACKATHON} ; }
-#presentation-iname(){  echo ${INAME:-opticks_20220307_fixed_global_leaf_placement_issue} ; }
-
-#presentation-iname(){  echo ${INAME:-opticks_20220329_progress_towards_production} ; }
-#presentation-iname(){  echo ${INAME:-opticks_20220718_towards_production_use_juno_collab_meeting} ; }
-#presentation-iname(){  echo ${INAME:-opticks_202209XX_mask_spurious_debug} ; }
-#presentation-iname(){  echo ${INAME:-opticks_20221117_mask_debug_and_tmm} ; }
-#presentation-iname(){  echo ${INAME:-opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix} ; }
-#presentation-iname(){   echo ${INAME:-opticks_20230206_JUNO_PMT_Geometry_and_Optical_Model_Progress} ; }
-#presentation-iname(){   echo ${INAME:-opticks_202303XX_jPOM_issues_and_CustomG4OpBoundaryProcess_validation} ; }
-#presentation-iname(){    echo ${INAME:-opticks_202303XX_More_junoPMTOpticalModel_issues_and_Validation_of_CustomG4OpBoundaryProcess_fix} ; }
-#presentation-iname(){    echo ${INAME:-opticks_20230428_More_junoPMTOpticalModel_issues_and_Validation_of_CustomG4OpBoundaryProcess_fix} ; }
-#presentation-iname(){   echo ${INAME:-opticks_20230508_chep} ; }
-#presentation-iname(){ echo ${INAME:-opticks_20230525_MR180_timestamp_analysis} ; }
-#presentation-iname(){ echo ${INAME:-opticks_20230611_qingdao_sdu_workshop} ;  }
-#presentation-iname(){ echo ${INAME:-opticks_20230721_kaiping_pwg_afg} ; }
-#presentation-iname(){ echo ${INAME:-opticks_20230726_kaiping_software_review} ; }
-#presentation-iname(){ echo ${INAME:-opticks_202309XX_3inch_fix} ; }
-#presentation-iname(){ echo ${INAME:-opticks_20230907_release} ; }
-#presentation-iname(){ echo ${INAME:-opticks_202310XX_release} ; }
-#presentation-iname(){ echo ${INAME:-standalone_20230930_cpp_test_debug_ana_with_numpy} ; }
-#presentation-iname(){ echo ${INAME:-opticks_20231027_nanjing_cepc_workshop} ; }
-presentation-iname(){ echo ${INAME:-opticks_20231211_profile} ; }
-
-
 presentation-notes(){ cat << EON
 
 To render the html as PDF use::
@@ -1517,5 +1418,108 @@ presentation-rst2talk-(){
    echo $msg cmd $cmd
    eval $cmd
 }
+
+
+
+
+
+#presentation-iname(){ echo gpu_accelerated_geant4_simulation ; }
+#presentation-iname(){ echo optical_photon_simulation_with_nvidia_optix ; }
+#presentation-iname(){ echo optical_photon_simulation_progress ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_psroc ; }
+
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_march2016 ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_april2016_gtc ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_may2016_lecospa ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2016_weihai ; }
+#presentation-iname(){ echo jnu_cmake_ctest ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_oct2016_chep ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2016_llr ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jan2017_psroc ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2017_ihep ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_sep2017_jinan ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_sep2017_wollongong ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2018_chep ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2018_ihep ; }    ## LOTS OF ISSUES : HAS OWN s5_background_image list 
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_sep2018_qingdao ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_oct2018_ihep ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jan2019_sjtu ; }   ## REMOVED INDIV s5_background_image list 
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2019_ihep ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_oct2019_dance ; }  ## NOT FOUND
+
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep_TALK ; }
+
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar_TALK ; }
+
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou_TALK ; }
+
+#presentation-iname(){ echo ${INAME:-opticks_may2020_hsf} ; }
+
+#presentation-iname(){ echo ${INAME:-opticks_jul2020_juno} ; }   ## PROBLEMS
+
+#presentation-iname(){ echo ${INAME:-opticks_aug2020_sjtu_neutrino_telescope_workshop} ; }
+#presentation-iname(){ echo ${INAME:-opticks_aug2020_sjtu_neutrino_telescope_workshop_TALK} ; }
+
+# instead of manually changing to _TALK use the p2.sh script
+
+#presentation-iname(){ echo ${INAME:-opticks_jan2021_juno_sim_review} ; }
+
+#presentation-iname(){  echo ${INAME:-lz_opticks_optix7} ; }  ## NOT FOUND
+#presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210208} ; }
+#presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210225} ; }
+
+#presentation-iname(){  echo ${INAME:-opticks_detector_geometry_caf_mar2021} ; }
+#presentation-iname(){  echo ${INAME:-opticks_detector_geometry_caf_mar2021_TALK} ; }
+
+#presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210315} ; }
+#presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210406} ; }
+
+#presentation-iname(){  echo ${INAME:-juno_opticks_20210426} ; }
+#presentation-iname(){   echo ${INAME:-lz_opticks_optix7_20210504} ; }
+#presentation-iname(){   echo ${INAME:-opticks_vchep_2021_may19} ; }
+#presentation-iname(){   echo ${INAME:-lz_opticks_optix7_20210518} ; }
+
+
+#presentation-iname(){  echo ${INAME:-juno_opticks_20210712} ; }
+#presentation-iname(){   echo ${INAME:-lz_opticks_optix7_20210727} ; }
+
+#presentation-iname(){  echo ${INAME:-juno_opticks_cerenkov_20210902} ; }
+#presentation-iname(){  echo ${INAME:-opticks_autumn_20211019} ; }
+#presentation-iname(){  echo ${INAME:-opticks_20211117} ; }
+
+
+#presentation-iname(){  echo ${INAME:-opticks_20211223_pre_xmas} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20220115_innovation_in_hep_workshop_hongkong} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20220115_innovation_in_hep_workshop_hongkong_TALK} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20220118_juno_collaboration_meeting} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20220118_juno_collaboration_meeting_TALK} ; }
+#presentation-iname(){  echo ${INAME:-opticks_20220227_LHCbRich_UK_GPU_HACKATHON} ; }
+#presentation-iname(){  echo ${INAME:-opticks_20220307_fixed_global_leaf_placement_issue} ; }
+
+#presentation-iname(){  echo ${INAME:-opticks_20220329_progress_towards_production} ; }
+#presentation-iname(){  echo ${INAME:-opticks_20220718_towards_production_use_juno_collab_meeting} ; }
+#presentation-iname(){  echo ${INAME:-opticks_202209XX_mask_spurious_debug} ; }
+#presentation-iname(){  echo ${INAME:-opticks_20221117_mask_debug_and_tmm} ; }
+#presentation-iname(){  echo ${INAME:-opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix} ; }
+#presentation-iname(){   echo ${INAME:-opticks_20230206_JUNO_PMT_Geometry_and_Optical_Model_Progress} ; }
+#presentation-iname(){   echo ${INAME:-opticks_202303XX_jPOM_issues_and_CustomG4OpBoundaryProcess_validation} ; }
+#presentation-iname(){    echo ${INAME:-opticks_202303XX_More_junoPMTOpticalModel_issues_and_Validation_of_CustomG4OpBoundaryProcess_fix} ; }
+#presentation-iname(){    echo ${INAME:-opticks_20230428_More_junoPMTOpticalModel_issues_and_Validation_of_CustomG4OpBoundaryProcess_fix} ; }
+#presentation-iname(){   echo ${INAME:-opticks_20230508_chep} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20230525_MR180_timestamp_analysis} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20230611_qingdao_sdu_workshop} ;  }
+#presentation-iname(){ echo ${INAME:-opticks_20230721_kaiping_pwg_afg} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20230726_kaiping_software_review} ; }
+#presentation-iname(){ echo ${INAME:-opticks_202309XX_3inch_fix} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20230907_release} ; }
+#presentation-iname(){ echo ${INAME:-opticks_202310XX_release} ; }
+#presentation-iname(){ echo ${INAME:-standalone_20230930_cpp_test_debug_ana_with_numpy} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20231027_nanjing_cepc_workshop} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20231211_profile} ; }
+presentation-iname(){ echo ${INAME:-opticks_202401XX_next} ; }
 
 
