@@ -11,6 +11,31 @@ BITBUCKET
 ==========
 
 
+Web UI : Select a pull request from the list
+-----------------------------------------------
+
+* https://bitbucket.org/simoncblyth/opticks/pull-requests/?state=ALL
+
+Non-intuitively to select a pull request (click the undecorated first "Master" in the list)::
+
+    huyuxiang  Open Master Branch: huyuxiang-bit/opticks:master  -> huyuxiang-bit/opticks:master
+
+
+Then to Merge or take other action click the "..." dropdown with options::
+
+   Merge
+   Edit
+   Decline
+   Stop watching
+   View in VS Code
+ 
+
+     
+
+
+
+
+
 May 2023 : SSH key rotation : RSA key removal 
 -----------------------------------------------
 

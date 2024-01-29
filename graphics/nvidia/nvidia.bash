@@ -11,6 +11,12 @@ NVIDIA
 
 
 
+US Export to China Restrictions
+---------------------------------
+
+* https://www.semianalysis.com/p/wafer-wars-deciphering-latest-restrictions
+
+
 Micro-benchmarking
 --------------------
 
@@ -73,6 +79,22 @@ Cluster Management
 * https://www.run.ai/guides/slurm/understanding-slurm-gpu-management
 
 
+
+nvml : NVIDIA Management Library (C API)
+------------------------------------------
+
+* see nvml-
+
+* https://developer.nvidia.com/nvidia-management-library-nvml
+
+
+
+
+nvidia-ml-py : Python Bindings for the NVIDIA Management Library
+------------------------------------------------------------------
+
+* https://pypi.org/project/nvidia-ml-py/#history
+
 nvidia-smi
 ------------
 
@@ -83,8 +105,6 @@ nvidia-smi
     nvidia-smi -l 1        # every second
     nvidia-smi -lms 500    # every half second  
     watch -n0.2 nvidia-smi # every 0.2 second, but forking process every time : probably unwise
-
-
 
 
 nvidia-visual-profiler 

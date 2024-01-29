@@ -2070,6 +2070,7 @@ nvml-(){      . $(env-home)/graphics/nvidia/nvml.bash && nvml-env $* ; }
 visrtx-(){      . $(env-home)/graphics/nvidia/visrtx.bash && visrtx-env $* ; }
 equirect-(){      . $(env-home)/graphics/opengl/equirect.bash && equirect-env $* ; }
 ml-(){      . $(env-home)/ai/ml.bash && ml-env $* ; }
+appleml-(){ . $(env-home)/ai/appleml.bash && appleml-env $* ; }
 vr-(){      . $(env-home)/graphics/vr/vr.bash && vr-env $* ; }
 tree-(){      . $(env-home)/adt/tree.bash && tree-env $* ; }
 gdb-(){      . $(env-home)/tools/gdb.bash && gdb-env $* ; }

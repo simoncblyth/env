@@ -185,10 +185,15 @@ Thin GDB/MI wrappers
 
 
 
+ignoring breakpoint for a count
+---------------------------------
 
+* https://stackoverflow.com/questions/2956889/how-to-make-a-gdb-breakpoint-only-break-after-the-point-is-reached-a-given-numbe
 
+::
 
-
+    (gdb) ignore 1 30
+    Will ignore next 30 crossings of breakpoint 1.
 
 
 

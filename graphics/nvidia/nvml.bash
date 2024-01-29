@@ -10,6 +10,38 @@ nvml-usage(){ cat << EOU
 NVML : programmatic nvidia-smi
 ===================================
 
+* see ~/opticks/sysrap/smonitor.sh 
+
+
+* https://docs.nvidia.com/deploy/nvml-api/index.html
+
+* https://github.com/FindHao/nvsmi/blob/main/src/nvsmi.cpp
+
+
+
+::
+
+    nvmlDeviceGetComputeRunningProcesses
+
+
+* https://github.com/gpuopenanalytics/pynvml/issues/21
+
+
+import pynvml
+
+pynvml.nvmlInit()
+for dev_id in range(pynvml.nvmlDeviceGetCount()):
+    handle = pynvml.nvmlDeviceGetHandleByIndex(dev_id)
+    for proc in pynvml.nvmlDeviceGetComputeRunningProcesses(handle):
+        print(
+            "pid %d using %d bytes of memory on device %d."
+            % (proc.pid, proc.usedGpuMemory, dev_id)
+        )
+
+
+
+
+
 ::
 
     [blyth@localhost example]$ ./example 
@@ -24,6 +56,10 @@ NVML : programmatic nvidia-smi
              Need root privileges to do that: Insufficient Permissions
     All done.
     Press ENTER to continue...
+
+
+
+
 
 
 Motivation for using this : not so strong
@@ -72,6 +108,13 @@ nvml-make()
     CFLAGS="-I$(nvml-cudadir)/targets/x86_64-linux/include" make -e    # -e option allows to override settings inside Makefile with envvars
     ./example
 }
+
+nvml-make2()
+{
+   CFLAGS="-I/usr/local/cuda-11.7/targets/x86_64-linux/include" make -e 
+
+}
+
 
 nvml--(){
     nvml-get 

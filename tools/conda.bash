@@ -8,6 +8,12 @@ conda-usage(){ cat << EOU
 Conda 
 ========
 
+So slow
+----------
+
+* https://www.anaconda.com/blog/understanding-and-improving-condas-performance
+
+
 Refs
 -----
 
