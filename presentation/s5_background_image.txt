@@ -17,8 +17,8 @@
     ## to disable the title background image simply change the 
     ## below title of "slide0" to "slide0_D"
     ##
-    ##slide0
-    slide0_D
+    ##slide0_D
+    slide0
     ../graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -2447,6 +2447,18 @@
 
     ilker_cxr_min__eye_0,0.5,0__zoom_1__tmin_0.5__NNVT:0:0.jpg
     GEOM/ilker/CSGOptiXRdrTest/cxr_min__eye_0,0.5,0__zoom_1__tmin_0.5__NNVT:0:0.jpg 1280px_720px
+
+    okjob_smonitor_steady_upwards.png
+    smonitor/figs/smonitor/mpcap/okjob_smonitor_steady_upwards.png 1280px_720px 
+
+    smonitor_cxs_min_igs_with_rg_dummy_with_rg_dummy.png 
+    smonitor/figs/smonitor/mpcap/smonitor_cxs_min_igs_with_rg_dummy_with_rg_dummy.png 1280px_720px
+    
+    smonitor_cxs_min_igs_with_rg_with_rg.png
+    smonitor/figs/smonitor/mpcap/smonitor_cxs_min_igs_with_rg_with_rg.png 1280px_720px
+
+    smonitor_cxs_min_igs_rg_default_stream_rg_default_stream.png
+    smonitor/figs/smonitor/mpcap/smonitor_cxs_min_igs_rg_default_stream_rg_default_stream.png 1280px_720px
 
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored

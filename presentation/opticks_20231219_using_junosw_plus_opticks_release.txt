@@ -1,0 +1,525 @@
+.. meta::
+
+   :title: Using JUNOSW+Opticks Pre-Release 
+   :name: opticks_20231219_using_junosw_plus_opticks_release.txt
+   :description: (19 Dec 2023)
+   :notes: Sim AFG
+
+.. include:: my_s5defs.txt
+
+.. include:: s5_background_image.txt
+
+
+.. comment
+
+    <p style="margin-bottom:50mm;" />
+
+
+:i:`Using JUNOSW+Opticks Pre-Release at IHEP GPU cluster` 
+==========================================================
+
+.. raw:: html
+
+    <div class="mytitle">
+        <header>
+            <h1 style="background-color:lightgrey"> 
+                Using JUNOSW+Opticks Pre-Release at IHEP GPU cluster
+            </h1>
+        </header>
+    </div>
+    <p style="margin-bottom:25mm;" />
+    <p style="margin-bottom:40mm;" />
+
+.. class:: normal
+
+   * (December 18, 2023) First Pre-Release of JUNOSW+Opticks
+   * How to submit JUNOSW+Opticks batch job to GPU cluster
+   * lxslc7 Usage Tip : change HOME to avoid AFS 
+   * Slurm Submission Example
+   * Opticks outputs saved to run folder
+   * NumPy+matplotlib Analysis and Plotting of Opticks SEvt
+   * OPTICKS_INTEGRATION_MODE and python option ``--opticks-mode``
+   * Geometry in use based on J23_1_0_rc6 (despite name rc3)
+   * Introduce Three Opticks test scripts [1] [2] [3]
+   * TorchGenstep scan 0.1M -> 100M photons 
+   * Release : 0.314 seconds per million photons
+   * Known Issues
+   * Summary 
+
+
+
+
+.. raw:: html
+
+    <div class="mycredit">
+       <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS  &mdash; Simulation AFG Meeting &mdash; 19 Dec 2023 </h2>
+    </div>
+
+
+
+:small:`(December 18, 2023) First Pre-Release of JUNOSW+Opticks`
+----------------------------------------------------------------------------------
+
+
+.. class:: small
+
+    :r:`source /cvmfs/juno.ihep.ac.cn/centos7_amd64_gcc1120_opticks/Pre-Release/J23.1.0-rc6/setup.sh`
+
+
+.. class:: small
+
+   * :b:`Objective of Pre-Release : enable more people to test JUNOSW+Opticks`
+
+   +----------------------+------------------------------------------------------------------------------------+ 
+   | OptiX 7.5            | Chosen to match NVIDIA CUDA 11.7 + Driver Version: 515.65.01 on IHEP GPU cluster   | 
+   +----------------------+------------------------------------------------------------------------------------+ 
+   | Geant4 10.4.2        | (Opticks with Geant4 11 already in use elsewhere)                                  |
+   +----------------------+------------------------------------------------------------------------------------+
+   | Custom4 0.1.8        | small package : but deeply coupled with : Geant4 + JUNOSW + Opticks                |
+   +----------------------+------------------------------------------------------------------------------------+ 
+   | Opticks-v0.2.4       | December 18 release https://github.com/simoncblyth/opticks/releases/tag/v0.2.4     |
+   +----------------------+------------------------------------------------------------------------------------+ 
+
+.. class:: small
+
+   Pre-Release usable only on IHEP GPU cluster (?) 
+
+   * unless NVIDIA Driver + CUDA + OptiX versions happen to match for you ? 
+
+      
+
+.. class:: small 
+
+   Example test scripts in j repository:
+
+   * https://code.ihep.ac.cn/blyth/j/-/blob/main/okjob.sh    :b:`submission wrapper`
+   * https://code.ihep.ac.cn/blyth/j/-/blob/main/jok.bash    :b:`tut_detsim.py commandline`
+
+   Example job script for developers building JUNOSW+Opticks with **bash junoenv opticks,bash junoenv offline**
+
+   * https://code.ihep.ac.cn/blyth/j/-/blob/main/okjobdev.sh 
+
+
+Settings used to build the Pre-Release
+------------------------------------------
+
+::
+
+   export OPTICKS_CUDA_PREFIX=/usr/local/cuda-11.7
+
+   export OPTICKS_COMPUTE_CAPABILITY=70
+
+   export OPTICKS_OPTIX_PREFIX=
+         /cvmfs/opticks.ihep.ac.cn/external/OptiX_750
+
+   export OPTICKS_DOWNLOAD_CACHE=
+         /cvmfs/opticks.ihep.ac.cn/opticks_download_cache   
+
+
+     
+Submit JUNOSW+Opticks batch job to GPU cluster
+---------------------------------------------------------
+
+1. from lxslc7 node,  clone j repository to get example scripts::
+
+     git clone git@code.ihep.ac.cn:blyth/j.git
+     git clone git@github.com:simoncblyth/j.git  ## alternative 
+
+2. examine the job scripts::
+
+     vim j/okjob.sh j/jok.bash
+
+3. submit batch job to GPU cluster:: 
+
+     sbatch j/okjob.sh      ## Slurm job submission
+     squeue                 ## Check batch queue
+     squeue -u $USER        ## Check your jobs 
+      
+4. look at outputs::
+
+     ls -l ~/okjob/ 
+
+
+
+lxslc7 Usage Tip : change HOME to avoid AFS
+--------------------------------------------
+
+.. class:: small
+
+    Avoid tedious AFS token(1) management by changing HOME in .bashrc:: 
+        
+        export HOME=/hpcfs/juno/junogpu/$USER
+
+    Symbolic links between homes keeps things working.
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    L7[blyth@lxslc708 ~]$ cd afs_home
+    L7[blyth@lxslc708 afs_home]$ l
+    total 73
+     4 drwxr-xr-x  2 bin   root  4096 Dec  5 22:12 ..
+     1 lrwxr-xr-x  1 blyth dyw     25 Apr 25  2019 g -> /hpcfs/juno/junogpu/blyth
+     1 lrwxr-xr-x  1 blyth dyw     12 Nov 12 20:12 .gitconfig -> g/.gitconfig
+     1 lrwxr-xr-x  1 blyth dyw     33 Nov  8 13:26 opticks -> /hpcfs/juno/junogpu/blyth/opticks
+     1 lrwxr-xr-x  1 blyth dyw     34 Nov  8 10:48 .opticks -> /hpcfs/juno/junogpu/blyth/.opticks
+     1 lrwxr-xr-x  1 blyth dyw     30 Nov  8 09:27 .ssh -> /hpcfs/juno/junogpu/blyth/.ssh
+     1 lrwxr-xr-x  1 blyth dyw     33 Mar 22  2021 .bashrc -> /hpcfs/juno/junogpu/blyth/.bashrc
+     1 lrwxr-xr-x  1 blyth dyw     39 Mar 22  2021 .bash_profile -> /hpcfs/juno/junogpu/blyth/.bash_profile
+     1 lrwxr-xr-x  1 blyth dyw     27 Mar 19  2021 j -> /hpcfs/juno/junogpu/blyth/j
+    L7[blyth@lxslc708 afs_home]$ 
+   </pre>
+
+
+
+
+.. raw:: html
+
+    <p style="margin-bottom:25mm;" />
+ 
+.. class:: tiny
+
+    (1) Tamagotchi tokens
+
+
+:small:`Slurm Submission Example`
+-----------------------------------
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    L7[blyth@lxslc708 ~]$ sbatch j/okjob.sh 
+    Submitted batch job 179818
+    L7[blyth@lxslc708 ~]$ squeue -u blyth
+                 JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+                179818       gpu    okjob    blyth  R       0:06      1 gpu031
+
+    L7[blyth@lxslc708 ~]$ cd okjob
+    L7[blyth@lxslc708 okjob]$ ls -l 
+    total 944
+    -rw-r--r-- 1 blyth dyw   6131 Dec 18 22:44 179509.err
+    -rw-r--r-- 1 blyth dyw 772188 Dec 18 22:44 179509.out
+    -rw-r--r-- 1 blyth dyw   5938 Dec 19 10:51 179818.err
+    -rw-r--r-- 1 blyth dyw 166374 Dec 19 10:51 179818.out
+
+    L7[blyth@lxslc708 okjob]$ tail -f 179818.out        ## follow job output while running
+    junotoptask:DetSimAlg.execute   INFO: DetSimAlg Simulate An Event (115) 
+    junoSD_PMT_v2::Initialize eventID 115
+    Begin of Event --> 115
+    2023-12-19 11:53:14.165 INFO  [12795] [QSim::simulate@376]  eventID 115 dt    0.016075 ph       9211 ph/M          0 ht       1762 ht/M          0 reset_ NO
+    2023-12-19 11:53:14.186 INFO  [12795] [SEvt::save@3953] /hpcfs/juno/junogpu/blyth/tmp/GEOM/J23_1_0_rc3_ok0/jok-tds/ALL0/A115 [genstep,hit]
+    junoSD_PMT_v2::EndOfEvent eventID 115 opticksMode 1 hitCollection 1762 hcMuon 0 GPU YES
+    hitCollectionTT.size: 0 userhitCollectionTT.size: 0
+    junotoptask:DetSimAlg.DataModelWriterWithSplit.EndOfEventAction  INFO: writing events with split begin. 2023-12-19 03:53:14.270755000Z
+    junotoptask:DetSimAlg.DataModelWriterWithSplit.EndOfEventAction  INFO: writing events with split end. 2023-12-19 03:53:14.277959000Z
+  </pre>
+
+
+
+Opticks outputs saved to run folder
+--------------------------------------
+
+.. class:: small
+
+    ::
+
+          $TMP/GEOM/$GEOM/$EXECUTABLE/ALL${VERSION:-0}
+           
+    +------------+-----------------------------------------------------------------------------------------------+
+    | TMP        | /hpcfs/juno/junogpu/blyth/tmp (set by j/okjob.sh:okjob-setup )                                |
+    +------------+-----------------------------------------------------------------------------------------------+
+    | GEOM       | identifier of geometry eg J23_1_0_rc3_ok0 (set by j/jok.bash:jok-init)                        |
+    +------------+-----------------------------------------------------------------------------------------------+
+    | EXECUTABLE | name of executable, when "python3.9" replace with OPTICKS_SCRIPT envvar value eg "jok-tds"    |
+    +------------+-----------------------------------------------------------------------------------------------+
+    | VERSION    | user control to avoid overwriting prior outputs (set in your j/jok.bash                       |
+    +------------+-----------------------------------------------------------------------------------------------+
+    
+    Opticks **SEvt** saved into sub-folders with NumPy .npy arrays
+
+    +-------------------+------------------------------------------------------------------+ 
+    |  A000, A001, ...  |  CSGOptiX GPU created SEvt                                       |
+    +-------------------+------------------------------------------------------------------+ 
+    |  B000, B001, ...  |  Geant4/U4Recorder CPU created SEvt (debug + validation only)    |
+    +-------------------+------------------------------------------------------------------+ 
+
+
+
+    OPTICKS_EVENT_MODE : Hit/HitPhoton/HitPhotonSeq/Nothing/Minimal/DebugLite/DebugHeavy/...
+        configure arrays to "gather" (A:download from GPU, B:create from vectors)  
+        and save to file (see SEventConfig)
+
+
+
+:small:`NumPy+matplotlib Analysis and Plotting of Opticks SEvt`
+----------------------------------------------------------------
+
+.. class:: small
+
+    Python analysis machinery not yet included in release, so you
+    will need the source::
+
+        git clone git@bitbucket.org:simoncblyth/opticks.git
+
+    Lots of C++ executable, python and bash scripts for SEvt analysis 
+    and plottting. 
+
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    L7[blyth@lxslc708 ALL0]$ pwd
+    /hpcfs/juno/junogpu/blyth/tmp/GEOM/J23_1_0_rc3_ok0/jok-tds/ALL0
+    L7[blyth@lxslc708 ALL0]$ l | head -20
+    total 8576
+      48 drwxr-xr-x 1002 blyth dyw   49152 Dec 19 11:19 .
+    4168 -rw-r--r--    1 blyth dyw 4265962 Dec 19 10:53 sample_detsim.root
+       4 -rw-r--r--    1 blyth dyw     455 Dec 19 10:53 sample_detsim_user.root
+     332 -rw-r--r--    1 blyth dyw  332577 Dec 19 10:53 jok-tds.log
+      16 -rw-r--r--    1 blyth dyw   14162 Dec 19 10:53 run_meta.txt
+       4 -rw-r--r--    1 blyth dyw     132 Dec 19 10:53 run.npy
+       4 drwxr-xr-x    2 blyth dyw    4096 Dec 18 22:44 A990
+       4 drwxr-xr-x    2 blyth dyw    4096 Dec 18 22:44 A991
+       4 drwxr-xr-x    2 blyth dyw    4096 Dec 18 22:44 A992
+       4 drwxr-xr-x    2 blyth dyw    4096 Dec 18 22:44 A993
+       ...
+
+    L7[blyth@lxslc708 ALL0]$ l A999/
+    total 188
+     48 drwxr-xr-x 1002 blyth dyw  49152 Dec 19 11:19 ..
+      4 drwxr-xr-x    2 blyth dyw   4096 Dec 18 22:44 .
+     12 -rw-r--r--    1 blyth dyw  11360 Dec 18 22:44 genstep.npy
+    108 -rw-r--r--    1 blyth dyw 110336 Dec 18 22:44 hit.npy
+      4 -rw-r--r--    1 blyth dyw     20 Dec 18 22:44 NPFold_index.txt
+      4 -rw-r--r--    1 blyth dyw    672 Dec 18 22:44 NPFold_meta.txt
+      0 -rw-r--r--    1 blyth dyw      0 Dec 18 22:44 NPFold_names.txt
+      4 -rw-r--r--    1 blyth dyw    113 Dec 18 22:44 sframe_meta.txt
+      4 -rw-r--r--    1 blyth dyw    384 Dec 18 22:44 sframe.npy
+    L7[blyth@lxslc708 ALL0]$ 
+   </pre>
+
+
+
+:small:`OPTICKS_INTEGRATION_MODE python option:` ``--opticks-mode``
+--------------------------------------------------------------------------------     
+
+
+.. class:: normal
+
+    Envvar and python option must match
+
+    ``--opticks-mode 1``
+        CSGOptiX GPU optical photon propagation
+
+        * hits placed into standard hitCollection 
+
+    ``--opticks-mode 3``
+        CSGOptiX GPU optical photon propagation + U4Recorder CPU optical photon propagation
+        (only for debug+validation)
+
+
+
+:i:`cxr_min__eye_0,1.5,0__zoom_4__tmin_1.3__ALL.jpg`
+--------------------------------------------------------
+
+::
+
+    EYE=0,1.5,0 TMIN=1.3 ZOOM=4 ~/opticks/cxr_min.sh  ## CSGOptiXRMTest
+    (CSGOptiXRMTest executable in release, but not yet the script)  
+
+
+.. raw:: html
+
+    <p style="margin-bottom:100mm;" />
+    
+
+.. class:: center
+
+   ``Using GEOM J23_1_0_rc3_ok0`` 
+
+
+
+:small:`Geometry in use based on J23_1_0_rc6 (despite name rc3)`
+-----------------------------------------------------------------
+
+.. class:: small
+
+   Deferred geometry, switched off by tut_detsim.py options.
+
+   +--------------------+-----------------------------------------------------------------------------+
+   | --no-guide_tube    | OptiX 7.1 has curves : thought might enable G4Torus translation, but docs   |         
+   |                    | show are one-sided : so instead triangulate torus[T] ?                      |
+   +--------------------+---------------------------------------------+-------------------------------+
+   | --debug-disable-xj |  XJfixture XJanchor                         |  Deep CSG trees               |
+   +--------------------+---------------------------------------------+  require dev.                 |
+   | --debug-disable-sj |  SJCLSanchor SJFixture SJReceiver SJFixture |  to see if "listnode"         |
+   +--------------------+---------------------------------------------+  (similar to G4MultiUnion)    |
+   | --debug-disable-fa |  FastenerAcrylic                            |  can provide solution         |
+   +--------------------+---------------------------------------------+-------------------------------+
+
+
+   Virtual surface shifts used to avoid degeneracy, together with defaults::
+
+       export Tub3inchPMTV3Manager__VIRTUAL_DELTA_MM=0.10           ## 1.e-3 
+       export HamamatsuMaskManager__MAGIC_virtual_thickness_MM=0.10 ## 0.05 
+       export NNVTMaskManager__MAGIC_virtual_thickness_MM=0.10      ## 0.05
+                                                          
+
+   **sigma_alpha/polish ground surface handling ?**
+
+   * closer examination shows Sigma_alpha surfaces not actually being used in current simulation
+
+
+.. class:: tiny
+
+   [T] torus quartic analytic solution is painful : instead simply use appropriate triangulation approx, **more precise that analytic** with much less pain
+
+
+
+:small:`Introduce Three Opticks test scripts [1] [2] [3]`
+--------------------------------------------------------------
+
+
+.. class:: small
+
+    * https://github.com/simoncblyth/j
+    * https://bitbucket.org/simoncblyth/opticks/
+
+    +------+------------------------------------------+---------------------+--------------------------------------------------------------------+ 
+    |  idx |  control script                          | initialization time |  Notes                                                             |   
+    |      |                                          | (seconds)           |                                                                    | 
+    +======+==========================================+=====================+====================================================================+
+    | [1]  |  ~/j/okjob.sh                            |   149               |  JUNOSW+Opticks (tut_detsim.py "main")                             |   
+    +------+------------------------------------------+---------------------+--------------------------------------------------------------------+
+    | [2]  |  ~/opticks/g4cx/tests/G4CXTest_GEOM.sh   |   127               |  InputPhoton, TorchGenstep, NOT YET InputGenstep                   |   
+    +------+------------------------------------------+---------------------+--------------------------------------------------------------------+
+    | [3]  |  ~/opticks/CSGOptiX/cxs_min.sh           |    <2               |  InputPhoton, TorchGenstep, InputGenstep                           |   
+    +------+------------------------------------------+---------------------+--------------------------------------------------------------------+
+
+
+    1. "insitu" test of Opticks embedded into JUNOSW : translates geometry and persists it
+    2. standalone optical only bi-simulation for A:Opticks <=> B:Geant4 comparison
+    3. pure Opticks (no Geant4 dependency) GPU optical simulation : uses geometry persisted by [1]
+
+       * fast initialization : loads CSGFoundry geometry and uploads to GPU in <2 seconds  
+       * fast cycle for development and Opticks performance measurements 
+
+    **TorchGenstep**
+        disc, sphere, line, point, circle, rectangle : shapes of photon sources implemented in ``sysrap/storch.h``
+
+    **InputGenstep**
+        general gensteps eg obtained from [1]:okjob.sh can be used in [3]:cxs_min.sh, not yet [2]:G4CXTest (expect straightforward) 
+
+
+
+
+
+:small:`[3] Pure Optical TorchGenstep 20 evt scan : 0.1M to 100M photons`
+------------------------------------------------------------------------------------
+
+::
+
+    TEST=large_scan ~/opticks/cxs_min.sh 
+    
+
+.. class:: small
+
+    Generate 20 optical only events with 0.1M->100M photons starting from CD center, 
+    gather and save only Hits.
+
+    * uses CSGOptiXSMTest executable (no Geant4 dependency)
+
+::
+
+    OPTICKS_RUNNING_MODE=SRM_TORCH
+    OPTICKS_NUM_PHOTON=H1:10,M2,3,5,7,10,20,40,60,80,100
+    OPTICKS_NUM_EVENT=20
+    OPTICKS_EVENT_MODE=Hit
+
+
+.. class:: small
+
+   * no Geant4 initialization (~150s) : load and upload geometry in ~2s 
+   * BUT with MAX_PHOTON 100M, uploading curandState costs 20s
+
+
+   +---------------------------------------------------------------+----------------------------------+ 
+   |   Test Hardware                                               |  Notes                           |
+   +===============================================================+==================================+
+   |  DELL Precison Workstation with NVIDIA TITAN RTX(24G)         | :b:`Primary test hardware`       |
+   +---------------------------------------------------------------+----------------------------------+
+   |  GPU cluster nodes with NVIDIA V100 (32GB)                    | NOT YET PROFILED                 |
+   +---------------------------------------------------------------+----------------------------------+
+
+
+
+:i:`S7_Substamp_ALL_Etime_vs_Photon__100M_31s_Release.png`
+-----------------------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:80mm;" />
+
+
+.. class:: center
+
+    Release : 0.314 seconds per million photons
+
+
+
+:i:`ALL1_scatter_10M_photon_22pc_hit_alt.png`
+----------------------------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:150mm;" />
+ 
+
+
+``~/o/cxs_min.sh  ## 2.2M hits from 10M photon TorchGenstep, 3.1 seconds``
+
+
+
+:i:`ALL1_scatter_10M_photon_22pc_hit.png`
+-------------------------------------------
+
+.. comment
+
+   PLOT=scatter MODE=3 PUB=10M_photon_22pc_hit ~/o/cxs_min.sh pvpub
+
+
+Known Issues
+-------------
+
+.. class:: normal
+
+   * python analysis/plotting machinery not yet included in release  
+   * sensor_identifier off-by-one bug 
+ 
+     * with ``--anamgr-edm-v2`` causes SEGV in DataModelWriter::fill_hits_tmpl
+       if hit SPMT 325599 (the highest copyno SPMT, misreported as 325600)
+
+   * GPU memory leak seen in some situations
+
+     * using sysrap/smonitor.sh to quantify : ~0.003 GB/s
+     * prime suspect CUDA thrust genstep handling 
+
+   * U4Recorder CPU memory leak, non-critical
+
+     * recorder only used for debug + validation
+     * no need to handle many or large (100M photon) events
+
+
+Summary
+---------
+
+First Pre-Release has lots of rough edges
+
+* :r:`your help needed to smooth them` 
+
+More details + profiling info in recent presentation:
+
+* https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=10929
+* https://juno.ihep.ac.cn/~blyth/env/presentation/opticks_20231211_profile.html
+

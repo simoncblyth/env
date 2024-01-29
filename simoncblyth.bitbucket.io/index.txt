@@ -213,6 +213,15 @@ Opticks Presentations
 2023
 ~~~~~~~~
 
+
+
+`env/presentation/opticks_20231219_using_junosw_plus_opticks_release.html <env/presentation/opticks_20231219_using_junosw_plus_opticks_release.html>`_
+
+    Adversisement for first JUNOSW+Opticks relase
+
+    AFG Simulation Meeting, Dec 19, 2023
+
+
 `env/presentation/opticks_20231211_profile.html <env/presentation/opticks_20231211_profile.html>`_
 
     Profiling + Status

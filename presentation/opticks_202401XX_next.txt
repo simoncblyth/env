@@ -66,6 +66,24 @@
 
 
 
+:i:`smonitor_cxs_min_igs_with_rg_dummy_with_rg_dummy.png`
+-----------------------------------------------------------------
+
+
+:i:`smonitor_cxs_min_igs_with_rg_with_rg.png`
+----------------------------------------------
+
+
+:i:`smonitor_cxs_min_igs_rg_default_stream_rg_default_stream.png`
+-------------------------------------------------------------------
+
+
+
+:i:`okjob_smonitor_steady_upwards.png`
+----------------------------------------
+
+
+
 :i:`ilker_cxr_min__eye_0,0.5,0__zoom_1__tmin_0.5__NNVT:0:0.jpg`
 -----------------------------------------------------------------
 

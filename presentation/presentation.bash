@@ -1520,6 +1520,13 @@ presentation-rst2talk-(){
 #presentation-iname(){ echo ${INAME:-standalone_20230930_cpp_test_debug_ana_with_numpy} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20231027_nanjing_cepc_workshop} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20231211_profile} ; }
-presentation-iname(){ echo ${INAME:-opticks_202401XX_next} ; }
+#presentation-iname(){ echo ${INAME:-opticks_202401XX_next} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20231219_using_junosw_plus_opticks_release} ; }
+
+presentation-iname(){ echo ${INAME:-opticks_20240227_zhejiang_seminar} ; }
+
+
+
+
 
 
