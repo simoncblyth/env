@@ -1,0 +1,663 @@
+.. meta::
+
+   :title: Few Slides for Cecile 
+   :name: opticks_20240215_geant4_forum
+   :description: (15 Feb 2024)
+   :notes: 
+   :url: 
+
+.. include:: my_s5defs.txt
+
+.. include:: s5_background_image.txt
+
+
+.. comment
+
+   A few slides describing the G4OpBoundaryProcess change
+
+
+
+:i:`G4OpBoundaryProcess : thin photocathode + anti-reflective coating transfer-matrix method A,R,T,D calculation` 
+=====================================================================================================================
+
+.. raw:: html
+
+    <div class="mytitle">
+        <header>
+            <h1 style="background-color:lightgrey"> 
+               G4OpBoundaryProcess with thin photocathode/anti-reflective coating transfer-matrix method A,R,T,E calculation
+            </h1>
+        </header>
+    </div>
+    <p style="margin-bottom:50mm;" />
+
+.. class:: normal
+
+  * Custom4 : Custom Boundary Multi-Layer Thin Film (A,R,T) TMM Calc
+  * Natural 2 volume PMT geometry : HAMA and NNVT
+  * G4OpBoundaryProcess : customized for JUNO PMT Optical Model (POM)
+  * C4OpBoundaryProcess::PostStepDoIt : 3-way (A,R,T) Customization
+  * custom4/C4CustomART.h : include into C4OpBoundaryProcess.cc
+  * Low dependency access to PMT data from anywhere
+  * CUDA equivalent of C4CustomART::doIt : With Full LPMT info
+  * A,R,T AOI scans
+
+
+.. comment 
+
+    .. raw:: html
+
+        <p style="margin-bottom:-5mm;" />
+        <hr/>
+        <p style="margin-bottom:-5mm;" />
+
+
+.. raw:: html
+
+    <div class="mycredit">
+       <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS  &mdash; Geant4 Technical Forum : Boundary Process Customization &mdash; 15 Feb 2024 </h2>
+    </div>
+
+
+.. s5_talk:: 
+
+    Custom4 (aka Customgeant4) is an open source repository on github 
+
+
+
+:small:`Custom4 : Custom Boundary Multi-Layer Thin Film (A,R,T)+E TMM Calc`
+-----------------------------------------------------------------------------
+
+.. sidebar:: :small:`TMM : Transfer Matrix Method`
+
+   .. image:: tmm/multi-layer-stack.png
+       :align: center
+       :width: 400px
+
+   .. class:: small
+
+       **multi-layer thin films, coherent calc:**
+
+       * complex refractives indices, thicknesses
+       * => (A,R,T)  (Absorb, Reflect, Transmit) + E (Efficiency)
+       * Used from **C4OpBoundaryProcess**  
+
+       :r:`header-only GPU/CPU` : **C4MultiLayrStack.h**       
+
+       * ``Custom4`` depends only on Geant4
+       * Dependency of JUNOSW and Opticks
+
+
+.. image:: Custom4/Custom4_README.png
+   :width: 580px
+   :align: left
+
+.. class:: normal
+
+    https://github.com/simoncblyth/customgeant4/
+ 
+
+.. s5_talk::
+
+   As the TMM calculation is needed both by JUNOSW on CPU and Opticks 
+   on GPU it is useful to organize it into a separate Custom4 package 
+   that both JUNOSW and Opticks depend on. This avoids circular dependency. 
+
+   This organization allows the exact same TMM calculation header
+   to be used on both CPU and GPU 
+
+   * (CPU uses std::complex, GPU uses thrust::complex) 
+
+
+
+
+:i:`FewPMT_demo.png`
+-----------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:172mm;" />
+
+.. class:: small
+
+    **Natural 2 volume PMT geometry : HAMA and NNVT**
+
+.. comment
+
+   two_pmt layout with HAMA, NNVT (Natural Geometry N=1)
+
+
+.. s5_talk::
+
+    The natural geometries are as simple as possible with  
+    two volumes for the Pyrex anf Vacuum of the PMT.  The special 
+    TMM stack of thin layers is between the Pyrex and Vacuum of the PMT.
+
+
+
+:small:`G4OpBoundaryProcess : customized for JUNO PMT Optical Model (POM)`
+-----------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Custom Boundary POM`
+
+    .. raw:: html 
+
+       <pre class="mypretiny">
+         +---------------pmt-Pyrex----------------+
+         |                                        |
+         |                                        |
+         |                                        |
+         |       +~inner~Vacuum~~~~~~~~~~~+       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       !                        !       |
+         |       +                        +       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       |                        |       |
+         |       +------------------------+       |
+         |                                        |
+         |                                        |
+         |                                        |
+         +----------------------------------------+
+       </pre>
+
+    .. class:: small
+
+       ``OpSurfaceName[0] == '@'``
+
+       * ``local_z>0`` : does MultiLayer ART calc 
+       * ``!(local_z>0)`` : standard *mirror_opsurf*
+
+.. class:: small
+ 
+   **Custom Boundary Process : Advantages**
+
+   * natural geometry, no fakes
+   * standard Geant4 polarization, propagation, time 
+   * less code, simpler code
+   * simpler Geant4 step history (no fakes)
+   * same geometry on GPU+CPU, easier Opticks validation  
+   * half the geometry objects to model PMT (4->2)
+
+   +----------------------+-----------------------+
+   | Old FastSim POM      | 4 Solid, 4 LV, 4 PV   |
+   +----------------------+-----------------------+
+   | Custom Boundary POM  | 2 Solid, 2 LV, 2 PV   | 
+   +----------------------+-----------------------+
+
+
+
+   **Disadvantages**
+
+   * maintain Custom4 C4OpBoundaryProcess  
+   * updating Geant4 needs care if G4OpBoundaryProcess changed
+
+.. raw:: html 
+
+    <p style="margin-bottom:1cm;" />
+
+.. class:: large
+
+   :b:`Advantages far outweigh disadvantages`
+     * :r:`JUNOSW MERGED May 25, 2023`
+
+.. class:: normal
+
+    https://github.com/simoncblyth/customgeant4/
+ 
+
+
+
+.. s5_talk::
+
+   Square PMT for illustration purposes. 
+
+   Using a custom boundary process provides a natural fix for the issues
+   encountered when using FastSim to model a custom surface with the
+   advantage that it enables use of a natural geometry with no kludging. 
+
+
+
+:small:`C4OpBoundaryProcess::PostStepDoIt : 3-way (A,R,T) Customization`
+---------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`PostStepDoIt type switch`
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+        if( <span class="r">m_custom_status == 'Y'</span> ) // <span class="b">CustomART handling</span> 
+        {
+            G4double rand = G4UniformRand();
+            if ( rand < theAbsorption )
+            {
+                <span class="b">DoAbsorption();     // A</span> 
+            }
+            else
+            {
+                <span class="r">DielectricDielectric();  // R or T</span>
+            }
+        }
+        else if (type == dielectric_metal) 
+        {
+              DielectricMetal();
+        }
+        ...
+        </pre>    
+
+    .. class:: small
+ 
+        Standard :b:`DoAbsorption` :r:`DielectricDielectric` reused 
+
+
+
+.. class:: small
+
+    :b:`G4OpBoundaryProcess unless OpticalSurfaceNam[0] == '@'/'#'`
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    if( OpticalSurfaceName0 == '@' || OpticalSurfaceName0 == '#' )  
+    {    
+        if( m_custom_art->local_z(aTrack) < 0. ) // <span class="b">Lower hemi : Standard</span>
+        {    
+            m_custom_status = 'Z' ;
+        }    
+        else if( OpticalSurfaceName0 == '@') // <span class="b">MultiFilm ART POM</span>
+        {    
+            <span class="r">m_custom_status = 'Y' ;</span>
+            <span class="r">m_custom_art->doIt(aTrack, aStep) ;</span> 
+
+            type = dielectric_dielectric ;
+            theModel = glisur ;
+            theFinish = polished ;  
+        }    
+        else if( OpticalSurfaceName0 == '#' ) // <span class="b">Traditional POM</span>
+        {    
+            m_custom_status = '-' ;
+
+            type = dielectric_metal ;
+            theModel = glisur ;
+            theReflectivity = 0. ;
+            theTransmittance = 0. ;
+            theEfficiency = 1. ;
+        }
+    }
+    </pre>
+
+.. class:: small
+
+    *DielectricDielectric* expects 2-way **(theReflectivity,theTransmittance)** => so ``C4CustomART.h`` rescales 3-way **(A,R,T)**
+
+    ``(theAbsorption,theReflectivity,theTransmittance) <= (A, R/(1-A), T/(1-A))``
+    
+
+.. s5_talk::
+
+    Customization only active for specially named surfaces beginning with '@' or '#'
+
+
+
+:small:`custom4/C4CustomART.h : include into C4OpBoundaryProcess.cc`
+-----------------------------------------------------------------------
+
+.. sidebar:: :small:`C4CustomART customizations`
+
+    .. class:: small
+
+      *doIt* C4MultiLayrStack.h TMM calc, only for:
+ 
+      * OpticalSurfaceName[0]=='@' && local_z > 0  
+      * -> :b:`Absorption, Transmittance, Reflectivity, Efficiency`  
+      * changed via references collected by ctor 
+
+      :b:`reuse standard G4OpBoundaryProcess`
+
+      * standard reflect, refract, absorb, detect 
+      * standard polarization 
+      * standard time, speed
+      * :r:`"inject" minimal change needed for POM`
+
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    &#35;include "C4IPMTAccessor.h"
+    &#35;include "C4MultiLayrStack.h"    
+    &#35;include "C4Touchable.h"
+
+    struct C4CustomART {
+        <span class="r">const C4IPMTAccessor* accessor ; </span> 
+        <span class="b">G4double& theAbsorption ;   // doIt sets these
+        G4double& theReflectivity ;
+        G4double& theTransmittance ; 
+        G4double& theEfficiency ;</span> 
+        
+        const G4ThreeVector& theGlobalPoint ;
+        const G4ThreeVector& OldMomentum ;  
+        const G4ThreeVector& OldPolarization ;
+        const G4ThreeVector& theRecoveredNormal ;
+        const G4double& thePhotonMomentum ; 
+        
+        C4CustomART(
+            const C4IPMTAccessor* accessor,
+            G4double& theAbsorption,
+            G4double& theReflectivity,
+            G4double& theTransmittance,
+            G4double& theEfficiency,
+            const G4ThreeVector& theGlobalPoint,
+            const G4ThreeVector& OldMomentum,  
+            const G4ThreeVector& OldPolarization,
+            const G4ThreeVector& theRecoveredNormal,
+            const G4double& thePhotonMomentum
+        );  
+        double local_z( const G4Track& aTrack );
+        <span class="b">void doIt(const G4Track& aTrack, const G4Step& aStep ); </span>
+    };  
+    </pre>
+
+.. class:: small
+
+   https://github.com/simoncblyth/customgeant4/blob/main/C4CustomART.h
+
+
+.. s5_talk::
+
+   Most the customization is done in a Separate header, to minimize changes 
+   to the boundary process. This CustomART header includes the shared CPU/GPU header 
+   that implements the TMM calculation.   
+
+
+
+Low dependency access to PMT data :r:`from anywhere`
+------------------------------------------------------
+
+
+.. sidebar:: :small:`Why Low Dependency Access ?` 
+
+   .. class:: small
+
+       * REQUIRED, BY Custom4 + Opticks
+       * CODING BEST PRACTICE
+
+         * :r:`less deps -> more useful code`
+
+       * test separate from the "monolith"
+ 
+         * :r:`development cycle < 1 s (vs minutes)`
+
+       * serialization with **NP.hh,NPFold.h** 
+
+         * https://github.com/simoncblyth/np/  
+
+       **QE scan over 100 energy points, all PMTs**
+
+       +----------------------------------+--------------+  
+       |  IPMTSimParamSvc                 |   7.70 s     |
+       +----------------------------------+--------------+  
+       |  PMTSimParamData                 |   0.30 s     |
+       +----------------------------------+--------------+
+       |  IPMTSimParamSvc/PMTSimParamData |   26.10      | 
+       +----------------------------------+--------------+
+
+       * :r:`exactly same results, 26x faster` 
+
+   .. class:: tiny
+
+       `junosw/-/merge_requests/126 <https://code.ihep.ac.cn/JUNO/offline/junosw/-/merge_requests/126>`_   
+
+   .. class:: small
+
+       +-----------------------------------+
+       | MR 126 :r:`MERGED Feb 3, 2023`    |
+       +-----------------------------------+
+
+
+.. class:: small
+
+    Full PMT access from **Custom4** + **Opticks** without **Svc** : :r:`How ?` 
+
+    1. Add *PMTSimParamData* "core" to *PMTSimParamSvc*
+
+       * :b:`consistent by design` from any source file/DB/Frontier/...
+
+    2. Add *PMTAccessor* impl. of protocol base *C4IPMTAccessor*
+
+       * header only impl + serialization => :r:`PMT data anywhere` 
+       * => :b:`liberate PMT data from monolith` 
+  
+.. class:: small
+
+   **SimSvc/PMTSimParamSvc/PMTSimParamSvc/PMTAccessor.h** 
+
+.. raw:: html
+
+    <pre class="mypretiny">&#35;include "C4IPMTAccessor.h"
+    struct PMTAccessor : public C4IPMTAccessor 
+    {
+        PMTAccessor(const PMTSimParamData* data); 
+        int    get_num_lpmt() const ;     
+        double get_pmtid_qe( int pmtid, double energy ) const ; 
+        ...</pre>
+
+.. class:: small
+
+    **Pure virtual protocol base : Custom4/C4IPMTAccessor.h**
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    struct C4IPMTAccessor   // only standard types in API 
+    {
+        virtual int    get_num_lpmt() const = 0 ; 
+        virtual double get_pmtid_qe( int pmtid, double energy ) const = 0 ; 
+        virtual double get_qescale( int pmtid ) const = 0 ; 
+        ...
+    </pre>
+
+.. class:: small
+
+    :r:`Consistent PMT data access : JUNOSW + Opticks + Custom4` 
+
+
+.. s5_talk::
+
+   Using a pure virtual protocol struct allows JUNOSW (or other experiment)
+   to pass the PMT data to Opticks and Custom4.
+   Combining that with Opticks serialization means that 
+   the PMT data can be used anywhere. 
+
+
+
+:small:`CUDA equivalent of C4CustomART::doIt : With Full LPMT info` 
+----------------------------------------------------------------------
+
+
+.. sidebar:: :small:`qsim::propagate_at_surface_CustomART`
+
+    .. raw:: html
+
+        <pre class="mypretiny">int qsim::propagate_at_surface_CustomART(
+         unsigned& flag, curandStateXORWOW& rng, sctx& ctx) const
+        {
+         const sphoton& p = ctx.p ; 
+         const float3* nrm = (float3*)&ctx.prd->q0.f.x ; 
+         <span class="r">int lpmtid = ctx.prd->identity(); //0->17611</span> 
+
+         float minus_cos_theta = dot(p.mom, *nrm); 
+         <span class="b">float dot_pol_x_mom_nrm = dot(p.pol,cross(p.mom,*nrm));</span> 
+         // enables calc of S/P-polarization fraction
+
+         float ARTE[4] ; 
+         <span class="r">pmt->get_lpmtid_ARTE(ARTE, lpmtid, p.wavelength, 
+             minus_cos_theta, dot_pol_x_mom_nrm );</span>   
+
+         const float& A = ARTE[0]; // Absorb
+         const float& T = ARTE[2]; // Transmit (R+T=1) 
+         const float& E = ARTE[3]; // Effic: _qe/A_norm
+
+         float u_A = curand_uniform(&rng);
+         int action = u_A < A  ? BREAK : CONTINUE ;
+         
+         if( action == BREAK ){    
+            float u_E = curand_uniform(&rng) ; 
+            flag = u_E < E ? SURFACE_DETECT : SURFACE_ABSORB ;  
+         } else {    
+            <span class="r">propagate_at_boundary( flag, rng, ctx, T );</span>   
+         }    
+         return action ; 
+        }
+        </pre>
+
+
+.. class:: small
+
+    JSW:PMTSimParamSvc
+       fills PMTSimParamData from file/DB/frontier/...
+
+    JSW:PMTSimParamData **(added in MR 126)**
+       data "core" of *PMTSimParamSvc*
+
+    JSW:_PMTSimParamData **(added in MR 126)**
+       serialize *PMTSimParamData* into Opticks NPFold.h/NP.hh   
+     
+    sysrap/SPMT.h  
+      *_PMTSimParamData* NPFold => summary arrays
+
+    qudarap/QPMT.hh
+      * upload PMT summary arrays to GPU
+      * QProp.hh/qprop.h interpolation setup (RINDEX,KINDEX) 
+      * instanciates qpmt.h instance and uploads 
+
+    qudarap/qpmt.h 
+      * provides PMT info, TMM calc to ``qsim.h``
+      * includes Custom4 : *C4MultiLayrStack.h* 
+      * ``qpmt::get_lpmtid_ARTE`` 
+
+       
+    https://bitbucket.org/simoncblyth/opticks/src/master/qudarap/qpmt.h
+
+
+
+.. s5_talk::
+
+    The CUDA code to implement the PMT Optical Model is straightforward, 
+    as it re-uses existing propagate_at_boundary method. This is analogous
+    to the CPU case where standard Geant4 boundary process methods are reused.      
+
+
+
+:i:`LayrTest__R12860_QPMT_Test.png`
+--------------------------------------
+
+.. s5_talk::
+
+    ARTPlot : each of A, R, T have three versions from three pmt categories
+
+    * this shows Absorption, Reflection and Transmission probabilities which sum to 1 
+      scanning across the full range of angles of incidences 
+
+    * angles above 90 degrees correspond to reverse photons going from the vacuum to the pyrex 
+    * there are lots of lines because S-polarized/P-polarized/Avg are shown 
+    * also there are lines for each of three PMT catehories 
+
+
+
+:i:`LayrTest__R12860_Aspa.png`
+---------------------------------
+
+.. s5_talk::
+
+    Aspa : This is just showing the absorption, the dotted lines are the average of the S and P polarizations
+
+
+:i:`LayrTest__R12860_Rspa.png`
+---------------------------------
+
+.. s5_talk::
+
+    Rspa : the reflection, which goes to 1. at grazing incidence 
+
+:i:`LayrTest__R12860_Tspa.png`
+---------------------------------
+
+.. s5_talk::
+
+    Tspa : above the Critical angle there is no transmission, only absorption and reflection
+
+
+
+
+Comparing AOI scans : ``j/Layr/LayrTest.sh`` 
+---------------------------------------------
+
+.. sidebar:: :small:`Shapes`
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+        In [6]: h.f.art.shape 
+        Out[6]: (9, 900, 4, 4)
+        In [7]: h.f.comp.shape
+        Out[7]: (9, 900, 1, 4, 4, 2)
+
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    CFLayrTest
+     a :              LayrTest : scan__R12860__cpu_thr_double 
+     b :              LayrTest : scan__R12860__cpu_thr_float 
+     c :              LayrTest : scan__R12860__gpu_thr_double 
+     d :              LayrTest : scan__R12860__gpu_thr_float 
+     e :             SPMT_test : sscan 
+     f :              QPMTTest : qscan 
+     g :         QPMT_MockTest : qscan 
+     h :             QPMT_Test : qscan 
+
+    ## tab, rst = ts.cf_table(tt, pmtcat, excl=excl) # excl 0.05 
+    ## rst 
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    |          R12860 art\comp 0.05|     a:ctd|     b:ctf|     c:gtd|     d:gtf|        e:|        f:|        g:|        h:|
+    +==============================+==========+==========+==========+==========+==========+==========+==========+==========+
+    |                         a:ctd|         0| 4.829e-05| 1.066e-14| 4.829e-05| 8.644e-05| 3.422e-05| 4.255e-05| 3.685e-05|
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    |                         b:ctf| 9.317e-07|         0| 4.829e-05| 5.722e-06| 4.578e-05|  5.15e-05|  5.15e-05| 5.531e-05|
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    |                         c:gtd| 1.582e-15| 9.317e-07|         0| 4.829e-05| 8.644e-05| 3.422e-05| 4.255e-05| 3.685e-05|
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    |                         d:gtf| 7.958e-07| 8.792e-07| 7.958e-07|         0| 4.196e-05| 5.341e-05| 5.722e-05| 5.913e-05|
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    |                            e:| 2.956e-06| 3.159e-06| 2.956e-06|  3.07e-06|         0| 5.341e-05|  5.15e-05| 4.959e-05|
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    |                            f:| 3.094e-06| 3.338e-06| 3.094e-06| 3.159e-06| 1.192e-06|         0| 1.335e-05| 9.537e-06|
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    |                            g:| 2.956e-06| 3.159e-06| 2.956e-06|  3.07e-06| 7.451e-07| 1.103e-06|         0| 7.629e-06|
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    |                            h:| 2.907e-06| 3.248e-06| 2.907e-06| 2.921e-06| 7.451e-07| 8.941e-07| 8.419e-07|         0|
+    +------------------------------+----------+----------+----------+----------+----------+----------+----------+----------+
+    </pre>
+
+.. class:: small
+
+    :b:`Largest differences between ART (9, 900, 4, 4) from various tests (float,double,GPU,CPU,mock-CPU,standalone...)` 
+
+
+.. s5_talk::
+
+    Compare ART values from AOI scans from multiple tests, including on GPU and CPU and mock GPU 
+    shows expected levels of deviation.
+
+    The largest deviations are all at 90 degrees, where glancing incidence corresponds to all the matrix elements blowing up. 
+
+
+
+
+

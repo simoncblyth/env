@@ -1302,10 +1302,17 @@ presentation-export(){
 presentation-e(){ 
    cd $(presentation-dir) ; 
    local iname=$(presentation-iname)  
-   vi ${iname/_TALK}.txt s5_background_image.txt  ; 
+   vi $iname.txt s5_background_image.txt $EXTRA
 }
+
+presentation-ee(){ 
+   EXTRA=opticks_20231219_using_junosw_plus_opticks_release.txt presentation-e 
+}
+
+
+
 presentation-edit(){ vi $(presentation-path) ; }
-presentation-ed(){ vi $(presentation-path) ~/workflow/admin/reps/ntu-report-may-2017.rst ; }
+#presentation-ed(){ vi $(presentation-path) ~/workflow/admin/reps/ntu-report-may-2017.rst ; }
 
 
 presentation-imake(){ 
@@ -1520,13 +1527,11 @@ presentation-rst2talk-(){
 #presentation-iname(){ echo ${INAME:-standalone_20230930_cpp_test_debug_ana_with_numpy} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20231027_nanjing_cepc_workshop} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20231211_profile} ; }
-#presentation-iname(){ echo ${INAME:-opticks_202401XX_next} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20231219_using_junosw_plus_opticks_release} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20240215_geant4_forum} ; }
 
-presentation-iname(){ echo ${INAME:-opticks_20240227_zhejiang_seminar} ; }
-
-
-
-
+#presentation-iname(){ echo ${INAME:-opticks_202401XX_next} ; }
+presentation-iname(){ echo ${INAME:-opticks_20240224_offline_software_review} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20240227_zhejiang_seminar} ; }
 
 

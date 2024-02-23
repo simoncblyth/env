@@ -5,6 +5,48 @@
 
 .. include:: my_s5defs.txt
 
+.. comment
+
+    Teacher Li, Lin Tao, Simon,
+
+    Happy New Year everyone!
+
+    Our research work in medical imaging requires in-depth study of the transport
+    process of scintillation light within the crystal and efficient simulation. We
+    sincerely invite you to visit Zhejiang University from February 26th to 28th so
+    that we can consult with you in person. During this period, we will arrange
+    academic reports and other academic exchange activities. Looking forward to
+    your arrival!
+
+    good luck!
+    Zhu Hongbo
+    School of Physics, Zhejiang University
+
+
+.. comment
+
+    TO BRING OVER 
+
+    HK graphics comparison
+
+    TO ADD
+
+    NVIDIA GPUs for China
+
+    * https://videocardz.com/newz/nvidia-to-launch-hgx-h20-l20-and-l2-gpus-for-china
+    * H20 L20 L2  
+    * is L20 a cut down for China L40 ? 
+    * is L2 a cut down for China L4 ? 
+
+    Gpu-based optical photon simulation for the LHCb RICH 1 detector
+    https://link.springer.com/article/10.1140/epjc/s10052-023-12158-7
+
+    Optical Photon Simulation with Mitsuba3 
+    https://arxiv.org/pdf/2309.12496.pdf
+ 
+    Geforce 4090D
+    https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4090-d/
+
 .. comment 
   
     Things to add
@@ -35,7 +77,7 @@
 
     Title: 
 
-        Opticks : Optical Photon Simulation via GPU Ray Tracing from NVIDIA® OptiX™
+        Opticks : Optical Photon Simulation via GPU Ray Tracing from NVIDIA OptiX
 
     Abstract:
 
@@ -61,22 +103,14 @@
         by integrating GPU ray tracing. This makes possible enormous speedup
         factors of more than 1000 times compared to serial processing.
 
-
-
-
-
-
-
-
 .. comment
 
-    <i>Opticks</i> : GPU Optical Photon Simulation</br> via NVIDIA® OptiX™ 7, NVIDIA® CUDA™
+    <i>Opticks</i> : GPU Optical Photon Simulation</br> via NVIDIA OptiX 7, NVIDIA CUDA
 
     The 2023 International Workshop on the High Energy Circular Electron Positron Collider
 
 
-
-:i:`Opticks : Optical Photon Simulation via GPU Ray Tracing from NVIDIA® OptiX™`
+:i:`Opticks : Optical Photon Simulation via GPU Ray Tracing from NVIDIA OptiX`
 ========================================================================================
 
 .. raw:: html
@@ -126,12 +160,22 @@ Outline
 
     * Optical Photon Simulation : Context and Problem
 
-      * Optical Photon Simulation Problem...
-      * Optical Photon Simulation ≈ Ray Traced Image Rendering
+      * JUNO Optical Photon Simulation Problem...
+      * Optical photons limit many simulations => lots of interest in Opticks
+      * Assistance : Geant4 Collab. + Dark Matter Search Community + NVIDIA
+
+    * Optical Photon Simulation ≈ Ray Traced Image Rendering
+
+      * Rasterization vs Ray Tracing 
+      * Monte Carlo Path tracing in (movie) production
+      * Fundamental "Rendering Equation" of Computer Graphics (Kajiya 1986)
+      * Neumann Series Solution of Rendering Equation, Samples per pixel 
+      * Optical Simulation : Computer Graphics vs Physics 
 
     * NVIDIA Tools to create Solution   
 
-      * NVIDIA Ada Lovelave : 3rd Generation RTX, RT Cores in Data-Center
+      * SIGRAPH 2018 
+      * NVIDIA Ada Lovelace : 3rd Generation RTX, RT Cores in Data-Center
       * NVIDIA OptiX Ray Tracing Engine
       * NVIDIA OptiX 7 : Entirely new thin API, BVH Acceleration Structure
 
@@ -418,6 +462,308 @@ Outline
     
 
 
+
+
+
+
+:i:`Ray-tracing vs Rasterization`
+-----------------------------------
+
+.. image:: /env/presentation/nvidia/nv_rasterization.png
+   :width: 550px
+   :align: left
+
+.. image:: /env/presentation/nvidia/nv_raytrace.png
+   :width: 550px
+   :align: right
+
+
+.. s5_talk::
+
+   Ray tracing and rasterization are the two primary graphics rendering techniques. 
+
+   Rasterization is the most common rendering technique
+   
+   * it starts from the objects in a scene, and projects them onto pixels in the image plane
+   * this requires approximate triangulated geometry   
+   
+   Ray tracing 
+
+   * starts from the pixels, casts rays out into the 3D scene and finds intersects
+   * this can use analytic geometry, without approximation (just like Geant4)   
+   * its easier to create realistic images with ray tracing because it is closer to the physics
+
+   Ray tracing is an overloaded term.  In some contexts it means just the ray transport
+   from an origin to an intersection. But is also refers more generally to the rendering technique. 
+
+.. comment
+
+   https://www.youtube.com/watch?v=Mrixi27G9yM
+   RTX Launch
+
+
+
+:i:`Path Tracing in Production 1`
+----------------------------------
+
+
+.. comment
+
+   * http://www.realtimerendering.com/raytracing/siggraph2019/Path_Tracing_in_Production_part_1.pdf
+
+   * https://jo.dreggn.org/path-tracing-in-production/2019/ptp-part1.pdf
+
+   * https://cs.dartmouth.edu/~wjarosz/publications/novak18monte.html
+
+
+
+.. s5_talk::
+
+    Ray tracing is the building block behind **Monte Carlo Path Tracing** 
+
+    SIGGRAPH is the primary computer graphics conference series. 
+    This is the abstract from a course document sharing movie production graphics techniques. 
+
+    * **Monte Carlo Path Tracing** is now the standard rendering technique in movie production
+
+
+:i:`Path Tracing in Production 2`
+-----------------------------------
+
+.. sidebar:: :small:`Monte Carlo Path Tracing`
+
+   .. class:: small
+
+       :r:`Path Tracing is built on top of Ray Tracing`
+
+       * ubiquitous rendering technique 
+       * random sampling (Monte Carlo method)
+       * numerical solution of **"The Rendering Eqn."**
+
+       **Movies ≈ monte carlo optical photon simulations**
+
+
+.. s5_talk::
+
+   This means that for many movies: 
+
+   * every frame is the result of monte carlo optical photon simulations, involving billions of photons
+
+.. comment
+
+   * "ground truth" render 
+   * numerical integration by recursive point-sampling 
+   * Russian roulette killing of rays
+   * **ubiquitous** approach to solution to numerical solution of RE  
+   * includes indirect light (global illumination)
+
+
+.. comment
+
+    Irradiance Caching and Derived Methods
+    ----------------------------------------
+
+    .. class:: small
+
+       * https://cs.dartmouth.edu/~wjarosz/publications/dissertation/chapter3.pdf
+
+
+
+
+:i:`The Rendering Equation 1`
+------------------------------
+
+.. s5_talk::
+
+    SMALL
+    Computer graphics is all about finding solutions to the rendering equation.
+  
+    The equation stems from energy conservation in equilibrium:
+
+    * Outgoing light in some direction comes from emission and reflection at the point   
+    * Light reflected from the point depends on all the incoming 
+      light and the reflection characteristics of the surface. 
+
+    What you see at one point depends on all other points that are 
+    visible from it and so on recursively. 
+
+    You can see blue, green and red casts on the teapot 
+    coming from color bleeding : that arises from the 
+    multiple bounces or indirect lighting.
+
+    The rendering equation is a recursive integral equation
+
+    * surface properties are known
+    * what is unknown is the radiance distribution function
+
+    Solving it gives you images from any viewpoint.
+
+
+.. comment
+
+    The lines on the images try to illustrate that:
+ 
+    * what the eye at point x sees at some x-prime depends on inputs from all the 
+      x-double-prime and each double-prime point depends on all the 
+      treble-prime ones
+
+
+
+       
+ 
+:i:`The Rendering Equation 2`
+------------------------------
+
+.. s5_talk::
+
+   This form of recursive integral equation has a solution
+   which is a sum of terms with progressively increasing 
+   bounces. 
+
+   0. emission : looking at the light 
+   1. direct illumination
+   2. one-bounce indirect illumination
+   3. two-bounce indirect illumination
+
+   Top row shows individual contributions, with the 
+   cumulative sum on the bottom row.
+
+   Recursive integral eqn -> sum of integrals 
+
+   The "Volumetric Rendering Equation" is a generalization to cover
+   participating media eg clouds, fire, fog, skin  
+
+
+ 
+:i:`The Rendering Equation 3`
+------------------------------
+
+.. raw:: html 
+
+   <p style="margin-bottom:3cm;" />
+
+
+.. sidebar:: :small:`Sum over increasing "bounces"`
+
+   .. class:: small
+
+       0. emission : direct from light source 
+       1. direct illumination
+       2. one-bounce indirect illumination
+       3. two-bounce indirect illumination
+
+       Top row : individual terms, Bottom row : cumulative 
+
+       :r:`improving realism as more bounces included`
+
+
+.. s5_talk::
+
+    Realism improves as more bounces are included
+
+
+.. comment
+
+   Recursive integral eqn -> sum of integrals 
+
+   The "Volumetric Rendering Equation" is a generalization to cover
+   participating media eg clouds, fire, fog, skin  
+
+
+
+:i:`Samples per Pixel 1`
+------------------------- 
+
+.. s5_talk::
+
+    Monte Carlo Path Tracing 
+
+    * amazingly general technique 
+    * can produce images indistinguisable from reality 
+    * BUT : suffers from slow convergence
+
+
+:i:`Samples per Pixel 2`
+-------------------------- 
+
+.. sidebar:: :small:`Monte Carlo Path Tracing` 
+
+  .. class:: small
+
+    :b:`fantastically general technique`
+      * any geometry 
+      * any lighting/surface effect
+
+    :b:`BUT noisy : slow 1/sqrt(N) convergence`
+      * need many samples per pixel
+      * every pixel needing several "bounces"
+
+    :r:`=> Limited by ray tracing performance`
+       
+
+.. s5_talk::
+
+   The technique has the usual monte carlo disadvantage of slow 
+   convergence.  Much of computer graphics is about devising ways 
+   to bias the sampling and speed up the convergence. 
+
+
+Optical Simulation : Computer Graphics vs Physics 
+------------------------------------------------------------------
+
+.. class:: small
+
+   ==========================================  =============================================  
+    CG Rendering "Simulation"                    Particle Physics Simulation
+   ==========================================  =============================================  
+     simulates: image formation, vision          simulates photons: generation, propagation, detection     
+     (red, green, blue)                          wavelength range eg 400-700 nm
+     ignore polarization                         polarization vector propagated throughout
+     participating media: clouds,fog,fire [1]    bulk scattering: Rayleigh, MIE  
+     human exposure times                        nanosecond time scales
+     equilibrium assumption                      transient phenomena
+     ignores light speed, time                   arrival time crucial, speed of light : 30 cm/ns  
+   ==========================================  =============================================  
+
+   * **handling of time is the crucial difference**
+
+   Despite differences :red:`many techniques+hardware+software directly applicable to physics` eg:
+
+   * GPU accelerated ray tracing (NVIDIA OptiX)
+   * GPU accelerated property interpolation via textures (NVIDIA CUDA)   
+   * GPU acceleration structures (NVIDIA BVH)   
+
+   
+   Potentially Useful CG techniques for "billion photon simulations"
+
+   * irradiance caching, photon mapping, progressive photon mapping 
+   
+
+.. class:: tiny 
+
+   [1] search for: "Volumetric Rendering Equation"
+
+
+.. s5_talk::
+
+    There are great similarities between graphics rendering and physics simulation
+    but also some clear differences.
+
+    * principal difference is handling of time : graphics assuming 
+      long time scales and equilibium  
+
+    * despite the differences there is great scope for re-purposing 
+      computer graphics techniques+projects to assist physics simulation   
+
+
+
+
+
+
+
+
+
+
 :i:`SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU`
 ------------------------------------------------------------
 
@@ -560,7 +906,7 @@ Outline
     The current boom in interest in AI is only going to increase this trend. 
 
 
-:small:`(From Nov 17, 2023) : US will restrict export of highest performing GPUs`
+:small:`US restricts export of highest performing GPUs`
 -----------------------------------------------------------------------------------
 
 .. sidebar:: :small:`Performance Density Threshold`
@@ -578,16 +924,15 @@ Outline
          </pre>
 
 
-.. sidebar:: :small:`NVIDIA, AMD, Intel`
+.. sidebar:: :small:`China+HK : ~22% NVIDIA revenue (2023 Q3)`
 
     .. class:: small
 
-         :b:`will likely introduce China targetted GPUs just under threshold`
-
+         :r:`=> Bound to provide GPUs just below threshold`  
 
 .. class:: small
 
-     [0] *GPUs with performance above threshold require export permits*
+     [0] *GPUs above performance threshold require export permits*
 
 
 .. raw:: html
@@ -628,8 +973,8 @@ Outline
 
 .. s5_talk::
 
-    China is something like 25% of the world market for GPUs, 
-    so I think its almost a certainty that NVIDIA with introduce
+    China is something like 20-25% of the world market for GPUs, 
+    so NVIDIA with introduce
     GPUs with specs just underneath the threshold. 
 
 
@@ -982,6 +1327,8 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
+   [HMM: COULD SKIP THIS ONE?]
+
    Opticks code is split into multiple packages by-dependency, not by-topic
    This means that more of the code has less dependencies, making 
    it more useful and easier to test.   
@@ -1176,10 +1523,13 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
    :red:`CUDA/OptiX intersection for ~10 primitives` -> :blue:`Exact geometry translation`
 
 
+.. s5_talk::
 
+    NVIDIA OptiX is a ray tracing library, it helps with accelerating intersection 
+    it does not provide the intersection itself
 
-
-
+    This gives full flexibility to implement intersection with any shape
+    from first principals : by solving implicit equations for example
 
 
 :small:`Ray intersection with general CSG binary trees, on GPU`
@@ -1244,8 +1594,12 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
         Similar to binary expression tree evaluation using postorder traverse. 
 
 
+.. s5_talk::
 
-
+    Of course most geometries have more complex shapes than just 
+    primitives.  Constructive solid geometry is a common way to 
+    represent complex shapes. Opticks provides a CSG intersection 
+    implementation. 
 
 
 .. comment
@@ -2060,6 +2414,105 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
     Aspa : This is just showing the absorption, the dotted lines are the average of the S and P polarizations
 
 
+
+
+:small:`Amdahls "Law" : Expected Speedup Limited by Serial Processing`
+--------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`S(n) Expected Speedup`
+
+    .. comment
+
+       :width: 1176px
+       :height: 358px
+       :width: 588px 
+       :height: 179px
+            
+    .. image:: /env/presentation/parallel/amdahl.png
+       :width: 392px 
+       :height: 112px
+       :align: center
+
+
+    .. class:: small
+
+        *P* 
+             parallelizable proportion
+        *1-P*
+             non-parallelizable portion
+        *n*
+             parallel speedup factor  
+
+
+
+optical photon simulation, P ~ 99% of CPU time  
+
+* -> potential overall speedup S(n) is 100x 
+* even with parallel speedup factor >> 1000x  
+
+
+
+**Must consider processing "big picture"**
+
+* remove bottlenecks one by one
+* re-evaluate "big picture" after each  
+
+
+.. s5_talk::
+
+   Serial Portion of processing determines the overall 
+   speedup because this goes to zero 
+
+
+
+
+:i:`amdahl_p_sensitive.png`
+-----------------------------
+
+.. class:: small
+
+    .. image:: /env/presentation/parallel/amdahl.png
+       :width: 392px 
+       :height: 112px
+       :align: center
+
+
+
+:small:`How much parellelized speedup actually useful to overall speedup?`
+---------------------------------------------------------------------------
+
+.. class:: small
+
+   :r:`Very dependant on the parallel fraction`
+
+   +---------------------------------------------------------------------------------------------------------------+
+   |  **Theoretical Overall Speedup for various parallel fractions and parallelized speedups**                     |
+   +-------------------+-------------------------------+-----------------------------------------------------------+
+   |                   |   Parallelized Speedup        |                                                           |
+   +-------------------+---------+-----------+---------+-----------------------------------------------------------+
+   | Parallel Fraction |   100x  |   1000x   | limit   |    Notes                                                  |
+   +===================+=========+===========+=========+===========================================================+
+   |     95%           |   17x   |   20x     |  20x    |  Little benefit beyond ~100x parallelized speedup         |
+   +-------------------+---------+-----------+---------+                                                           |
+   |     96%           |   20x   |   24x     |  25x    |                                                           |
+   +-------------------+---------+-----------+---------+                                                           |
+   |     97%           |   25x   |   32x     |  33.3x  |                                                           |
+   +-------------------+---------+-----------+---------+-----------------------------------------------------------+
+   |     98%           |   34x   |   48x     |  50x    |  Substantial benefit from more parallelized speedup       |
+   +-------------------+---------+-----------+---------+                                                           | 
+   |     99%           |   50x   |   91x     | 100x    |                                                           |
+   +-------------------+---------+-----------+---------+-----------------------------------------------------------+
+
+
+::
+
+    In [1]: run ~/opticks/ana/amdahl.py
+
+    In [2]: Amdahl.Overall_Speedup(np.array([100,1000,np.inf]),0.95)
+    Out[2]: array([16.807, 19.627, 20.   ])
+
+    In [3]: Amdahl.Overall_Speedup(np.array([100,1000,np.inf]),0.99)
+    Out[3]: array([ 50.251,  90.992, 100.   ])
 
 
 

@@ -17,8 +17,13 @@
     ## to disable the title background image simply change the 
     ## below title of "slide0" to "slide0_D"
     ##
-    ##slide0_D
-    slide0
+    ## NB added SLIDE0 envvar sensitivity to s5_background_image.py
+    ## to avoid the need to flip this... hmm but actually 
+    ## would be more convenient if this switch was in presentation metadata
+    ## avoiding the need for users to set it 
+    ##
+    ##slide0
+    slide0_D
     ../graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -2460,6 +2465,13 @@
     smonitor_cxs_min_igs_rg_default_stream_rg_default_stream.png
     smonitor/figs/smonitor/mpcap/smonitor_cxs_min_igs_rg_default_stream_rg_default_stream.png 1280px_720px
 
+    gamma_event_at_center.png 
+    huyuxiang/gamma_event_at_center.png 1186px_448px 50px_136px
+
+    hit_position_wavelength_time.png
+    huyuxiang/hit_position_wavelength_time.png 1280px_378px 0px_171px 
+
+    ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import logging
+import logging, os
 log = logging.getLogger(__name__)
 from docutils.parsers.rst import Directive, directives
 from docutils import nodes
@@ -73,6 +73,14 @@ class div_background(object):
 
     def __init__(self, lines):
         title, specs = lines[0], lines[1:]
+
+        num_divs = len(divs)
+        is_first = num_divs == 0 
+        if is_first and title == "slide0_D" and "SLIDE0" in os.environ:
+            print("switch title:[%s] to slide0 num_divs:%d is_first:%d" % (title, num_divs, is_first))
+            title = "slide0"
+        pass
+
         self.lines = lines 
         self.title = title
         self.ltitle = title.lower()

@@ -210,6 +210,18 @@ data preparation for upload to the GPU and analysis of results.
 Opticks Presentations 
 ----------------------
 
+2024
+~~~~~
+
+`env/presentation/opticks_20240215_geant4_forum.html <env/presentation/opticks_20240215_geant4_forum.html>`_
+
+    Slides describing G4OpBoundaryProcess customizations for the JUNO PMT Optical Model
+    (some of which may be presented by Cécile Jollet at the below meeting)
+
+    Geant4 Technical Forum, 15 Feb 2024
+
+
+
 2023
 ~~~~~~~~
 
@@ -217,7 +229,7 @@ Opticks Presentations
 
 `env/presentation/opticks_20231219_using_junosw_plus_opticks_release.html <env/presentation/opticks_20231219_using_junosw_plus_opticks_release.html>`_
 
-    Adversisement for first JUNOSW+Opticks relase
+    Advert for first JUNOSW+Opticks relase
 
     AFG Simulation Meeting, Dec 19, 2023
 

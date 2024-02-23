@@ -1,0 +1,1436 @@
+.. meta::
+
+   :title: JUNOSW + Opticks : Status and Plan
+   :name: opticks_20240224_offline_software_review.txt
+   :description: (24 Feb 2024)
+   :notes: 22nd collaboration meeting : Kaiping : 22-26 Feb 2024 : 15 min talk
+   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?sessionid=2642
+
+
+.. include:: my_s5defs.txt
+
+.. include:: s5_background_image.txt
+
+
+.. comment
+
+    <p style="margin-bottom:50mm;" />
+
+
+:i:`JUNOSW + Opticks : Status and Plan` 
+========================================================
+
+.. raw:: html
+
+    <div class="mytitle">
+        <header>
+            <h1 style="background-color:lightgrey"> 
+                JUNOSW + Opticks : Status and Plan 
+            </h1>
+        </header>
+    </div>
+    <p style="margin-bottom:25mm;" />
+    <p style="margin-bottom:35mm;" />
+
+.. class:: small
+
+   * (December 18, 2023) First Pre-Release of JUNOSW+Opticks
+   * Status of known issues : most leaks now fixed
+   * Opticks additions to assist with GPU+CPU memory leak finding
+   * Geometry in use based on J23_1_0_rc3
+   * Introduce Three Opticks test scripts [1] [2] [3]
+   * [2] A:B Chi2 comparison of optical propagation history frequencies
+   * [2] Chimney Issue : Photons going up the Chimney discrepant ?
+   * [3] Pure Optical TorchGenstep 20 evt scan : 0.1M to 100M photons
+   * [3] Hit vs Photon for Release build running    
+   * Optimizing separate "Release" build in addition to "Debug" build
+   * [3] Event Time vs Photon in Debug and Release builds
+   * Absolute Comparison with ancient Opticks Measurements ? 
+   * Launch time (and hits) vs OPTICKS_MAX_BOUNCE 
+   * Yuxiang Hu : Gamma Event at CD center comparisons
+   * Amdahls Law : How much parellelized speedup actually useful to overall speedup ?  
+   * NEXT STEPS/PLAN 
+
+
+.. comment
+
+   * [3] Profile reports and plots 
+   * [2] G4CXTest_GEOM.sh : Event Time vs Photons with both A:CSGOptiX and B:U4Recorder
+   * [2] U4Recorder leaking badly 
+   * [3] pure Opticks : no sign of leak 
+   * [2] B:U4Recorder / A:CSGOptiX Ratio only 190 !
+
+
+
+.. raw:: html
+
+    <div class="mycredit">
+       <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS  &mdash; Offline Software Review &mdash; 24 Feb 2024 </h2>
+    </div>
+
+
+
+.. s5_talk::
+
+    This talk will outline progress with the integration of JUNOSW and Opticks 
+
+
+:small:`(December 18, 2023) First Pre-Release of JUNOSW+Opticks`
+----------------------------------------------------------------------------------
+
+.. class:: small
+
+    :r:`source /cvmfs/juno.ihep.ac.cn/centos7_amd64_gcc1120_opticks/Pre-Release/J23.1.0-rc6/setup.sh`
+
+
+.. class:: small
+
+   * :b:`Objective of Pre-Release : enable non-developers to test JUNOSW+Opticks`
+
+   +----------------------+------------------------------------------------------------------------------------+ 
+   | OptiX 7.5            | Chosen to match NVIDIA CUDA 11.7 + Driver Version: 515.65.01 on IHEP GPU cluster   | 
+   +----------------------+------------------------------------------------------------------------------------+ 
+   | Geant4 10.4.2        | (Opticks with Geant4 11 already in use by Fermilab Geant4 group, others)           |
+   +----------------------+------------------------------------------------------------------------------------+
+   | Custom4 0.1.8        | small package : but deeply coupled with : Geant4 + JUNOSW + Opticks                |
+   +----------------------+------------------------------------------------------------------------------------+ 
+   | Opticks-v0.2.4       | December 18 release https://github.com/simoncblyth/opticks/releases/tag/v0.2.4     |
+   +----------------------+------------------------------------------------------------------------------------+ 
+
+.. class:: small
+
+   Pre-Release usable only on IHEP GPU cluster (?) 
+
+   * unless NVIDIA Driver + CUDA + OptiX versions happen to match your machine 
+
+      
+
+.. class:: small 
+
+   Example test scripts in j repository:
+
+   * https://code.ihep.ac.cn/blyth/j/-/blob/main/okjob.sh    :b:`slurm submission wrapper`
+   * https://code.ihep.ac.cn/blyth/j/-/blob/main/jok.bash    :b:`tut_detsim.py commandline`
+
+   Example job script for developers building JUNOSW+Opticks with **bash junoenv opticks,bash junoenv offline**
+
+   * https://code.ihep.ac.cn/blyth/j/-/blob/main/okjobdev.sh 
+
+
+.. s5_talk::
+
+   At the end of last year, just before Christmas : Tao created the first JUNOSW+Opticks release 
+   based on Opticks tag 0.2.4 
+
+
+
+Status of known issues : most leaks now fixed
+-----------------------------------------------
+
+.. class:: normal
+
+   * :strike:`sensor_identifier off-by-one bug (caused SEGV on hitting SPMT 325599)`
+
+     * :r:`FIX: 2023/12/19 Opticks v0.2.5` 
+
+   * :strike:`GPU memory leak : from creating CUDA stream for every launch` 
+
+     * :r:`FIX: 2024/01/25 Opticks v0.2.6`  :b:`(GPU leak : difficult to find, easy to fix)`
+
+   * :strike:`CPU memory leak from hit handling` :b:`(CPU leak : re-implement more cleanly)`
+
+     * :r:`FIX: 2024/02/20 Opticks HEAD` via reimplementation of ``SEvt::getLocalHit``
+
+       * leak investigated with standalone test : ``u4/tests/U4HitTest.sh``
+       * fix avoids transform related leak 
+       * fix avoids transform inversion for each hit, adopts double precision transforms 
+
+   * U4Recorder CPU memory leak, non-critical
+
+     * recorder only used for debug + validation
+     * no need to handle many or large (100M photon) events
+     * :b:`TODO : check again, above hit handling fix might reduce this enough already`
+
+   * python analysis/plotting machinery not yet included in release  
+   * geometry differences described separately 
+
+
+.. s5_talk::
+
+    The first Release had both GPU and CPU memory leaks, most of them have been fixed.
+    First priority for leak finding is to reduce the development cycle time,
+    as that enables efficienct code "bi-section" to find the culprits.
+
+    * adopted a pragmatic approach of simply reimplementing better, with more precise transform handling 
+
+
+:small:`Opticks additions to assist with GPU+CPU memory leak finding`
+---------------------------------------------------------------------
+
+.. class:: normal 
+
+
+   ``~/opticks/sysrap/smonitor.sh`` 
+         NVML based GPU memory monitor (~nvidia-smi with NumPy array saving) 
+
+   ``~/opticks/sysrap/tests/sprof.sh``
+         Analysis of sysrap/SProf.hh (time[us],VM[kb],RSS[kb]) CPU memory profile stamps 
+
+
+
+   * **2024/01/22** : complete impl. of running from sequence of input gensteps 
+
+     * rerun GPU optical propagation with gensteps persisted from JUNOSW+Opticks job
+     * :r:`ADVANTAGE : optical simulation dev. cycle time < 2 seconds` (not 2 minutes)
+     * :b:`enabled pinning down VRAM launch leak : without waiting 2 minutes between trials`
+     * see ``~/opticks/CSGOptiX/cxs_min_igs.sh``
+
+   ::
+
+      export OPTICKS_INPUT_GENSTEP=$BASE/jok-tds/ALL0/A%0.3d/genstep.npy  
+      ## sequence of genstep arrays to load across multiple SEvt folders
+
+
+   * **2024/02/04** :  complete ``sysrap/NPX.h`` additions for ``std::unordered_map``
+
+     * JUNOSW ``map -> unordered_map`` required additional NPX.h serialize/import methods
+
+ 
+
+.. s5_talk::
+
+   I developed tools that record GPU and CPU memory usage for leak profiling/
+   Also running from a sequence of genstep files proved useful as it it enables 
+   fast initialization, reduced from around 2 minutes to around 2 seconds. 
+
+   
+
+
+:i:`cxr_min__eye_0,1.5,0__zoom_4__tmin_1.3__ALL.jpg`
+--------------------------------------------------------
+
+::
+
+    EYE=0,1.5,0 TMIN=1.3 ZOOM=4 ~/opticks/cxr_min.sh  ## CSGOptiXRMTest
+
+
+.. raw:: html
+
+    <p style="margin-bottom:100mm;" />
+    
+
+.. class:: center
+
+   ``Using GEOM J23_1_0_rc3_ok0`` 
+
+
+
+.. s5_talk::
+
+    This is a ray trace render of the geometry being used
+
+
+:small:`Geometry in use based on J23_1_0_rc3`
+-----------------------------------------------
+
+.. class:: small
+
+   Deferred geometry, switched off by tut_detsim.py options.
+
+   +--------------------+-----------------------------------------------------------------------------+
+   | --no-guide_tube    | OptiX 7.1 has curves : thought might enable G4Torus translation, but docs   |         
+   |                    | show are one-sided : so instead triangulate torus[T] ?                      |
+   +--------------------+---------------------------------------------+-------------------------------+
+   | --debug-disable-xj |  XJfixture XJanchor                         |  Deep CSG trees               |
+   +--------------------+---------------------------------------------+  require dev.                 |
+   | --debug-disable-sj |  SJCLSanchor SJFixture SJReceiver SJFixture |  to see if "listnode"         |
+   +--------------------+---------------------------------------------+  (similar to G4MultiUnion)    |
+   | --debug-disable-fa |  FastenerAcrylic                            |  can provide solution         |
+   +--------------------+---------------------------------------------+-------------------------------+
+
+
+   Virtual surface shifts used to avoid degeneracy, together with defaults (shifts avoid chi2 discrepancies from degenerate surfaces)::
+
+       export Tub3inchPMTV3Manager__VIRTUAL_DELTA_MM=0.10           ## 1.e-3 
+       export HamamatsuMaskManager__MAGIC_virtual_thickness_MM=0.10 ## 0.05 
+       export NNVTMaskManager__MAGIC_virtual_thickness_MM=0.10      ## 0.05
+          
+
+   * :b:`TODO: check virtual shifts have no performance effects or overlap issues` 
+
+     * :r:`convince offline group to enlarge defaults : avoiding these Opticks only shifts`                                                 
+
+   * :b:`TODO: add optional triangulated geometry handling : use for guide tube`
+
+     * :r:`torus quartic analytic solution painful : expect triangulation approximation more robust+precise`
+
+   * :b:`TODO: test "listnode" solution for handling deep CSG trees (complex solid shape)`
+
+
+.. class:: center
+
+   **Completing these three : will match GPU and CPU geometry**
+
+
+.. s5_talk::
+
+    The geometry differerences can be grouped into three. 
+
+    First there are some small shifts in PMT virtual wrapper volumes to avoid degeneracy. 
+    Once I demonstrate that these shifts have no performance effects or overlap issues in
+    standard (non-Opticks) running I hope the defaults can be enlarged to keep geometries the same.
+
+    Secondly the guide tube is skipped. To remedy this requires adding triangulated geometry handling.
+    Old opticks had this functionality : I need to revive this into the new Opticks. 
+
+    The third difference is skipping of some complex CSG solids.  I have a solution for this 
+    that needs to be tested.  
+   
+
+
+
+
+:small:`Introduce Three Opticks test scripts [1] [2] [3]`
+--------------------------------------------------------------
+
+
+.. class:: small
+
+    * https://github.com/simoncblyth/j
+    * https://bitbucket.org/simoncblyth/opticks/
+
+    +------+------------------------------------------+---------------------+--------------------------------------------------------------------+ 
+    |  idx |  control script                          | initialization time |  Notes                                                             |   
+    |      |                                          | (seconds)           |                                                                    | 
+    +======+==========================================+=====================+====================================================================+
+    | [1]  |  ~/j/okjob.sh                            |   149               |  JUNOSW+Opticks (tut_detsim.py "main")                             |   
+    +------+------------------------------------------+---------------------+--------------------------------------------------------------------+
+    | [2]  |  ~/opticks/g4cx/tests/G4CXTest_GEOM.sh   |   127               |  InputPhoton, TorchGenstep, NOT YET InputGenstep                   |   
+    +------+------------------------------------------+---------------------+--------------------------------------------------------------------+
+    | [3]  |  ~/opticks/CSGOptiX/cxs_min.sh           |    <2               |  InputPhoton, TorchGenstep, InputGenstep                           |   
+    +------+------------------------------------------+---------------------+--------------------------------------------------------------------+
+
+
+    1. "insitu" test of Opticks embedded into JUNOSW : translates geometry and persists it
+    2. standalone optical only bi-simulation for A:Opticks <=> B:Geant4 comparison
+    3. pure Opticks (no Geant4 dependency) GPU optical simulation : uses geometry persisted by [1]
+
+       * fast initialization : loads CSGFoundry geometry and uploads to GPU in <2 seconds  
+       * fast cycle for development and Opticks performance measurements 
+
+    **TorchGenstep**
+        disc, sphere, line, point, circle, rectangle : shapes of photon sources implemented in ``sysrap/storch.h``
+
+    **InputGenstep**
+        general gensteps eg obtained from [1]:okjob.sh can be used in [3]:cxs_min.sh, not yet [2]:G4CXTest (expect straightforward) 
+
+
+
+.. s5_talk::
+
+    I briefly point out the scripts used to do the following validations and measurements,
+    all available from the repositories shown. 
+
+
+.. comment
+
+    :small:`[2] G4CXTest_GEOM.sh : standalone optical bi-simulation for validation`
+    --------------------------------------------------------------------------------
+
+    .. sidebar:: :small:`G4CXTest.cc usinh G4CXApp.h`
+
+        .. raw:: html
+
+            <pre class="mypre20">
+            &#35;include "OPTICKS_LOG.hh"
+            <span class="r">&#35;include "G4CXApp.h"</span>
+
+            int main(int argc, char** argv)
+            {   
+                OPTICKS_LOG(argc, argv);
+                return G4CXApp::Main();
+            }
+            </pre>
+
+
+    .. class:: small
+
+        **G4CXApp.h** 
+            standalone pure optical Geant4 + Opticks in single header
+
+        * operates from GDML 
+        * GDML translated into Opticks GPU geometry
+        * "primary" photons passed to Geant4 in **G4CXApp::GeneratePrimaries**
+
+        :b:`Enables pure optical simulation comparison`
+
+
+    .. raw:: html
+
+        <p style="margin-bottom:30mm;" />
+
+
+    .. class:: small
+
+        +--------------------------------+----------------------------------+ 
+        |  Test                          |   Status                         |
+        +================================+==================================+
+        | InputPhotons targetting PMTs   |  chi2 matched, no known issues   | 
+        +--------------------------------+----------------------------------+ 
+        | TorchGenstep from CD center    |  chi2 marginal : chimney issue ? |
+        +--------------------------------+----------------------------------+ 
+        
+
+
+:small:`[2] A:B Chi2 comparison of optical propagation history frequencies`
+-----------------------------------------------------------------------------
+
+.. class:: small
+
+   ::
+
+        ~/o/G4CXTest_GEOM.sh ana                   ## python history comparison
+        ~/o/sysrap/tests/sseq_index_test.sh        ## C++ history comparison
+
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    a_path $AFOLD/seq.npy /data/blyth/opticks/GEOM/J23_1_0_rc3_ok0/G4CXTest/ALL98/A000/seq.npy a_seq (1000000, 2, 2, )
+    b_path $BFOLD/seq.npy /data/blyth/opticks/GEOM/J23_1_0_rc3_ok0/G4CXTest/ALL98/B000/seq.npy b_seq (1000000, 2, 2, )
+    AB [sseq_index_ab::desc u.size 152520 opt BRIEF mode 6 
+       sseq_index_ab_chi2::desc                          sum   565.3332 ndf 504.0000 sum/ndf     1.1217 sseq_index_ab_chi2_ABSUM_MIN:200.0000
+        TO AB                             :  126549 126745 :     0.1517 : Y :       2      7 :   
+        TO BT BT BT BT BT BT SD           :   70494  70397 :     0.0668 : Y :      18      2 :   
+        TO BT BT BT BT BT BT SA           :   57103  57388 :     0.7094 : Y :       5      1 :   
+        TO SC AB                          :   51434  51094 :     1.1275 : Y :       4     48 :   
+        TO SC BT BT BT BT BT BT SD        :   35878  35913 :     0.0171 : Y :      58     56 :   
+        TO SC BT BT BT BT BT BT SA        :   29676  30061 :     2.4813 : Y :     124     85 :   
+        TO SC SC AB                       :   19993  19869 :     0.3857 : Y :     137     24 :   
+        TO BT BT SA                       :   18932  18869 :     0.1050 : Y :      71    148 :   
+        TO RE AB                          :   18319  18090 :     1.4403 : Y :       9     50 :   
+        TO SC SC BT BT BT BT BT BT SD     :   15454  15326 :     0.5323 : Y :      19      8 :   
+        TO SC SC BT BT BT BT BT BT SA     :   12785  12833 :     0.0899 : Y :      24    138 :   
+        TO BT BT AB                       :   10993  10949 :     0.0882 : Y :      72     26 :   
+        TO BT AB                          :    9250   9279 :     0.0454 : Y :      36     13 :   
+        TO BT BT BT BT BT BT BT SA        :    7476   7577 :     0.6777 : Y :     176    634 :   
+        TO SC SC SC AB                    :    7544   7418 :     1.0611 : Y :      90     82 :   
+        TO RE BT BT BT BT BT BT SD        :    7419   7272 :     1.4709 : Y :     197     73 :   
+        TO SC RE AB                       :    7137   7049 :     0.5459 : Y :     110     11 :   
+        ...
+     </pre>
+
+.. class:: small
+
+    +--------------------------------+----------------------------------------------------------------------------+ 
+    |  Test                          |   Status                                                                   |
+    +================================+============================================================================+
+    | InputPhotons targetting PMTs   |  chi2 matched, no known issues                                             | 
+    +--------------------------------+----------------------------------------------------------------------------+ 
+    | TorchGenstep from CD center    |  chi2 marginal : chimney issue ? Probably some coincident surfaces to fix  |                                          
+    +--------------------------------+----------------------------------------------------------------------------+ 
+   
+
+.. s5_talk::
+
+    Use Chi2 to compare the frequencies of various categories of photon histories. This comparison approach 
+    means that discrepancies immediately point out which optical histories need to be investigated.  
+ 
+    When targetting PMTs I see no chi2 discrepancies, when generating photons in all directiosn 
+    from CD center I see some signs of issues for photons going up the chimney. Typically this means
+    some degenerate surfaces cause the CPU and GPU histories to differ. 
+
+
+
+:small:`[2] Chimney Issue : Photons going up the Chimney discrepant ?`
+-----------------------------------------------------------------------
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    np.c_[siq,_quo,siq,sabo2,sc2,sabo1][bzero]  ## <span class="r"> history seq in A but not B : usually from degeneracy</span>
+    [['1107' 'TO BT BT BT BT BT BT BT BT SD                                                                  ' '1107' '  41  0' ' 0.0000' ' 11355     -1']
+     ['1305' 'TO BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT' '1305' '  33  0' ' 0.0000' ' 11040     -1']
+     ['1623' 'TO BT BT DR BT BT BT SD                                                                        ' '1623' '  26  0' ' 0.0000' '  1930     -1']
+     ['2375' 'TO BT BT BT BT BT BT BR BT BT BT BT BT BT BT BT BT SD                                          ' '2375' '  17  0' ' 0.0000' ' 10972     -1']
+     ['3264' 'TO SC BT BT BT BT BT BT BR BT BT BT BT BT BT BT BT BT SD                                       ' '3264' '  12  0' ' 0.0000' ' 22140     -1']]
+
+    In [1]: w = a.q_startswith("TO BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT BT") ; w 
+    Out[1]: 
+    array([ 11040,  15219, 118322, 152607, 165838, 215978, 299136, 374379, 395244, 422394, 427598, 434101, 443666, 445392, 479186, 531698, 549984, 592656, 604821, 637582, 656052, 736283, 777988, 789501,
+           821402, 837105, 853410, 898084, 903045, 923645, 927731, 974750, 989689])
+
+    In [2]: a.f.record[w[0],:,0]    ## <span class="r">PHOTON STEP POINT POSITIONS : ALL SIMILAR : GOING UP THE CHIMNEY </span>
+    Out[2]: 
+    array([[   -1.594,     0.835,    99.984,     0.   ],        ## <span class="r"> photon step point (x,y,z,t) mm,ns  </span>
+           [ -284.142,   148.854, 17823.998,    81.302],
+           [ -315.513,   165.289, 20000.   ,    88.563],
+           [ -332.369,   174.119, 21750.   ,    94.401],
+           [ -332.383,   174.127, 21752.   ,    94.407],
+           [ -344.817,   180.641, 23500.   ,   103.396],
+           [ -368.795,   193.202, 25752.   ,   110.911],
+           [ -409.762,   214.663, 29599.7  ,   123.75 ],
+           [ -409.764,   214.664, 29599.85 ,   123.75 ],
+           ...
+           [ -412.414,   216.053, 29848.799,   124.581],
+           [ -412.424,   216.058, 29849.7  ,   124.584],
+           [ -412.426,   216.059, 29849.85 ,   124.585],
+           [ -412.532,   216.114, 29859.85 ,   124.618],
+           [ -412.534,   216.115, 29860.   ,   124.618],
+           [ -412.543,   216.12 , 29860.9  ,   124.621],
+           [ -412.55 ,   216.124, 29861.5  ,   124.623],
+           [ -412.56 ,   216.129, 29862.5  ,   124.627]], dtype=float32)
+    </pre>
+
+
+.. class:: small
+
+   :b:`Investigating a discrepant Chimney photon : more of this + geometry examination needed to find cause of difference`
+
+
+
+.. s5_talk::
+
+    This is looking into the detail of a discrepant photon thats going up the Chimney, 
+    need more of this and an examination of the geometry to find where things diverge. 
+
+
+
+.. comment
+
+    :i:`G4CXTest_GEOM_A_chimney_issue.png`
+    ---------------------------------------
+
+    .. class:: small
+        
+        +--------------------------------+
+        | :w:`[2] G4CXTest_GEOM.sh`      |
+        +--------------------------------+
+        | :w:`1M photon Torch Genstep    |
+        | at CD center`                  |
+        +=============+==================+
+        | :r:`Red`    | :r:`End points`  |
+        +-------------+------------------+
+        | :g:`Green`  | :g:`Step points` |       
+        +-------------+------------------+
+        | :c:`Cyan`   | :c:`Hit points`  |       
+        +-------------+------------------+
+
+
+
+:small:`[3] Pure Optical TorchGenstep 20 evt scan : 0.1M to 100M photons`
+------------------------------------------------------------------------------------
+
+::
+
+    TEST=large_scan ~/opticks/cxs_min.sh 
+    
+
+
+.. class:: small
+
+    Generate 20 optical only events with 0.1M->100M photons starting from CD center, 
+    gather and save only Hits.
+
+    * uses CSGOptiXSMTest executable (no Geant4 dependency)
+
+::
+
+    OPTICKS_RUNNING_MODE=SRM_TORCH  ## "Torch" running enables num_photon scan
+    OPTICKS_NUM_PHOTON=H1:10,M2,3,5,7,10,20,40,60,80,100
+    OPTICKS_NUM_EVENT=20
+    OPTICKS_EVENT_MODE=Hit
+
+
+.. class:: small
+
+   * no Geant4 initialization (~150s) : load and upload geometry in ~2s 
+   * BUT with MAX_PHOTON 100M, uploading curandState costs 20s
+
+
+   +---------------------------------------------------------------+--------------------------------------------+ 
+   |   Test Hardware                                               |  Notes                                     |
+   +===============================================================+============================================+
+   |  DELL Precison Workstation with NVIDIA TITAN RTX(24G)         | :b:`Primary test hardware`                 |
+   +---------------------------------------------------------------+--------------------------------------------+
+   |  DELL Precision Workstation with NVIDIA TITAN V(12G)          | VRAM limited                               |
+   +---------------------------------------------------------------+--------------------------------------------+
+   |  DELL Precision Workstation with NVIDIA Quadro RTX 8000 (48G) | TODO : push to memory limit ~400M photons  |
+   +---------------------------------------------------------------+--------------------------------------------+
+   |  GPU cluster nodes with NVIDIA V100 (32GB)                    | TODO: Production Config Testing, expect    |
+   |                                                               | ~250M photon per launch limit              | 
+   +---------------------------------------------------------------+--------------------------------------------+
+
+ 
+.. s5_talk::
+
+    Using Torch gensteps allows the number of photons to be scanned
+
+
+
+:i:`ALL1_scatter_10M_photon_22pc_hit_alt.png`
+----------------------------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:150mm;" />
+ 
+
+
+``~/o/cxs_min.sh  ## 2.2M hits from 10M photon TorchGenstep, 3.1 seconds``
+
+
+.. s5_talk::
+
+    2.2M hits in 3.1 seconds
+
+
+:i:`ALL1_scatter_10M_photon_22pc_hit.png`
+-------------------------------------------
+
+.. comment
+
+   PLOT=scatter MODE=3 PUB=10M_photon_22pc_hit ~/o/cxs_min.sh pvpub
+
+
+.. s5_talk::
+
+    Shadows in the distribution of hits are apparent  
+
+
+
+
+.. comment
+
+    :i:`N7_Substamp_ALL_Hit_vs_Photon__linear.png`
+    ------------------------------------------------
+
+    .. s5_talk::
+
+       Linear relationship between photons and hits 
+
+
+:i:`S7_Substamp_ALL_Hit_vs_Photon__linear.png`
+------------------------------------------------
+
+
+.. s5_talk::
+
+   Linear relationship between photons and hits, Release and Debug build results look the same  
+
+
+:small:`Optimizing separate "Release" build in addition to "Debug" build`
+---------------------------------------------------------------------------
+
+
+.. class:: small
+
+   **Release** preprocessor macros : adds: **PRODUCTION** , removes: **DEBUG_TAG, DEBUG_PIDX,...**
+
+   * remove debug array collection (eg photon step point records)
+   * remove debug code from GPU kernels 
+   * :r:`lots more mileage here : more can be removed from Release kernel`
+
+
+   **Examine flattened kernel source CSGOptiX/CSGOptiX7.cu (103k lines) : all includes included**
+
+   ::
+
+       ~/opticks/preprocessor.sh > /tmp/out.cc   ## using gcc -E -C -P 
+
+   * :b:`see what the compiler sees` 
+   * enables finding inadvertent doubles + printf
+
+   **Grepping Kernel PTX : Parallel Thread Execution ~Assembly code** 
+
+   * :b:`examine first stage output from compilation`
+
+   Grepping PTX for doubles and printf, and then removing from source : **opticks-ptx** bash function eg::
+
+       grep \\.f64 $OPTICKS_PREFIX/ptx/CSGOptiX_generated_CSGOptiX7.cu.ptx
+
+   * with OptiX 6.5 removing doubles had large performance improvements, no big effects yet with 7.5
+
+
+
+.. s5_talk::
+
+    The Release build aims to minimize processing to absolute essentials only, 
+    with no Debug/validation activity. There is likely significantly further slimming 
+    that can be done. 
+
+
+
+.. comment
+
+    :small:`sreport.{sh,cc,py} : Opticks Event metadata reports and plots`
+    -----------------------------------------------------------------------
+
+    .. sidebar:: :small:`Opticks SEvt Metadata`
+
+         .. class:: small 
+
+            * config : GPU, preprocessor switches, ... 
+            * profile "stamps" ``sprof.h``
+
+              * **{int64_t[us], VM[kb], RSS[kb]}** 
+              * beginOfEvent, endOfEvent, GPU launch ...  
+
+            * https://github.com/simoncblyth/np/
+
+    .. class:: small
+
+        Opticks Event => folders of NumPy .npy (``NPFold.h/NP.hh``) 
+
+        ``sreport`` executable:
+
+        1. loads SEvt metadata in folders below eg **ALL1**
+           (using ``NPFold::LoadNoData`` : :r:`metadata only`)
+        2. saves summary NPFold to **../ALL1_sreport**
+        3. ``sreport.py`` loads summary and makes plots  
+
+        **Usage on workstation/GPU job and laptop**::
+
+            ~/o/cxs_min.sh  ## create SEvt 
+
+        Laptop, :b:`rsync small metadata summary from remote`::
+
+            JOB=N7 ~/o/sreport.sh grab 
+            JOB=N7 PLOT=Substamp_ALL_Etime_vs_Photon ~/o/sreport.sh
+
+
+    .. class:: normal 
+
+        :r:`Effective automated reporting+plotting are essential for optimization`
+
+
+
+
+
+:i:`N7_Substamp_ALL_Etime_vs_Photon__34s_100M_debug.png`
+---------------------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:80mm;" />
+ 
+
+.. class:: center
+
+    Debug : 0.341 seconds per million photons
+
+
+.. s5_talk::
+
+    Currently not much difference betweem the Debug and Release builds 
+
+
+
+:i:`S7_Substamp_ALL_Etime_vs_Photon__100M_31s_Release.png`
+-----------------------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:80mm;" />
+
+
+.. class:: center
+
+    Release : 0.314 seconds per million photons
+
+
+.. s5_talk::
+
+    Currently Release running only something like 20% less time than Debug
+
+
+
+.. comment
+
+    :small:`Profile reporting eg:` ``~/o/cxs_min.sh report``  
+    --------------------------------------------------------------
+
+    .. class:: small
+
+        * profile stamps ``{t[us], VM[kb], RSS[kb]}`` collected throughout process lifetime 
+        * reported with **sreport** executable
+
+    .. raw:: html
+
+       <pre class="mypretiny">
+          ...
+          A018_QSim__simulate_PREL :   1701933491020126,19102924,1300668    2023-12-07T15:18:11.020126  92,039,765  92,038,118       2,598
+          A018_QSim__simulate_POST :   1701933526625966,19102924,1300668    2023-12-07T15:18:46.625966 127,645,605 127,643,958  35,605,840
+               SEvt__endIndex_A018 :   1701933526626230,19102924,1300668    2023-12-07T15:18:46.626230 127,645,869 127,644,222         264
+        SEvt__endOfEvent_LAST_EGPU :   1701933531837026,19102924,1300668    2023-12-07T15:18:51.837026 132,856,665 132,855,018   5,210,796
+                    SEvt__EndOfRun :   1701933531837143,19102924,1300668    2023-12-07T15:18:51.837143 132,856,782 132,855,135         117
+          A018_QSim__simulate_TAIL :   1701933531837486,19102924,1300668    2023-12-07T15:18:51.837486 132,857,125 132,855,478         343
+       CSGOptiX__SimulateMain_TAIL :   1701933531837541,19102924,1300668    2023-12-07T15:18:51.837541 132,857,180 132,855,533          55
+
+        juncture:4 [SEvt__Init_RUN_META,SEvt__BeginOfRun,SEvt__EndOfRun,SEvt__Init_RUN_META] time ranges between junctures
+                   SEvt__Init_RUN_META :           -1                        :            0 : 2023-12-07T15:16:38.980361 JUNCTURE
+                      SEvt__BeginOfRun :   22,181,663                        :   22,181,663 : 2023-12-07T15:17:01.162024 JUNCTURE
+                        SEvt__EndOfRun :  110,675,119                        :  132,856,782 : 2023-12-07T15:18:51.837143 JUNCTURE
+                   SEvt__Init_RUN_META : -132,856,782                        :            0 : 2023-12-07T15:16:38.980361 JUNCTURE
+
+        ranges:6 time ranges between pairs of stamps 
+                    SEvt__Init_RUN_META ==>           CSGFoundry__Load_HEAD                 1,774    ## init
+                  CSGFoundry__Load_HEAD ==>           CSGFoundry__Load_TAIL             1,325,321    ## load_geom
+                  CSGOptiX__Create_HEAD ==>           CSGOptiX__Create_TAIL            20,854,325    ## upload_geom
+               A000_QSim__simulate_HEAD ==>        A000_QSim__simulate_PREL                19,450    ## upload_genstep
+               A000_QSim__simulate_PREL ==>        A000_QSim__simulate_POST                55,697    ## simulate
+               A000_QSim__simulate_POST ==>        A000_QSim__simulate_TAIL                 7,686    ## download
+               A001_QSim__simulate_HEAD ==>        A001_QSim__simulate_PREL                 1,037    ## upload_genstep
+               A001_QSim__simulate_PREL ==>        A001_QSim__simulate_POST               103,109    ## simulate
+               A001_QSim__simulate_POST ==>        A001_QSim__simulate_TAIL                11,304    ## download
+               A002_QSim__simulate_HEAD ==>        A002_QSim__simulate_PREL                 1,022    ## upload_genstep
+               A002_QSim__simulate_PREL ==>        A002_QSim__simulate_POST               112,313    ## simulate
+               A002_QSim__simulate_POST ==>        A002_QSim__simulate_TAIL                16,068    ## download
+               A003_QSim__simulate_HEAD ==>        A003_QSim__simulate_PREL                   988    ## upload_genstep
+               ...
+       </pre>
+
+
+    :i:`N7_Ranges_SPAN__slow_downloads.png`
+    ----------------------------------------
+
+
+
+    .. raw:: html
+
+        <p style="margin-bottom:110mm;" />
+
+
+    .. class:: center
+
+        "Debug" : rather slow hit downloads ?
+
+
+
+
+
+    :i:`S7_Ranges_SPAN__fast_downloads.png`
+    ----------------------------------------
+
+
+    .. raw:: html
+
+        <p style="margin-bottom:110mm;" />
+
+
+    .. class:: center
+
+        Unclear why "Release" downloads so much faster than "Debug" 
+
+
+
+
+.. comment
+
+    :i:`N7_Ranges_ONE__Debug.png`
+    -------------------------------
+
+    .. s5_talk::
+
+          simulate/download/upload genstep Debug 
+
+
+    :i:`S7_Ranges_ONE__Release.png`
+    -------------------------------
+
+          simulate/download/upload genstep Release
+
+
+
+
+.. comment
+
+    :i:`Back to G4CXTest`
+    -----------------------
+
+    .. raw:: html
+
+        <p style="margin-bottom:60mm;" />
+
+    .. class:: center
+
+        Now back to [2] ``G4CXTest_GEOM.sh`` optical only comparison 
+
+
+
+
+.. comment
+
+    :i:`N5_Substamp_ALL_Etime_vs_Photon__U4Recorder_OOM_100M.png`
+    ---------------------------------------------------------------
+
+
+    :i:`N5_Substamp_ALL_Etime_vs_Photon__100M_31s_Release.png`
+    --------------------------------------------------------------
+
+    .. raw:: html
+
+        <p style="margin-bottom:60mm;" />
+
+    .. class:: center
+
+        Only got to 80M : due to U4Recorder memory leak 
+
+
+
+
+    :i:`S5_Substamp_ALL_Etime_vs_Photon__U4Recorder_benefits_more.png`
+    -------------------------------------------------------------------
+
+    .. raw:: html
+
+        <p style="margin-bottom:60mm;" />
+
+    .. class:: center
+
+        "Release" benefits B:U4Recorder more than A:CSGOptiX 
+
+
+
+
+    :i:`N5_Subprofile_ALL__leaking.png`
+    -------------------------------------
+
+
+    .. raw:: html 
+
+        <p style="margin-bottom:80mm;" />
+
+
+    .. class:: center
+
+        :r:`U4Recorder leaking badly! [Geant4 propagation recorded into Opticks SEvt]`
+
+        * reason only got to 80M in previous plots
+
+
+
+    :i:`S7_Subprofile_ALL__no_leak.png`
+    -------------------------------------
+
+    .. raw:: html 
+
+        <p style="margin-bottom:80mm;" />
+
+
+    .. class:: center
+
+        ([3] cxs_min.sh) Pure Opticks (no Geant4 or U4Recorder) : no leak
+
+
+
+    :i:`N5_Substamp_ALL_RATIO_vs_Photon__approach_200.png`
+    -------------------------------------------------------
+
+
+
+    .. raw:: html
+
+        <p style="margin-bottom:70mm;" />
+
+    .. class:: center
+
+        :r:`B:U4Recorder / A:CSGOptiX : ratio only ~190 !`
+
+        * :b:`BUT: Geant4 not a good candle... (too flexible)` 
+        * :b:`instead compare "like-with-like" absolute times` 
+
+
+
+
+:i:`scan-pf-1_Opticks_vs_Geant4 2`
+------------------------------------
+
+
+.. raw:: html
+
+    <p class="mytopbox">Absolute Comparison with ancient Opticks Measurements.. ? [Below presented at CHEP 2019] 58s / 400M photons</p>
+    <pre>
+   
+
+
+ 
+    </pre>
+
+
+.. class:: small
+
+    .. table:: 
+        :align: center
+
+        +--------------------+----------------------------+------------------+
+        | JUNO analytic, 400M photons from center         |  Speedup         |
+        +====================+============================+==================+
+        | Geant4 Extrap.     | 95,600 s (26 hrs)          |                  | 
+        +--------------------+----------------------------+------------------+
+        | Opticks RTX ON (i) | 58 s                       |   1650x          |
+        +--------------------+----------------------------+------------------+
+
+
+.. s5_talk::
+
+   I make a simple comparison of propagation time for nominal 400M photons
+   between the ancient meaurements and the current 100M photon measurement extrapolated. 
+
+
+   This compares the extrapolated Geant4 propagation time with the Opticks launch
+   interval with RTX on.   The speedup is more than a factor of 1000.   Need to 
+   use a log scale to make them both visible. 
+
+   For 400M photons, Geant4 takes more than a day, Opticks takes less than a minute.   
+
+   This is with analytic geometry. Speedup is a lot more with triangles.
+
+
+
+
+:small:`Absolute Comparison with ancient Opticks Measurements ?`
+--------------------------------------------------------------------------
+
+
+.. class:: small
+
+    .. table:: 
+        :align: center
+
+        +------------------------+----------------------------+------------------+----------------------------------------+
+        | JUNO analytic, 400M photons from center             |  Speedup         |   Notes                                |
+        +========================+============================+==================+========================================+
+        | Geant4 Extrap.         | 95,600 s (26 hrs)          |                  |  Ancient (2019)                        |
+        +------------------------+----------------------------+------------------+----------------------------------------+
+        | Opticks RTX ON (i)     | 58 s                       |   1650x          |  Ancient (2019)                        |
+        +------------------------+----------------------------+------------------+----------------------------------------+
+        | :r:`JUNOSW+Opticks 1st`| :r:`124 s (~2x slower)`    |  :r:`"770x"`     |  :r:`extrapolated from 31s for 100M`   |
+        +------------------------+----------------------------+------------------+----------------------------------------+ 
+        
+
+.. class:: small
+
+   Practically everything different between these measurements : :b:`nevertheless, its natural to compare`  
+ 
+   1. NVIDIA OptiX 6.5 -> 7.5 [entirely new API] => Opticks almost entirely re-implemented 
+   2. JUNO geometry : more complex than 4 years ago(?) : despite efforts to simplify 
+   3. :r:`JUNO PMT Optical Model (POM) (traditional vs "bouncy" with complex {A,R,T} TMM calculation)` 
+   4. NVIDIA RTX 8000 (48G) vs NVIDIA TITAN RTX (24G)  [similar spec other than VRAM]  
+   5. Geant4 setup : :b:`Geant4 is not a good candle : far too flexible`
+
+.. sidebar:: :small:`~300 ns photon lifetime limit ?`
+
+   .. class:: small
+
+        * long path photons : relevant ? how expensive ?  
+        * :r:`TODO : try chop tail`
+
+        :: 
+ 
+            OPTICKS_MAX_BOUNCE=32 ## curr.
+            OPTICKS_MAX_NS=300    ## IDEA
+
+.. class:: small
+
+   **Expected Primary Cause of 2x slowdown** : :r:`"bouncy" POM`
+
+   * many more photons living longer, not "mopped" up by PMTs
+   * bouncing around inside PMT, visiting multiple PMTs
+   * more bounces -> :r:`every bounce costing a ray trace` 
+   * more divergence -> less parallelism 
+
+
+.. s5_talk::
+
+   Practically everything is different between these measurements, but nevertheless its natural to compare
+
+
+
+:i:`N6_Substamp_ONE_maxb_scan_A_expensive_tail.png`
+----------------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:15mm;" />
+
+
+.. class:: center
+
+    Use ``cxs_min_scan.sh`` to vary OPTICKS_MAX_BOUNCE from 0->32 
+
+    * linear time increase up to max bounce ~18 
+    * every ray trace is costing about same 
+    * warp stagglers holding down performance ?  
+
+
+.. s5_talk::
+
+    From a performance viewpoint I expect the most important difference 
+    is the PMT Optical model, with the old traditional model photons stopped 
+    on reaching the PMT vacuum. Thats very different with the current model 
+    where photons enter the PMT and can bounce around.  
+
+    Comparing GPU launch times for various limits on the number of ray traces shows that up 
+    to around 18 traces each is costing the same. It tails off beyond there as most 
+    photons dont need so many traces. 
+
+    Message here : more bounces more time 
+    
+
+
+:i:`N6_Substamp_ONE_maxb_scan_HIT__slow_hit_increase.png`
+----------------------------------------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:15mm;" />
+
+
+.. class:: center
+
+    Slow hit increase above MAX_BOUNCE 20 
+
+
+.. s5_talk::
+
+    Are all those big bouncers gaining hits, above 20 not much. 
+
+
+
+.. comment
+
+    Reproducing the MAX_BOUNCE scan plot
+    ---------------------------------------
+
+    .. class:: small
+
+        Using ~/o/cxs_min.sh script with::
+
+            OPTICKS_RUNNING_MODE : SRM_TORCH
+            OPTICKS_EVENT_MODE   : HitPhoton   (picked with VERSION 3)
+            OPTICKS_NUM_PHOTON   : H1          (100K)
+            OPTICKS_MAX_PHOTON   : M1
+
+    .. class:: small
+
+        Workstation::
+
+            ~/o/cxs_min_scan.sh      ## o is symbolic link to opticks
+
+        Laptop::
+            
+            ~/o/cxs_min.sh grab   
+
+            PLOT=Substamp_ONE_maxb_scan PICK=A ~/o/sreport.sh 
+            PLOT=Substamp_ONE_maxb_scan PICK=A ~/o/sreport.sh mpcap
+            PLOT=Substamp_ONE_maxb_scan PICK=A PUB=expensive_tail ~/o/sreport.sh mppub
+            vi ~/opticks/notes/issues/OPTICKS_MAX_BOUNCE_scanning.rst  ## notes 
+
+    .. comment
+
+            PLOT=Substamp_ONE_maxb_scan_HIT ~/o/sreport.sh 
+            PLOT=Substamp_ONE_maxb_scan_HIT ~/o/sreport.sh mpcap
+            PLOT=Substamp_ONE_maxb_scan_HIT PUB=slow_hit_increase ~/o/sreport.sh mppub
+
+
+
+    :i:`ALL4_thit_high_time_tail.png`
+    ---------------------------------
+
+
+    .. raw:: html
+
+        <p style="margin-bottom:35mm;" />
+
+
+    .. class:: center
+
+        TODO: check performance with MAX_TIME = 200,300,400 ns 
+
+
+
+
+
+    :i:`ALL4_seqnib_small_truncation_bump.png`
+    ---------------------------------------------
+
+
+    .. raw:: html
+
+        <p style="margin-bottom:120mm;" />
+
+    .. class:: right
+
+        Small truncation bump at 32 |nbsp10| |nbsp10|
+
+
+
+    :small:`Reproducing step point counts (aka seqnib) plot`
+    -------------------------------------------------------------
+
+    .. sidebar:: :small:`sequence nibbles`
+
+       .. class:: small
+
+            **sseq.h** and **seq.npy** sequence array:
+
+            * 4 bits(aka 1 nibble) : for each photon step point : 15 possible history flags
+            * 2*64 bit words : giving up to 32 steps of photon "seqnib" history 
+         
+
+
+    .. class:: small
+
+        Using ~/o/cxs_min.sh script with::
+
+            OPTICKS_RUNNING_MODE : SRM_TORCH
+            OPTICKS_EVENT_MODE   : HitPhotonSeq
+            OPTICKS_NUM_PHOTON   : M1          
+            OPTICKS_MAX_PHOTON   : M1
+
+    .. class:: small
+
+        Workstation::
+
+            VERSION=4 ~/o/cxs_min.sh   
+
+        Laptop::
+            
+            VERSION=4 ~/o/cxs_min.sh grab   
+            VERSION=4 MODE=2 PLOT=seqnib ~/o/cxs_min.sh ana
+            VERSION=4 MODE=2 PLOT=seqnib ~/o/cxs_min.sh mpcap
+            VERSION=4 MODE=2 PLOT=seqnib PUB=small_truncation_bump ~/o/cxs_min.sh mppub
+
+
+
+
+
+:i:`hit_position_wavelength_time.png`
+---------------------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:-10mm;" />
+
+.. class:: normal
+
+    **Yuxiang Hu** : Gamma Event at CD center  : Comparison of JUNOSW with JUNOSW+Opticks
+
+.. class:: normal
+
+    Hit position, wavelength and time comparison
+
+.. raw:: html
+
+    <p style="margin-bottom:130mm;" />
+
+
+.. class:: small
+
+   * :b:`TODO: propagation comparison to understand ~2% hit difference`  
+
+
+.. s5_talk::
+
+   I am glad to show some results from Yuxiang, its not just me working on Opticks. 
+
+
+
+:i:`gamma_event_at_center.png`
+---------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:-10mm;" />
+
+.. class:: normal
+
+    **Yuxiang Hu** : Gamma Event at CD center  : Comparison of JUNOSW with JUNOSW+Opticks
+
+.. raw:: html
+
+    <p style="margin-bottom:-5mm;" />
+
+.. class:: normal
+
+    +----------------------------------------------+----------+-------------------------------------------+
+    |  Overall speedup [JSW/(JSW+Opticks)]         |  ~60X    |  :b:`UN-OPTIMIZED + PRELIM`               |
+    +----------------------------------------------+----------+-------------------------------------------+
+
+.. raw:: html
+
+    <p style="margin-bottom:130mm;" />
+
+
+.. class:: small
+
+   [Calculation: same TMM header as JUNOSW, Lookup: using uploaded "ART" texture (Gigabytes)]
+
+   * :b:`TODO: higher energies, muon, multi-muon, ...`  
+
+.. s5_talk::
+
+    This speedup is an overall speedup by comparing standard and plus-opticks jobs. 
+    Overall speedups are much smaller than optical only speedups as they account for 
+    the non-parallelizable portion of the work.
+
+
+
+:small:`Amdahls "Law" : Expected Speedup Limited by Serial Processing`
+--------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`S(n) Expected Speedup`
+
+    .. comment
+
+       :width: 1176px
+       :height: 358px
+       :width: 588px 
+       :height: 179px
+            
+    .. image:: /env/presentation/parallel/amdahl.png
+       :width: 392px 
+       :height: 112px
+       :align: center
+
+
+    .. class:: small
+
+        *P* 
+             parallelizable proportion
+        *1-P*
+             non-parallelizable portion
+        *n*
+             parallel speedup factor  
+
+
+
+optical photon simulation, P ~ 99% of CPU time  
+
+* -> potential overall speedup S(n) is 100x 
+* even with parallel speedup factor >> 1000x  
+
+
+
+**Must consider processing "big picture"**
+
+* remove bottlenecks one by one
+* re-evaluate "big picture" after each  
+
+
+.. s5_talk::
+
+   Serial Portion of processing determines the overall 
+   speedup because this goes to zero 
+
+
+
+:i:`amdahl_p_sensitive.png`
+-----------------------------
+
+.. class:: small
+
+    .. image:: /env/presentation/parallel/amdahl.png
+       :width: 392px 
+       :height: 112px
+       :align: center
+
+
+.. s5_talk::
+
+   The curves show the overall speedup in range 0 to 100 vs
+   the parallelized speedup in range 1 to 10,000 
+   for six different parallel fractions from 90 to 99 percent.
+
+   For example increasing the parallized speedup 
+   from 100x to 1000x is useful to overall speedup only 
+   for parallel fractions above 98% 
+     
+   
+
+
+:small:`How much parellelized speedup actually useful to overall speedup?`
+---------------------------------------------------------------------------
+
+.. class:: small
+
+   :r:`Very dependant on the parallel fraction`
+
+   +---------------------------------------------------------------------------------------------------------------+
+   |  **Theoretical Overall Speedup for various parallel fractions and parallelized speedups**                     |
+   +-------------------+-------------------------------+-----------------------------------------------------------+
+   |                   |   Parallelized Speedup        |                                                           |
+   +-------------------+---------+-----------+---------+-----------------------------------------------------------+
+   | Parallel Fraction |   100x  |   1000x   | limit   |    Notes                                                  |
+   +===================+=========+===========+=========+===========================================================+
+   |     95%           |   17x   |   20x     |  20x    |  Little benefit beyond ~100x parallelized speedup         |
+   +-------------------+---------+-----------+---------+                                                           |
+   |     96%           |   20x   |   24x     |  25x    |                                                           |
+   +-------------------+---------+-----------+---------+                                                           |
+   |     97%           |   25x   |   32x     |  33.3x  |                                                           |
+   +-------------------+---------+-----------+---------+-----------------------------------------------------------+
+   |     98%           |   34x   |   48x     |  50x    |  Substantial benefit from more parallelized speedup       |
+   +-------------------+---------+-----------+---------+                                                           | 
+   |     99%           |   50x   |   91x     | 100x    |                                                           |
+   +-------------------+---------+-----------+---------+-----------------------------------------------------------+
+
+
+::
+
+    In [1]: run ~/opticks/ana/amdahl.py
+
+    In [2]: Amdahl.Overall_Speedup(np.array([100,1000,np.inf]),0.95)
+    Out[2]: array([16.807, 19.627, 20.   ])
+
+    In [3]: Amdahl.Overall_Speedup(np.array([100,1000,np.inf]),0.99)
+    Out[3]: array([ 50.251,  90.992, 100.   ])
+
+
+
+.. s5_talk::
+
+   This is the same information numerically 
+
+
+:small:`NEXT STEPS / PLAN`
+---------------------------
+
+.. class:: small
+
+   **Release**
+      * create 2nd JUNOSW+Opticks release (with Tao) : :b:`after some(but not all) of the below completed`
+
+   **Fix Leaks**
+      * :strike:`GPU VRAM leak` 
+      * :strike:`CPU hit handling leak` 
+      * U4Recorder CPU memory leak (less important than other leaks : as only used for validation/debug)
+
+   **Geometry+Validation**
+      * investigate small photon history chi2 deviations : Chimney geometry degeneracy ?
+      * check PMT virtual Water/Water wrapper shifts for overlaps/performance effect ?   
+      * add optional triangulated geometry handling : use for guide tube (:r:`reviving functionality from old Opticks`)
+      * test listnode solution for complex CSG solids (:r:`new "territory", tree balancing not viable`)
+
+   **Optimization**
+      * further slimming "Release" kernel : only do what must be done, header minimize
+      * add ``OPTICKS_MAX_TIME`` limit, measure performance using eg 200-400ns : understand performance drivers
+      * compare traditional vs bouncy POM : is bouncy POM primary culprit for 2x slowdown vs ancient measurements ?
+      * try NVIDIA Nsight kernel profiling tools : look for low hanging fruit
+      * try OptiX PTX=>IR (Intermediate Representation) [from OptiX 7.1] : "GPU debug, ...enhanced optimizations..."
+
+   **Production Preparation**
+      * gain muon running experience : is OPTICKS_MAX_PHOTON hard limit problematic in practice ?
+      * automated event splitting, depending on num photons and available/configured max VRAM (:r:`like Fermilab G4 group`)
+      * config tuning to maximize GPU cluster throughput (:r:`expect near-filling VRAM best for 1 node, for cluster too ?`) 
+      * LESS IMMINENTLY: automated/configurable event joining ? can this extend usefulness to lower energy events ?  
+
+
+.. s5_talk::
+
+   Remaining steps can be split into three primary categories of Geometry+Validation, Optimization and Production preparation
+
+
