@@ -50,6 +50,7 @@
    * Yuxiang Hu : Gamma Event at CD center comparisons
    * Amdahls Law : How much parellelized speedup actually useful to overall speedup ?  
    * NEXT STEPS/PLAN 
+   * Opticks Links, JUNOSW+Opticks DocDB 
 
 
 .. comment
@@ -1432,5 +1433,49 @@ optical photon simulation, P ~ 99% of CPU time
 .. s5_talk::
 
    Remaining steps can be split into three primary categories of Geometry+Validation, Optimization and Production preparation
+
+
+
+Opticks Links, JUNOSW+Opticks DocDB 
+-------------------------------------
+
+.. table::
+    :align: center
+
+    +----------------------------------------------+---------------------------------------------+
+    | https://bitbucket.org/simoncblyth/opticks    | code repository (day-to-day)                |     
+    +----------------------------------------------+---------------------------------------------+
+    | https://github.com/simoncblyth/opticks       | code repository (~month-to-month), releases |     
+    +----------------------------------------------+---------------------------------------------+
+    | https://simoncblyth.bitbucket.io             | publications, presentations, videos         |   
+    | https://simoncblyth.github.io                |                                             | 
+    | https://juno.ihep.ac.cn/~blyth/              |                                             |
+    +----------------------------------------------+---------------------------------------------+
+    | https://groups.io/g/opticks                  | forum/mailing list archive                  |    
+    +----------------------------------------------+---------------------------------------------+
+    | email:opticks+subscribe@groups.io            | subscribe to mailing list                   |    
+    +----------------------------------------------+---------------------------------------------+ 
+
+
+
+**JUNOSW+Opticks**
+
+
+.. class:: normal
+
+    .. table::
+        :align: center
+
+        +-------------+-----------+------------------------------------------------------------+
+        | DocDB-10968 |2023/12/19 | Using first JUNOSW+Opticks Pre-Release at IHEP GPU cluster |
+        +-------------+-----------+------------------------------------------------------------+
+        | DocDB-10929 |2023/12/11 | JUNOSW + Opticks : Profiling and Status                    |
+        +-------------+-----------+------------------------------------------------------------+
+
+
+.. s5_talk::
+
+    Links and recent DocDB numbers
+
 
 
