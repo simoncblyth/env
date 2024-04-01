@@ -4,6 +4,54 @@ chep-vi(){ vi $BASH_SOURCE ; }
 chep-cd(){ cd $(env-home)/presentation/chep ; }
 
 chep-notes(){ cat << EON
+
+
+
+29th Geant4 Collaboration Meeting 7-11 October
+-------------------------------------------------
+
+29th Geant4 Collaboration Meeting, INFN LNS Laboratories, 
+Catania (Italy), 10/7/2024 - 10/11/2024
+
+
+12-18 October : inbetween
+---------------------------
+
+
+
+CHEP 2024 : (5 May) : 19-25 October, AGH University, Jagiellonian University
+==============================================================================
+
+* Krakow ?
+
+We are delighted to invite you to participate in the upcoming CHEP 2024
+conference, which will be held from 19 October to 25 October 2024. The 
+conference, hosted by AGH University, Institute of Nuclear Physics – Polish
+Academy of Sciences, and Jagiellonian University, promises to be an engaging
+event for all computing professionals active in the field of High Energy
+Physics. The CHEP 2024 conference serves as a platform for researchers,
+academics, industry experts, and practitioners to come together and exchange
+ideas, share insights, and discuss the latest advancements in our field.
+
+We are currently accepting abstract submissions for presentations. Abstracts
+should be submitted through our online portal by
+
+the abstract closing day - 5 May 2024. 
+
+Please visit for the detailed submission guidelines and instructions our website:
+
+https://indico.cern.ch/e/chep24
+
+Should you have any questions or require further information, please do not 
+hesitate to contact us at chep2024-abstracts@cern.ch. Also, please have a look
+at our first
+bulletin:https://indico.cern.ch/event/1338689/page/32183-announcements
+
+We are excited to receive your abstract and welcome you to the CHEP 2024 conference.
+Sincerely,
+Tomasz, Agnieszka, Markus, Sang Un, Katy and Stephan (Conference and PC chairs).
+
+
 CHEP 2023 : May 8-12 
 ==========================
 

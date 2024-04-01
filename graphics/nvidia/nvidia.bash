@@ -10,6 +10,30 @@ NVIDIA
 ========
 
 
+GPUs March 2024
+----------------
+
+* https://www.techpowerup.com/gpu-specs/rtx-5000-ada-generation.c4152
+* https://resources.nvidia.com/en-us-design-viz-stories-ep/nvidia-global-workshteet?lx=CCKW39&contentType=news
+
+3rd Generation RTX (Ada Lovelace) workstation GPUs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://www.pugetsystems.com/labs/articles/nvidia-rtx-ada-generation-content-creation-review/
+* https://wccftech.com/us-adds-more-nvidia-gpus-to-china-ban-list-rtx-6000-ada-rtx-a6000-l4/
+
+Comparing "NVIDIA RTX 5000 Ada Generation" with "NVIDIA RTX A5000 (Ampere Generation)"
+shows 2x performance improvement in many metrics according to the below:
+
+* https://www.leadtek.com/eng/news/product_news_detail/1717
+
+
+
+3rd Generation RTX laptop GPUs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://www.anandtech.com/show/18781/nvidia-unveils-rtx-ada-lovelace-gpus-for-laptops-desktop-rtx-4000-sff
+
 
 US Export to China Restrictions
 ---------------------------------
