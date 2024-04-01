@@ -12,6 +12,41 @@ VIM Tips
 * http://www.astrohandbook.com/ch20/vi_guide.html
 
 
+vim debug
+----------
+
+* https://vimways.org/2018/debugging-your-vim-config/
+
+::
+
+
+    vim -u NONE te.txt
+    vim -u NORC te.txt
+    vim --noplugin te.txt
+
+
+    vi -u ~/.vimrc_minimal te.txt
+    vim --clean  te.txt
+
+
+
+
+vim abbrev
+------------
+
+* https://www.redhat.com/sysadmin/vim-abbreviations
+
+To create abbreviations in Vim, you can use the command :abbreviate (which
+itself can be abbreviated as :ab) followed by the abbreviation and the text you
+want to replace it with. For example, to abbreviate the word "operating system"
+as "os," use the abbreviate command like this:
+
+:ab os operating system
+
+Abbrev work when disable everything::
+
+   vim -u NONE yeto.txt 
+   vim --clean  te.txt  
 
 
 
@@ -23,6 +58,7 @@ cumbersome and not as good as being able to use vim bindings. I found out that
 you can get vim bindings in bash and zsh!
 
 zsh: bindkey -v
+
 
 bash: set -o vi
 

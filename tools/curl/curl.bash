@@ -27,6 +27,22 @@ Download zip using socks5 proxy
    > curl -L -O https://github.com/simoncblyth/opticks/archive/refs/tags/v0.2.0.zip 
 
 
+NB in addition to the above command need to first start the proxy
+-------------------------------------------------------------------
+
+For example with::
+
+   soks-fg
+
+The nub of that is::
+
+    epsilon:examples blyth$ soks-fg-start-
+    ssh -C -ND localhost:8080 B
+
+
+
+
+
 EOU
 }
 

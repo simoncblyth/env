@@ -14,6 +14,55 @@ See Also
 * github-
 
 
+Issue : intermittent git over SSH blockage (attributed to GFW gnomes)
+----------------------------------------------------------------------
+
+Git to bitbucket and github from IHEP sometimes work
+without proxy and sometimes do not. Symptom::
+
+    epsilon:np blyth$ git pull
+    ssh_dispatch_run_fatal: Connection to 20.205.243.166 port 22: Operation timed out
+    fatal: Could not read from remote repository.
+
+    Please make sure you have the correct access rights
+    and the repository exists.
+
+    epsilon:np blyth$ git remote -v
+    ihep	git@code.ihep.ac.cn:blyth/np.git (fetch)
+    ihep	git@code.ihep.ac.cn:blyth/np.git (push)
+    origin	git@github.com:simoncblyth/np.git (fetch)
+    origin	git@github.com:simoncblyth/np.git (push)
+    epsilon:np blyth$ 
+
+Fix:
+
+1. make sure the socks proxy is running(eg with: soks-fg) 
+2. make sure ssh for relevant host is configured to use the proxy::
+
+    epsilon:np blyth$ vi ~/.ssh/config
+
+    005 Host *bitbucket.org
+      6     User git
+      7     ProxyCommand nc -v -x 127.0.0.1:8080 %h %p
+      8 #    #ProxyCommand nc -v --proxy 127.0.0.1:8080 --proxy-type socks5 %h %p
+      9 #    #ssh -vvv -T git@github.com
+     10 
+     13 Host *github.com
+     14     User git
+     15     ProxyCommand nc -v -x 127.0.0.1:8080 %h %p
+     16 #    #ProxyCommand nc -v --proxy 127.0.0.1:8080 --proxy-type socks5 %h %p
+     17 #    #ssh -vvv -T git@github.com
+     18 
+
+    epsilon:np blyth$ git pull
+    Connection to github.com port 22 [tcp/ssh] succeeded!
+    Already up-to-date.
+
+
+
+
+Issue : dropping file
+----------------------
 
 HUH : git pull via proxy dropping file 127.0.0.1:8080::
 

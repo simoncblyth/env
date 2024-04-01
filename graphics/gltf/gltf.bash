@@ -9,6 +9,19 @@ glTF
 =====
 
 
+
+gltf accessors componentType
+------------------------------
+
+* https://github.com/KhronosGroup/glTF-Tutorials/blob/main/gltfTutorial/gltfTutorial_005_BuffersBufferViewsAccessors.md
+
+::
+
+    5126 (FLOAT) 
+    5123 (UNSIGNED_SHORT)
+
+
+
 Impls
 -------
 

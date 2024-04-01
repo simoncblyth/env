@@ -11,6 +11,23 @@ Mountains Demo
 * http://rastergrid.com/blog/2010/10/gpu-based-dynamic-geometry-lod/
 * http://rastergrid.com/blog/downloads/mountains-demo/
 
+OpenGL organization for complex scene
+--------------------------------------
+
+/Users/blyth/mountains/mountains.cpp
+
+MountainsDemo::generateTerrain
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+MountainsDemo::renderScene
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+terrainPO
+terrainVA
+terrainDraw
+
+
+
 
 Issues
 --------
@@ -97,6 +114,8 @@ mountains-cd(){  cd $(mountains-sdir); }
 mountains-c(){  cd $(mountains-sdir); }
 mountains-bcd(){  cd $(mountains-bdir); }
 
+
+// https://www.rastergrid.com/blog/2010/10/opengl-4-0-mountains-demo-released/
 
 mountains-get-original()
 {

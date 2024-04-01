@@ -1603,6 +1603,7 @@ cnpy-(){      . $(env-home)/numpy/cnpy.bash && cnpy-env $* ; }
 flup-(){      . $(env-home)/wsgi/flup.bash && flup-env $* ; }
 g4daenode-(){      . $(env-home)/geant4/geometry/collada/g4daenode.bash && g4daenode-env $* ; }
 presentation-(){      . $(env-home)/presentation/presentation.bash && presentation-env $* ; }
+p-(){                 . $(env-home)/presentation/presentation.bash && presentation-env $* ; }
 chep-(){              . $(env-home)/presentation/chep/chep.bash && chep-env $* ; }
 cepc-(){              . $(env-home)/presentation/cepc/cepc.bash && cepc-env $* ; }
 bes3-(){              . $(env-home)/presentation/bes3/bes3.bash && bes3-env $* ; }

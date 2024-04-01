@@ -177,7 +177,7 @@ class IPath(object):
             stat = stat_.rstrip()
             log.debug( "match [%s][%s] %s " % ( stat, atat_, mpath ))
         else:
-            log.debug("no match [%s] " % line )   
+            log.fatal("FAILED TO match [%s] " % line )   
             assert 0
             stat,mpath = "_", None
         pass
