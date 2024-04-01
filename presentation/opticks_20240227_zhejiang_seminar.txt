@@ -139,6 +139,9 @@
     This approach removes memory and processing bottlenecks that can prevent the 
     optical photons from limiting simulations.  
 
+    The actual speedup depends on your geometry and your effort in avoiding 
+    geometry issues. 
+
     This render shows the photons resulting from a muon crossing the JUNO scintillator, 
     each line represents a single photon.
 
@@ -182,18 +185,13 @@ Outline
     * Opticks : Introduction + Full Re-implementation
 
       * Geant4 + Opticks Hybrid Workflow : External Optical Photon Simulation
-      * Full re-implementation for NVIDIA OptiX 7 API
-      * *CSGFoundry* Geometry Model, Translation to GPU 
+      * Geometry Model Translation : Geant4 => CSGFoundry => NVIDIA OptiX 7
       * Ray trace render performance scanning 
-      * n-Ary CSG "List-Nodes"
       * QUDARap : CUDA Optical Simulation Implementation
       * Validation 
 
-    * Opticks : New Features 
+    * Opticks New Features : Multi-Layer Thin Film (A,R,T) Calc using TMM (Custom4 Package)
 
-      * Multi-Layer Thin Film (A,R,T) Calc using TMM (Custom4 Package)
-
-    * Summary + Links 
 
 .. raw:: html
 
@@ -205,6 +203,12 @@ Outline
     This aim of this talk is to explain how GPU ray tracing is integrated 
     with Geant4 
 
+
+.. comment
+
+      * Primary Packages and Structs Of Re-Implemented Opticks
+      * n-Ary CSG "List-Nodes"
+      * Summary + Links 
 
 
 .. comment
@@ -315,11 +319,10 @@ Outline
 
 .. s5_talk::
 
-    Its not only JUNO that has an optical photon simulation
-    problem. People from all these experiments are interested
-    to use Opticks.
-    Some groups  developments assisted Opticks development 
-    by arranging contacts with NVIDIA 
+    Many simulations are limited by optical photons. 
+    So, there is lots of interest in Opticks.
+    Several groups has assisted with Opticks development 
+    by using their contacts with NVIDIA 
    
 
 
@@ -466,7 +469,7 @@ Outline
 
 
 
-:i:`Ray-tracing vs Rasterization`
+:i:`Rasterization vs Ray-tracing`
 -----------------------------------
 
 .. image:: /env/presentation/nvidia/nv_rasterization.png
@@ -679,7 +682,7 @@ Outline
     Monte Carlo Path Tracing 
 
     * amazingly general technique 
-    * can produce images indistinguisable from reality 
+    * produces images difficult to distinguisable from reality 
     * BUT : suffers from slow convergence
 
 
@@ -974,8 +977,8 @@ Optical Simulation : Computer Graphics vs Physics
 .. s5_talk::
 
     China is something like 20-25% of the world market for GPUs, 
-    so NVIDIA with introduce
-    GPUs with specs just underneath the threshold. 
+    so NVIDIA has no choice : it is bound to introduce
+    GPUs with specs just underneath threshold. 
 
 
 
@@ -995,7 +998,7 @@ Optical Simulation : Computer Graphics vs Physics
     Most NVIDIA OptiX users are involved with realistic image rendering. 
     Fortunately OptiX exposes an intersection API which makes
     it applicable to simulation. So all the effort NVIDIA has expended 
-    in accelrating ray tracing becomes directly applicable to simulation. 
+    in accelerating ray tracing becomes directly applicable to simulation. 
 
 
 :small:`NVIDIA® OptiX™ Ray Tracing Engine -- Accessible GPU Ray Tracing`
@@ -1274,6 +1277,7 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
     Optical photon simulation is close to being an ideal 
     workload for GPUs 
 
+    HMM: MAYBE MOVE THIS ?
 
 
 
@@ -1715,8 +1719,8 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   Comparisons of ray trace rendering times provides simple way to look 
-   for performance issues
+   Comparisons of ray trace rendering times for different geometriess 
+   provides simple way to look for performance issues
 
 
 .. comment
@@ -2001,45 +2005,44 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 
 
-.. comment
 
-    :small:`CSG_DISCONTIGUOUS Union : CSG intersection`
-    ---------------------------------------------------------------
+:small:`CSG_DISCONTIGUOUS Union : CSG intersection`
+---------------------------------------------------------------
 
-    .. class:: small
+.. class:: small
 
-        * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_node.h :r:`intersect_node_discontiguous`
+    * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_node.h :r:`intersect_node_discontiguous`
 
-        :r:`User guarantees : absolutely no overlapping between constituents`
+    :r:`User guarantees : absolutely no overlapping between constituents`
 
-    .. raw:: html
+.. raw:: html
 
-        <pre class="mypre15">
-         +-------+          +-------+          +-------+          +-------+         +-------+      
-         |       |          |       |          |       |          |       |         |       |      
-         |       |          |       |          |       |          |       |         |       |      
-         +-------+          +-------+          +-------+          +-------+         +-------+       
+    <pre class="mypre15">
+     +-------+          +-------+          +-------+          +-------+         +-------+      
+     |       |          |       |          |       |          |       |         |       |      
+     |       |          |       |          |       |          |       |         |       |      
+     +-------+          +-------+          +-------+          +-------+         +-------+       
 
-         +-------+          +-------+          +-------+          +-------+         +-------+      
-         |       |          |       |          |       |          |       |         |       |      
-         |       |          |       |          |       |          |       |         |       |      
-         +-------+          +-------+          +-------+          +-------+         +-------+       
+     +-------+          +-------+          +-------+          +-------+         +-------+      
+     |       |          |       |          |       |          |       |         |       |      
+     |       |          |       |          |       |          |       |         |       |      
+     +-------+          +-------+          +-------+          +-------+         +-------+       
 
-         </pre>
+     </pre>
 
 
-    .. class:: small
+.. class:: small
 
-        * => very simple low resource intersection : **closest Enter or Exit**
+    * => very simple low resource intersection : **closest Enter or Exit**
 
-        * :b:`More closely suiting algorithm to geometry => better performance`
-        * this can help with "holes" subtracted from another solid : the "holes" usually do not overlap 
+    * :b:`More closely suiting algorithm to geometry => better performance`
+    * this can help with "holes" subtracted from another solid : the "holes" usually do not overlap 
 
-    .. s5_talk::
+.. s5_talk::
 
-       Again more precise communication of intent for geometry -> better performance
-       as it enables a very low resource intersection appoach to be used and it can 
-       avoid tree overheads.  
+   Again more precise communication of intent for geometry -> better performance
+   as it enables a very low resource intersection appoach to be used and it can 
+   avoid tree overheads.  
 
 
 
@@ -2477,6 +2480,14 @@ optical photon simulation, P ~ 99% of CPU time
        :align: center
 
 
+.. s5_talk::
+
+   Having a large parallel speedup of 1000x or so 
+   is only actually useful to overall speedup when the 
+   parallel fraction is large over 98 percent or, 
+   otherwise the serial portion limits performance. 
+
+
 
 :small:`How much parellelized speedup actually useful to overall speedup?`
 ---------------------------------------------------------------------------
@@ -2514,6 +2525,10 @@ optical photon simulation, P ~ 99% of CPU time
     In [3]: Amdahl.Overall_Speedup(np.array([100,1000,np.inf]),0.99)
     Out[3]: array([ 50.251,  90.992, 100.   ])
 
+
+.. s5_talk::
+
+    This is the same information numerically 
 
 
 :small:`Summary and Links`

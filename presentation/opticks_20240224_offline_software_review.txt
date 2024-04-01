@@ -5,6 +5,7 @@
    :description: (24 Feb 2024)
    :notes: 22nd collaboration meeting : Kaiping : 22-26 Feb 2024 : 15 min talk
    :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?sessionid=2642
+   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=11290
 
 
 .. include:: my_s5defs.txt
@@ -120,8 +121,7 @@
 
 .. s5_talk::
 
-   At the end of last year, just before Christmas : Tao created the first JUNOSW+Opticks release 
-   based on Opticks tag 0.2.4 
+   At the end of last year : we created the first JUNOSW+Opticks release based on Opticks 0.2.4 
 
 
 
@@ -158,11 +158,9 @@ Status of known issues : most leaks now fixed
 
 .. s5_talk::
 
-    The first Release had both GPU and CPU memory leaks, most of them have been fixed.
+    The first Release has both GPU and CPU memory leaks. Most of them are fixed.
     First priority for leak finding is to reduce the development cycle time,
-    as that enables efficienct code "bi-section" to find the culprits.
-
-    * adopted a pragmatic approach of simply reimplementing better, with more precise transform handling 
+    as that enables efficient code "bi-section" to find where the problems are. 
 
 
 :small:`Opticks additions to assist with GPU+CPU memory leak finding`
@@ -200,7 +198,7 @@ Status of known issues : most leaks now fixed
 
 .. s5_talk::
 
-   I developed tools that record GPU and CPU memory usage for leak profiling/
+   I developed profiling tools that record GPU and CPU memory usage ...
    Also running from a sequence of genstep files proved useful as it it enables 
    fast initialization, reduced from around 2 minutes to around 2 seconds. 
 
@@ -333,56 +331,6 @@ Status of known issues : most leaks now fixed
     all available from the repositories shown. 
 
 
-.. comment
-
-    :small:`[2] G4CXTest_GEOM.sh : standalone optical bi-simulation for validation`
-    --------------------------------------------------------------------------------
-
-    .. sidebar:: :small:`G4CXTest.cc usinh G4CXApp.h`
-
-        .. raw:: html
-
-            <pre class="mypre20">
-            &#35;include "OPTICKS_LOG.hh"
-            <span class="r">&#35;include "G4CXApp.h"</span>
-
-            int main(int argc, char** argv)
-            {   
-                OPTICKS_LOG(argc, argv);
-                return G4CXApp::Main();
-            }
-            </pre>
-
-
-    .. class:: small
-
-        **G4CXApp.h** 
-            standalone pure optical Geant4 + Opticks in single header
-
-        * operates from GDML 
-        * GDML translated into Opticks GPU geometry
-        * "primary" photons passed to Geant4 in **G4CXApp::GeneratePrimaries**
-
-        :b:`Enables pure optical simulation comparison`
-
-
-    .. raw:: html
-
-        <p style="margin-bottom:30mm;" />
-
-
-    .. class:: small
-
-        +--------------------------------+----------------------------------+ 
-        |  Test                          |   Status                         |
-        +================================+==================================+
-        | InputPhotons targetting PMTs   |  chi2 matched, no known issues   | 
-        +--------------------------------+----------------------------------+ 
-        | TorchGenstep from CD center    |  chi2 marginal : chimney issue ? |
-        +--------------------------------+----------------------------------+ 
-        
-
-
 :small:`[2] A:B Chi2 comparison of optical propagation history frequencies`
 -----------------------------------------------------------------------------
 
@@ -494,28 +442,6 @@ Status of known issues : most leaks now fixed
 
     This is looking into the detail of a discrepant photon thats going up the Chimney, 
     need more of this and an examination of the geometry to find where things diverge. 
-
-
-
-.. comment
-
-    :i:`G4CXTest_GEOM_A_chimney_issue.png`
-    ---------------------------------------
-
-    .. class:: small
-        
-        +--------------------------------+
-        | :w:`[2] G4CXTest_GEOM.sh`      |
-        +--------------------------------+
-        | :w:`1M photon Torch Genstep    |
-        | at CD center`                  |
-        +=============+==================+
-        | :r:`Red`    | :r:`End points`  |
-        +-------------+------------------+
-        | :g:`Green`  | :g:`Step points` |       
-        +-------------+------------------+
-        | :c:`Cyan`   | :c:`Hit points`  |       
-        +-------------+------------------+
 
 
 
@@ -663,51 +589,6 @@ Status of known issues : most leaks now fixed
 
 
 
-.. comment
-
-    :small:`sreport.{sh,cc,py} : Opticks Event metadata reports and plots`
-    -----------------------------------------------------------------------
-
-    .. sidebar:: :small:`Opticks SEvt Metadata`
-
-         .. class:: small 
-
-            * config : GPU, preprocessor switches, ... 
-            * profile "stamps" ``sprof.h``
-
-              * **{int64_t[us], VM[kb], RSS[kb]}** 
-              * beginOfEvent, endOfEvent, GPU launch ...  
-
-            * https://github.com/simoncblyth/np/
-
-    .. class:: small
-
-        Opticks Event => folders of NumPy .npy (``NPFold.h/NP.hh``) 
-
-        ``sreport`` executable:
-
-        1. loads SEvt metadata in folders below eg **ALL1**
-           (using ``NPFold::LoadNoData`` : :r:`metadata only`)
-        2. saves summary NPFold to **../ALL1_sreport**
-        3. ``sreport.py`` loads summary and makes plots  
-
-        **Usage on workstation/GPU job and laptop**::
-
-            ~/o/cxs_min.sh  ## create SEvt 
-
-        Laptop, :b:`rsync small metadata summary from remote`::
-
-            JOB=N7 ~/o/sreport.sh grab 
-            JOB=N7 PLOT=Substamp_ALL_Etime_vs_Photon ~/o/sreport.sh
-
-
-    .. class:: normal 
-
-        :r:`Effective automated reporting+plotting are essential for optimization`
-
-
-
-
 
 :i:`N7_Substamp_ALL_Etime_vs_Photon__34s_100M_debug.png`
 ---------------------------------------------------------
@@ -745,202 +626,6 @@ Status of known issues : most leaks now fixed
 
     Currently Release running only something like 20% less time than Debug
 
-
-
-.. comment
-
-    :small:`Profile reporting eg:` ``~/o/cxs_min.sh report``  
-    --------------------------------------------------------------
-
-    .. class:: small
-
-        * profile stamps ``{t[us], VM[kb], RSS[kb]}`` collected throughout process lifetime 
-        * reported with **sreport** executable
-
-    .. raw:: html
-
-       <pre class="mypretiny">
-          ...
-          A018_QSim__simulate_PREL :   1701933491020126,19102924,1300668    2023-12-07T15:18:11.020126  92,039,765  92,038,118       2,598
-          A018_QSim__simulate_POST :   1701933526625966,19102924,1300668    2023-12-07T15:18:46.625966 127,645,605 127,643,958  35,605,840
-               SEvt__endIndex_A018 :   1701933526626230,19102924,1300668    2023-12-07T15:18:46.626230 127,645,869 127,644,222         264
-        SEvt__endOfEvent_LAST_EGPU :   1701933531837026,19102924,1300668    2023-12-07T15:18:51.837026 132,856,665 132,855,018   5,210,796
-                    SEvt__EndOfRun :   1701933531837143,19102924,1300668    2023-12-07T15:18:51.837143 132,856,782 132,855,135         117
-          A018_QSim__simulate_TAIL :   1701933531837486,19102924,1300668    2023-12-07T15:18:51.837486 132,857,125 132,855,478         343
-       CSGOptiX__SimulateMain_TAIL :   1701933531837541,19102924,1300668    2023-12-07T15:18:51.837541 132,857,180 132,855,533          55
-
-        juncture:4 [SEvt__Init_RUN_META,SEvt__BeginOfRun,SEvt__EndOfRun,SEvt__Init_RUN_META] time ranges between junctures
-                   SEvt__Init_RUN_META :           -1                        :            0 : 2023-12-07T15:16:38.980361 JUNCTURE
-                      SEvt__BeginOfRun :   22,181,663                        :   22,181,663 : 2023-12-07T15:17:01.162024 JUNCTURE
-                        SEvt__EndOfRun :  110,675,119                        :  132,856,782 : 2023-12-07T15:18:51.837143 JUNCTURE
-                   SEvt__Init_RUN_META : -132,856,782                        :            0 : 2023-12-07T15:16:38.980361 JUNCTURE
-
-        ranges:6 time ranges between pairs of stamps 
-                    SEvt__Init_RUN_META ==>           CSGFoundry__Load_HEAD                 1,774    ## init
-                  CSGFoundry__Load_HEAD ==>           CSGFoundry__Load_TAIL             1,325,321    ## load_geom
-                  CSGOptiX__Create_HEAD ==>           CSGOptiX__Create_TAIL            20,854,325    ## upload_geom
-               A000_QSim__simulate_HEAD ==>        A000_QSim__simulate_PREL                19,450    ## upload_genstep
-               A000_QSim__simulate_PREL ==>        A000_QSim__simulate_POST                55,697    ## simulate
-               A000_QSim__simulate_POST ==>        A000_QSim__simulate_TAIL                 7,686    ## download
-               A001_QSim__simulate_HEAD ==>        A001_QSim__simulate_PREL                 1,037    ## upload_genstep
-               A001_QSim__simulate_PREL ==>        A001_QSim__simulate_POST               103,109    ## simulate
-               A001_QSim__simulate_POST ==>        A001_QSim__simulate_TAIL                11,304    ## download
-               A002_QSim__simulate_HEAD ==>        A002_QSim__simulate_PREL                 1,022    ## upload_genstep
-               A002_QSim__simulate_PREL ==>        A002_QSim__simulate_POST               112,313    ## simulate
-               A002_QSim__simulate_POST ==>        A002_QSim__simulate_TAIL                16,068    ## download
-               A003_QSim__simulate_HEAD ==>        A003_QSim__simulate_PREL                   988    ## upload_genstep
-               ...
-       </pre>
-
-
-    :i:`N7_Ranges_SPAN__slow_downloads.png`
-    ----------------------------------------
-
-
-
-    .. raw:: html
-
-        <p style="margin-bottom:110mm;" />
-
-
-    .. class:: center
-
-        "Debug" : rather slow hit downloads ?
-
-
-
-
-
-    :i:`S7_Ranges_SPAN__fast_downloads.png`
-    ----------------------------------------
-
-
-    .. raw:: html
-
-        <p style="margin-bottom:110mm;" />
-
-
-    .. class:: center
-
-        Unclear why "Release" downloads so much faster than "Debug" 
-
-
-
-
-.. comment
-
-    :i:`N7_Ranges_ONE__Debug.png`
-    -------------------------------
-
-    .. s5_talk::
-
-          simulate/download/upload genstep Debug 
-
-
-    :i:`S7_Ranges_ONE__Release.png`
-    -------------------------------
-
-          simulate/download/upload genstep Release
-
-
-
-
-.. comment
-
-    :i:`Back to G4CXTest`
-    -----------------------
-
-    .. raw:: html
-
-        <p style="margin-bottom:60mm;" />
-
-    .. class:: center
-
-        Now back to [2] ``G4CXTest_GEOM.sh`` optical only comparison 
-
-
-
-
-.. comment
-
-    :i:`N5_Substamp_ALL_Etime_vs_Photon__U4Recorder_OOM_100M.png`
-    ---------------------------------------------------------------
-
-
-    :i:`N5_Substamp_ALL_Etime_vs_Photon__100M_31s_Release.png`
-    --------------------------------------------------------------
-
-    .. raw:: html
-
-        <p style="margin-bottom:60mm;" />
-
-    .. class:: center
-
-        Only got to 80M : due to U4Recorder memory leak 
-
-
-
-
-    :i:`S5_Substamp_ALL_Etime_vs_Photon__U4Recorder_benefits_more.png`
-    -------------------------------------------------------------------
-
-    .. raw:: html
-
-        <p style="margin-bottom:60mm;" />
-
-    .. class:: center
-
-        "Release" benefits B:U4Recorder more than A:CSGOptiX 
-
-
-
-
-    :i:`N5_Subprofile_ALL__leaking.png`
-    -------------------------------------
-
-
-    .. raw:: html 
-
-        <p style="margin-bottom:80mm;" />
-
-
-    .. class:: center
-
-        :r:`U4Recorder leaking badly! [Geant4 propagation recorded into Opticks SEvt]`
-
-        * reason only got to 80M in previous plots
-
-
-
-    :i:`S7_Subprofile_ALL__no_leak.png`
-    -------------------------------------
-
-    .. raw:: html 
-
-        <p style="margin-bottom:80mm;" />
-
-
-    .. class:: center
-
-        ([3] cxs_min.sh) Pure Opticks (no Geant4 or U4Recorder) : no leak
-
-
-
-    :i:`N5_Substamp_ALL_RATIO_vs_Photon__approach_200.png`
-    -------------------------------------------------------
-
-
-
-    .. raw:: html
-
-        <p style="margin-bottom:70mm;" />
-
-    .. class:: center
-
-        :r:`B:U4Recorder / A:CSGOptiX : ratio only ~190 !`
-
-        * :b:`BUT: Geant4 not a good candle... (too flexible)` 
-        * :b:`instead compare "like-with-like" absolute times` 
 
 
 
@@ -1071,7 +756,7 @@ Status of known issues : most leaks now fixed
     From a performance viewpoint I expect the most important difference 
     is the PMT Optical model, with the old traditional model photons stopped 
     on reaching the PMT vacuum. Thats very different with the current model 
-    where photons enter the PMT and can bounce around.  
+    where photons enter the PMT and bounce around.  
 
     Comparing GPU launch times for various limits on the number of ray traces shows that up 
     to around 18 traces each is costing the same. It tails off beyond there as most 
@@ -1100,110 +785,6 @@ Status of known issues : most leaks now fixed
     Are all those big bouncers gaining hits, above 20 not much. 
 
 
-
-.. comment
-
-    Reproducing the MAX_BOUNCE scan plot
-    ---------------------------------------
-
-    .. class:: small
-
-        Using ~/o/cxs_min.sh script with::
-
-            OPTICKS_RUNNING_MODE : SRM_TORCH
-            OPTICKS_EVENT_MODE   : HitPhoton   (picked with VERSION 3)
-            OPTICKS_NUM_PHOTON   : H1          (100K)
-            OPTICKS_MAX_PHOTON   : M1
-
-    .. class:: small
-
-        Workstation::
-
-            ~/o/cxs_min_scan.sh      ## o is symbolic link to opticks
-
-        Laptop::
-            
-            ~/o/cxs_min.sh grab   
-
-            PLOT=Substamp_ONE_maxb_scan PICK=A ~/o/sreport.sh 
-            PLOT=Substamp_ONE_maxb_scan PICK=A ~/o/sreport.sh mpcap
-            PLOT=Substamp_ONE_maxb_scan PICK=A PUB=expensive_tail ~/o/sreport.sh mppub
-            vi ~/opticks/notes/issues/OPTICKS_MAX_BOUNCE_scanning.rst  ## notes 
-
-    .. comment
-
-            PLOT=Substamp_ONE_maxb_scan_HIT ~/o/sreport.sh 
-            PLOT=Substamp_ONE_maxb_scan_HIT ~/o/sreport.sh mpcap
-            PLOT=Substamp_ONE_maxb_scan_HIT PUB=slow_hit_increase ~/o/sreport.sh mppub
-
-
-
-    :i:`ALL4_thit_high_time_tail.png`
-    ---------------------------------
-
-
-    .. raw:: html
-
-        <p style="margin-bottom:35mm;" />
-
-
-    .. class:: center
-
-        TODO: check performance with MAX_TIME = 200,300,400 ns 
-
-
-
-
-
-    :i:`ALL4_seqnib_small_truncation_bump.png`
-    ---------------------------------------------
-
-
-    .. raw:: html
-
-        <p style="margin-bottom:120mm;" />
-
-    .. class:: right
-
-        Small truncation bump at 32 |nbsp10| |nbsp10|
-
-
-
-    :small:`Reproducing step point counts (aka seqnib) plot`
-    -------------------------------------------------------------
-
-    .. sidebar:: :small:`sequence nibbles`
-
-       .. class:: small
-
-            **sseq.h** and **seq.npy** sequence array:
-
-            * 4 bits(aka 1 nibble) : for each photon step point : 15 possible history flags
-            * 2*64 bit words : giving up to 32 steps of photon "seqnib" history 
-         
-
-
-    .. class:: small
-
-        Using ~/o/cxs_min.sh script with::
-
-            OPTICKS_RUNNING_MODE : SRM_TORCH
-            OPTICKS_EVENT_MODE   : HitPhotonSeq
-            OPTICKS_NUM_PHOTON   : M1          
-            OPTICKS_MAX_PHOTON   : M1
-
-    .. class:: small
-
-        Workstation::
-
-            VERSION=4 ~/o/cxs_min.sh   
-
-        Laptop::
-            
-            VERSION=4 ~/o/cxs_min.sh grab   
-            VERSION=4 MODE=2 PLOT=seqnib ~/o/cxs_min.sh ana
-            VERSION=4 MODE=2 PLOT=seqnib ~/o/cxs_min.sh mpcap
-            VERSION=4 MODE=2 PLOT=seqnib PUB=small_truncation_bump ~/o/cxs_min.sh mppub
 
 
 

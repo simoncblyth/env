@@ -394,6 +394,9 @@
     Ray-tracing vs Rasterization
     nvidia/black.png 1280px_720px
 
+    Rasterization vs Ray-tracing
+    nvidia/black.png 1280px_720px
+
     Raytrace Diagram
     graphics/1024px-ray_trace_diagram.svg.png 1280px_720px
 

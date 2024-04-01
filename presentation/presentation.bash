@@ -1365,11 +1365,17 @@ presentation-url-remote(){   echo http://$(presentation-remote)/env/presentation
 presentation-remote-open(){  open $(presentation-url-remote $*) ; }
 
 presentation--(){
+   : ~/env/presentation/presentation.bash
    presentation-
    presentation-info
    presentation-make
    presentation-open ${PAGE:-0}
    presentation-rst2talk
+}
+
+p--(){
+  : ~/env/presentation/presentation.bash
+  presentation--  
 }
 
 presentation--2(){
@@ -1531,7 +1537,9 @@ presentation-rst2talk-(){
 #presentation-iname(){ echo ${INAME:-opticks_20240215_geant4_forum} ; }
 
 #presentation-iname(){ echo ${INAME:-opticks_202401XX_next} ; }
-presentation-iname(){ echo ${INAME:-opticks_20240224_offline_software_review} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20240224_offline_software_review} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20240227_zhejiang_seminar} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20240227_zhejiang_seminar_TALK} ; }
+presentation-iname(){ echo ${INAME:-opticks_20240329_ihep_epd_seminar} ; }
 
 
