@@ -514,6 +514,14 @@ git show : to look at a file from a different branch or at earlier commit
     git show 98a8d8:ImagePreview/DestinationView.swift 
 
 
+git show : return to a prior version
+---------------------------------------
+
+::
+
+    git show b5d597b588cc769e10f3755b81cdd94cd7a8030f:externals/optix.bash  > externals/optix.bash
+
+
 git archive : extract distrib archive without repo metadata/history
 ---------------------------------------------------------------------
 
