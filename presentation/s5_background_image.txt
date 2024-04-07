@@ -89,6 +89,12 @@
     GGeoView
     ../graphics/ggeoview/ggeoview-cerenkov-001.png 1047px_795px
 
+    GGeoView 2
+    ../graphics/ggeoview/ggeoview-cerenkov-001.png 1280px_720px
+
+    Opticks History : Handling Huge Geometry (eg JUNO)
+    ../graphics/ggeoview/ggeoview-cerenkov-jpmt.png 1280px_720px
+
     GGeoView M1 Points
     ../graphics/ggeoview/ggeoview-scintillation-points-mat1.png 1435px_848px
 
@@ -287,6 +293,12 @@
 
     Opticks Analytic Daya Bay Near Site, GPU Raytrace (2)
     op_full_raytrace_2.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace
+    op_full_raytrace_3.png 640px_360px 0px_0px
+    op_full_raytrace_1.png 640px_360px 640px_0px
+    op_full_raytrace_0.png 640px_360px 640px_360px
+    op_full_raytrace_2.png 640px_360px 0px_360px
 
     Opticks Analytic JUNO Chimney, GPU Raytrace (0)
     j1707_chimney_analytic_raytrace.png 1280px_720px
@@ -2473,6 +2485,27 @@
 
     hit_position_wavelength_time.png
     huyuxiang/hit_position_wavelength_time.png 1280px_378px 0px_171px 
+
+    chroma_camera_raycast
+    ../chroma/chroma_camera/20140423-162109.png 1280px_720px
+
+    G4DAE : DYB pool bottom, OpenGL render
+    ../geant4/geometry/collada/g4daeview/20140419-170957.png 1280px_720px
+
+    G4DAE : DYB pool bottom, Chroma raycast 
+    ../geant4/geometry/collada/g4daeview/20140419-171014.png 1280px_720px
+
+    Daya Bay Chroma Photon Propagation (1)
+    ../geant4/geometry/collada/g4daeview/20140716-161445.png 1280px_720px
+
+    Daya Bay Chroma Photon Propagation (2)
+    ../geant4/geometry/collada/g4daeview/20140716-163403.png 1280px_720px
+
+    Daya Bay Chroma Photon Propagation (3)
+    ../geant4/geometry/collada/g4daeview/20140518-174941.png 1280px_720px
+
+    Daya Bay Opticks Propagation : Triangulated + Analytic PMT
+    ../ok/dyb_raytrace_composite_cerenkov.png 1280px_720px
 
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p

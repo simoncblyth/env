@@ -141,82 +141,6 @@ Outline
 
 
 
-.. comment
-
-    0. 1704 : Isaac Newton published "Opticks: or, A Treatise of the Reflexions, Refractions, Inflexions and Colours of Light."
-
-
-
-History of Opticks : Origins 
-------------------------------
-
-.. comment
-
-   simulating processes like diffuse and specular reflections, 
-   refraction, Rayleigh scattering and absorption. 
-
-
-.. sidebar:: :small:`Chroma : S.Siebert, A.LaTorre`
-
-    .. class:: small
-
-        Chroma tracks photons through a :red:`triangle-mesh detector geometry`, 
-        ... Using triangle meshes eliminate geometry code as :red:`just one code path`.
-
-        *With a CUDA GPU Chroma has propagated 2.5M photons per second 
-        in a detector with 29k photomultiplier tubes. This is
-        200x faster than GEANT4.*
-
-        Issues:
-
-        * :r:`limited to triangle mesh geometry` 
-        * polygonization : can be difficult+approximate 
-        * python impl. : difficult C++ integration
-        * made operational on mobile GPU in my fork:
-
-        https://bitbucket.org/simoncblyth/chroma/ 
-
-
-.. class:: small
-
-
-    Daya Bay experience (eg optical photon weighting) motivated search for simpler way, found *Chroma* 
-
-    * developed Geant4 triangle export to DAE 3D file format
-    * purchased macbook pro with NVIDIA Geforce 750M mobile GPU
-    * glumpy/OpenGL rendering :r:`shockingly fast on mobile GPU`
-
-
-.. class:: tiny 
-
-    https://github.com/rougier/glumpy   
-
-
-
-
-:small:`Chroma Raycast Worst Case (~entire geometry) Example` 
----------------------------------------------------------------- 
-
-.. class:: small
-
-    Render Split into 3x3 CUDA kernel launches, 1 thread per pixel, ~1.8s for 1.23M pixels, 2.4M tris.
-
-.. image:: /env/chroma/chroma_camera/20140423-162109.png
-   :width: 800px
-   :align: center
-
-.. class:: tiny 
-
-
-    g4daeview.py --target=.. --eye="-0.3,-1.1,1.7" --look="0.1,0.4,-0.6" --up="1.2,2.0,1.6" --size=1440,852 --near=30.00000 --far=10000.0 --yfov=50.0 --with-chroma
-
-
-.. wrk (1440, 852) [1226880]  lch  [3, 3, 1] [9]  blk [16, 16, 1] [256]  0.03,0.26,0.12,0.15,0.79,0.20,0.06,0.20,0.04 TOT 1.84
-
-.. http://dayabay.phys.ntu.edu.tw/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/
-
-
-
 
 
 `JUNO Optical Photon Simulation Problem...`
@@ -259,6 +183,10 @@ History of Opticks : Origins
    These characteristics make it straightforward integrate an external optical
    simulation.
  
+
+
+
+
 
 
 :small:`Optical photons limit many simulations => lots of interest in Opticks`
@@ -493,6 +421,550 @@ History of Opticks : Origins
    https://www.youtube.com/watch?v=Mrixi27G9yM
    RTX Launch
 
+
+
+
+Opticks pre-History : Chroma investigations 
+--------------------------------------------
+
+.. comment
+
+   simulating processes like diffuse and specular reflections, 
+   refraction, Rayleigh scattering and absorption. 
+
+
+.. sidebar:: :small:`Chroma : S.Siebert, A.LaTorre`
+
+    .. class:: small
+
+        Chroma tracks photons through a :red:`triangle-mesh detector geometry`, 
+        using BVH acceleration structure, authors claim:
+
+        *With a CUDA GPU Chroma has propagated 2.5M photons per second 
+        in a detector with 29k PMTs. This is 200x faster than GEANT4.*
+
+        Issues:
+
+        * :r:`limited to triangle mesh geometry` 
+        * polygonization : can be difficult+approximate 
+        * tri. approx. => cannot precisely match Geant4
+        * python impl. : difficult C++ integration
+
+        Made many efficiency fixes to work on mobile GPU:
+
+        :b:`https://bitbucket.org/simoncblyth/chroma/` 
+
+
+.. class:: small
+
+
+    Experimented with *Chroma* to speedup Daya Bay optical sim:
+
+    * developed "G4DAE" Geant4 exporter of 3D DAE files
+
+      * https://bitbucket.org/simoncblyth/g4dae
+
+    * added DAE import to my Chroma fork
+    * bought macbook pro (NVIDIA Geforce 750M GPU)
+
+    **Chroma : Disadvantages**
+
+    * No use of ray trace engine, eg NVIDIA OptiX
+    * No use of dedicated ray trace hardware RT cores (RTX)
+    
+    **Chroma : Fundamental Problem,** :r:`triangles only`
+
+    * best available polygonization, *G4Polyhedron*
+    * some solids (eg *G4Polycone*) yield "cleaved" meshes   
+    * viz. bug for *Geant4*, broken geometry for *Chroma*
+    * *OpenMesh* surgery possible, but not automatic
+
+.. s5_talk::
+
+    I have presented Opticks many times to many audiences.  
+    Usually I focus on the latest status and recent changes. 
+    For this presentation, I will do that also. 
+    But this time, I will start by taking a step back to give a wider view 
+    of the story of Opticks. So you can understand the bigger picture and
+    a bit more of the process of innovation.  
+
+
+:i:`chroma_camera_raycast`
+----------------------------
+
+``Chroma Raycast of Daya Bay geometry (3x3 CUDA kernel lunches, 1.8s for 1.23M pixels, Geforce 750M GPU)``
+
+
+.. comment
+
+    :small:`Chroma Raycast Worst Case (~entire geometry) Example` 
+    ---------------------------------------------------------------- 
+
+    .. class:: small
+
+        Render Split into 3x3 CUDA kernel launches, 1 thread per pixel, ~1.8s for 1.23M pixels, 2.4M tris.
+
+    .. image:: /env/chroma/chroma_camera/20140423-162109.png
+       :width: 800px
+       :align: center
+
+    .. class:: tiny 
+
+
+        g4daeview.py --target=.. --eye="-0.3,-1.1,1.7" --look="0.1,0.4,-0.6" --up="1.2,2.0,1.6" --size=1440,852 --near=30.00000 --far=10000.0 --yfov=50.0 --with-chroma
+
+
+    .. wrk (1440, 852) [1226880]  lch  [3, 3, 1] [9]  blk [16, 16, 1] [256]  0.03,0.26,0.12,0.15,0.79,0.20,0.06,0.20,0.04 TOT 1.84
+
+    .. http://dayabay.phys.ntu.edu.tw/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/
+
+
+
+``G4DAE : DYB pool bottom, Chroma raycast`` 
+----------------------------------------------------
+
+
+.. raw:: html
+
+     <p style="margin-bottom:14cm;" />
+
+
+.. class:: normal
+
+    ``Chroma raycast render of triangulated geometry``
+
+
+``G4DAE : DYB pool bottom, OpenGL render``
+-------------------------------------------------
+
+
+.. raw:: html
+
+     <p style="margin-bottom:14cm;" />
+
+
+.. class:: normal
+
+    ``OpenGL rasterized render of triangulated geometry``
+
+
+
+
+Triangulated Geometry : Great for Visualization
+-------------------------------------------------
+
+.. sidebar:: :small:`G4DAE Geometry Exporter`
+
+    .. class:: small
+
+        Exports *Geant4* geometry into **standard** 3D files:
+
+        * standard digital asset exchange (DAE) 
+        * volume tree: solid/physical+logical volumes
+        * vertices, tri. from *G4Polyhedron* 
+        * material/surface props. in *extra* XML elements
+
+        * https://bitbucket.org/simoncblyth/g4dae 
+
+
+.. class:: small
+
+    **Many apps/libs can view/edit DAE/COLLADA files**
+
+    * Meshlab, Blender, Sketchup, ...
+    * macOS: Finder/Quickview/Preview/Xcode
+    * threejs, pycollada, SceneKit, ...
+    * OpenGL, WebGL, pyopengl, glumpy 
+ 
+    **Triangle Visualization Advantage**
+
+    * GPUs evolved to rasterize trianglated geometry 
+    * Developed pyopengl/pycollada renderer 
+
+      * entire geometry in single OpenGL draw call
+      * :r:`shockingly fast on mobile GPU`
+
+    **CUDA/OpenGL interoperation**
+
+    * share GPU buffers between compute and visualization 
+    * visualize steps of millions of photons within geometry   
+
+
+
+
+``Daya Bay Chroma Photon Propagation (1)``
+--------------------------------------------
+
+.. raw:: html
+
+     <p style="margin-bottom:14cm;" />
+
+.. class:: tiny
+
+   ``(g4daeview.py) Chroma GPU photon propagation at 12 nanoseconds.  The photons are generated by Geant4 
+   simulation of a 100 GeV muon travelling from right to left. 
+   Photon colors indicate reemission (green), absorption(red),
+   specular reflection (magenta), scattering(blue), no history (white).``
+
+
+``Daya Bay Chroma Photon Propagation (2)``
+------------------------------------------
+
+
+.. raw:: html
+
+     <p style="margin-bottom:14cm;" />
+
+.. class:: tiny
+
+   ``(g4daeview.py) Chroma GPU photon propagation at 14 nanoseconds. 
+   The interface provides interactive control of the propagation time 
+   allowing any stage of the propagation to be viewed by 
+   scrubbing time backwards/forwards. The speed of this visualization 
+   is achieved by interoperation of CUDA kernels and OpenGL shaders accessing
+   the same GPU resident photon propagation data.`` 
+
+
+``Daya Bay Chroma Photon Propagation (3)``
+---------------------------------------------
+
+.. raw:: html
+
+     <p style="margin-bottom:14cm;" />
+
+.. class:: tiny
+
+   ``(g4daeview.py) Initial photon positions of a Geant4 simulated muon that crosses
+   between the Dayabay Near hall ADs. Colors represent photon wavelengths. 
+   Optical photons: collected in G4 StackAction, serialized, sent over ZeroMQ, deserialized, 
+   presented using OpenGL GLSL shaders.`` 
+
+
+
+:small:`Opticks History : Chroma + G4DAE -> NVIDIA OptiX + "Opticks"`
+-----------------------------------------------------------------------
+
+.. sidebar:: GGeoview OptiX raycast
+
+    .. image:: /env/optix/raycast/optix-raycast-gui-001.png
+       :width: 550px
+       :align: right
+
+    .. class:: tiny
+
+        https://bitbucket.org/simoncblyth/env/src/tip/graphics/ggeoview/
+
+
+.. class:: small
+
+    **Why switch to NVIDIA OptiX ?** 
+
+    * OptiX : transparent multi-GPU with no effort 
+    * NVIDIA supported package
+    * NVIDIA expertise on keeping GPUs busy 
+       
+    * Chroma implemented with python/numpy/pycuda
+
+      * C++ impl. needed for easy Geant4 integration 
+     
+    DBNS geometry raycast comparison using mobile GPU
+
+    * NVIDIA OptiX : :red:`interactive ~30 fps` raycasting
+    * Chroma : 1.8s per frame 
+
+    Performance improvement ~50x
+
+
+    **"Opticks" started as synthesis**
+
+    * Chroma : high level propagation loop
+    * Geant4 : simulation details
+    * Graphics : performance techniques
+  
+    Package name "Opticks", taken from world changing publication:
+
+    (1704) **Sir Isaac Newton FRS** :b:`"Opticks: or, A Treatise of the Reflexions, Refractions, Inflexions and Colours of Light."`
+ 
+
+
+
+:i:`GGeoView`  
+-----------------------------------------------------------------------------   
+
+
+.. raw:: html
+
+     <p style="margin-bottom:-0.5cm;" />
+
+.. class:: tiny
+
+   ``(GGeoView) Cerenkov photons from an 100 GeV muon travelling from right to left across Dayabay AD. 
+   Primaries are simulated by Geant4, Cerenkov "steps" of the primaries are transferred to the GPU.  
+   The dots represent OptiX calculated first intersections of GPU generated photons with colors 
+   corresponding to material boundaries: (red) GdDopedLS/Acrylic
+   (green) LiquidScintillator/Acrylic, (blue) Acrylic/LiquidScintillator,
+   (white) IwsWater:UnstStainlessSteel, (grey) others.
+   The red lines represent the positions and directions of the "steps" with an
+   arbitrary scaling for visibility.`` 
+       
+
+
+
+:i:`Opticks History : Handling Huge Geometry (eg JUNO)`
+----------------------------------------------------------- 
+
+.. class:: large
+
+   ``Opticks History : Handling Huge Geometry (eg JUNO)`` 
+
+
+.. raw:: html
+
+     <p style="margin-bottom:13cm;" />
+
+
+.. class:: normal
+
+   ``Instancing in OptiX and OpenGL avoids repetition of geometry data on GPU for repeated elements (eg PMTs). 
+   [Image is composite of OpenGL rasterized event representation and OptiX raytraced triangulated geom]``  
+
+
+
+:small:`Opticks History : Triangulated Geometry Problems`
+-----------------------------------------------------------
+
+.. class:: small
+
+   * *G4Polyhedron* tesselation of union solids -> cleaved mesh 
+
+     * visualization bug for *Geant4*, :r:`broken geometry if rely on tesselation for simulation`
+     * manifests as reversed normals causing material mis-assignment
+     * ~10% of Daya Bay solid tesselations had issues : fixed some with *OpenMesh* surgery : unable to automate
+
+   * even when not broken, usually approximate geometry : cannot precisely match Geant4
+   * PMT "Disco Ball" effect (smoothed vertex normals can reduce this)
+
+.. class:: small
+
+   :r:`triangulated geometry : not practical for general simulation, but very useful for fast visualization` 
+
+  
+.. image:: /env/graphics/ggeoview/dpib-triangulated-pmt.png
+   :width: 550px
+   :align: left
+
+.. image:: /env/graphics/ggeoview/dpib-test-disco-ball.png
+   :width: 550px
+   :align: right
+
+
+:small:`Opticks History : Analytic PMT (12 parts, not 2928 triangles)`
+---------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Analytic PMT (no triangles)` 
+
+    .. image:: /env/nuwa/detdesc/pmt/hemi-pmt-analytic-near-clipped.png
+       :width: 550px
+       :align: right
+
+    .. class:: small
+
+       Near clipped, orthographic projection : gives cutaway raytrace render 
+
+
+.. class:: small
+
+   NVIDIA OptiX provided no intersection (it just accelerated intersection) 
+
+   * need first principals intersection code, solving polynomials 
+   * started with PMT specific intersection code
+
+   **Partition PMT at constituent joins (semi-manually)** 
+
+.. image:: /env/nuwa/detdesc/pmt/hemi-pmt-parts.png
+   :width: 550px
+   :align: left
+
+
+:i:`Daya Bay Opticks Propagation : Triangulated + Analytic PMT`
+-------------------------------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:15cm;" />
+
+.. class:: small 
+
+    ``Daya Bay Opticks Propagation : Triangulated geometry with Analytic PMT 
+    [composite OptiX raytrace geometry + OpenGL rasterized Cerenkov photons]``
+
+
+
+
+
+:small:`Opticks : GPU Geometry starts from ray-primitive intersection`
+-------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   * 3D parametric ray : **ray(x,y,z;t) = rayOrigin  +  t * rayDirection** 
+   * implicit equation of primitive : **f(x,y,z) = 0**  
+   * -> polynomial in **t** , roots: **t > t_min**  -> intersection positions + surface normals
+
+.. figure:: /env/presentation/tboolean_parade_sep2017.png
+   :width: 900px
+   :align: center
+
+   :red:`CUDA/OptiX intersection for ~10 primitives` -> :blue:`Exact geometry translation`
+
+
+
+
+:small:`Ray intersection with general CSG binary trees, on GPU`
+---------------------------------------------------------------------------------
+
+.. sidebar:: Outside/Inside Unions
+
+    .. class:: small
+
+       dot(normal,rayDir) -> Enter/Exit
+
+    .. image:: /env/presentation/kensler_union_of_two_spheres_from_outside.png
+       :width: 300px
+       :align: center
+
+    .. image:: /env/presentation/kensler_union_of_two_spheres_from_inside.png
+       :width: 300px
+       :align: center
+
+    .. class:: small
+
+        * **A + B** boundary not inside other 
+        * **A * B** boundary inside other 
+
+
+.. class:: small
+
+   Pick between pairs of nearest intersects, eg:
+
+   =======================  ===========  ===============  ============== 
+   *UNION* tA < tB           Enter B      Exit B           Miss B
+   =======================  ===========  ===============  ============== 
+   **Enter A**               ReturnA      :blue:`LoopA`    ReturnA
+   **Exit A**                ReturnA      ReturnB          ReturnA 
+   **Miss A**                ReturnB      ReturnB          ReturnMiss
+   =======================  ===========  ===============  ============== 
+
+   * *Nearest hit intersect algorithm* [1] avoids state
+
+     * sometimes :blue:`Loop` : advance **t_min** , re-intersect both 
+     * classification shows if inside/outside
+
+   * *Evaluative* [2] implementation emulates recursion: 
+
+     * :red:`recursion not allowed` in OptiX intersect programs
+     * bit twiddle traversal of complete binary tree 
+     * stacks of postorder slices and intersects 
+
+   * :red:`Identical geometry to Geant4` 
+
+     * solving the same polynomials 
+     * near perfect intersection match
+
+
+
+.. class:: tiny
+
+    [1] Ray Tracing CSG Objects Using Single Hit Intersections, Andrew Kensler (2006)
+        with corrections by author of XRT Raytracer http://xrt.wikidot.com/doc:csg
+ 
+    [2] https://bitbucket.org/simoncblyth/opticks/src/tip/optixrap/cu/csg_intersect_boolean.h
+        Similar to binary expression tree evaluation using postorder traverse. 
+
+
+
+
+
+:small:`CSG Complete Binary Tree Serialization -> simplifies GPU side`
+---------------------------------------------------------------------------------
+
+.. sidebar:: Bit Twiddling Navigation
+
+    .. class:: small
+
+        * parent(i) = i/2 = i >> 1 
+
+        * leftchild(i) = 2*i = i << 1
+
+        * rightchild(i) = 2*i + 1 = (i << 1) + 1
+
+        * leftmost(height)  =  1 << height
+
+
+.. class:: small
+
+    Geant4 solid -> CSG binary tree (leaf primitives, non-leaf operators, 4x4 transforms on any node)
+
+    Serialize to **complete binary tree** buffer:
+ 
+    * no need to deserialize, no child/parent pointers
+    * bit twiddling navigation :red:`avoids recursion`
+    * simple approach profits from small size of binary trees 
+    * BUT: very inefficient when unbalanced 
+
+    **Height 3 complete binary tree with level order indices:**
+.. raw:: html
+
+    <pre class="mypre">
+                                                       depth     elevation
+
+                         1                               0           3   
+
+              10                   11                    1           2   
+
+         100       101        110        111             2           1   
+                        
+     1000 1001  1010 1011  1100 1101  1110  1111         3           0   
+    </pre>
+    <hr/>
+
+.. class:: small
+
+    **postorder_next(i,elevation) = i & 1 ? i >> 1 : (i << elevation) + (1 << elevation) ;**   // from pattern of bits
+ 
+.. class:: tiny
+
+   Postorder tree traverse visits all nodes, starting from leftmost, such that children 
+   are visited prior to their parents.
+
+
+
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace`
+--------------------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:8cm;" />
+
+
+.. class:: small
+
+    ``Pure analytic CSG Daya Bay near geometry, auto-converted from Geant4 to Opticks GPU geometry, 
+    NVIDIA OptiX GPU raytrace render [no triangles]``
+
+
+
+.. comment
+
+    :small:`Opticks History : Triangulated -> Analytic(CSG) Geometry : recap`
+    ---------------------------------------------------------------------------
+
+    .. class:: small
+
+        1. started fully triangulated for Chroma with G4DAE exporter
+        2. developed "manually" analytic intersection for PMTs only  
+        3. generalized     
 
 
 :i:`Path Tracing in Production 1`

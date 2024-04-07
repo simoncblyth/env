@@ -242,6 +242,20 @@ Little information provided by google, perhaps because the help is informative::
 
 
 
+BX : Print value at breakpoint
+--------------------------------
+
+::
+
+   (lldb) br com add -o "p val" 1
+   (lldb) br com add -o "bt" 1
+
+::
+
+   BP=G4Track::SetVelocity BX="br com add -o bt 1"  ~/opticks/g4cx/tests/G4CXTest_raindrop.sh
+
+   BP=G4Track::SetVelocity BX="br com add -o 'p val' 1"  ~/opticks/g4cx/tests/G4CXTest_raindrop.sh
+
 
 Setting Environment
 ---------------------
