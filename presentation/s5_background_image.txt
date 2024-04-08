@@ -351,6 +351,10 @@
     SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU 2
     nvidia/SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU_half.png 1280px_720px
 
+    NVIDIA Giveth and NVIDIA Taketh Away
+    nvidia/SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU_half.png 640px_360px 0px_360px
+    nvidia/Introducing_OptiX_7.png 640px_360px 640px_360px
+
     SIGGRAPH_2019_Eric_Enderton_RT_Cores
     nvidia/SIGGRAPH_2019_Eric_Enderton_RT_Cores.png 1280px_720px
 
@@ -2506,6 +2510,9 @@
 
     Daya Bay Opticks Propagation : Triangulated + Analytic PMT
     ../ok/dyb_raytrace_composite_cerenkov.png 1280px_720px
+
+    CHEP 2019 Plenary, Adelaide, Australia
+    chep2019/meeting_the_challenge_of_JUNO_simulation_plenary.jpg 1280px_720px
 
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p

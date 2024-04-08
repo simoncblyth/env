@@ -70,7 +70,7 @@ Outline
 
        <span>&nbsp;</span>
 
-    * Optical Photon Simulation : Context and Problem
+    * Optical Photon Simulation : Problem and background
 
       * JUNO Optical Photon Simulation Problem...
       * Optical photons limit many simulations => lots of interest in Opticks
@@ -79,10 +79,14 @@ Outline
     * Optical Photon Simulation ≈ Ray Traced Image Rendering
 
       * Rasterization vs Ray Tracing 
-      * Monte Carlo Path tracing in (movie) production
-      * Fundamental "Rendering Equation" of Computer Graphics (Kajiya 1986)
-      * Neumann Series Solution of Rendering Equation, Samples per pixel 
-      * Optical Simulation : Computer Graphics vs Physics 
+      * Spatial index acceleration structure, BVH algorithm 
+
+    * Opticks Early History 
+
+      * pre-History : Chroma investigations
+      * Triangulated Geometry, G4DAE Geometry exporter 
+      * Chroma + G4DAE -> NVIDIA OptiX + "Opticks"
+      * Handling Huge Geometry (eg JUNO) with instancing 
 
     * NVIDIA Tools to create Solution   
 
@@ -108,9 +112,14 @@ Outline
 
 
 .. s5_talk::
-    
-    This aim of this talk is to explain how GPU ray tracing is integrated 
-    with Geant4 
+
+    I have presented Opticks many times to many audiences.  
+    Usually I focus on the latest status and recent changes. 
+    For this presentation, I will start by taking a step back to give a wider view 
+    of the story of Opticks. So you can understand the bigger picture and
+    a bit more of the process of innovation.  
+
+
 
 
 .. comment
@@ -424,6 +433,117 @@ Outline
 
 
 
+
+
+``Spatial Index Acceleration Structure``
+---------------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:11cm;" />
+
+.. sidebar:: :small:`Tree of Bounding Boxes (bbox)`
+
+    .. class:: small
+
+        * aims to minimize bbox+primitive intersects 
+        * accelerates ray-geometry intersection
+
+
+.. s5_talk::
+
+   The principal technique to accelerate ray geometry intersection 
+   is an acceleration structure called a bounding volume hierarchy 
+   
+   This divides space into progressively smaller boxes which forms
+   a spatial index.
+
+   Traversing the tree of bounds allows to minimize tests
+   needed to find an intersect.
+
+   Much of the acceleration structure traversal 
+   is done in the dedicated RT cores.
+
+
+
+
+:small:`How to Make Effective Use of GPUs ? Parallel / Simple / Uncoupled`
+------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Optical Photon Simulation`
+
+    .. class:: small
+
+        Abundant parallelism 
+           * Many millions of photons 
+
+        Low register usage 
+           * Simple optical physics, texture lookups
+
+        Little/No synchronization
+           * Independent photons -> None 
+
+        Minimize CPU<->GPU copies 
+           * geometry copied at initialization
+           * gensteps copied once per event
+           * only hits copied back    
+
+        :blue:`~perfect match for GPU acceleration` 
+
+
+
+.. class:: small
+
+    **Abundant parallelism**
+       * many thousands of tasks (ideally millions)
+
+    **Low register usage : otherwise limits concurrent threads** 
+       * simple kernels, avoid branching  
+
+    **Little/No Synchronization**
+       * avoid waiting, avoid complex code/debugging
+
+    **Minimize CPU<->GPU copies**
+       * reuse GPU buffers across multiple CUDA launches 
+
+    .. image:: /env/presentation/1px.png
+
+
+    **How Many Threads to Launch ?**
+
+    * can (and should) launch many millions of threads
+
+      * :red:`mince problems as finely as feasible`
+
+    * maximum thread launch size : so large its irrelevant
+    * maximum threads inflight : #SM*2048 = 80*2048 ~ 160k
+
+      * best latency hiding when launch > ~10x this ~ 1M 
+
+
+.. class:: tiny    
+
+
+    Understanding Throughput-oriented Architectures
+    https://cacm.acm.org/magazines/2010/11/100622-understanding-throughput-oriented-architectures/fulltext
+
+    NVIDIA Titan V: 80 SM, 5120 CUDA cores
+
+
+.. s5_talk::
+
+    Optical photon simulation is close to being an ideal 
+    workload for GPUs 
+
+    HMM: MAYBE MOVE THIS ?
+
+
+
+
+
+
+
+
 Opticks pre-History : Chroma investigations 
 --------------------------------------------
 
@@ -481,6 +601,8 @@ Opticks pre-History : Chroma investigations
 
 .. s5_talk::
 
+    Klop
+
     I have presented Opticks many times to many audiences.  
     Usually I focus on the latest status and recent changes. 
     For this presentation, I will do that also. 
@@ -492,7 +614,7 @@ Opticks pre-History : Chroma investigations
 :i:`chroma_camera_raycast`
 ----------------------------
 
-``Chroma Raycast of Daya Bay geometry (3x3 CUDA kernel lunches, 1.8s for 1.23M pixels, Geforce 750M GPU)``
+``(g4daeview.py) Chroma Raycast of Daya Bay geometry (3x3 CUDA kernel lunches, 1.8s for 1.23M pixels, Geforce 750M GPU)``
 
 
 .. comment
@@ -531,7 +653,7 @@ Opticks pre-History : Chroma investigations
 
 .. class:: normal
 
-    ``Chroma raycast render of triangulated geometry``
+    ``(g4daeview.py) Chroma raycast render of triangulated geometry``
 
 
 ``G4DAE : DYB pool bottom, OpenGL render``
@@ -545,7 +667,7 @@ Opticks pre-History : Chroma investigations
 
 .. class:: normal
 
-    ``OpenGL rasterized render of triangulated geometry``
+    ``(g4daeview.py) OpenGL rasterized render of triangulated geometry``
 
 
 
@@ -688,6 +810,57 @@ Triangulated Geometry : Great for Visualization
 
 
 
+
+:small:`NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix`
+--------------------------------------------------------------------------------
+
+.. sidebar:: OptiX Raytracing Pipeline
+
+    .. class:: small
+
+       Analogous to OpenGL rasterization pipeline:
+
+    .. image:: /env/optix/docs/optix-model.png
+       :width: 450px
+       :align: right
+
+.. class:: small
+
+   **OptiX makes GPU ray tracing accessible**
+
+   * **accelerates** ray-geometry intersections
+   * simple : single-ray programming model
+   * "...free to use within any application..."
+   * :red:`access RT Cores[1] with OptiX 6.0.0+ via RTX™ mode`
+
+   **NVIDIA expertise:**
+
+   * :red:`~linear scaling up to 4 GPUs`
+   * acceleration structure creation + traversal (Blue)
+   * instanced sharing of geometry + acceleration structures
+   * compiler optimized for GPU ray tracing
+
+.. class:: tiny
+
+       ``https://developer.nvidia.com/rtx``
+
+.. class:: small
+
+   **User provides (Yellow):**
+
+   * ray generation
+   * geometry bounding box, intersects 
+
+
+.. class:: tiny
+
+   [1] Turing+ GPUs eg NVIDIA TITAN RTX 
+
+
+
+
+
+
 :i:`GGeoView`  
 -----------------------------------------------------------------------------   
 
@@ -715,7 +888,7 @@ Triangulated Geometry : Great for Visualization
 
 .. class:: large
 
-   ``Opticks History : Handling Huge Geometry (eg JUNO)`` 
+   ``Opticks History : Handling Huge Geometry (eg JUNO) with instancing`` 
 
 
 .. raw:: html
@@ -820,6 +993,174 @@ Triangulated Geometry : Great for Visualization
 
 
 
+:small:`Torus : much more difficult/expensive than other primitives`
+------------------------------------------------------------------------
+
+.. sidebar:: Torus artifacts
+
+    .. image:: /env/presentation/tboolean_torus_orthographic_artifact.png
+       :width: 400px
+       :align: right
+
+   .. image:: /env/presentation/torus_eqn_sqrt.png
+       :width: 400px
+       :align: right
+
+   .. image:: /env/presentation/torus_eqn_quartic.png
+       :width: 400px
+       :align: right
+
+
+
+.. class:: small
+
+   3D parametric ray : **ray(x,y,z;t) = rayOrigin  +  t * rayDirection** 
+
+   * ray-torus intersection -> solve quartic polynomial in **t**  
+   *  A t^4 + B t^3 + C t^2 + D t + E = 0 
+
+   High order equation 
+
+   * very large difference between coefficients 
+   * varying ray -> wide range of very coefficients
+   * numerically problematic, requires double precision 
+   * several mathematical approaches used, work in progress
+
+   **Best Solution : replace torus**
+
+   * eg model PMT neck with hyperboloid, not cylinder-torus
+
+
+
+:small:`Torus : different artifacts as change implementation/params/viewpoint`
+--------------------------------------------------------------------------------
+
+.. class:: small
+
+   * :red:`Only use Torus when there is no alternative` 
+   * especially avoid CSG combinations with Torus  
+
+.. image:: /env/presentation/torus_cloud_artifact_2017_08_14.png
+   :width: 500px
+   :align: left
+
+.. image:: /env/presentation/torus_cuts_artifact_2017_08_08.png
+   :width: 550px
+   :align: right
+
+.. image:: /env/presentation/torus_fan_artifact_2017_07_28.png
+   :width: 350px
+   :align: right
+ 
+
+
+
+
+
+
+
+:small:`Constructive Solid Geometry (CSG)`
+-------------------------------------------------------
+
+.. sidebar:: CSG Binary Tree
+
+    .. image:: /env/presentation/hanrahan_example_of_solid_object_formed_using_csg.png
+       :width: 450px
+       :align: right
+
+    .. class:: small
+
+       Primitives combined via binary operators 
+
+
+.. class:: small
+
+   Simple *by construction* definition, implicit geometry.
+
+   * **A, B** implicit primitive **solids** 
+   * **A + B** : union (OR)
+   * **A * B** : intersection (AND) 
+   * **A - B** : difference (AND NOT) 
+   * **!B** : complement (NOT) (inside <-> outside)
+
+   CSG expressions 
+
+   * non-unique: **A - B == A * !B**
+   * represented by binary tree, primitives at leaves
+
+   3D Parametric Ray : **ray(t) = r0 + t rDir**  
+
+
+   **Ray Geometry Intersection**
+
+   * primitive : find *t* roots of implicit eqn
+   * composite : :red:`pick` primitive intersect, depending on CSG tree
+
+
+.. class:: large
+
+   :red:`How to pick exactly ?`
+
+
+
+:small:`CSG : Which primitive intersect to pick ?`
+-------------------------------------------------------
+    
+
+.. sidebar:: In/On/Out transitions
+
+    .. class:: small
+
+    .. image:: /env/presentation/hanrahan_example_of_solid_object_formed_using_csg_roth_diagram.png
+       :width: 450px
+       :align: right
+
+
+.. class:: small
+
+   Classical Roth diagram approach
+
+   * find all ray/prim intersects
+   * recursively combine inside intervals using CSG operator
+   * works from leaves upwards
+
+   Computational requirements:
+
+   * find all intersects, store them, order them
+   * recursive traverse
+
+   BUT : **High performance on GPU requires**:
+
+   * massive parallelism -> more the merrier
+   * low register usage -> keep it simple
+   * small stack size -> **avoid recursion** 
+
+.. class:: large
+
+   :red:`Classical approach not appropriate on GPU`
+
+
+
+
+:small:`Developed GPU CSG Impl. based on short note with the idea`  
+---------------------------------------------------------------------
+
+.. class:: small
+
+   * "Ray Tracing CSG Objects Using Single Hit Intersections", Andrew Kensler (2006) **3 page note**
+   * http://xrt.wikidot.com/doc:csg corrections from author of XRT Raytracer 
+
+.. image:: kensler/frontpage.png
+   :width: 550px
+   :align: left
+
+.. image:: kensler/xrt_wikidot_csg.png
+   :width: 550px
+   :align: right
+
+
+
+
 :small:`Ray intersection with general CSG binary trees, on GPU`
 ---------------------------------------------------------------------------------
 
@@ -880,7 +1221,6 @@ Triangulated Geometry : Great for Visualization
  
     [2] https://bitbucket.org/simoncblyth/opticks/src/tip/optixrap/cu/csg_intersect_boolean.h
         Similar to binary expression tree evaluation using postorder traverse. 
-
 
 
 
@@ -955,304 +1295,296 @@ Triangulated Geometry : Great for Visualization
 
 
 
-.. comment
 
-    :small:`Opticks History : Triangulated -> Analytic(CSG) Geometry : recap`
-    ---------------------------------------------------------------------------
-
-    .. class:: small
-
-        1. started fully triangulated for Chroma with G4DAE exporter
-        2. developed "manually" analytic intersection for PMTs only  
-        3. generalized     
-
-
-:i:`Path Tracing in Production 1`
-----------------------------------
-
-
-.. comment
-
-   * http://www.realtimerendering.com/raytracing/siggraph2019/Path_Tracing_in_Production_part_1.pdf
-
-   * https://jo.dreggn.org/path-tracing-in-production/2019/ptp-part1.pdf
-
-   * https://cs.dartmouth.edu/~wjarosz/publications/novak18monte.html
-
-
-
-.. s5_talk::
-
-    Ray tracing is the building block behind **Monte Carlo Path Tracing** 
-
-    SIGGRAPH is the primary computer graphics conference series. 
-    This is the abstract from a course document sharing movie production graphics techniques. 
-
-    * **Monte Carlo Path Tracing** is now the standard rendering technique in movie production
-
-
-:i:`Path Tracing in Production 2`
------------------------------------
-
-.. sidebar:: :small:`Monte Carlo Path Tracing`
-
-   .. class:: small
-
-       :r:`Path Tracing is built on top of Ray Tracing`
-
-       * ubiquitous rendering technique 
-       * random sampling (Monte Carlo method)
-       * numerical solution of **"The Rendering Eqn."**
-
-       **Movies ≈ monte carlo optical photon simulations**
-
-
-.. s5_talk::
-
-   This means that for many movies: 
-
-   * every frame is the result of monte carlo optical photon simulations, involving billions of photons
-
-.. comment
-
-   * "ground truth" render 
-   * numerical integration by recursive point-sampling 
-   * Russian roulette killing of rays
-   * **ubiquitous** approach to solution to numerical solution of RE  
-   * includes indirect light (global illumination)
-
-
-.. comment
-
-    Irradiance Caching and Derived Methods
-    ----------------------------------------
-
-    .. class:: small
-
-       * https://cs.dartmouth.edu/~wjarosz/publications/dissertation/chapter3.pdf
-
-
-
-
-:i:`The Rendering Equation 1`
-------------------------------
-
-.. s5_talk::
-
-    SMALL
-    Computer graphics is all about finding solutions to the rendering equation.
-  
-    The equation stems from energy conservation in equilibrium:
-
-    * Outgoing light in some direction comes from emission and reflection at the point   
-    * Light reflected from the point depends on all the incoming 
-      light and the reflection characteristics of the surface. 
-
-    What you see at one point depends on all other points that are 
-    visible from it and so on recursively. 
-
-    You can see blue, green and red casts on the teapot 
-    coming from color bleeding : that arises from the 
-    multiple bounces or indirect lighting.
-
-    The rendering equation is a recursive integral equation
-
-    * surface properties are known
-    * what is unknown is the radiance distribution function
-
-    Solving it gives you images from any viewpoint.
-
-
-.. comment
-
-    The lines on the images try to illustrate that:
- 
-    * what the eye at point x sees at some x-prime depends on inputs from all the 
-      x-double-prime and each double-prime point depends on all the 
-      treble-prime ones
-
-
-
-       
- 
-:i:`The Rendering Equation 2`
-------------------------------
-
-.. s5_talk::
-
-   This form of recursive integral equation has a solution
-   which is a sum of terms with progressively increasing 
-   bounces. 
-
-   0. emission : looking at the light 
-   1. direct illumination
-   2. one-bounce indirect illumination
-   3. two-bounce indirect illumination
-
-   Top row shows individual contributions, with the 
-   cumulative sum on the bottom row.
-
-   Recursive integral eqn -> sum of integrals 
-
-   The "Volumetric Rendering Equation" is a generalization to cover
-   participating media eg clouds, fire, fog, skin  
-
-
- 
-:i:`The Rendering Equation 3`
-------------------------------
-
-.. raw:: html 
-
-   <p style="margin-bottom:3cm;" />
-
-
-.. sidebar:: :small:`Sum over increasing "bounces"`
-
-   .. class:: small
-
-       0. emission : direct from light source 
-       1. direct illumination
-       2. one-bounce indirect illumination
-       3. two-bounce indirect illumination
-
-       Top row : individual terms, Bottom row : cumulative 
-
-       :r:`improving realism as more bounces included`
-
-
-.. s5_talk::
-
-    Realism improves as more bounces are included
-
-
-.. comment
-
-   Recursive integral eqn -> sum of integrals 
-
-   The "Volumetric Rendering Equation" is a generalization to cover
-   participating media eg clouds, fire, fog, skin  
-
-
-
-:i:`Samples per Pixel 1`
-------------------------- 
-
-.. s5_talk::
-
-    Monte Carlo Path Tracing 
-
-    * amazingly general technique 
-    * produces images difficult to distinguisable from reality 
-    * BUT : suffers from slow convergence
-
-
-:i:`Samples per Pixel 2`
--------------------------- 
-
-.. sidebar:: :small:`Monte Carlo Path Tracing` 
-
-  .. class:: small
-
-    :b:`fantastically general technique`
-      * any geometry 
-      * any lighting/surface effect
-
-    :b:`BUT noisy : slow 1/sqrt(N) convergence`
-      * need many samples per pixel
-      * every pixel needing several "bounces"
-
-    :r:`=> Limited by ray tracing performance`
-       
-
-.. s5_talk::
-
-   The technique has the usual monte carlo disadvantage of slow 
-   convergence.  Much of computer graphics is about devising ways 
-   to bias the sampling and speed up the convergence. 
-
-
-Optical Simulation : Computer Graphics vs Physics 
-------------------------------------------------------------------
+:i:`j1808_top_rtx`
+--------------------
 
 .. class:: small
 
-   ==========================================  =============================================  
-    CG Rendering "Simulation"                    Particle Physics Simulation
-   ==========================================  =============================================  
-     simulates: image formation, vision          simulates photons: generation, propagation, detection     
-     (red, green, blue)                          wavelength range eg 400-700 nm
-     ignore polarization                         polarization vector propagated throughout
-     participating media: clouds,fog,fire [1]    bulk scattering: Rayleigh, MIE  
-     human exposure times                        nanosecond time scales
-     equilibrium assumption                      transient phenomena
-     ignores light speed, time                   arrival time crucial, speed of light : 30 cm/ns  
-   ==========================================  =============================================  
+    ``Pure analytic CSG JUNO geometry, auto-converted from Geant4 to Opticks GPU geometry, 
+    NVIDIA OptiX GPU raytrace render [no triangles] (GGeoView)``
 
-   * **handling of time is the crucial difference**
-
-   Despite differences :red:`many techniques+hardware+software directly applicable to physics` eg:
-
-   * GPU accelerated ray tracing (NVIDIA OptiX)
-   * GPU accelerated property interpolation via textures (NVIDIA CUDA)   
-   * GPU acceleration structures (NVIDIA BVH)   
-
-   
-   Potentially Useful CG techniques for "billion photon simulations"
-
-   * irradiance caching, photon mapping, progressive photon mapping 
-   
-
-.. class:: tiny 
-
-   [1] search for: "Volumetric Rendering Equation"
 
 
 .. s5_talk::
 
-    There are great similarities between graphics rendering and physics simulation
-    but also some clear differences.
+   The upshot is that full Geant4 detector geometries
+   can be automatically translated into NVIDIA OptiX geometries.
 
-    * principal difference is handling of time : graphics assuming 
-      long time scales and equilibium  
+   This is an OptiX ray trace image from the chimney region at the 
+   top of the JUNO scintillator sphere.
+    
 
-    * despite the differences there is great scope for re-purposing 
-      computer graphics techniques+projects to assist physics simulation   
-
-
-
+:i:`j1808_top_ogl`
+--------------------
 
 
+.. class:: small
+
+    ``Approximate triangulated JUNO geometry [note impingement of torus guide tube and acrylic "sphere"], OpenGL rasterized render (GGeoView)``
+
+
+.. s5_talk::
+
+   This is an OpenGL rasterized image, using the approximate triangulated 
+   geometry. Opticks manages analytic and triangulated geometry together.  
+
+
+:small:`Deep CSG tree : from complex solids`
+-------------------------------------------------------------------------------------------------
+
+.. class:: small 
+
+    * Dayabay ESR reflector : disc with 9 holes
+    * JUNO "fastener"
+
+.. image:: /env/presentation/lvidx_57_esr_deep_tree_disc_with_holes.png
+   :width: 550px
+   :align: left
+
+.. image:: /env/presentation/x016_deeptree.png
+   :width: 550px
+   :align: right
+
+
+:small:`Subtraction of thin CSG_CYLINDER -> speckle in the  hole`
+-------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   CSG_DISC implemented to handle disc like cylinders : intersects at middle (z1+z2)/2 and offsets, :red:`avoids issue`
+
+.. image:: /env/opticks_refs/speckle_lvTopESR.png
+   :width: 600px
+   :align: left
+
+.. image:: /env/opticks_refs/tboolean_esr_speckle_centered_on_pole_delta_10-3.png
+   :width: 500px
+   :align: right
+
+
+:small:`Coincident Faces are Primary Cause of Issues : Fake Intersects`
+-------------------------------------------------------------------------------------------------
+
+.. sidebar:: Cylinder - Cone 
+
+    .. class:: small
+
+       Coincident endcaps -> issue 
+
+    .. image:: /env/opticks_refs/lvidx_83_tbool_coincidence_artifact_at_cylinder_base.png
+       :width: 450px
+       :align: center
+
+    .. class:: small
+
+       Grow subtracted cone downwards, avoids coincidence : **does not change composite solid**
+
+.. class:: small
+
+    Coincidences common (alignment too tempting?). To fix:
+
+    * **A-B** : grow correct dimension of subtracted shape
+    * **A+B** : grow smaller interface shape into bigger, making join
+
+    * :red:`case-by-case fixes straightforward, not so easy to automate`
+
+    .. image:: /env/opticks_refs/opticks_tscan_29_nzero_5_OcrGdsPrt.png
+       :width: 500px
+       :align: left
+
+
+
+:small:`Debugging Coincident Subtractions`
+-------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   Switching subtraction into union with complemented -> can see whats subtracted.
+
+.. image:: /env/opticks_refs/lvidx_69_ring_box_cuts_artifact.png
+   :width: 900px
+   :align: center
 
 
 
 
+:small:`Opticks : translates G4 geometry to GPU, without approximation`
+------------------------------------------------------------------------------------
 
-:i:`SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU`
-------------------------------------------------------------
+.. sidebar:: Volumes -> Boundaries 
 
-.. raw:: html 
+    .. class:: small
 
-    <pre>
+      **Ray tracing favors Boundaries**
+
+      Material/surface boundary : 4 indices
+
+      * outer material (parent)
+      * outer surface (inward photons, parent -> self)
+      * inner surface (outward photons, self -> parent)
+      * inner material (self)
+
+      Primitives labelled with unique boundary index
+
+      * ray primitive intersection -> boundary index
+      * texture lookup -> material/surface properties
+
+      **Material/Surface/Scintillator properties**
+
+      * interpolated to standard wavelength domain
+      * interleaved into "boundary" texture  
+      * "reemission" texture for wavelength generation 
 
 
+.. class:: small
 
+    Geant4 Solids+Volumes -> Opticks CSG,GGeo -> GPU
 
+    * simpler : no G4DAE+GDML export/import
 
+    **Structure of Volumes**
 
-
-    </pre>
-
-
-.. class:: huge 
-
-    .. table:: 
-       :align: right
+    * repeated geometry instances identified (progeny digests)
+    * instance transforms used in OptiX/OpenGL geometry 
+    * merge CSG trees into global + instance buffers 
 
      
-       +----------------------------+
-       |  :white:`10 Giga Rays/s`   |
-       +----------------------------+
+
+
+
+:small:`Opticks : Translate Geant4 Optical Physics to GPU (OptiX/CUDA)`
+--------------------------------------------------------------------------
+
+.. sidebar:: :small:`GPU Resident Photons`
+
+    .. class:: small
+
+       **Seeded on GPU** 
+          associate photons -> *gensteps* (via seed buffer)
+ 
+       **Generated on GPU, using genstep param:**
+         * number of photons to generate
+         * start/end position of step
+         * *gensteps* : hybrid CPU+GPU generation
+
+       **Propagated on GPU**
+          :red:`Only photons hitting PMTs copied to CPU`
+
+
+       Thrust: **high level C++ access to CUDA**
+
+       .. figure:: /env/numerics/thrust/thrust.png
+          :width: 300px
+          :align: right
+
+       * https://developer.nvidia.com/Thrust
+       
+                  
+.. class:: small
+
+    :blue:`OptiX : single-ray programming model` -> line-by-line translation
+
+    **CUDA Ports of Geant4 classes**
+      * G4Cerenkov (only generation loop) 
+      * G4Scintillation (only generation loop) 
+      * G4OpAbsorption
+      * G4OpRayleigh 
+      * G4OpBoundaryProcess (only a few surface types)
+
+    **Modify Cerenkov + Scintillation Processes**
+      * collect *genstep*, copy to GPU for generation
+      * :red:`avoids copying millions of photons to GPU`
+
+    **Scintillator Reemission**
+      * fraction of bulk absorbed "reborn" within same thread
+      * wavelength generated by reemission texture lookup
+
+    **Opticks (OptiX/Thrust GPU interoperation)** 
+      * **OptiX** : upload gensteps 
+      * **Thrust** : seeding, distribute genstep indices to photons
+      * **OptiX** : launch photon generation and propagation
+      * **Thrust** : pullback photons that hit PMTs 
+      * **Thrust** : index photon step sequences (optional)
+
+
+
+
+
+
+:i:`scan-pf-check-GUI-TO-SC-BT5-SD`
+--------------------------------------
+
+.. s5_talk::
+
+   This GUI allows interactive selection between tens of millions 
+   of photons based on their histories.  
+
+   Here its showing the photons that scattered before boundary transmitting straight 
+   through to surface detect.
+
+   Its implemented by indexing the photon histories using some very fast 
+   GPU big integer sorting provided by CUDA Thrust, 
+   and using OpenGL shaders to switch between selections.
+
+   The 64-bit integers hold up to 16 4-bit flags for each step of the photon.
+
+   All of this is done using interop capabilities of OpenGL/CUDA/Thrust and OptiX
+   so GPU buffers can be written to and rendered inplace with no copying around.
+
+
+:i:`scan-pf-check-GUI-TO-BT5-SD`
+----------------------------------
+
+.. s5_talk::
+
+   The GUI also provides interactive time scrubbing of the propagation 
+   of tens of millions of photons. 
+
+   This is some nanoseconds later for a different history category. 
+  
+   I created this GUI to help with debugging the simulation. 
+
+
+.. comment
+
+     * DELL Precision 7920T Workstation
+     * Intel Xeon Silver 4114, 2.2GHz, 40 cores, 65G 
+     * NVIDIA Quadro RTX 8000, 48G 
+
+     * DELL Precision 7920T Workstation
+     * Intel Xeon Gold 5118, 2.3GHz, 48 cores, 65G  
+     * NVIDIA TITAN RTX, 24G
+     * NVIDIA TITAN V, 12G
+
+
+
+
+
+``CHEP 2019 Plenary, Adelaide, Australia``
+---------------------------------------------
+
+
+
+
+
+
+NVIDIA Giveth and NVIDIA Taketh away
+---------------------------------------
+
+.. class:: small 
+
+   +------+------------------------------------------------------------------------------------------------------+
+   | 2006 |  CUDA 1.0                                                                                            |
+   +------+------------------------------------------------------------------------------------------------------+
+   | 2009 |  NVIDIA OptiX 1.0                                                                                    |
+   +------+------------------------------------------------------------------------------------------------------+
+   | 2018 |  NVIDIA: "World's first ray tracing GPU" : ray trace dedicated RT cores, RTX, :b:`10 Giga Rays/s`    | 
+   +------+------------------------------------------------------------------------------------------------------+
+   | 2019 | Opticks: [1st Gen. RTX GPU] OptiX 6.5, JUNO analytic: 58s 400M photons (7M photons/s, ~70M rays/s)   | 
+   +------+------------------------------------------------------------------------------------------------------+
+   | 2019 |  NVIDIA OptiX 7.0 : **ENTIRELY NEW API**  :r:`=> Opticks needs full re-implementation`               | 
+   +------+------------------------------------------------------------------------------------------------------+
 
 
 .. s5_talk::
@@ -1265,7 +1597,12 @@ Optical Simulation : Computer Graphics vs Physics
     1 billion photons/second.
 
 
+Hard Slog : JUNOSW List of Fixes
+----------------------------------
 
+.. class:: small
+
+   * 
 
 
 :small:`NVIDIA Ada : 3rd Generation RTX`
@@ -1526,38 +1863,6 @@ Optical Simulation : Computer Graphics vs Physics
 
 
 
-``Spatial Index Acceleration Structure``
----------------------------------------------------
-
-.. raw:: html
-
-    <p style="margin-bottom:11cm;" />
-
-.. sidebar:: :small:`Tree of Bounding Boxes (bbox)`
-
-    .. class:: small
-
-        * aims to minimize bbox+primitive intersects 
-        * accelerates ray-geometry intersection
-
-
-.. s5_talk::
-
-   The principal technique to accelerate ray geometry intersection 
-   is an acceleration structure called a bounding volume hierarchy 
-   
-   This divides space into progressively smaller boxes which forms
-   a spatial index.
-
-   Traversing the tree of bounds allows to minimize tests
-   needed to find an intersect.
-
-   Much of the acceleration structure traversal 
-   is done in the dedicated RT cores.
-
-
-
-
 
 
 :small:`NVIDIA OptiX 7 : Entirely new thin API => Full Opticks Re-implementation`
@@ -1667,78 +1972,6 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
     Most of problems and effort of Opticks been with the geometry, because the 
     geometry model needs to be very different from the deep tree of volumes of Geant4.
 
-
-
-
-:small:`How to Make Effective Use of GPUs ? Parallel / Simple / Uncoupled`
-------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Optical Photon Simulation`
-
-    .. class:: small
-
-        Abundant parallelism 
-           * Many millions of photons 
-
-        Low register usage 
-           * Simple optical physics, texture lookups
-
-        Little/No synchronization
-           * Independent photons -> None 
-
-        Minimize CPU<->GPU copies 
-           * geometry copied at initialization
-           * gensteps copied once per event
-           * only hits copied back    
-
-        :blue:`~perfect match for GPU acceleration` 
-
-
-
-.. class:: small
-
-    **Abundant parallelism**
-       * many thousands of tasks (ideally millions)
-
-    **Low register usage : otherwise limits concurrent threads** 
-       * simple kernels, avoid branching  
-
-    **Little/No Synchronization**
-       * avoid waiting, avoid complex code/debugging
-
-    **Minimize CPU<->GPU copies**
-       * reuse GPU buffers across multiple CUDA launches 
-
-    .. image:: /env/presentation/1px.png
-
-
-    **How Many Threads to Launch ?**
-
-    * can (and should) launch many millions of threads
-
-      * :red:`mince problems as finely as feasible`
-
-    * maximum thread launch size : so large its irrelevant
-    * maximum threads inflight : #SM*2048 = 80*2048 ~ 160k
-
-      * best latency hiding when launch > ~10x this ~ 1M 
-
-
-.. class:: tiny    
-
-
-    Understanding Throughput-oriented Architectures
-    https://cacm.acm.org/magazines/2010/11/100622-understanding-throughput-oriented-architectures/fulltext
-
-    NVIDIA Titan V: 80 SM, 5120 CUDA cores
-
-
-.. s5_talk::
-
-    Optical photon simulation is close to being an ideal 
-    workload for GPUs 
-
-    HMM: MAYBE MOVE THIS ?
 
 
 
@@ -2232,56 +2465,6 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
     Maybe a TMAX issue again ?
 
-
-
-
-
-
-
-:i:`scan-pf-check-GUI-TO-SC-BT5-SD`
---------------------------------------
-
-.. s5_talk::
-
-   This GUI allows interactive selection between tens of millions 
-   of photons based on their histories.  
-
-   Here its showing the photons that scattered before boundary transmitting straight 
-   through to surface detect.
-
-   Its implemented by indexing the photon histories using some very fast 
-   GPU big integer sorting provided by CUDA Thrust, 
-   and using OpenGL shaders to switch between selections.
-
-   The 64-bit integers hold up to 16 4-bit flags for each step of the photon.
-
-   All of this is done using interop capabilities of OpenGL/CUDA/Thrust and OptiX
-   so GPU buffers can be written to and rendered inplace with no copying around.
-
-
-:i:`scan-pf-check-GUI-TO-BT5-SD`
-----------------------------------
-
-.. s5_talk::
-
-   The GUI also provides interactive time scrubbing of the propagation 
-   of tens of millions of photons. 
-
-   This is some nanoseconds later for a different history category. 
-  
-   I created this GUI to help with debugging the simulation. 
-
-
-.. comment
-
-     * DELL Precision 7920T Workstation
-     * Intel Xeon Silver 4114, 2.2GHz, 40 cores, 65G 
-     * NVIDIA Quadro RTX 8000, 48G 
-
-     * DELL Precision 7920T Workstation
-     * Intel Xeon Gold 5118, 2.3GHz, 48 cores, 65G  
-     * NVIDIA TITAN RTX, 24G
-     * NVIDIA TITAN V, 12G
 
 
 
