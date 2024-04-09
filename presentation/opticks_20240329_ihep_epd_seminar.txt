@@ -19,8 +19,8 @@
     The 2023 International Workshop on the High Energy Circular Electron Positron Collider
 
 
-:i:`Opticks : Optical Photon Simulation via GPU Ray Tracing from NVIDIA OptiX`
-========================================================================================
+:i:`Opticks : SEMINAR :  Optical Photon Simulation via GPU Ray Tracing from NVIDIA OptiX`
+==========================================================================================
 
 .. raw:: html
 
@@ -251,82 +251,6 @@ Outline
     by using their contacts with NVIDIA 
    
 
-
-:small:`Assistance : Geant4 Collab. + Dark Matter Search Community + NVIDIA`
-------------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Acknowledgements`
-
-   .. class:: small
-
-       **LBNL + LZ + NVIDIA** : 2021 
-           7 NVIDIA engineer meetings on OptiX 7 API
-
-       **Manchester U. + LHCb-RICH + NVIDIA** : 2022 
-           UK GPU Hackathon : optimization guidance
-
-       **IHEP+NTU/JUNO+Dayabay**
-           Many years supporting my work on Opticks 
-
-       **Special Mentions**
-
-       Dr Hans Wentzel, Fermilab, Geant4 group
-           Many years of assistance with testing Opticks 
-
-       Dr Tao Lin, IHEP
-           Expert help on JUNOSW + practicalities 
-
-       Yuxiang Hu, IHEP 
-           Help on Opticks+JUNOSW testing 
-
-           
-
-
-
-
-.. class:: small
-
-    +---------------------------------------------------------------------------------------------------------------------------------------+
-    |  :r:`Developing Opticks would not have been possible without longterm support and assistance from many organizations and individuals` |
-    +---------------------------------------------------------------------------------------------------------------------------------------+
-
-    +-------------------------------------------------------------------------------------------+
-    | :b:`ALSO : Assistance of many with promoting Opticks to a wide audience are acknowledged` |
-    +-------------------------------------------------------------------------------------------+
-
-
-    **Geant4 11.0+ (Dec 2021) : Opticks Advanced Example** 
-
-    * **CaTS : Calorimeter+Tracker Sim. LArTPC (DUNE)**
-    * :r:`Hans Wentzel, Fermilab Geant4 Group`
-    * *...demonstrates how to use Opticks for the creation and propagation of optical photons...*
-    * https://geant4.web.cern.ch/download/release-notes/notes-v11.0.0.html
-
-
-    **Dark Matter Search Community (XENON,LZ,DARWIN,..)** 
-
-    Dark-matter And Neutrino Computation Explored (DANCE) 
-
-    * Input to Snowmass 2021
-    * https://arxiv.org/pdf/2203.08338.pdf
-    * *...Opticks package may provide a solution to the tracking of optical photons...*
-
-.. s5_talk::
-
-    The Fermilab Geant4 Group was an early adopter of Opticks and has assisted by 
-    developing a Geant4 advanced example demonstrating Opticks which 
-    has been in the Geant4 distribution since 2021. 
-
-    A group of experiments from the Dark Matter search community 
-    made a significant contribution to Opticks development by organizing 
-    a series of meetings with NVIDIA engineers that were very useful to 
-    guide a re-implementation of Opticks to work with a completely new OptiX API. 
-   
-
-.. comment
-
-    https://gitlab.cern.ch/geant4/geant4/-/tree/master/examples/advanced/CaTS 
-
 :small:`Optical Photon Simulation ≈ Ray Traced Image Rendering`
 -------------------------------------------------------------------------------
 
@@ -463,6 +387,137 @@ Outline
 
    Much of the acceleration structure traversal 
    is done in the dedicated RT cores.
+
+
+
+
+
+
+
+:small:`CPU vs GPU architectures, Latency vs Throughput`
+------------------------------------------------------------
+
+.. class:: small
+
+    .. image:: /env/presentation/nvidia/cpu_vs_gpu_architecture.png
+       :width: 800px
+       :align: center
+
+.. class:: small
+
+   Waiting for memory read/write, is major source of latency...
+
+   **CPU : latency-oriented : Minimize time to complete single task** : :red:`avoid latency with caching` 
+       * complex : caching system, branch prediction, speculative execution, ...
+
+   **GPU : throughput-oriented : Maximize total work per unit time** : :red:`hide latency with parallelism` 
+       * many simple processing cores, hardware multithreading, SIMD (single instruction multiple data)
+       * simpler : :green:`lots of compute (ALU)`, at expense of cache+control
+       * design assumes :red:`abundant parallelism`
+
+   Effective use of **Totally different processor architecture** -> :red:`Total reorganization of data and computation`  
+       
+
+.. class:: tiny
+
+    Understanding Throughput-oriented Architectures
+    https://cacm.acm.org/magazines/2010/11/100622-understanding-throughput-oriented-architectures/fulltext
+
+.. s5_talk::
+
+   SMALL
+
+   * everyone is familiar with this latency vs throughput difference.  
+   * the crucial thing is that the parallelism of the task is the founding "assumption" of the design of GPUs 
+
+   **Many dont realize quite how extremely parallel you can and should go**
+
+   * i am not just talking a few thousand threads here, millions is better
+   * the largest launch I have done is 400M threads limited by VRAM 
+   * best way to really experience this is to develop graphics applications 
+   * they really do run billions of small shader programs per second
+
+   I recall my first experience of the visualization 
+   performance of triangulated DayaBay geometry  
+   drawn with a single OpenGL draw call, using a single VBO (vertex buffer object).
+   It was shockingly smooth.
+   
+   What is perhaps not so commonly experienced is how extremely parallel  
+   tasks need to be to make best use of the GPU. 
+
+.. comment
+
+   Latency hiding works using hardware multi-threading, so when one group of threads is blocked
+   waiting to read from global memory for example : other groups of thread and be resumed. This 
+   is only effective at hiding latency when there are enough other threads in flight at the same time.
+
+   Porting CPU code to run on the GPU : is not a straightforward thing to do, because the archirecture is totally 
+   different.  To make effective use of GPUs requires a total reorganization of data and compute. 
+
+
+:small:`Understanding GPU Graphical Origins -> Effective GPU Computation` 
+---------------------------------------------------------------------------------
+
+.. sidebar:: :small:`OpenGL Rasterization Pipeline`
+
+    .. image:: /env/presentation/opengl/rasterization_pipeline_rhs.png
+       :width: 450px
+       :align: right
+
+
+.. class:: small
+
+    **GPUs evolved to rasterize 3D graphics at 30/60 fps** 
+
+    * 30/60 "launches" per second, each handling millions of items 
+    * :red:`literally billions of small "shader" programs run per second`   
+   
+    **Simple Array Data Structures (N-million,4)**
+
+    * millions of vertices, millions of triangles 
+    * vertex: **(x y z w)**  
+    * colors: **(r g b a)** 
+    
+    **Constant "Uniform" 4x4 matrices : scaling+rotation+translation**
+
+    * 4-component homogeneous coordinates -> easy projection
+
+    **Graphical Experience Informs Fast Computation on GPUs**
+
+    * array shapes similar to graphics ones are faster
+
+      * "float4" 4*float(32bit) = 128 bit memory reads are favored 
+      * Opticks photons use "float4x4" just like 4x4 matrices
+
+    * GPU Launch frequency < ~30/60 per second   
+
+      * avoid copy+launch overheads becoming significant
+      * ideally : handle millions of items in each launch 
+
+
+.. s5_talk::
+
+    Rasterization is the process of going from input 3D vertices 
+    which are collections of 4 floats to pixel values. 
+
+    **GPUs evolved to rasterize**
+
+    When using GPUs you should keep these origins in mind. 
+
+    * for example, copying or operating on float4s 4*32bits is faster that *float3* 
+      128bits are better for alignment reasons 
+
+    * graphics pipeline is based around 4x4 matrices 
+      and 4 component homogeneous coordinates
+ 
+    * graphics updates at something like 30/60 frames per second : so do not expect 
+      to do thousands of launches per second, each launch has an overhead
+
+    * performance is gained by doing more in each launch  
+
+
+
+
 
 
 
@@ -903,6 +958,77 @@ Triangulated Geometry : Great for Visualization
 
 
 
+
+
+:small:`Ray Intersection with Transformed Object -> Geometry Instancing`
+-----------------------------------------------------------------------------
+
+
+.. |H2O| replace:: H\ :sub:`2`\ O
+
+.. |IM| replace:: M\ :sup:`-1`
+
+.. |IMT| replace:: M\ :sup:`-1T`
+
+.. |NP| replace:: N\' 
+
+
+
+.. figure:: /env/presentation/instancing/ray_intersection_in_two_spaces_p308_shirley_ch13_half.png
+    :width: 700px
+    :align: right
+
+    .. class:: small
+
+        Fig 13.5 "Realistic Ray Tracing", Peter Shirley
+
+    .. class:: normal
+
+        :redbold:`Advantages apply equally to acceleration structures`
+
+.. class:: small
+
+   **Equivalent Intersects -> same** *t*
+
+   1. **ray** with *ellipsoid* : **M*p**
+   2. |IM| **ray** with *sphere* : **p**
+
+   **Local Frame Advantages**
+
+   1. simpler intersect (sphere vs ellipsoid)
+   2. closer to origin -> better precision
+
+   **Geometry Instancing Advantages**
+
+   * many objects share local geometry
+
+     * orient+position with 4x4 **M**
+
+   * huge VRAM saving, less to copy 
+   
+   **Requirements**
+
+   * must **not** normalize ray direction
+   * normals transform differently 
+
+     * |NP| = N * |IMT|   
+     * (due to non-uniform scaling) 
+
+
+.. s5_talk::
+
+    The basis for instancing is the equivalence of intersects in two spaces.
+
+    For example a ray-ellipsoid intersect is equivalent to in inverse 
+    transformed ray intersect with a sphere.
+
+    Local frame intersects advantages...
+
+
+
+
+
+
 :small:`Opticks History : Triangulated Geometry Problems`
 -----------------------------------------------------------
 
@@ -1148,7 +1274,7 @@ Triangulated Geometry : Great for Visualization
 .. class:: small
 
    * "Ray Tracing CSG Objects Using Single Hit Intersections", Andrew Kensler (2006) **3 page note**
-   * http://xrt.wikidot.com/doc:csg corrections from author of XRT Raytracer 
+   * http://xrt.wikidot.com/doc:csg corrections from author of XRT Renderer 
 
 .. image:: kensler/frontpage.png
    :width: 550px
@@ -1511,6 +1637,110 @@ Triangulated Geometry : Great for Visualization
 
 
 
+:i:`Geant4OpticksWorkflow`
+----------------------------
+
+.. s5_talk::
+
+    SMALL
+    So : how can an external optical photon simulation be integrated with Geant4 ?
+
+    In the standard workflow the Geant4 Scintillation and 
+    Cerenkov processes calculate a number of photons 
+    and then loop generating these and collecting them 
+    as secondaries
+     
+    In the hybrid workflow, this generation is split 
+    between the CPU and GPU with "Gensteps" acting as the bridge. 
+    These Genstep parameters include the number of photons, positions and everything 
+    else needed in the generation loop.
+
+    Result is a very simple port of the generation loop to the GPU. 
+
+    Its doubly helpful to generate photons on GPU, as then
+    they take no CPU memory. 
+  
+    So can entirely offload photon memory to the GPU with only hits needing CPU memory. 
+
+    Also this keeps the overheads low as gensteps are typically a factor of 100 smaller
+    than photons.   
+ 
+    The geometry is also needed on the GPU, with all 
+    material and surface properties.
+     
+
+
+
+
+
+
+:small:`Validation of Opticks Simulation by Comparison with Geant4`  
+--------------------------------------------------------------------
+
+
+.. sidebar:: :small:`Random Aligned Bi-Simulation`
+
+    .. class:: small
+
+        Same inputs to *Opticks* and *Geant4*:
+
+        * CPU generated photons 
+        * GPU generated randoms, fed to *Geant4*
+
+        Common recording into *OpticksEvents*:
+
+        * compressed photon step record, up to 16 steps
+        * persisted as *NumPy* arrays for python analysis   
+
+        Aligned random consumption, direct comparison:
+
+        * ~every **scatter, absorb, reflect, transmit** 
+          at matched positions, times, polarization, wavlen
+
+
+
+.. class:: small
+
+
+   **Bi-simulations of all JUNO solids, with millions of photons**
+
+   mis-aligned histories
+       mostly < 0.25%, < 0.50% for largest solids    
+       
+   deviant photons within matched history
+       < 0.05% (500/1M) 
+ 
+   **Primary sources of problems**
+
+   * grazing incidence, edge skimmers
+   * incidence at constituent solid boundaries 
+
+
+   **Primary cause : float vs double** 
+      
+   *Geant4* uses *double* everywhere, *Opticks* only sparingly (observed *double* costing 10x slowdown with RTX) 
+
+   **Conclude** 
+
+   * :blue:`neatly oriented photons more prone to issues than realistic ones`
+   * perfect "technical" matching not feasible
+   * instead shift validation to more realistic full detector "calibration" situation    
+
+
+.. s5_talk::
+
+   Aligned bi-simulation very efficiently finds discrepancies. Because it 
+   is a direct comparison unclouded by statistical variation : so issues show up 
+   very clearly.   
+
+   Comparing individual solids shows discrepancies at the fraction of a percent level.
+
+   Main cause is float vs double. 
+
+
+
+
+
 
 :i:`scan-pf-check-GUI-TO-SC-BT5-SD`
 --------------------------------------
@@ -1561,6 +1791,217 @@ Triangulated Geometry : Great for Visualization
 
 
 
+
+:small:`Performance : Scanning from 1M to 400M Photons`  
+---------------------------------------------------------------
+
+.. sidebar:: :small:`Test Hardware + Software`
+
+     .. class:: small
+
+         **Workstation**
+
+         * DELL Precision 7920T Workstation
+         * Intel Xeon Gold 5118, 2.3GHz, 48 cores, 62G  
+         * NVIDIA Quadro RTX 8000 (48G) 
+    
+         **Software**
+
+         * Opticks 0.0.0 Alpha 
+         * Geant4 10.4p2 
+         * NVIDIA OptiX 6.5.0
+         * NVIDIA Driver 435.21
+         * CUDA 10.1
+
+         **IHEP GPU Cluster**
+
+         * 10 nodes of 8x NVIDIA Tesla GV100 (32G) 
+
+
+
+
+.. class:: small
+
+     **Full JUNO Analytic Geometry j1808v5**
+
+     * "calibration source" genstep at center of scintillator
+
+     **Production Mode : does the minimum**
+
+     * only saves hits  
+     * skips : genstep, photon, source, record, sequence, index, ..
+     * no *Geant4* propagation (other than at 1M for extrapolation)
+
+     **Multi-Event Running, Measure:**
+
+     :red:`interval` 
+       avg time between successive launches, including overheads:
+       (upload gensteps + :blue:`launch` + download hits)
+
+     :blue:`launch` 
+       avg of 10 OptiX launches
+
+
+     * overheads < 10% beyond 20M photons
+
+
+
+.. s5_talk::
+
+   Emitting millions of photons from the center of the scintillator 
+   and timing the interval and launch times of the propagation 
+   provides a measure of the performance of a geometry.
+   
+   By interval, I mean the time between suceessive launches : so this 
+   covers all the overheads of copying the gensteps to the GPU and 
+   pulling back the hits to the CPU.
+
+   Overheads are less than 10%    
+
+
+
+.. comment
+
+    .. sidebar:: :small:`Genstep/Hit Copying Overheads`
+
+         .. class:: small
+
+             **launch**
+               time of each OptiX launch (avg of 10)
+
+             **interval, including overhead**
+               time between subsequent launches (avg of 9)
+
+             :red:`Mostly < 10% Overhead beyond 20M photons`
+
+
+
+
+
+
+:i:`scan-pf-1_NHit`
+---------------------
+
+.. raw:: html
+
+     <pre>
+
+
+
+
+
+
+
+
+     </pre>
+
+
+.. sidebar:: :small:`Photon Launch Size : VRAM Limited`
+
+     .. class:: small
+
+
+         **NVIDIA Quadro RTX 8000 (48 GB)**
+
+         * photon 4*4 floats : 64 bytes
+         * curandState       : 48 bytes 
+
+         **400M photons** x :blue:`112 bytes` ~ 45G  
+
+
+
+.. s5_talk::
+
+    The first check is that you get the expected number of hits 
+    as a function of the number of photons.
+
+    The photon parameters takes 64 bytes and curandState takes 48 bytes
+     
+    So thats 112 bytes per photon, so the limit on the number 
+    of photons that can be simulated in a single launch with this 48G 
+    GPU is a bit more than 400M.
+
+
+:i:`scan-pf-1_Opticks_vs_Geant4 2`
+------------------------------------
+
+.. raw:: html
+
+    <pre>
+   
+
+
+ 
+    </pre>
+
+
+.. class:: small
+
+    .. table:: 
+        :align: center
+
+        +--------------------+----------------------------+------------------+
+        | JUNO analytic, 400M photons from center         |  Speedup         |
+        +====================+============================+==================+
+        | Geant4 Extrap.     | 95,600 s (26 hrs)          |                  | 
+        +--------------------+----------------------------+------------------+
+        | Opticks RTX ON (i) | 58 s                       |   1650x          |
+        +--------------------+----------------------------+------------------+
+
+
+.. s5_talk::
+
+   This compares the extrapolated Geant4 propagation time with the Opticks launch
+   interval with RTX on.   The speedup is more than a factor of 1000.   Need to 
+   use a log scale to make them both visible. 
+
+   For 400M photons, Geant4 takes more than a day, Opticks takes less than a minute.   
+
+   This is with analytic geometry. Speedup is a lot more with triangles.
+
+
+
+:i:`scan-pf-1_Opticks_Speedup 2`
+---------------------------------
+
+.. raw:: html
+  
+     <pre>
+
+
+
+
+
+
+
+
+
+     </pre>
+
+.. class:: small
+
+     .. table:: 
+        :align: center
+
+        +-------------------------+------------------+------------------+
+        | JUNO analytic, 400M photons from center    |   Speedup        |
+        +=========================+==================+==================+
+        | Opticks RTX ON (i)      | 58s              |   1650x          |
+        +-------------------------+------------------+------------------+
+        | Opticks RTX OFF (i)     | 275s             |   350x           |
+        +-------------------------+------------------+------------------+
+        | Geant4 Extrap.          | 95,600s (26 hrs) |                  |
+        +-------------------------+------------------+------------------+
+
+
+.. s5_talk::
+
+    This is the same information shown as a ratio.
+
+
+
+
+
 ``CHEP 2019 Plenary, Adelaide, Australia``
 ---------------------------------------------
 
@@ -1585,7 +2026,8 @@ NVIDIA Giveth and NVIDIA Taketh away
    +------+------------------------------------------------------------------------------------------------------+
    | 2019 |  NVIDIA OptiX 7.0 : **ENTIRELY NEW API**  :r:`=> Opticks needs full re-implementation`               | 
    +------+------------------------------------------------------------------------------------------------------+
-
+   | 2021 |  NVIDIA Engineers assist Opticks dev. for 6->7 in series of seven meetings (LBNL, LZ )               | 
+   +------+------------------------------------------------------------------------------------------------------+
 
 .. s5_talk::
 
@@ -1597,206 +2039,318 @@ NVIDIA Giveth and NVIDIA Taketh away
     1 billion photons/second.
 
 
-Hard Slog : JUNOSW List of Fixes
-----------------------------------
-
-.. class:: small
-
-   * 
-
-
-:small:`NVIDIA Ada : 3rd Generation RTX`
---------------------------------------------------------------------------
-
-.. class:: small
-
-   * **RT Core** : ray trace dedicated GPU hardware
-
-   * **NVIDIA GeForce RTX 4090 (2022)** 
-
-     * 16,384 CUDA Cores, 24GB VRAM, USD 1599
-
-   * :r:`Continued large ray tracing improvements:` 
-
-     * **Ada** ~2x ray trace over **Ampere** (2020), 4x with DLSS 3
-     * **Ampere** ~2x ray trace over **Turing** (2018)  
-    
-   * DLSS : Deep Learning Super Sampling 
-
-     * AI upsampling, not applicable to optical simulation
 
 
 
-.. s5_talk::
+:small:`NVIDIA OptiX 7 : Entirely new thin API => Full Opticks Re-implementation`
+-----------------------------------------------------------------------------------
 
-    NVIDIA GPU Ray Tracing performance has continued to improve rapidly.
-    With a rough doubling in ray tracing performance
-    with each generation of NVIDIA RTX GPUs and we are now at the 3rd generation. 
-
-    [Notes to Presenter]
-    [<20s slide : No need to read the slide, just say the above comment]    
-
-
-:small:`Hardware accelerated Ray tracing (RT Cores) in the Data Center`
--------------------------------------------------------------------------
-
-.. sidebar:: :small:`Data Center GPUs with RT Cores`
+.. sidebar:: :small:`GPU Ray Tracing APIs Converged`
 
     .. class:: small
 
-        * :b:`An Established part of NVIDIA Lineup`
+        * 3 APIs (DXR,VKRay,OptiX7) over RTX 
+        * Driver updates :r:`independent of application`  
+        * Support new GPUs, performance improvements 
 
-        +--------------+------------------+-----------------+  
-        |              |    NVIDIA L40    | NVIDIA L4       |   
-        +==============+==================+=================+
-        |  Release     |   2022/10        |  2023/03        |   
-        +--------------+------------------+-----------------+  
-        |  GPU Arch    |   Ada Lovelace   |  Ada Lovelace   |        
-        +--------------+------------------+-----------------+  
-        |  VRAM        |   48 GB gddr6    | 24 GB gddr6     |   
-        +--------------+------------------+-----------------+  
-        |  TDP         |    300W          |  :r:`72W`       |   
-        +--------------+------------------+-----------------+  
-        |  Form factor |    dual slot     |  :r:`1-slot`    |   
-        +--------------+------------------+-----------------+  
-        | CUDA Core    |    18,176        |   7,680         |    
-        +--------------+------------------+-----------------+  
-        | :b:`RT Core` |:b:`142 (3rd gen)`|:b:`60 (3rd gen)`|    
-        +--------------+------------------+-----------------+  
-        | Tensor Core  |    568 (4th gen) |   240 (4th gen) |    
-        +--------------+------------------+-----------------+  
-        |  FP32        |    90.5 TFLOPS   |  30 TFLOPS      |   
-        +--------------+------------------+-----------------+  
-        |  FP16(*)     |    181 TFLOPS    |  121 TFLOPS     |   
-        +--------------+------------------+-----------------+  
-        | Predecessor  |    A40           |    T4           |   
-        +--------------+------------------+-----------------+  
+.. class:: small
 
-        (*) x2 with Sparsity 
+    **NVIDIA OptiX 6->7** : :b:`drastically slimmed down`
+
+    * low-level CUDA-centric thin API (Vulkan-ized)
+    * headers only (no library, impl in Driver) 
+    * Minimal host state,  :red:`All host functions are thread-safe`
+    * GPU launches : explicit, asynchronous (CUDA streams)
+    * :strike:`near perfect scaling to 4 GPUs, for free` 
+    * :strike:`Shared CPU/GPU geometry context` 
+
+      * :r:`=> NEED CPU/GPU GEOMETRY MODEL + TRANSLATOR`
+
+    * :strike:`GPU memory management`
+    * :strike:`Multi-GPU support`
 
 
 .. class:: small
 
+    **Advantages of 6->7 transition**
 
-    **NVIDIA L4 Tensor Core GPU (Released 2023/03)**
-
-    * Ada Lovelace GPU architecture
-    * :r:`universal accelerator for graphics and AI workloads` 
-    * :b:`small form-factor, easy to integrate, power efficient` 
-    * PCIe Gen4 x16 slot without extra power
-    * Google Cloud adopted for G2 VMs, successor to **NVIDIA T4**
-    * **NVIDIA L4 likely to become a very popular GPU**
-
-.. raw:: html
-
-    <p style="margin-bottom:2cm;" />
+    * More control/flexibility over everything 
+    * :b:`Keep pace with state-of-the-art GPU ray tracing` 
+    * Fully benefit from current + future GPUs : RT cores, RTX 
 
 .. class:: small
 
-    `NVIDIA L4 Tensor Core GPU (Data Center, low profile+power)`
+    **BUT:** :r:`demanded full re-implementation of Opticks` 
+     
+
 
 .. s5_talk::
 
-    Hardware Accelerated Ray Tracing is becoming much more commonly available, 
-    with NVIDIA offering a range of data center GPUs with RT cores. 
+   * OptiX 7 is an entirely new API, dropping many features used by the old Opticks
+   * re-implementation of almost all of Opticks was necessary
 
-    [Notes: <20s slide, just mention above comments]
-
-.. comment
-
-    The current boom in interest in AI is only going to increase this trend. 
+   [Notes: No need to read slide, just the above comments]
 
 
-:small:`US restricts export of highest performing GPUs`
------------------------------------------------------------------------------------
 
-.. sidebar:: :small:`Performance Density Threshold`
+
+
+:small:`"Foundry" Model : Shared CPU/GPU Geometry Context`
+-----------------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`IAS < Inst < Solid < Prim < Node`
+
+    .. class:: small
+
+        * **Inst** : 4x4 tran. + **Solid** ref. ( **Inst** -> 1 **IAS** )
+        * **Solid** : 1 or more **Prim**  : ( **Solid** -> **GAS** )
+        * **Prim** : 1,3,7,15,31,... **Node**  : (**Prim** ~ *G4VSolid*) 
 
     .. raw:: html
 
-         <pre class="mypretiny">
-         +----------------------------------------------------+
-         | total proc. performance (TFLOPs)                   |
-         | ------------------------------ < 5.92 TFLOPs mm^-2 |
-         | applicable die area (mm^2)                         |
-         +----------------------------------------------------+
+        <pre class="mypretiny">
+        struct CSGFoundry
+        {
+           void upload(); <span class="redbold">// to GPU </span> 
+        ...
+           std::vector&lt;CSGSolid&gt;  solid ; // compounds (eg PMT)
+           std::vector&lt;CSGPrim&gt;   prim ;
+           std::vector&lt;CSGNode&gt;   node ; // shapes, operators
 
-         ([0],[1] for full rule details )
-         </pre>
+           std::vector&lt;float4&gt; plan ; // planes
+           std::vector&lt;qat4&gt;   tran ; // CSG transforms
+           std::vector&lt;qat4&gt;   itra ; // inverse CSG transforms
+           std::vector&lt;qat4&gt;   inst ; // instance transforms
 
-
-.. sidebar:: :small:`China+HK : ~22% NVIDIA revenue (2023 Q3)`
+           <span class="redbold">// entire geometry in four GPU allocations</span>
+           CSGPrim*    d_prim ; 
+           CSGNode*    d_node ; 
+           float4*     d_plan ; 
+           qat4*       d_itra ;    
+         };
+        </pre>
 
     .. class:: small
 
-         :r:`=> Bound to provide GPUs just below threshold`  
+        :bluebold:`referencing by offset, count`  
 
 .. class:: small
 
-     [0] *GPUs above performance threshold require export permits*
+    **Geometry model designed for CPU/GPU**
+
+    * very different to Geant4 model (dense tree of C++ objects)
+    * :r:`replaces geometry context dropped in OptiX 6->7` 
+    * array-based -> simple, inherent serialization + persisting 
+    * entire geometry in 4 GPU allocations 
+
+    **Simple CPU/GPU intersect headers** 
+
+    :b:`https://github.com/simoncblyth/opticks/tree/master/CSG` 
+        **csg_intersect_tree.h/csg_intersect_node.h/...**
 
 
 .. raw:: html
 
-     <p style="margin-bottom:2cm;" />
+    <pre>
 
-.. class:: small
-
-     [1] **Federal Register on 10/25/2023 : restriction details**
-
-     * based on a "performance density" definition 
-
-.. raw:: html
-
-     <p style="margin-bottom:2cm;" />
-
-.. class:: small
-
-     [2] **NVIDIA filing to US Securities and Exchange Commission** 
-
-     *...additional licensing requirements for exports to China...*
-
-     *...(including but not limited to the A100, A800, H100, H800, L40, L40S, and RTX 4090)* 
-
-.. raw:: html
-
-     <p style="margin-bottom:2cm;" />
-
+    </pre>
 
 .. class:: tiny
 
-     [0] https://www.theregister.com/2023/10/19/china_biden_ai/
+   **GAS** : Geometry Acceleration Structure
 
-     [1] https://public-inspection.federalregister.gov/2023-23055.pdf
-
-     [2] https://www.sec.gov/ix?doc=/Archives/edgar/data/1045810/000104581023000217/nvda-20231017.htm
+   **IAS** : Instance Acceleration Structure
+   
+   **CSG** : Constructive Solid Geometry 
 
 
 .. s5_talk::
 
-    China is something like 20-25% of the world market for GPUs, 
-    so NVIDIA has no choice : it is bound to introduce
-    GPUs with specs just underneath threshold. 
+   SMALL 
+   The Foundry geometry model comprises : Inst, Solid, Prim and Node
+
+   Starting from the bottom:
+
+   * the Node are CSG constituent shapes or operators
+   * the Prim reference a range of Node forming serialized complete binary trees
+   * the Solid reference one or more Prim
+   * the Inst reference one or more Solid 
+
+   **Prim:** are equivalent to G4VSolid
+
+   **Solid:** are compound Prim, each type of PMT corresponds to a Solid 
+
+   **Inst:** are 4x4 transforms with index refererences to Solid 
+
+   The model is designed to work with the OptiX 7 acceleration structures:
+
+   * Solid -> GAS (Geometry Acceleration Structure)
+   * Inst  -> IAS (Instance Acceleration Structure)
+
+   The JUNO geometry of 300,000 volumes is factorized into 10 Solid which 
+   are referenced from a single instance acceleration structure. 
+    
+   The array-based simplicity makes it fast to upload to GPU, 
+   with the entire geometry in 4 GPU allocations. 
 
 
 
-:i:`OptiX Title Banner`
-------------------------
 
-.. raw:: html
+.. comment
 
-     <p style="margin-bottom:165mm;" />
+    Translation, initially 2 step::
 
-.. class:: huge
+               X4      CSG_GGeo
+        Geant4 --> GGeo -->  CSG   
 
-    https://developer.nvidia.com/rtx/ray-tracing/optix
+    Later one step::
+ 
+                U4/tree
+        Geant4 -> stree/CSG 
+
+
+
+
+:small:`Two-Level Hierarchy : Instance transforms (IAS) over Geometry (GAS)`
+-------------------------------------------------------------------------------
+
+.. class:: small
+
+    **OptiX supports multiple instance levels : IAS->IAS->GAS** BUT: :redbold:`Simple two-level is faster` : :red:`works in hardware RT Cores` 
+
+
+.. class:: small
+
+    .. figure:: /env/presentation/nvidia/tlas_blas_two_level_hierarchy.png
+        :width: 800px
+        :align: right 
+
+        https://developer.nvidia.com/blog/introduction-nvidia-rtx-directx-ray-tracing/
+
+.. class:: small
+
+   AS
+      Acceleration Structure
+
+   **IAS** (aka TLAS) 
+      :b:`4x4 transforms, refs to GAS`
+       
+   **GAS** (aka BLAS)
+      | :b:`custom primitives : AABB` 
+      | triangles : vertices, indices
+
+   AABB
+      axis-aligned bounding box 
+
+
+   **SBT : Shader Binding Table**
+
+   Flexibly binds together:
+ 
+   1. geometry objects
+   2. shader programs 
+   3. data for shader programs
+
+   **Hidden in OptiX 1-6 APIs**
+
+
 
 .. s5_talk::
 
-    Most NVIDIA OptiX users are involved with realistic image rendering. 
-    Fortunately OptiX exposes an intersection API which makes
-    it applicable to simulation. So all the effort NVIDIA has expended 
-    in accelerating ray tracing becomes directly applicable to simulation. 
+   OptiX uses the terms : IAS and GAS for instance and geometry acceleratiom structures.
+   The other APIs use terms: TLAS and BLAS for top level and bottom level acceleration structures
+   This is because OptiX supports multiple instance levels. 
+   But the simple two level is faster as that can be done on the RT cores.
+
+   Simple two-level hierarchy : **just one set of instances with transforms and references to geometry**  
+
+
+
+
+
+:small:`Geometry Model Translation : Geant4 => CSGFoundry => NVIDIA OptiX 7`
+-------------------------------------------------------------------------------
+
+.. sidebar:: :small:`CSGFoundry Model`
+
+    .. class:: small
+
+        * :b:`array-based -> simple serialization + upload`
+        * entire geometry in 4 GPU allocations 
+        * factorized using subtree digests 
+
+.. class:: small
+
+    **Geant4 Geometry Model (JUNO: 300k PV, deep hierarchy)**
+
+    +----+---------------------------+---------------------------------------------+ 
+    | PV | *G4VPhysicalVolume*       | placed, refs LV                             |
+    +----+---------------------------+---------------------------------------------+ 
+    | LV | *G4LogicalVolume*         | unplaced, refs SO                           |
+    +----+---------------------------+---------------------------------------------+ 
+    | SO | *G4VSolid,G4BooleanSolid* | binary tree of SO "nodes"                   |
+    +----+---------------------------+---------------------------------------------+ 
+
+    **Opticks CSGFoundry Geometry Model** (index references)
+
+    +---------------+----------------------------------------------------------------------------+----------------------------+
+    | struct        | Notes                                                                      |  Geant4 Equivalent         |
+    +===============+============================================================================+============================+
+    | *CSGFoundry*  | vectors of the below, easily serialized + uploaded + :r:`used on GPU`      | None                       |
+    +---------------+----------------------------------------------------------------------------+----------------------------+
+    | *qat4*        | 4x4 transform refs *CSGSolid* using "spare" 4th column (:b:`becomes IAS`)  | Transforms ref from PV     |
+    +---------------+----------------------------------------------------------------------------+----------------------------+
+    | *CSGSolid*    | refs sequence of *CSGPrim*                                                 | Grouped Vols + Remainder   | 
+    +---------------+----------------------------------------------------------------------------+----------------------------+
+    | *CSGPrim*     | bbox, refs sequence of *CSGNode*, root of CSG Tree of nodes                | root *G4VSolid*            |
+    +---------------+----------------------------------------------------------------------------+----------------------------+
+    | *CSGNode*     | CSG node parameters (JUNO: ~23k *CSGNode*)                                 | node *G4VSolid*            |
+    +---------------+----------------------------------------------------------------------------+----------------------------+
+
+    **NVIDIA OptiX 7 Geometry Acceleration Structures (JUNO: 1 IAS + 10 GAS, 2-level hierarchy)**
+
+    +-----+----------------------------------+-------------------------------------------------------------------------+ 
+    | IAS | Instance Acceleration Structures | JUNO: 1 IAS created from vector of ~50k *qat4* (JUNO)                   |
+    +-----+----------------------------------+-------------------------------------------------------------------------+ 
+    | GAS | Geometry Acceleration Structures | JUNO: 10 GAS created from 10 *CSGSolid* (which refs *CSGPrim,CSGNode* ) |
+    +-----+----------------------------------+-------------------------------------------------------------------------+ 
+
+.. class:: small
+
+    :r:`JUNO : Geant4 ~300k volumes "factorized" into 1 OptiX IAS referencing ~10 GAS`
+
+
+.. s5_talk::
+
+   The tables illustrates three geometry models.
+
+   The CSGFoundry geometry model in the middle was designed 
+   to enable translation between the Geant4 and OptiX models. 
+
+
+
+
+
+
+.. comment
+
+    :i:`OptiX Title Banner`
+    ------------------------
+
+    .. raw:: html
+
+         <p style="margin-bottom:165mm;" />
+
+    .. class:: huge
+
+        https://developer.nvidia.com/rtx/ray-tracing/optix
+
+    .. s5_talk::
+
+        Most NVIDIA OptiX users are involved with realistic image rendering. 
+        Fortunately OptiX exposes an intersection API which makes
+        it applicable to simulation. So all the effort NVIDIA has expended 
+        in accelerating ray tracing becomes directly applicable to simulation. 
 
 
 :small:`NVIDIA® OptiX™ Ray Tracing Engine -- Accessible GPU Ray Tracing`
@@ -1862,54 +2416,6 @@ Hard Slog : JUNOSW List of Fixes
 
 
 
-
-
-
-:small:`NVIDIA OptiX 7 : Entirely new thin API => Full Opticks Re-implementation`
------------------------------------------------------------------------------------
-
-.. sidebar:: :small:`GPU Ray Tracing APIs Converged`
-
-    .. class:: small
-
-        * 3 APIs (DXR,VKRay,OptiX7) over RTX 
-        * Driver updates :r:`independent of application`  
-        * Support new GPUs, performance improvements 
-
-.. class:: small
-
-    **NVIDIA OptiX 6->7** : :b:`drastically slimmed down`
-
-    * low-level CUDA-centric thin API (Vulkan-ized)
-    * headers only (no library, impl in Driver) 
-    * Minimal host state,  :red:`All host functions are thread-safe`
-    * GPU launches : explicit, asynchronous (CUDA streams)
-    * :strike:`near perfect scaling to 4 GPUs, for free` 
-    * :strike:`Shared CPU/GPU geometry context`
-    * :strike:`GPU memory management`
-    * :strike:`Multi-GPU support`
-
-
-.. class:: small
-
-    **Advantages of 6->7 transition**
-
-    * More control/flexibility over everything 
-    * :b:`Keep pace with state-of-the-art GPU ray tracing` 
-    * Fully benefit from current + future GPUs : RT cores, RTX 
-
-.. class:: small
-
-    **BUT:** :r:`demanded full re-implementation of Opticks` 
-     
-
-
-.. s5_talk::
-
-   * OptiX 7 is an entirely new API, dropping many features used by the old Opticks
-   * re-implementation of almost all of Opticks was necessary
-
-   [Notes: No need to read slide, just the above comments]
 
 
 
@@ -2086,224 +2592,6 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
         [Notes: dont read out as too much text, just read a few of the highlighted]
 
 
-:small:`Two-Level Hierarchy : Instance transforms (TLAS) over Geometry (BLAS)`
--------------------------------------------------------------------------------
-
-.. class:: small
-
-    **OptiX supports multiple instance levels : IAS->IAS->GAS** BUT: :redbold:`Simple two-level is faster` : :red:`works in hardware RT Cores` 
-
-
-.. class:: small
-
-    .. figure:: nvidia/tlas_blas_two_level_hierarchy.png
-        :width: 800px
-        :align: right 
-
-        https://developer.nvidia.com/blog/introduction-nvidia-rtx-directx-ray-tracing/
-
-.. class:: small
-
-   AS
-      Acceleration Structure
-
-   TLAS (aka **IAS**) 
-      4x4 transforms, refs to BLAS
-       
-   BLAS (aka **GAS**)
-      | triangles : vertices, indices
-      | custom primitives : AABB 
-
-   AABB
-      axis-aligned bounding box 
-
-
-   **SBT : Shader Binding Table**
-
-   Flexibly binds together:
- 
-   1. geometry objects
-   2. shader programs 
-   3. data for shader programs
-
-   **Hidden in OptiX 1-6 APIs**
-
-
-
-.. s5_talk::
-
-   OptiX uses the terms : IAS and GAS for instance and geometry acceleratiom structures.
-   Other APIs use terms: TLAS and BLAS for top level and bottom level acceleration structures
-   This is because OptiX supports multiple instance levels. 
-   But the simple two level is faster as that can be done on the RT cores.
-
-   Simple two-level hierarchy : **just one set of instances with transforms and references to geometry**  
-
-
-:small:`Geometry Model Translation : Geant4 => CSGFoundry => NVIDIA OptiX 7`
--------------------------------------------------------------------------------
-
-.. sidebar:: :small:`CSGFoundry Model`
-
-    .. class:: small
-
-        * :b:`array-based -> simple serialization + upload`
-        * entire geometry in 4 GPU allocations 
-        * factorized using subtree digests 
-
-.. class:: small
-
-    **Geant4 Geometry Model (JUNO: 300k PV, deep hierarchy)**
-
-    +----+---------------------------+---------------------------------------------+ 
-    | PV | *G4VPhysicalVolume*       | placed, refs LV                             |
-    +----+---------------------------+---------------------------------------------+ 
-    | LV | *G4LogicalVolume*         | unplaced, refs SO                           |
-    +----+---------------------------+---------------------------------------------+ 
-    | SO | *G4VSolid,G4BooleanSolid* | binary tree of SO "nodes"                   |
-    +----+---------------------------+---------------------------------------------+ 
-
-    **Opticks CSGFoundry Geometry Model** (index references)
-
-    +---------------+----------------------------------------------------------------------------+----------------------------+
-    | struct        | Notes                                                                      |  Geant4 Equivalent         |
-    +===============+============================================================================+============================+
-    | *CSGFoundry*  | vectors of the below, easily serialized + uploaded + :r:`used on GPU`      | None                       |
-    +---------------+----------------------------------------------------------------------------+----------------------------+
-    | *qat4*        | 4x4 transform refs *CSGSolid* using "spare" 4th column (:b:`becomes IAS`)  | Transforms ref from PV     |
-    +---------------+----------------------------------------------------------------------------+----------------------------+
-    | *CSGSolid*    | refs sequence of *CSGPrim*                                                 | Grouped Vols + Remainder   | 
-    +---------------+----------------------------------------------------------------------------+----------------------------+
-    | *CSGPrim*     | bbox, refs sequence of *CSGNode*, root of CSG Tree of nodes                | root *G4VSolid*            |
-    +---------------+----------------------------------------------------------------------------+----------------------------+
-    | *CSGNode*     | CSG node parameters (JUNO: ~23k *CSGNode*)                                 | node *G4VSolid*            |
-    +---------------+----------------------------------------------------------------------------+----------------------------+
-
-    **NVIDIA OptiX 7 Geometry Acceleration Structures (JUNO: 1 IAS + 10 GAS, 2-level hierarchy)**
-
-    +-----+----------------------------------+-------------------------------------------------------------------------+ 
-    | IAS | Instance Acceleration Structures | JUNO: 1 IAS created from vector of ~50k *qat4* (JUNO)                   |
-    +-----+----------------------------------+-------------------------------------------------------------------------+ 
-    | GAS | Geometry Acceleration Structures | JUNO: 10 GAS created from 10 *CSGSolid* (which refs *CSGPrim,CSGNode* ) |
-    +-----+----------------------------------+-------------------------------------------------------------------------+ 
-
-.. class:: small
-
-    :r:`JUNO : Geant4 ~300k volumes "factorized" into 1 OptiX IAS referencing ~10 GAS`
-
-
-.. s5_talk::
-
-   The tables illustrates three geometry models.
-
-   The CSGFoundry geometry model in the middle was designed 
-   to enable translation between the Geant4 and OptiX models. 
-
-      
-
-
-
-
-
-:small:`Opticks : GPU Geometry starts from ray-primitive intersection`
--------------------------------------------------------------------------------------------------
-
-.. class:: small
-
-   * 3D parametric ray : **ray(x,y,z;t) = rayOrigin  +  t * rayDirection** 
-   * implicit equation of primitive : **f(x,y,z) = 0**  
-   * -> polynomial in **t** , roots: **t > t_min**  -> intersection positions + surface normals
-
-.. figure:: /env/presentation/tboolean_parade_sep2017.png
-   :width: 900px
-   :align: center
-
-   :red:`CUDA/OptiX intersection for ~10 primitives` -> :blue:`Exact geometry translation`
-
-
-.. s5_talk::
-
-    NVIDIA OptiX is a ray tracing library, it helps with accelerating intersection 
-    it does not provide the intersection itself
-
-    This gives full flexibility to implement intersection with any shape
-    from first principals : by solving implicit equations for example
-
-
-:small:`Ray intersection with general CSG binary trees, on GPU`
----------------------------------------------------------------------------------
-
-.. sidebar:: Outside/Inside Unions
-
-    .. class:: small
-
-       dot(normal,rayDir) -> Enter/Exit
-
-    .. image:: /env/presentation/kensler_union_of_two_spheres_from_outside.png
-       :width: 300px
-       :align: center
-
-    .. image:: /env/presentation/kensler_union_of_two_spheres_from_inside.png
-       :width: 300px
-       :align: center
-
-    .. class:: small
-
-        * **A + B** boundary not inside other 
-        * **A * B** boundary inside other 
-
-
-.. class:: small
-
-   Pick between pairs of nearest intersects, eg:
-
-   =======================  ===========  ===============  ============== 
-   *UNION* tA < tB           Enter B      Exit B           Miss B
-   =======================  ===========  ===============  ============== 
-   **Enter A**               ReturnA      :blue:`LoopA`    ReturnA
-   **Exit A**                ReturnA      ReturnB          ReturnA 
-   **Miss A**                ReturnB      ReturnB          ReturnMiss
-   =======================  ===========  ===============  ============== 
-
-   * *Nearest hit intersect algorithm* [1] avoids state
-
-     * sometimes :blue:`Loop` : advance **t_min** , re-intersect both 
-     * classification shows if inside/outside
-
-   * *Evaluative* [2] implementation emulates recursion: 
-
-     * :red:`recursion not allowed` in OptiX intersect programs
-     * bit twiddle traversal of complete binary tree 
-     * stacks of postorder slices and intersects 
-
-   * :red:`Identical geometry to Geant4` 
-
-     * solving the same polynomials 
-     * near perfect intersection match
-
-
-
-.. class:: tiny
-
-    [1] Ray Tracing CSG Objects Using Single Hit Intersections, Andrew Kensler (2006)
-        with corrections by author of XRT Raytracer http://xrt.wikidot.com/doc:csg
- 
-    [2] https://bitbucket.org/simoncblyth/opticks/src/tip/optixrap/cu/csg_intersect_boolean.h
-        Similar to binary expression tree evaluation using postorder traverse. 
-
-
-.. s5_talk::
-
-    Of course most geometries have more complex shapes than just 
-    primitives.  Constructive solid geometry is a common way to 
-    represent complex shapes. Opticks provides a CSG intersection 
-    implementation. 
-
-
-.. comment
-
-    :i:`[9]cxr_i0_t8,_-1 : EXCLUDE SLOWEST`
-    -----------------------------------------
 
 
 :i:`cxr_overview_emm_t0_elv_t_moi__ALL_with-debug-disable-xj.jpg`
@@ -3238,5 +3526,263 @@ optical photon simulation, P ~ 99% of CPU time
     Links to get you started with using Opticks are listed here.
 
 
+
+
+
+:small:`Assistance : Geant4 Collab. + Dark Matter Search Community + NVIDIA`
+------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Acknowledgements`
+
+   .. class:: small
+
+       **LBNL + LZ + NVIDIA** : 2021 
+           7 NVIDIA engineer meetings on OptiX 7 API
+
+       **Manchester U. + LHCb-RICH + NVIDIA** : 2022 
+           UK GPU Hackathon : optimization guidance
+
+       **IHEP+NTU/JUNO+Dayabay**
+           Many years supporting my work on Opticks 
+
+       **Special Mentions**
+
+       Dr Hans Wentzel, Fermilab, Geant4 group
+           Many years of assistance with testing Opticks 
+
+       Dr Tao Lin, IHEP
+           Expert help on JUNOSW + practicalities 
+
+       Yuxiang Hu, IHEP 
+           Help on Opticks+JUNOSW testing 
+
+           
+
+
+
+
+.. class:: small
+
+    +---------------------------------------------------------------------------------------------------------------------------------------+
+    |  :r:`Developing Opticks would not have been possible without longterm support and assistance from many organizations and individuals` |
+    +---------------------------------------------------------------------------------------------------------------------------------------+
+
+    +-------------------------------------------------------------------------------------------+
+    | :b:`ALSO : Assistance of many with promoting Opticks to a wide audience are acknowledged` |
+    +-------------------------------------------------------------------------------------------+
+
+
+    **Geant4 11.0+ (Dec 2021) : Opticks Advanced Example** 
+
+    * **CaTS : Calorimeter+Tracker Sim. LArTPC (DUNE)**
+    * :r:`Hans Wentzel, Fermilab Geant4 Group`
+    * *...demonstrates how to use Opticks for the creation and propagation of optical photons...*
+    * https://geant4.web.cern.ch/download/release-notes/notes-v11.0.0.html
+
+
+    **Dark Matter Search Community (XENON,LZ,DARWIN,..)** 
+
+    Dark-matter And Neutrino Computation Explored (DANCE) 
+
+    * Input to Snowmass 2021
+    * https://arxiv.org/pdf/2203.08338.pdf
+    * *...Opticks package may provide a solution to the tracking of optical photons...*
+
+.. s5_talk::
+
+    The Fermilab Geant4 Group was an early adopter of Opticks and has assisted by 
+    developing a Geant4 advanced example demonstrating Opticks which 
+    has been in the Geant4 distribution since 2021. 
+
+    A group of experiments from the Dark Matter search community 
+    made a significant contribution to Opticks development by organizing 
+    a series of meetings with NVIDIA engineers that were very useful to 
+    guide a re-implementation of Opticks to work with a completely new OptiX API. 
+   
+
+.. comment
+
+    https://gitlab.cern.ch/geant4/geant4/-/tree/master/examples/advanced/CaTS 
+
+
+
+
+
+
+
+
+:small:`US restricts export of highest performing GPUs`
+-----------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Performance Density Threshold`
+
+    .. raw:: html
+
+         <pre class="mypretiny">
+         +----------------------------------------------------+
+         | total proc. performance (TFLOPs)                   |
+         | ------------------------------ < 5.92 TFLOPs mm^-2 |
+         | applicable die area (mm^2)                         |
+         +----------------------------------------------------+
+
+         ([0],[1] for full rule details )
+         </pre>
+
+
+.. sidebar:: :small:`China+HK : ~22% NVIDIA revenue (2023 Q3)`
+
+    .. class:: small
+
+         :r:`=> Bound to provide GPUs just below threshold`  
+
+.. class:: small
+
+     [0] *GPUs above performance threshold require export permits*
+
+
+.. raw:: html
+
+     <p style="margin-bottom:2cm;" />
+
+.. class:: small
+
+     [1] **Federal Register on 10/25/2023 : restriction details**
+
+     * based on a "performance density" definition 
+
+.. raw:: html
+
+     <p style="margin-bottom:2cm;" />
+
+.. class:: small
+
+     [2] **NVIDIA filing to US Securities and Exchange Commission** 
+
+     *...additional licensing requirements for exports to China...*
+
+     *...(including but not limited to the A100, A800, H100, H800, L40, L40S, and RTX 4090)* 
+
+.. raw:: html
+
+     <p style="margin-bottom:2cm;" />
+
+
+.. class:: tiny
+
+     [0] https://www.theregister.com/2023/10/19/china_biden_ai/
+
+     [1] https://public-inspection.federalregister.gov/2023-23055.pdf
+
+     [2] https://www.sec.gov/ix?doc=/Archives/edgar/data/1045810/000104581023000217/nvda-20231017.htm
+
+
+.. s5_talk::
+
+    China is something like 20-25% of the world market for GPUs, 
+    so NVIDIA has no choice : it is bound to introduce
+    GPUs with specs just underneath threshold. 
+
+
+
+:small:`NVIDIA Ada : 3rd Generation RTX`
+--------------------------------------------------------------------------
+
+.. class:: small
+
+   * **RT Core** : ray trace dedicated GPU hardware
+
+   * **NVIDIA GeForce RTX 4090 (2022)** 
+
+     * 16,384 CUDA Cores, 24GB VRAM, USD 1599
+
+   * :r:`Continued large ray tracing improvements:` 
+
+     * **Ada** ~2x ray trace over **Ampere** (2020), 4x with DLSS 3
+     * **Ampere** ~2x ray trace over **Turing** (2018)  
+    
+   * DLSS : Deep Learning Super Sampling 
+
+     * AI upsampling, not applicable to optical simulation
+
+
+
+.. s5_talk::
+
+    NVIDIA GPU Ray Tracing performance has continued to improve rapidly.
+    With a rough doubling in ray tracing performance
+    with each generation of NVIDIA RTX GPUs and we are now at the 3rd generation. 
+
+    [Notes to Presenter]
+    [<20s slide : No need to read the slide, just say the above comment]    
+
+
+:small:`Hardware accelerated Ray tracing (RT Cores) in the Data Center`
+-------------------------------------------------------------------------
+
+.. sidebar:: :small:`Data Center GPUs with RT Cores`
+
+    .. class:: small
+
+        * :b:`An Established part of NVIDIA Lineup`
+
+        +--------------+------------------+-----------------+  
+        |              |    NVIDIA L40    | NVIDIA L4       |   
+        +==============+==================+=================+
+        |  Release     |   2022/10        |  2023/03        |   
+        +--------------+------------------+-----------------+  
+        |  GPU Arch    |   Ada Lovelace   |  Ada Lovelace   |        
+        +--------------+------------------+-----------------+  
+        |  VRAM        |   48 GB gddr6    | 24 GB gddr6     |   
+        +--------------+------------------+-----------------+  
+        |  TDP         |    300W          |  :r:`72W`       |   
+        +--------------+------------------+-----------------+  
+        |  Form factor |    dual slot     |  :r:`1-slot`    |   
+        +--------------+------------------+-----------------+  
+        | CUDA Core    |    18,176        |   7,680         |    
+        +--------------+------------------+-----------------+  
+        | :b:`RT Core` |:b:`142 (3rd gen)`|:b:`60 (3rd gen)`|    
+        +--------------+------------------+-----------------+  
+        | Tensor Core  |    568 (4th gen) |   240 (4th gen) |    
+        +--------------+------------------+-----------------+  
+        |  FP32        |    90.5 TFLOPS   |  30 TFLOPS      |   
+        +--------------+------------------+-----------------+  
+        |  FP16(*)     |    181 TFLOPS    |  121 TFLOPS     |   
+        +--------------+------------------+-----------------+  
+        | Predecessor  |    A40           |    T4           |   
+        +--------------+------------------+-----------------+  
+
+        (*) x2 with Sparsity 
+
+
+.. class:: small
+
+
+    **NVIDIA L4 Tensor Core GPU (Released 2023/03)**
+
+    * Ada Lovelace GPU architecture
+    * :r:`universal accelerator for graphics and AI workloads` 
+    * :b:`small form-factor, easy to integrate, power efficient` 
+    * PCIe Gen4 x16 slot without extra power
+    * Google Cloud adopted for G2 VMs, successor to **NVIDIA T4**
+    * **NVIDIA L4 likely to become a very popular GPU**
+
+.. raw:: html
+
+    <p style="margin-bottom:2cm;" />
+
+.. class:: small
+
+    `NVIDIA L4 Tensor Core GPU (Data Center, low profile+power)`
+
+.. s5_talk::
+
+    Hardware Accelerated Ray Tracing is becoming much more commonly available, 
+    with NVIDIA offering a range of data center GPUs with RT cores. 
+
+    [Notes: <20s slide, just mention above comments]
+
+.. comment
+
+    The current boom in interest in AI is only going to increase this trend. 
 
 
