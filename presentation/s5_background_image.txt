@@ -22,8 +22,8 @@
     ## would be more convenient if this switch was in presentation metadata
     ## avoiding the need for users to set it 
     ##
-    ##slide0
-    slide0_D
+    ##slide0_D
+    slide0
     ../graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -671,15 +671,18 @@
     ana/scan-pf-1/Opticks_Speedup.png 1280px_720px
 
     scan-pf-1_Opticks_vs_Geant4
-    ana/scan-pf-1/Opticks_vs_Geant4.png 1280px_720pxS
+    ana/scan-pf-1/Opticks_vs_Geant4.png 1280px_720px
     # Opticks_vs_Geant4 : Extrapolated G4 times compared to Opticks launch+interval times with RTX mode ON and OFF 
     # logscale times vs number of photons in millions
 
     scan-pf-1_Opticks_vs_Geant4 2
-    ana/scan-pf-1/Opticks_vs_Geant4.png 1280px_720pxS
+    ana/scan-pf-1/Opticks_vs_Geant4.png 1280px_720px
+
+    scan-pf-1_Opticks_vs_Geant4 3
+    ana/scan-pf-1/Opticks_vs_Geant4.png 1280px_720px
 
     scan-pf-1_Opticks_vs_Geant4_with_HTML_Table 
-    ana/scan-pf-1/Opticks_vs_Geant4_with_HTML_Table.png 1280px_720pxS
+    ana/scan-pf-1/Opticks_vs_Geant4_with_HTML_Table.png 1280px_720px
 
     scan-pf-1_Overheads
     ana/scan-pf-1/Overheads.png 1280px_720px
@@ -1253,6 +1256,9 @@
 
     body_solid_nurs
     X4IntersectTest/body_solid_nurs/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    CSG : (Cylinder - Torus) PMT neck : spurious intersects
+    tboolean_12_raytrace.png 1280px_720px
 
     body_solid_nurs_pcnk
     X4IntersectTest/body_solid_nurs_pcnk/X4Intersect/figs/isect_mpplt.png 1280px_720px
