@@ -22,6 +22,25 @@ Catania (Italy), 10/7/2024 - 10/11/2024
 CHEP 2024 : (5 May) : 19-25 October, AGH University, Jagiellonian University
 ==============================================================================
 
+
+Dear colleagues,
+
+Following the abstract submission we now opened the registration to the conference.
+
+Please visit our website:
+
+https://indico.cern.ch/e/chep24
+
+and go to the Registration item on the menu.
+     Should you have any questions, please contact us at:chep2024-general@cern.ch.
+
+Sincerely,
+Tomasz, Agnieszka, Markus, Sang Un, Katy and Dorothea, we have now opened the registration for (Conference and PC chairs).
+
+
+
+
+
 * Krakow ?
 
 We are delighted to invite you to participate in the upcoming CHEP 2024

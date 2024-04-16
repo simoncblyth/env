@@ -1,31 +1,26 @@
 #!/usr/bin/env python
 """
+~/env/graphics/pipeline/pipeline.py
+===================================
+
+* http://www.songho.ca/opengl/gl_projectionmatrix.html
+
+
+::
+
+   glm- ; vim -R $(glm-prefix)/glm/ext/matrix_clip_space.inl
+
+
+Need projection matrix to do two things
+
+1. map truncated pyramid frustum to unit cube 
+2. tee up the perspective divide by the w homogenous coordinate
+
+
 
 * https://docs.sympy.org/latest/modules/matrices/matrices.html
 
 ::
-
-    In [10]: C
-    Out[10]: 
-    [                          /  l   r\]
-    [                        2*|- - - -|]
-    [  2                       \  2   2/]
-    [------    0       0     -----------]
-    [-l + r                     -l + r  ]
-    [                                   ]
-    [                          /  b   t\]
-    [                        2*|- - - -|]
-    [          2               \  2   2/]
-    [  0     ------    0     -----------]
-    [        -b + t             -b + t  ]
-    [                                   ]
-    [                          /  f   n\]
-    [                        2*|- - - -|]
-    [                  2       \  2   2/]
-    [  0       0     ------  -----------]
-    [                -f + n     -f + n  ]
-    [                                   ]
-    [  0       0       0          1     ]
 
 
     In [11]: from sympy import simplify 
@@ -47,21 +42,21 @@
     [  0       0       0      1  ]
 
 
-In [19]: simplify(B*A*P)
-Out[19]: 
-[ 2*n              l + r         ]
-[------    0       -----      0  ]
-[-l + r            l - r         ]
-[                                ]
-[         2*n      b + t         ]
-[  0     ------    -----      0  ]
-[        -b + t    b - t         ]
-[                                ]
-[                -(f + n)   2*f*n]
-[  0       0     ---------  -----]
-[                  f - n    f - n]
-[                                ]
-[  0       0         1        0  ]
+    In [19]: simplify(B*A*P)
+    Out[19]: 
+    [ 2*n              l + r         ]
+    [------    0       -----      0  ]
+    [-l + r            l - r         ]
+    [                                ]
+    [         2*n      b + t         ]
+    [  0     ------    -----      0  ]
+    [        -b + t    b - t         ]
+    [                                ]
+    [                -(f + n)   2*f*n]
+    [  0       0     ---------  -----]
+    [                  f - n    f - n]
+    [                                ]
+    [  0       0         1        0  ]
 
 """
 
@@ -79,6 +74,7 @@ ux,uy,uz = symbols("ux uy uz")
 
 n,f,t,b,l,r = symbols("n f t b l r")
 
+# translate the center of the frustum to the origin 
 A = Matrix([
         [1,0,0,-(l+r)/2],
         [0,1,0,-(b+t)/2],
@@ -86,6 +82,8 @@ A = Matrix([
         [0,0,0,1]
       ])
 
+
+# scale to unit cube 
 B = Matrix([
        [2/(r-l),0      ,0      ,0],
        [0,      2/(t-b),0      ,0],

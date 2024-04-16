@@ -215,6 +215,9 @@ Opticks Presentations
 
 
 
+`env/presentation/opticks_20240329_ihep_epd_seminar.html <env/presentation/opticks_20240329_ihep_epd_seminar.html>`_
+
+    **WIP : PRESENTATION IN PREPARATION : DATE NOT YET FIXED**
 
 
 `env/presentation/opticks_20240215_geant4_forum.html <env/presentation/opticks_20240215_geant4_forum.html>`_
