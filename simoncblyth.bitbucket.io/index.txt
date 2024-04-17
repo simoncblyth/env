@@ -215,9 +215,15 @@ Opticks Presentations
 
 
 
-`env/presentation/opticks_20240329_ihep_epd_seminar.html <env/presentation/opticks_20240329_ihep_epd_seminar.html>`_
+`env/presentation/opticks_20240418_ihep_epd_seminar_story_of_opticks.html <env/presentation/opticks_20240418_ihep_epd_seminar_story_of_opticks.html>`_
 
-    **WIP : PRESENTATION IN PREPARATION : DATE NOT YET FIXED**
+    *The Story of Opticks, applying NVIDIA OptiX GPU ray tracing to Optical Photon Simulation*
+
+    IHEP EPD Seminar, Beijing, April 18, 2024
+
+    The story behind the development of Opticks will be detailed, covering the ups and downs 
+    of cutting edge development and some of the hard learned lessons of experience 
+    that can benefit anyone working on innovative new techniques. 
 
 
 `env/presentation/opticks_20240215_geant4_forum.html <env/presentation/opticks_20240215_geant4_forum.html>`_

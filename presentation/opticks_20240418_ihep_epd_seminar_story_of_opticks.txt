@@ -1,7 +1,8 @@
 .. meta::
    :title: Opticks IHEP EPD Seminar
-   :description: (2024 March/April) JUNO, OptiX, Opticks
+   :description: (2024 April 18) JUNO, OptiX, Opticks
    :note0: 50 min 
+   :url: https://indico.ihep.ac.cn/event/22301/
 
 .. include:: my_s5defs.txt
 
@@ -12,8 +13,6 @@
     * ~/o/notes/story_of_opticks_review.rst
     * rainbow
     * issue laundry list
-
-
 
 .. comment
 
@@ -42,7 +41,7 @@
     <!--img style="position:absolute; top:200px; LEFT:100px; WIDTH:200px; " src="juno/JUNO_logo.png"  /-->
     <div class="mycredit">
        <h2 style="background-color:lightgrey">
-          Simon C Blyth, IHEP, CAS &mdash; IHEP EPD Seminar &mdash; ?? April 2024
+          Simon C Blyth, IHEP, CAS &mdash; IHEP EPD Seminar &mdash; 18 April 2024
        </h2>
     </div>
 
@@ -120,13 +119,10 @@ Outline : Opticks First Incarnation
 
 .. s5_talk::
 
-    I have presented Opticks many times to many audiences.  
-    Usually I focus on the latest status and recent changes. 
-    With this presentation, I aim to give a wider view giving your 
-    the story behind the development of Opticks. 
-    But before starting on the story, I need to introduce the context
-    and some techniques so you can understand the story. 
-
+    When presenting Optick I usually focus on the latest version and recent changes. 
+    With this presentation, I aim to give a wider view giving 
+    more of the story behind the development of Opticks. 
+    But first, I need to introduce the context and some terminology 
 
 
 Outline : Opticks Reborn 
@@ -191,7 +187,9 @@ Outline : Opticks Reborn
 
 .. s5_talk::
 
-    Reborn 
+    This outline is for offline consumption...
+    
+ 
 
 
 `JUNO Optical Photon Simulation Problem...`
@@ -218,10 +216,14 @@ Outline : Opticks Reborn
 
 .. s5_talk::
 
+   So, what is the problem with optical photon simulation ? 
+
    A muon travelling across the JUNO scintillator yields tens of millions 
    of optical photons, presenting memory and time challenges. 
 
-   Most of the time is taken finding intersections between photons and geometry 
+   At every step of every photon intersects between rays representing the 
+   photons and the geometry have to be found.  This is what limits the simulation. 
+
    Simulation is not alone in this bottleneck.
 
 
@@ -234,10 +236,6 @@ Outline : Opticks Reborn
    These characteristics make it straightforward integrate an external optical
    simulation.
  
-
-
-
-
 
 
 :small:`Optical photons limit many simulations => lots of interest in Opticks`
@@ -291,6 +289,7 @@ Outline : Opticks Reborn
     So, there is lots of interest in Opticks.
     Several groups has assisted with Opticks development 
     by using their contacts with NVIDIA 
+
    
 
 :small:`Optical Photon Simulation ≈ Ray Traced Image Rendering`
@@ -345,15 +344,15 @@ Outline : Opticks Reborn
 
 .. s5_talk::
 
-    So how can GPU ray tracing help with simulation. 
+    So, how can GPU ray tracing help with simulation. 
 
-    Actually, there is a lot in common between optical photon simulation and ray traced image rendering.   
+    There is a lot in common between optical photon simulation and ray traced image rendering.   
     Simulation needs photon parameters at sensors, rendering needs pixel values at the image plane.
 
     Both these are limited by ray geometry intersection, which is also known as ray tracing.
 
     Ray tracing is widely used across many industries from advertising to games, so 
-    there has been huge efforts to improve ray tracing perfromance, especially from NVIDIA. 
+    there has been huge efforts to improve ray tracing performance, especially from NVIDIA. 
     
 
 
@@ -377,7 +376,7 @@ Outline : Opticks Reborn
    Rasterization is the most common rendering technique
    
    * it starts from the objects in a scene, and projects them onto pixels in the image plane
-   * this requires an approximate triangulated geometry   
+   * this requires an approximate triangulated geometry, to have vertices to project 
    
    Ray tracing 
 
@@ -680,11 +679,14 @@ Opticks pre-History : Chroma investigations
 
 .. s5_talk::
 
-    I started my journey of using GPUs for optical photon simulation 
-    by googling to see what others had done. The only thing I found was Chroma, 
-    a package developed by ...
+    While working on DYB simulation, I started looking 
+    at photon acceleration with reweighting techniques. 
+    Searching around, The only thing I found was Chroma. 
 
-    But Chroma is operates from triangulated geometry only 
+    Chroma needs triangles, so I developed a Geant4 geometry 
+    exporter following the approach of GDML export but instead exporting 
+    the geometry into a 3D file format called DAE. 
+    This includes all the triangles.
 
 
 :i:`chroma_camera_raycast`
@@ -858,6 +860,8 @@ Triangulated Geometry : Great for Visualization
    from Geant4 in a separate process and sent over the network via a message queue to
    the optical simulation and visualization process. 
     
+   Resorting to using network adds complexity.
+
 
 
 :small:`Opticks History : Chroma + G4DAE -> NVIDIA OptiX + "Opticks"`
@@ -909,7 +913,12 @@ Triangulated Geometry : Great for Visualization
 
    My struggles with Chroma performance, and realizing that a C++ implemention was needed to 
    easily integrate with Geant4 : made me look around for alternatives. I found NVIDIA OptiX. 
-   When I compared the performance I got with OptiX to Chroma, I stopped my work with Chroma.  
+   When I compared the performance I got with OptiX to Chroma, I immediately jumped to focus 
+   on OptiX, not Chroma.  Soon after that I picked the name "Opticks" as package name.    
+
+   My experience of cross-language pkgs. 
+   I like python for analysis and debug. But not for control or config. It is too flexible to do that well.  
+
 
 
 :small:`NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix`
@@ -960,9 +969,14 @@ Triangulated Geometry : Great for Visualization
 .. s5_talk::
 
    OptiX splits up ray tracing task.
-   It implements the diffiult part, creating and traversing the acceleration structure. 
-   An exciting feature of OptiX was multi-GPU support, so with 4 GPUs you can very nearly 
-   get 4 times the performance. 
+   It implements the difficult part, creating and traversing the acceleration structure. 
+   Leaving everything else to the user to implement in CUDA programs.
+
+
+
+
+   A great feature of NVIDIA OptiX at that time was multi-GPU support. 
+   With 4 GPUs you could nearly get 4 times the performance, without any development effort. 
 
 
 :i:`GGeoView`  
@@ -1177,7 +1191,7 @@ Triangulated Geometry : Great for Visualization
 
    Fortunately you can combine analytic PMTs with triangulated everything else. 
 
-
+   Compositing means, depth buffer, ...
 
 :small:`Opticks : GPU Geometry starts from ray-primitive intersection`
 -------------------------------------------------------------------------------------------------
@@ -1195,6 +1209,8 @@ Triangulated Geometry : Great for Visualization
    :red:`CUDA/OptiX intersection for ~10 primitives` -> :blue:`Exact geometry translation`
 
 .. s5_talk::
+
+    It is not practical to manually develop intersection for each shape in a geometry. 
 
     OptiX did not provide primitives, even triangles, at that time.
     You have to implement the intersect from first principals by solving polynomials.   
@@ -3662,11 +3678,11 @@ Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow 2
 
 .. s5_talk::
 
-   * I developed many tools to test Opticks. 
-   * most of them are directly applicable to testing DetSim and Geant4 
+   * when developing a new simulation, its inevitable that will need to develop lots of tools for testing
+   * many of them are directly applicable to testing DetSim and Geant4 
    * as a result I found many DetSim bugs, and developed fixes for many of them 
    * biggest fix was a re-implementation of the PMT optical model
-     moving from the flawed fastsim approach to a custom boundary process approach 
+     moving from the fastsim approach to a custom boundary process approach 
  
 
 
@@ -4130,19 +4146,17 @@ Crucial Importance of Standalone (fast cycle) tests
 
 
 
-
-:small:`[3] Pure Optical TorchGenstep 20 evt scan : 0.1M to 100M photons`
-------------------------------------------------------------------------------------
+Opticks performance with GPU PMT Optical Model
+------------------------------------------------
 
 ::
 
     TEST=large_scan ~/opticks/cxs_min.sh 
     
 
-
 .. class:: small
 
-    Generate 20 optical only events with 0.1M->100M photons starting from CD center, 
+    Generate 20 optical only (Torch) events with 0.1M->100M photons starting from CD center, 
     gather and save only Hits.
 
     * uses CSGOptiXSMTest executable (no Geant4 dependency)
@@ -4491,7 +4505,7 @@ Crucial Importance of Standalone (fast cycle) tests
 
 .. class:: small
 
-   [Calculation: same TMM header as JUNOSW, Lookup: using uploaded "ART" texture (Gigabytes)]
+   [Calculation: same TMM header as JUNOSW, Lookup: using uploaded "ART" texture (Megabytes)]
 
    * :b:`TODO: higher energies, muon, multi-muon, ...`  
 
