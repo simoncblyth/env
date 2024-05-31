@@ -16,6 +16,9 @@ Refs
 
 * https://sourceware.org/gdb/onlinedocs/gdb/Set-Breaks.html
 
+* https://web.stanford.edu/class/archive/cs/cs107/cs107.1186/guide/gdb.html
+* https://web.stanford.edu/class/archive/cs/cs107/cs107.1186/resources/gdb_coredump1.pdf
+
 
 How to inform GDB of a change in source tree path ?
 ----------------------------------------------------

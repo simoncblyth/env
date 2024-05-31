@@ -1,0 +1,19 @@
+
+Opticks : GPU ray trace accelerated optical photon simulation
+
+Opticks is an open source project that accelerates optical photon simulation 
+by integrating NVIDIA GPU ray tracing, accessed via the NVIDIA OptiX API, with
+Geant4 toolkit based simulations. 
+Optical photon simulation times of 14 seconds per 100 million photons 
+have been measured within a fully analytic JUNO GPU geometry 
+auto-translated from the Geant4 geometry when using a single NVIDIA GPU from
+the first RTX generation. 
+Optical physics processes of scattering, absorption, scintillator reemission 
+and boundary processes are implemented in CUDA based on Geant4.  
+Wavelength-dependent material and surface
+properties as well as inverse cumulative distribution functions for reemission
+are interleaved into GPU textures providing fast interpolated property lookup
+or wavelength generation. In this work we describe the application of Opticks 
+to JUNO simulation including new Opticks features that improve performance for 
+complex CSG shapes and torus solids. 
+

@@ -19,8 +19,30 @@ Catania (Italy), 10/7/2024 - 10/11/2024
 
 
 
-CHEP 2024 : (5 May) : 19-25 October, AGH University, Jagiellonian University
+
+Thu May 9 2024
+----------------
+
+Your abstract 'Opticks : GPU ray trace accelerated optical photon simulation' has been successfully submitted. It is registered with the number #239. 
+
+* https://indico.cern.ch/event/1338689/abstracts/175263/
+
+
+CHEP 2024 : (10 May) : 19-25 October, AGH University, Jagiellonian University
 ==============================================================================
+
+Submission deadline: 10 May 2024
+
+
+
+https://indico.cern.ch/event/1338689/page/31560-call-for-abstracts
+
+
+* The recommended length of an abstract is 100-250 words, but there is no hard limit.
+* Carefully select a track. This decision should be based on what problem it tries to solve, 
+  not which tool is used for it. For example, "ML-based simulation of detector interactions" goes into the simulation track.
+* If you have difficulty selecting a track from the list, please send an email to chep2024-abstracts@cern.ch explaining the problem.
+
 
 
 Dear colleagues,
@@ -71,12 +93,38 @@ Sincerely,
 Tomasz, Agnieszka, Markus, Sang Un, Katy and Stephan (Conference and PC chairs).
 
 
+
+
+
+
 CHEP 2023 : May 8-12 
 ==========================
 
 * https://www.jlab.org/conference/CHEP2023
 * https://simoncblyth.bitbucket.io/
 
+
+* https://www.epj-conferences.org/articles/epjconf/abs/2024/05/epjconf_chep2024_11014/epjconf_chep2024_11014.html
+
+
+Proceedings online : May 9 2024
+------------------------------------
+
+We are pleased to announce that the CHEP 2023 Conference Proceedings are now online (EPJ WoC volume 295).
+
+  https://www.epj-conferences.org/articles/epjconf/abs/2024/05/contents/contents.html
+
+There were 387 contributed articles this year.  A huge thank you to the authors, Program Committee, and Track Conveners for all their work!
+
+We look forward to seeing you at CHEP 2024 in Krakow this fall.
+
+Sincerely,
+
+CHEP 2023 LOC Chairs & Program Committee
+
+
+
+PS. Article selection for the 5-10 Proceedings papers to be recommended for long-paper publication in a Frontiers for Big Data "CHEP 2023" research topic is in progress.  Authors of selected papers will be contacted in the near future.
 
 
 Proceedings accepted : Thu Dec 7 2023

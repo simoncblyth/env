@@ -729,6 +729,10 @@
     fermilab_geant4_team/hans_nov2020_lar_tpc_p1_half.png 640px_360px 0px_360px
     fermilab_geant4_team/hans_nov2020_lar_tpc_p13_half.png 640px_360px 640px_360px
 
+    Integration of Opticks and Geant4
+    fermilab_geant4_team/integration_of_opticks_and_geant4.png 640px_360px 0px_360px
+    fermilab_geant4_team/hans_nov2020_lar_tpc_p13_half.png 640px_360px 640px_360px
+
     Geant4_Bug_2305 
     fermilab_geant4_team/geant4_bugzilla_2305_half.png 1180px_310px 50px_10px
 
@@ -2519,6 +2523,9 @@
 
     CHEP 2019 Plenary, Adelaide, Australia
     chep2019/meeting_the_challenge_of_JUNO_simulation_plenary.jpg 1280px_720px
+
+    lhcb_rich1_epjc_001.png
+    lhcb_rich1/epjc_001.png 1280px_720px
 
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p

@@ -1540,6 +1540,7 @@ presentation-rst2talk-(){
 #presentation-iname(){ echo ${INAME:-opticks_20240224_offline_software_review} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20240227_zhejiang_seminar} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20240227_zhejiang_seminar_TALK} ; }
-presentation-iname(){ echo ${INAME:-opticks_20240418_ihep_epd_seminar_story_of_opticks} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20240418_ihep_epd_seminar_story_of_opticks} ; }
+presentation-iname(){ echo ${INAME:-opticks_20240606_ihep_panel_30min} ; }
 
 
