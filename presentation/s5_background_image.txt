@@ -101,13 +101,19 @@
     Primary Research Goal 0.5
     ../graphics/ggeoview/ggeoview-cerenkov-jpmt.png 640px_360px 640px_360px 
     
-    Primary Research Goal 
+    Primary Research Goal 0 
+    ../graphics/ggeoview/ggeoview-cerenkov-jpmt.png 768px_432px 512px_288px 
+
+    Primary Research Goal 1 
     ../graphics/ggeoview/ggeoview-cerenkov-jpmt.png 768px_432px 512px_288px 
 
     Primary Research Goal 0.7 
     ../graphics/ggeoview/ggeoview-cerenkov-jpmt.png 896px_504px 384px_216px 
 
-    Secondary Research Goal
+    Secondary Research Goal 0
+    CSGFoundry/GPU_CPU_geometry_model.png 875px_438px 404px_281px
+
+    Secondary Research Goal 1
     CSGFoundry/GPU_CPU_geometry_model.png 875px_438px 404px_281px
 
     GGeoView M1 Points
