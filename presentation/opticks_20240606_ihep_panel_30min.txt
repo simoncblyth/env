@@ -37,6 +37,9 @@
 
 .. s5_talk:: 
 
+    This render shows the photons resulting from a muon crossing the JUNO scintillator, 
+    each line represents a single photon.
+
     Opticks is an open source project that applies GPU ray tracing to optical photon simulation 
     and integrates this with Geant4. This can give drastic speedups of more than a factor of 1000.
     This approach removes memory and processing bottlenecks that can prevent the 
@@ -44,9 +47,6 @@
 
     The actual speedup depends on your geometry and your effort in avoiding 
     geometry issues. 
-
-    This render shows the photons resulting from a muon crossing the JUNO scintillator, 
-    each line represents a single photon.
 
 
 Outline
@@ -70,7 +70,7 @@ Outline
 .. class:: small
 
     * Dr Simon C. Blyth (D.Phil) : Personal Profile
-    * Primary Achievement : Opticks
+    * :b:`Primary Achievement : Opticks`
 
       * Optical Photon Simulation Problem...
       * Optical Photon Simulation ≈ Ray Traced Image Rendering
@@ -83,7 +83,7 @@ Outline
 
     * HEP Community+NVIDIA Interest/Help with Opticks 
 
-      * Optical photons limit many simulations => lots of interest in Opticks
+      * :r:`Optical photons limit many simulations => lots of interest in Opticks`
       * CHEP 2019 Plenary, Adelaide, Australia
       * 2020 : Leap in Opticks Awareness : Meetings, Publications >>> New Users
       * LHCb RICH + Opticks -- LZ+Opticks -- Integration of Opticks and Geant4
@@ -92,7 +92,7 @@ Outline
 
     * Research Goals and Requirements
 
-      * Research Goals : Maximize Opticks benefits to JUNO, GPU benefits to HEP
+      * :r:`Research Goals : Maximize Opticks benefits to JUNO, GPU benefits to HEP`
       * Steps to Maximize Opticks benefits to JUNO, GPU benefits to HEP
       * GPU Landscape over next 5 years
       * Requirements : Personnel, Equipment, Travel
@@ -102,14 +102,16 @@ Outline
 
 .. s5_talk::
 
-   After a brief introduction I will cover:
+   I will present: 
 
-   * integration of Opticks with Geant4, 
-   * its increasingly widespread usage
-   * progress on integration of Opticks with JUNO Offline 
-   * and the next steps.
+   * my person profile
+   * then describe my primary achievement : the Opticks open source project 
+   * and some of the response to that from the community 
+   * then I will outline my plan for future work and requirements 
 
+.. comment
 
+   HMM : NEED MORE ON RESEARCH PLAN
 
 
 
@@ -147,14 +149,8 @@ Dr Simon C. Blyth (D.Phil) : Personal Profile
 .. s5_talk::
 
     As a student and in my first few positions my focus
-    was on picking the fruits of analysis from DELPHI, L3 and BELLE expts.
-    Later on I transitioned from fruit picking to growing the tree of Daya Bay 
-    and JUNO in software and I particularly like that my work on Opticks 
-    can help many experiments.  
-
-    * going by way of the tasks that needed to be done 
-    * difficult to know for sure, but I hope my achievements with Opticks 
-      providing some motivation to make more use of GPUs in HEP software
+    was on picking the fruits of analysis from DELPHI and L3 at LEP 
+    and BELLE at KEK-B.
 
 
 Dr Simon C. Blyth (D.Phil) : Personal Profile 
@@ -184,7 +180,13 @@ Dr Simon C. Blyth (D.Phil) : Personal Profile
        * fixed many issues, including unphysical PMT Optical Model 
 
 
+.. s5_talk::
 
+    In my later positions I transitioned from analysis to software development.
+    Going from picking the fruit to growing the tree of the Daya Bay 
+    and JUNO experiments
+
+    
 .. comment
 
     Primary Research Goal :i:`0` 
@@ -309,11 +311,25 @@ Dr Simon C. Blyth (D.Phil) : Personal Profile
 Primary Achievement : Opticks
 ----------------------------------
 
+.. raw:: html
+
+     <p style="margin-bottom:1cm;" />
+
+.. 
+
+    *I conceived and developed the Opticks package, I am sole developer.*
+
+.. class:: small
+
+    Assisted by: 
+
+    * Opticks users: ~38 members of forum : https://groups.io/g/opticks
+    * Geant4 collaboration: especially Hans Wentzel, Fermilab Geant4 group : early adopter of Opticks
+    * Many NVIDIA Engineers: GTC conference + UK Hackathon + seven dedicated meetings in 2021
 
 .. raw:: html
 
-     <p style="margin-bottom:3cm;" />
-
+     <p style="margin-bottom:1cm;" />
 
 * Optical Photon Simulation Problem...
 * Optical Photon Simulation ≈ Ray Traced Image Rendering
@@ -323,6 +339,13 @@ Primary Achievement : Opticks
 * Opticks Performance compared to Geant4
 * How much parallelized speedup actually useful to overall speedup?
 * A few of the many JUNO DetSim issues revealed by Opticks validation
+
+.. s5_talk::
+
+    My primary achievement is the Opticks open source package that I conceived
+    and developed. Although I am the sole developer of Opticks
+    I have received lots of help from Opticks users, the Geant4 collaboration 
+    and NVIDIA engineers.
 
 
 `JUNO Optical Photon Simulation Problem...`
@@ -436,75 +459,6 @@ Primary Achievement : Opticks
     
 
 
-.. comment
-
-    :i:`Rasterization vs Ray-tracing`
-    -----------------------------------
-
-    .. image:: nvidia/nv_rasterization.png
-       :width: 550px
-       :align: left
-
-    .. image:: nvidia/nv_raytrace.png
-       :width: 550px
-       :align: right
-
-
-    .. s5_talk::
-
-       Ray tracing and rasterization are the two primary graphics rendering techniques. 
-
-       Rasterization is the most common rendering technique
-       
-       * it starts from the objects in a scene, and projects them onto pixels in the image plane
-       * this requires an approximate triangulated geometry, to have vertices to project 
-       
-       Ray tracing 
-
-       * starts from the pixels, casts rays out into the 3D scene and finds intersects
-       * this can use analytic geometry, without approximation (just like Geant4)   
-       * its easier to create realistic images with ray tracing because it is closer to the physics
-
-       Ray tracing is an overloaded term.  In some contexts it means just the ray transport
-       from an origin to an intersection. But is also refers more generally to the rendering technique. 
-
-    .. comment
-
-       https://www.youtube.com/watch?v=Mrixi27G9yM
-       RTX Launch
-
-
-    ``Spatial Index Acceleration Structure``
-    ---------------------------------------------------
-
-    .. raw:: html
-
-        <p style="margin-bottom:11cm;" />
-
-    .. sidebar:: :small:`Tree of Bounding Boxes (bbox)`
-
-        .. class:: small
-
-            * aims to minimize bbox+primitive intersects 
-            * accelerates ray-geometry intersection
-
-
-    .. s5_talk::
-
-       The principal technique to accelerate ray geometry intersection 
-       is an acceleration structure called a bounding volume hierarchy 
-       
-       This divides space into progressively smaller boxes which forms
-       a spatial index.
-
-       Traversing the tree of bounds allows to minimize tests
-       needed to find an intersect.
-
-       Much of the acceleration structure traversal 
-       is done in the dedicated RT cores.
-
-
-
 :small:`NVIDIA Ada : 3rd Generation RTX`
 --------------------------------------------------------------------------
 
@@ -532,9 +486,6 @@ Primary Achievement : Opticks
     GPU Ray Tracing performance continues to improve rapidly.
     There has been roughly doubling in raw ray tracing performance
     with each generation of NVIDIA RTX GPUs. 
-
-    [Notes to Presenter]
-    [<20s slide : No need to read the slide, just say the above comment]    
 
 
 
@@ -632,8 +583,8 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-    This shows how Opticks is integrated with Geant4. The geometry is translated 
-    and uploaded to the GPU at initialization.
+    This shows how Opticks integrates with Geant4 with NVIDIA OptiX.  
+    The Geant4 geometry is translated and uploaded to the GPU at initialization.
 
     Cerenkov or Scintillation gensteps, the blue lines, are the generation parameters 
     uploaded to the GPU so optical photon generation can be done there.
@@ -643,96 +594,7 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
  
 
 
-.. comment
-
-    Principal Achievements of Opticks
-    ----------------------------------
-
-    * CUDA constructive solid geometry (CSG) intersect implementation 
-    * innovative CSGFoundry CPU/GPU geometry model 
-    * auto-translation of Geant4 geometry to CSGFoundry model :b:`without approximation`
-
-      * can almost exactly match Geant4 intersects on GPU
-
-    * unprecedented optical photon simulation speed : > 1000x faster than serial processing
-    * offloads large memory demands to the GPU   
-     
-
- 
-.. comment
-
-    :small:`Ray intersection with general CSG binary trees, on GPU`
-    ---------------------------------------------------------------------------------
-
-    .. sidebar:: Outside/Inside Unions
-
-        .. class:: small
-
-           dot(normal,rayDir) -> Enter/Exit
-
-        .. image:: kensler_union_of_two_spheres_from_outside.png
-           :width: 300px
-           :align: center
-
-        .. image:: kensler_union_of_two_spheres_from_inside.png
-           :width: 300px
-           :align: center
-
-        .. class:: small
-
-            * **A + B** boundary not inside other 
-            * **A * B** boundary inside other 
-
-
-    .. class:: small
-
-       Pick between pairs of nearest intersects, eg:
-
-       =======================  ===========  ===============  ============== 
-       *UNION* tA < tB           Enter B      Exit B           Miss B
-       =======================  ===========  ===============  ============== 
-       **Enter A**               ReturnA      :blue:`LoopA`    ReturnA
-       **Exit A**                ReturnA      ReturnB          ReturnA 
-       **Miss A**                ReturnB      ReturnB          ReturnMiss
-       =======================  ===========  ===============  ============== 
-
-       * *Nearest hit intersect algorithm* [1] avoids state
-
-         * sometimes :blue:`Loop` : advance **t_min** , re-intersect both 
-         * classification shows if inside/outside
-
-       * *Evaluative* [2] implementation emulates recursion: 
-
-         * :red:`recursion not allowed` in OptiX intersect programs
-         * bit twiddle traversal of complete binary tree 
-         * stacks of postorder slices and intersects 
-
-       * :red:`Identical geometry to Geant4` 
-
-         * solving the same polynomials 
-         * near perfect intersection match
-
-
-
-    .. class:: tiny
-
-        [1] Ray Tracing CSG Objects Using Single Hit Intersections, Andrew Kensler (2006)
-            with corrections by author of XRT Raytracer http://xrt.wikidot.com/doc:csg
-     
-        [2] https://bitbucket.org/simoncblyth/opticks/src/tip/optixrap/cu/csg_intersect_boolean.h
-            Similar to binary expression tree evaluation using postorder traverse. 
-
-
-    .. s5_talk::
-
-       The Algorithm reduces the problem to a choice between intersects
-       that is applied recursively to the tree of nodes that represents the shape. 
-
-
-
-
-
-:small:`Geometry Model Translation : Geant4 => CSGFoundry => NVIDIA OptiX 7`
+:small:`Geometry Model Translation : Geant4 => CSGFoundry => NVIDIA OptiX 7+`
 -------------------------------------------------------------------------------
 
 .. sidebar:: :small:`CSGFoundry Model`
@@ -745,7 +607,7 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. class:: small
 
-    **Geant4 Geometry Model (JUNO: 300k PV, deep hierarchy)**
+    **Geant4 Geometry Model (JUNO: 400k PV, deep hierarchy)**
 
     +----+---------------------------+---------------------------------------------+ 
     | PV | *G4VPhysicalVolume*       | placed, refs LV                             |
@@ -771,7 +633,7 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
     | *CSGNode*     | CSG node parameters (JUNO: ~23k *CSGNode*)                                 | node *G4VSolid*            |
     +---------------+----------------------------------------------------------------------------+----------------------------+
 
-    **NVIDIA OptiX 7 Geometry Acceleration Structures (JUNO: 1 IAS + 10 GAS, 2-level hierarchy)**
+    **NVIDIA OptiX 7+ Geometry Acceleration Structures (JUNO: 1 IAS + 10 GAS, 2-level hierarchy)**
 
     +-----+----------------------------------+-------------------------------------------------------------------------+ 
     | IAS | Instance Acceleration Structures | JUNO: 1 IAS created from vector of ~50k *qat4* (JUNO)                   |
@@ -781,15 +643,19 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. class:: small
 
-    :r:`JUNO : Geant4 ~300k volumes "factorized" into 1 OptiX IAS referencing ~10 GAS`
+    :r:`JUNO : Geant4 ~400k volumes "factorized" into 1 OptiX IAS referencing ~10 GAS`
 
 
 .. s5_talk::
 
+   The translation of the Geant4 detector geometry into a GPU optimized form
+   is the single most import step for high performance ray geometry intersection. 
+
    The tables illustrates three geometry models.
 
    The CSGFoundry geometry model in the middle was designed 
-   to enable translation between the Geant4 and OptiX models. 
+   to enable the translation.
+
 
 
 
@@ -822,9 +688,7 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
    There are no triangles here, this is a purely analytic ray trace with 
    the exact same geometry that the simulation uses.
 
-       [Notes: ~10s slide, just the comment] 
-
-
+   [Notes: ~10s slide, just the comment] 
 
 
 :i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace`
@@ -843,102 +707,13 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
+   Opticks is designed to work with multiple detector geometries. Here are
+   analytic ray trace views of the Daya Bay geometry.    
+
    Using that GPU CSG algorithm enabled : pure analytic ray trace-ing.  So that means the 
    geometry is not approximate any more, it can match Geant4 intersects very closely. 
    Its because the two implementations are solving the same polynomials. 
 
-
-
-.. comment
-
-    :i:`j1808_top_rtx`
-    --------------------
-
-    .. class:: small
-
-        ``Pure analytic CSG JUNO geometry, auto-converted from Geant4 to Opticks GPU geometry, 
-        NVIDIA OptiX GPU raytrace render [no triangles] (GGeoView)``
-
-
-    .. s5_talk::
-
-       The upshot is that full Geant4 detector geometries
-       can be automatically translated into NVIDIA OptiX geometries.
-
-       This is an OptiX ray trace image from the chimney region at the 
-       top of the JUNO scintillator sphere.
-        
-
-.. comment
-
-    :i:`j1808_top_ogl`
-    --------------------
-
-
-    .. class:: small
-
-        ``Approximate triangulated JUNO geometry [note impingement of torus guide tube and acrylic "sphere"], OpenGL rasterized render (GGeoView)``
-
-
-    .. s5_talk::
-
-       This is an OpenGL rasterized image, using the approximate triangulated 
-       geometry. Opticks manages analytic and triangulated geometry together.  
-
-
-
-
-
-.. comment
-
-    :small:`NVIDIA OptiX 7 : Entirely new thin API => Full Opticks Re-implementation`
-    -----------------------------------------------------------------------------------
-
-    .. sidebar:: :small:`GPU Ray Tracing APIs Converged`
-
-        .. class:: small
-
-            * 3 APIs (DXR,VKRay,OptiX7) over RTX 
-            * Driver updates :r:`independent of application`  
-            * Support new GPUs, performance improvements 
-
-    .. class:: small
-
-        **NVIDIA OptiX 6->7** : :b:`drastically slimmed down`
-
-        * low-level CUDA-centric thin API (Vulkan-ized)
-        * headers only (no library, impl in Driver) 
-        * Minimal host state,  :red:`All host functions are thread-safe`
-        * GPU launches : explicit, asynchronous (CUDA streams)
-        * :strike:`near perfect scaling to 4 GPUs, for free` 
-        * :strike:`Shared CPU/GPU geometry context` 
-
-          * :r:`=> NEED CPU/GPU GEOMETRY MODEL + TRANSLATOR`
-
-        * :strike:`GPU memory management`
-        * :strike:`Multi-GPU support`
-
-
-    .. class:: small
-
-        **Advantages of 6->7 transition**
-
-        * More control/flexibility over everything 
-        * :b:`Keep pace with state-of-the-art GPU ray tracing` 
-        * Fully benefit from current + future GPUs : RT cores, RTX 
-
-    .. class:: small
-
-        **BUT:** :r:`demanded full re-implementation of Opticks` 
-         
-
-
-    .. s5_talk::
-
-       * OptiX 7 is an entirely new API, dropping many features used by the old Opticks
-       * re-implementation of almost all of Opticks was necessary
-
-       [Notes: No need to read slide, just the above comments]
 
 
 
@@ -1053,20 +828,20 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 optical photon simulation, P ~ 99% of CPU time  
 
-* -> potential overall speedup S(n) is 100x 
+* => limit on overall speedup S(n) is 100x 
 * even with parallel speedup factor >> 1000x  
 
 
-**Traditional simulation use**
+**Traditional simulation use:**
 
-* :b:`speedup much beyond 1000x not needed`
+* :b:`speedup beyond 1000x not needed`
 
-**Speculative uses**
+**Speculative+novel uses:**
 
 * GPU integration to generate PDFs
 * "simulation-as-reconstruction" (direct ML fits)  
 
-Probably requires more extreme speedup
+Require ultra-extreme speedup
 
 
 .. s5_talk::
@@ -1156,7 +931,7 @@ Probably requires more extreme speedup
 
     .. class:: small
 
-         **Have shot trillions of rays at JUNO-DetSim** 
+         **Have shot billions of rays at JUNO-DetSim** 
 
          * interactive standalone tests
          * interactive ray traced geometry rendering
@@ -1229,12 +1004,9 @@ Probably requires more extreme speedup
 HEP Community + NVIDIA Interest/Help with Opticks 
 ---------------------------------------------------
 
-
 .. raw:: html
 
-     <p style="margin-bottom:3cm;" />
-
-
+     <p style="margin-bottom:1cm;" />
 
 * Optical photons limit many simulations => lots of interest in Opticks
 * CHEP 2019 Plenary, Adelaide, Australia
@@ -1246,48 +1018,62 @@ HEP Community + NVIDIA Interest/Help with Opticks
 * Assistance : Geant4 Collab. + Dark Matter Search Community + NVIDIA
 
 
+.. raw:: html
+
+     <p style="margin-bottom:2cm;" />
+
+.. s5_talk::
+
+   Lots of interest and help 
+
+
+
+
+
 :small:`Optical photons limit many simulations => lots of interest in Opticks`
 --------------------------------------------------------------------------------
 
 .. class:: small
 
-    +-----------+-----------------------------------------------------------------------------+
-    | **EXPT**  | **Reactor neutrino**                                                        |  
-    +-----------+-----------------------------------------------------------------------------+
-    | Daya Bay  | neutrino oscillations                                                       |
-    +-----------+-----------------------------------------------------------------------------+
-    | JUNO      | mass heirarchy + oscillations  => :r:`NVIDIA CN Contacts`                   |
-    +-----------+-----------------------------------------------------------------------------+
-    |           | **Long baseline neutrino beam**                                             |
-    +-----------+-----------------------------------------------------------------------------+
-    | DUNE      | FermiLab->Sanford, LAr TPC, => Assistance from :b:`Fermilab Geant4 Group`   |
-    +-----------+-----------------------------------------------------------------------------+
-    |           | **Neutrinoless double beta decay, dark matter, other search**               |
-    +-----------+-----------------------------------------------------------------------------+
-    | LZ        | LUX-ZEPLIN dark matter experiment, Sandford  => :r:`NVIDIA US Contacts`     |
-    +-----------+-----------------------------------------------------------------------------+
-    | LEGEND    | Large Enriched Germanium Experiment, Gran Sasso/SNOLAB                      |
-    +-----------+-----------------------------------------------------------------------------+
-    | SABRE     | dark matter direct-detection, Australia                                     |
-    +-----------+-----------------------------------------------------------------------------+
-    | AMoRE     | Mo-based Rare process Experiment, S.Korea                                   |
-    +-----------+-----------------------------------------------------------------------------+
-    | nEXO      | next Enriched Xenon Observatory, LLNL                                       |
-    +-----------+-----------------------------------------------------------------------------+
-    |           | **Neutrino telescope**                                                      |
-    +-----------+-----------------------------------------------------------------------------+
-    | KM3Net    | Cubic Kilometre Neutrino Telescope, Mediterranean                           |
-    +-----------+-----------------------------------------------------------------------------+
-    | IceCube   | IceCube Neutrino Observatory, South Pole                                    |
-    +-----------+-----------------------------------------------------------------------------+
-    |           | **Air shower : gamma-ray and cosmic-ray observatory**                       |
-    +-----------+-----------------------------------------------------------------------------+
-    | LHAASO    | Large High Altitude Air Shower Observatory, Sichuan                         |
-    +-----------+-----------------------------------------------------------------------------+
-    |           | **Accelerator**                                                             |
-    +-----------+-----------------------------------------------------------------------------+
-    | LHCb-RICH | LHCb ring imaging Cherenkov sub-detector, CERN => :r:`NVIDIA EU Contacts`   |
-    +-----------+-----------------------------------------------------------------------------+
+    +--------------+-----------------------------------------------------------------------------+
+    | **EXPT**     | **Reactor neutrino**                                                        |  
+    +--------------+-----------------------------------------------------------------------------+
+    | Daya Bay     | neutrino oscillations                                                       |
+    +--------------+-----------------------------------------------------------------------------+
+    | JUNO         | mass heirarchy + oscillations  => :r:`NVIDIA CN Contacts`                   |
+    +--------------+-----------------------------------------------------------------------------+
+    |              | **Long baseline neutrino beam**                                             |
+    +--------------+-----------------------------------------------------------------------------+
+    | DUNE         | FermiLab->Sanford, LAr TPC, => Assistance from :b:`Fermilab Geant4 Group`   |
+    +--------------+-----------------------------------------------------------------------------+
+    |              | **Neutrinoless double beta decay, dark matter, other search**               |
+    +--------------+-----------------------------------------------------------------------------+
+    | LZ           | LUX-ZEPLIN dark matter experiment, Sandford  => :r:`NVIDIA US Contacts`     |
+    +--------------+-----------------------------------------------------------------------------+
+    | LEGEND       | Large Enriched Germanium Experiment, Gran Sasso/SNOLAB                      |
+    +--------------+-----------------------------------------------------------------------------+
+    | SABRE        | dark matter direct-detection, Australia                                     |
+    +--------------+-----------------------------------------------------------------------------+
+    | AMoRE        | Mo-based Rare process Experiment, S.Korea                                   |
+    +--------------+-----------------------------------------------------------------------------+
+    | nEXO         | next Enriched Xenon Observatory, LLNL                                       |
+    +--------------+-----------------------------------------------------------------------------+
+    | NEXT-CRAB0   | High Pressure Gaseous Xenon TPC with a Direct VUV Camera Based Readout      |      
+    +--------------+-----------------------------------------------------------------------------+
+    |              | **Neutrino telescope**                                                      |
+    +--------------+-----------------------------------------------------------------------------+
+    | KM3Net       | Cubic Kilometre Neutrino Telescope, Mediterranean                           |
+    +--------------+-----------------------------------------------------------------------------+
+    | IceCube      | IceCube Neutrino Observatory, South Pole                                    |
+    +--------------+-----------------------------------------------------------------------------+
+    |              | **Air shower : gamma-ray and cosmic-ray observatory**                       |
+    +--------------+-----------------------------------------------------------------------------+
+    | LHAASO       | Large High Altitude Air Shower Observatory, Sichuan                         |
+    +--------------+-----------------------------------------------------------------------------+
+    |              | **Accelerator**                                                             |
+    +--------------+-----------------------------------------------------------------------------+
+    | LHCb-RICH    | LHCb ring imaging Cherenkov sub-detector, CERN => :r:`NVIDIA EU Contacts`   |
+    +--------------+-----------------------------------------------------------------------------+
 
 
 
@@ -1308,66 +1094,19 @@ HEP Community + NVIDIA Interest/Help with Opticks
     This photo shows me presenting this at the CHEP plenary
 
 
-
-:small:`2020 : Leap in Opticks Awareness : Meetings, Publications >>> New Users`
---------------------------------------------------------------------------------------
+:small:`2020 : Surge in Awareness, Meetings, New Users, Support Questions`
+--------------------------------------------------------------------------------------------
 
 .. class:: small
 
-   **(Feb 2020) Workshop on Efficient Computing for HEP, Edinburgh**
-
-   * https://indico.ph.ed.ac.uk/event/66/ "Full Simulation of HEP Detectors with Geant4", Ben Morgan 
-
-   **(May 2020) HSF (HEP Software Foundation) Meeting : GPUs in Simulations**
+   **(May/June 2020) 3 HSF Meetings : R&D on accelerators in Simulations** :red:`3/9 talks discussed Opticks`
 
    * https://indico.cern.ch/event/921244/ "Opticks Development Experience : Problems and Successes", Simon Blyth
-
-   **(10+24 June 2020) HSF Meeting : R&D on accelerators in Simulations** :red:`3/9 talks discussed Opticks`
-
    * https://indico.cern.ch/event/925887/ https://indico.cern.ch/event/930881/
 
    * "e/γ (GPU) calorimeter simulation.. ", John Apostolakis, "Prototyping simulation .. on GPUs", Andrei Gheata
      
    * "Prospects for (LHCb) RICH detector simulation using OptiX in GPUs", Sajan Easo
-
-   **(Aug 2020) HSF Publication : HL-LHC Computing Review: Common Tools and Community Software**
-
-   * https://zenodo.org/record/4009114 Graeme Stewart,... :red:`HL-LHC Computing Review discusses Opticks`
-
-   **(Sep 2020) Geant4 : R&D Task Force Meeting** :red:`3+ Geant4 teams pursuing GPUs, 1 based on Opticks`    
-
-   * https://indico.cern.ch/event/942142/sessions/363813/#20200915
-        
-   1. "G4Opticks for liquid Argon TPCs", Fermilab Geant4 Team, Hans Wenzel
-   2. "VecGeom@GPU", CERN Geant4 Team, Andrei Gheata 
-
-
-.. s5_talk::
-
-   There has been quite a leap in Opticks awareness over the past year.
-
-   * a few of the talks and publications discussing Opticks are listed here.
-   * it is being actively evaluated by an increasing number of groups
-
-   Why the leap ?
-
-   * i guess my plenary presentation at the CHEP conference at the end of 2019 is the main cause
-   * also using GPUs with Geant4 has become a hot topic over the past year, with 
-     several high profile projects (Celeritas, AdePT) getting started 
-
-    
-
-
-:small:`2020 : Leap in Opticks Awareness >>> Some Users Getting Serious` 
------------------------------------------------------------------------------------------
-
-.. class:: small
-
-   **(Aug 2020) Shanghai SJTU : Next-gen Neutrino Telescope Simulation Workshop**
-
-   * https://indico-tdli.sjtu.edu.cn/event/238/sessions/109/#20200813 
-   * "Opticks : GPU/Graphics backgroup + Application to underwater neutrino telescope simulations ?", Simon Blyth
-   * :red:`SJTU team evaluating Opticks for deep ocean expt simulations (Fan Hu, Donglian Xu)`
 
    **(Aug 2020) Snowmass 2021 : Three LoI based on Opticks** : :red:`Multi-expt Dark Matter group invited me to sign LoI`   
 
@@ -1375,74 +1114,81 @@ HEP Community + NVIDIA Interest/Help with Opticks
    2. "Fast simulations for Noble Liquid experiments", XENON, DARWIN, LZ teams, Simon Blyth
    3. "Simulating Optical Photons in HEP experiments on GPUs", Fermilab Geant4 team
  
-   **(Aug 2020) NERSC Users Group (NUG) meeting** : :red:`LZ aiming to deploy Opticks on Perlmutter supercomputer`
+   **(Sep 2020) Geant4 : R&D Task Force Meeting** :red:`3+ Geant4 teams pursuing GPUs, 1 based on Opticks`    
 
-   * https://www.nersc.gov/users/NUG/annual-meetings/nug-2020/ 
-   * https://www.nersc.gov/assets/Uploads/1400-Opticks-on-CoriGPU.pdf 
-   * "Opticks on CoriGPU", O.Creaner, 5 authors from : NERSC/LBL/LZ/Stanford/Bristol   
-   * :red:`Opticks in Shifter/Docker container -> CoriGPU -> Perlmutter Cray/NVIDIA supercomputer`
-   * Perlmutter : > 6000 NVIDIA A100 (Ampere Architecture GPU)  
- 
+   * https://indico.cern.ch/event/942142/sessions/363813/#20200915 "G4Opticks for liquid Argon TPCs", Fermilab G4 Team, Hans Wenzel
 
-.. class:: tiny 
 
-   https://insidehpc.com/2020/05/perlmutter-supercomputer-to-include-more-than-6000-nvidia-a100-processors/
+   Lots of interest/activity following CHEP plenary, two things prevented full benefit:
 
+   +---------------------+-------+------------------------------------------------------------------------------+
+   | NVIDIA OptiX 6.5=>7 | ~2yrs | Change analogous to GEANT-3[FORTRAN] => Geant4[C++]                          |
+   +---------------------+-------+------------------------------------------------------------------------------+
+   | JUNO DetSim         | ~2yrs | Continuous stream of geometry + physics issues : :b:`lots of JUNO progress`  |
+   +---------------------+-------+------------------------------------------------------------------------------+
+
+.. class:: small
+
+    :b:`Need to train postdoc(s) + student(s) before the next surge`
+    
 
 .. s5_talk::
 
-   Several groups that have been evaluating Opticks for years are now starting to get serious.
-
-   The LZ(LUX-Zepelin) dark matter experiment is the most advanced 
- 
-   * they aim to get Opticks going on the new Perlmutter supercomputer at NERSC 
-
-    
-
-.. comment
-
-    :small:`G4OpticksTest : Demonstrates Geant4 + Opticks hybrid workflow`
-
+   Lots of interest following CHEP plenary, but two delays prevents full benefit 
 
 
 
 :i:`lhcb_rich1_epjc_001.png`
 -----------------------------
- 
+
+.. s5_talk::
+
+    Some of those new users from LHCb-RICH published a paper evaluating Opticks
+
+    * they got a speedup of 10x only : due to using not so many photons
+    * Opticks needs event joining to avoid overheads reducing performance 
+      for few photon events  
+
 
 :small:`LZ with Opticks (Images from Sam Eriksen, University of Bristol)`
 ---------------------------------------------------------------------------
 
-
-:small:`LZ+Opticks : contacts with >5 LZ people`
---------------------------------------------------------------------------------------------------
-
-.. class:: small
- 
-   * :red:`Summer 2020 : LZ+Opticks simulation identified as candidate for new Perlmutter Cray/NVIDIA supercomputer at NERSC`
-   * Autumn 2020 : LZ+NERSC proposed an NVIDIA assisted Hackathon to optimize LZ+Opticks simulation 
-
-     * BUT no point optimizing prior to migration : NVIDIA OptiX 6 -> 7 (an entirely new "Vulkan-ized" API)  
-     * migration to NVIDIA OptiX 7+ is unavoidable, it beings challenges and opportunities 
-
-       * multi-GPU scaling no longer provided, thread-safe OptiX 7 opens possibilities, especially for Opticks Server+Client  
-
-   **(Aug 2020) NERSC Users Group (NUG) meeting** : :red:`LZ aiming to deploy Opticks on Perlmutter supercomputer`
-
-   * https://www.nersc.gov/users/NUG/annual-meetings/nug-2020/ 
-   * "Opticks on CoriGPU", O.Creaner, 5 authors from : NERSC/LBL/LZ/Stanford/Bristol   
-
-
 .. s5_talk::
 
-   LZ has been evaluating Opticks over the past three years and it is now
-   keep to scale up its usage to profit from the new NERSC Perlmutter supercomputer, 
-   with more than 6000 NVIDIA A100 GPUs
+    LZ+Opticks 
+ 
 
-   They proposed a Hackathon to optimize LZ+Opticks simulation.
-   
-   * but there is little point optimizing prior to migrating to the OptiX 7 API
-   * after I pointed this out they indicated they could help with the migration
+.. comment
+
+    :small:`LZ+Opticks : contacts with >5 LZ people`
+    --------------------------------------------------------------------------------------------------
+
+    .. class:: small
+     
+       * :red:`Summer 2020 : LZ+Opticks simulation identified as candidate for new Perlmutter Cray/NVIDIA supercomputer at NERSC`
+       * Autumn 2020 : LZ+NERSC proposed an NVIDIA assisted Hackathon to optimize LZ+Opticks simulation 
+
+         * BUT no point optimizing prior to migration : NVIDIA OptiX 6 -> 7 (an entirely new "Vulkan-ized" API)  
+         * migration to NVIDIA OptiX 7+ is unavoidable, it beings challenges and opportunities 
+
+           * multi-GPU scaling no longer provided, thread-safe OptiX 7 opens possibilities, especially for Opticks Server+Client  
+
+       **(Aug 2020) NERSC Users Group (NUG) meeting** : :red:`LZ aiming to deploy Opticks on Perlmutter supercomputer`
+
+       * https://www.nersc.gov/users/NUG/annual-meetings/nug-2020/ 
+       * "Opticks on CoriGPU", O.Creaner, 5 authors from : NERSC/LBL/LZ/Stanford/Bristol   
+
+
+    .. s5_talk::
+
+       LZ has been evaluating Opticks over the past three years and it is now
+       keep to scale up its usage to profit from the new NERSC Perlmutter supercomputer, 
+       with more than 6000 NVIDIA A100 GPUs
+
+       They proposed a Hackathon to optimize LZ+Opticks simulation.
+       
+       * but there is little point optimizing prior to migrating to the OptiX 7 API
+       * after I pointed this out they indicated they could help with the migration
 
 
 
@@ -1592,12 +1338,6 @@ NVIDIA Giveth and NVIDIA Taketh away ...
 
 
 
- 
-
-
-
-
-
 
 Primary Research Goal :i:`1`
 ------------------------------
@@ -1624,6 +1364,12 @@ Primary Research Goal :i:`1`
     * :b:`simulation unlimited by optical photons => greater understanding => more fruit` 
        
       * :r:`JUNO: optimum muon veto => maximum livetime => maximum impact`
+
+
+
+.. s5_talk::
+
+    First goal
 
 
 Secondary Research Goal :i:`1`
@@ -1663,77 +1409,223 @@ Secondary Research Goal :i:`1`
 
 
 
-
-
-:small:`Steps to Maximize Opticks benefits to JUNO, GPU benefits to HEP`
---------------------------------------------------------------------------
-
 .. comment
 
-    **Feature completion**
+    :small:`Steps to Maximize Opticks benefits to JUNO, GPU benefits to HEP`
+    --------------------------------------------------------------------------
 
-    * full test of "listnode" solution to complex geometry issue
-    * automated continuous integration/validation 
+    .. comment
+
+        **Feature completion**
+
+        * full test of "listnode" solution to complex geometry issue
+        * automated continuous integration/validation 
 
 
-.. sidebar:: :small:`Longterm Opticks`  
+    .. sidebar:: :small:`Longterm Opticks`  
+
+        .. class:: small
+
+            * try non-NVIDIA GPUs + ray tracing backends
+            * foster community of Opticks users/developers (neutrino, DM search, medical)
+
+              * assist users with geometry optimization
+              * video meetings, side workshops at CHEP
+
+            **Seamless integration with Geant4**
+
+            * develop+propose Geant4 external optical API 
+            * Opticks as optional Geant4 external 
+            * Opticks interactive+precise ray trace rendering  
+            
+
+    .. sidebar:: :small:`Outreach: Event viewers`  
+
+        .. class:: small
+
+             * :r:`(*)` Browser view geom + photons (WebGL)
+             * :r:`(*)` Experience JUNO sim. from inside (VR)
+
+        .. class:: tiny
+
+             Optimized geometry model => Visualization on consumer GPUs 
 
     .. class:: small
 
-        * try non-NVIDIA GPUs + ray tracing backends
-        * foster community of Opticks users/developers (neutrino, DM search, medical)
+        **Performance optimization**
 
-          * assist users with geometry optimization
-          * video meetings, side workshops at CHEP
+        * auto split/join event depending on GPU VRAM
+        * extend Opticks to concurrently launch on multiple GPUs
+        * :r:`(*)` try alternative CSG tree serialization + CSG intersection
+        * :r:`(*)` try iterative intersection (eg sphere tracing using generation
+          of CUDA code for pure signed distance functions (SDF)) 
 
-        **Seamless integration with Geant4**
+        **JUNOSW+Opticks MC Production optimization**
 
-        * develop+propose Geant4 external optical API 
-        * Opticks as optional Geant4 external 
-        * Opticks interactive+precise ray trace rendering  
-        
+        * Tune config for local GPU cluster running  
+        * Enable distributed productions 
+        * :r:`(*)` try server/client : Opticks for non-GPU nodes
+
+        **Publications**
+
+        * "JUNO use of Opticks GPU optical photon simulation"
+        * "Opticks GPU optical photon simulation" (impl. details)
+        * CEPC TDR : edit offline software and computing section
+
+    .. class:: tiny 
+     
+        :r:`(*) : self-contained : good student/postdoc training task` 
+
+
+    .. s5_talk::
+
+        steps
+
+
+
+:small:`Summary Five Year Plan for Opticks + Other work [2024-2026]`
+---------------------------------------------------------------------
+
+.. comment
+
+   * revive visualization features such as optical photon propagation animations for outreach 
+
+
+.. sidebar:: :small:`JUNO DetSim issue stream slows[1]`
+
+    .. class:: small
+
+        Focus shift : issues => usage:
+
+        * validation/benchmark  
+        * frequent JUNO+Opticks releases   
+        * ease of use : examples, documentation, training
+
+        [1] *shortage of geometry to have issues*       
+
 
 .. sidebar:: :small:`Outreach: Event viewers`  
 
     .. class:: small
 
+         Optimized geometry => viz. with common GPUs 
+
          * :r:`(*)` Browser view geom + photons (WebGL)
          * :r:`(*)` Experience JUNO sim. from inside (VR)
 
-    .. class:: tiny
 
-         Optimized geometry model => Visualization on consumer GPUs 
+
+.. class:: small
+       
+   **2024 : Opticks feature completion, optimization, production** 
+
+   * complete problem solids, using : listnode, integrated triangles
+   * benchmark+validation within continuous integration system 
+   * gain local GPU cluster production running experience
+   * test distributed JUNOSW+Opticks production running  
+   * :r:`(*)` try alternative CSG tree serialization + intersect
+
+   **2025 : Opticks production optimization** 
+
+   * auto split/join event depending on GPU VRAM
+   * extend Opticks to concurrently launch on multiple GPUs
+   * develop/propose Geant4 API for external photon propagation
+
+     * :r:`avoiding need to customize Geant4` 
+
+   * see if Opticks can benefit CEPC calorimeter sim.+viz.
+   * edit CEPC detector TDR offline software+computing section
+
+   **2026 : Foster Opticks usage beyond JUNO** 
+  
+   * maintain evolving JUNOSW+Opticks simulation 
+   * foster diverse user community (tutorial, presentations) 
+   * investigate non-NVIDIA ray tracing framework backends
+   * :r:`(*)` try server/client : Opticks for non-GPU nodes
+
+.. raw:: html
+
+   <p style="margin-bottom:-0.5cm;" />
 
 .. class:: small
 
-    **Performance optimization**
+   *years indicative : showing priorities* -- *titles indicate focus* -- :r:`(*)` *good self-contained training task* 
 
-    * auto split/join event depending on GPU VRAM
-    * extend Opticks to concurrently launch on multiple GPUs
-    * :r:`(*)` try alternative CSG tree serialization + CSG intersection
-    * :r:`(*)` try iterative intersection (eg sphere tracing using generation
-      of CUDA code for pure signed distance functions (SDF)) 
+.. s5_talk::
 
-    **JUNOSW+Opticks MC Production optimization**
-
-    * Tune config for local GPU cluster running  
-    * Enable distributed productions 
-    * :r:`(*)` try server/client : Opticks for non-GPU nodes
-
-    **Publications**
-
-    * "JUNO use of Opticks GPU optical photon simulation"
-    * "Opticks GPU optical photon simulation" (impl. details)
-    * CEPC TDR : edit offline software and computing section
-
-.. class:: tiny 
+   Plan 
  
-    :r:`(*) : self-contained : good student/postdoc training task` 
+
+:small:`Summary Five Year Plan for Opticks + Other work [2027-2028]`
+---------------------------------------------------------------------
+
+.. sidebar:: :small:`Seamless Geant4+Opticks`
+
+    .. class:: small
+
+       1. high performance optical photon simulation
+       2. interactive visualization compositing: 
+
+          * ray traced exact detector geometry
+          * representation of photon propagation
+
+       3. possibly VR/AR headset support
+
+          * immersive experience of simulation 
+
+       :b:`Within Geant4 : natural home for mature Opticks` 
 
 
+.. sidebar:: :small:`New possibilities from ultra-fast MC:`
 
+    .. class:: small
 
+        **max. likelihood reconstruction by simulation**
 
+        * fast sim. directly drives max likelihood recon.
+        * simulate hypotheses to fit each data event   
+        * *(speculation of S.Seibert, author of Chroma)*
+
+.. comment
+
+   * stochastic likelihood function minimization
+ 
+
+.. class:: small
+
+   **2027 : Aim for deeper Opticks integration with Geant4**  
+
+   * incorporate JUNO customizations of Geant4 into distribution
+
+     * :r:`raise profile of individuals + IHEP within Geant4`
+
+   * create minimal Opticks as optional Geant4 external 
+   * when Opticks use standard => integration natural
+
+   Likely will require:
+ 
+   1. Geant4 membership + duties
+   2. formal commitment of IHEP support
+
+   **2028 : Succession + Speculative ideas** 
+
+   * train successor for JUNO+Opticks and Opticks management
+
+   * :r:`(*)` try iterative intersection (eg sphere tracing using generation
+     of CUDA code for pure signed distance functions (SDF)) 
+
+   * try: more efficient machine learning workflows 
+ 
+     * keep more on GPU : avoid persisting 
+     * generate what is needed : not general data sample 
+
+       * eg: PDFs by accumulation (not hits) 
+
+ 
+.. s5_talk::
+
+   Plan 
+ 
 
 
 GPU Landscape over next 5 years
@@ -1764,6 +1656,16 @@ GPU Landscape over next 5 years
          ([0],[1],[2] for full rule details )
          </pre>
 
+    .. class:: tiny
+
+         [0] https://www.theregister.com/2023/10/19/china_biden_ai/
+
+         [1] https://public-inspection.federalregister.gov/2023-23055.pdf
+
+         [2] https://www.sec.gov/ix?doc=/Archives/edgar/data/1045810/000104581023000217/nvda-20231017.htm
+
+
+
 
 .. sidebar:: :small:`China+HK : ~22% NVIDIA revenue (2023 Q3)`
 
@@ -1773,7 +1675,7 @@ GPU Landscape over next 5 years
 
 .. class:: small
 
-     * 2023/11/08 : NVIDIA H20, L20, L2 (just under threshold)
+     * 2023/11/08 : NVIDIA H20, L20, L2 :r:`(just under threshold)`
      * 2023/11/17 : US export restriction on highest performing GPUs
 
      NVIDIA Hobbled in China : Gift to Huawei, Sugon, ... 
@@ -1790,14 +1692,6 @@ GPU Landscape over next 5 years
      
 
 
-.. class:: tiny
-
-     [0] https://www.theregister.com/2023/10/19/china_biden_ai/
-
-     [1] https://public-inspection.federalregister.gov/2023-23055.pdf
-
-     [2] https://www.sec.gov/ix?doc=/Archives/edgar/data/1045810/000104581023000217/nvda-20231017.htm
-
 
 .. s5_talk::
 
@@ -1806,91 +1700,6 @@ GPU Landscape over next 5 years
     GPUs with specs just underneath threshold. 
 
 
-
-
-.. comment
-
-    :small:`Hardware accelerated Ray tracing (RT Cores) in the Data Center`
-    -------------------------------------------------------------------------
-
-    .. comment
-
-        .. image:: nvidia/H20_L20_L2/tomshardware_h20_l20_l2_spec.png
-           :width: 624px
-           :height: 764px 
-           :align: right
-
-        https://www.techpowerup.com/gpu-specs/l20.c4206
-
-
-
-    .. sidebar:: :small:`Data Center GPUs with RT Cores`
-
-        .. class:: small
-
-            * :b:`An Established part of NVIDIA Lineup`
-
-            +--------------+------------------+-----------------+  
-            |              |    NVIDIA L40    | NVIDIA L4       |   
-            +==============+==================+=================+
-            |  Release     |   2022/10        |  2023/03        |   
-            +--------------+------------------+-----------------+  
-            |  GPU Arch    |   Ada Lovelace   |  Ada Lovelace   |        
-            +--------------+------------------+-----------------+  
-            |  VRAM        |   48 GB gddr6    | 24 GB gddr6     |   
-            +--------------+------------------+-----------------+  
-            |  TDP         |    300W          |  :r:`72W`       |   
-            +--------------+------------------+-----------------+  
-            |  Form factor |    dual slot     |  :r:`1-slot`    |   
-            +--------------+------------------+-----------------+  
-            | CUDA Core    |    18,176        |   7,680         |    
-            +--------------+------------------+-----------------+  
-            | :b:`RT Core` |:b:`142 (3rd gen)`|:b:`60 (3rd gen)`|    
-            +--------------+------------------+-----------------+  
-            | Tensor Core  |    568 (4th gen) |   240 (4th gen) |    
-            +--------------+------------------+-----------------+  
-            |  FP32        |    90.5 TFLOPS   |  30 TFLOPS      |   
-            +--------------+------------------+-----------------+  
-            |  FP16(*)     |    181 TFLOPS    |  121 TFLOPS     |   
-            +--------------+------------------+-----------------+  
-            | Predecessor  |    A40           |    T4           |   
-            +--------------+------------------+-----------------+  
-
-            (*) x2 with Sparsity 
-
-
-    .. class:: small
-
-
-        **NVIDIA L4 Tensor Core GPU (Released 2023/03)**
-
-        * Ada Lovelace GPU architecture
-        * :r:`universal accelerator for graphics and AI workloads` 
-        * :b:`small form-factor, easy to integrate, power efficient` 
-        * PCIe Gen4 x16 slot without extra power
-        * Google Cloud adopted for G2 VMs, successor to **NVIDIA T4**
-        * **NVIDIA L4 likely to become a very popular GPU**
-
-    .. raw:: html
-
-        <p style="margin-bottom:2cm;" />
-
-    .. class:: small
-
-        `NVIDIA L4 Tensor Core GPU (Data Center, low profile+power)`
-
-    .. s5_talk::
-
-        Hardware Accelerated Ray Tracing is becoming much more commonly available, 
-        with NVIDIA offering a range of data center GPUs with RT cores. 
-
-        [Notes: <20s slide, just mention above comments]
-
-    .. comment
-
-        The current boom in interest in AI is only going to increase this trend. 
-
-        https://www.techpowerup.com/318595/nvidia-readying-h20-ai-gpu-for-chinese-market
 
 
 :small:`Requirements : Personnel, Equipment, Travel`
@@ -1904,23 +1713,23 @@ GPU Landscape over next 5 years
 
 .. class:: small
 
-    +------------------------+--------------------------------------------------------------------------------+
-    | 5 year estimate (RMB)  |  **Equipment for Opticks and other GPU work** and totals                       | 
-    +========================+================================================================================+
-    |   180k                 | rack mount GPU server with 2 NVIDIA L20 RTX GPU (or similar) :b:`[CC managed]` |
-    +------------------------+--------------------------------------------------------------------------------+
-    |    20k                 | 2 concurrent user "NVIDIA RTX virtual workstation" GPU licences                |  
-    +------------------------+--------------------------------------------------------------------------------+
-    |    80k                 | non-NVIDIA GPUs when suitable devices become available                         |
-    +------------------------+--------------------------------------------------------------------------------+
-    |    20k                 | 2 standalone all-in-one VR/AR device : eg Pico 4 or similar                    |
-    +------------------------+--------------------------------------------------------------------------------+
-    |   **300k**             | **TOTAL Equipment expense over 5 years**                                       |
-    +------------------------+--------------------------------------------------------------------------------+
-    |   **350k**             | **TOTAL Travel expense over 5 years :  5*70k**                                 |
-    +------------------------+--------------------------------------------------------------------------------+
-    |   **650k**             | **GRAND TOTAL over 5 years**                                                   |
-    +------------------------+--------------------------------------------------------------------------------+
+    +-----------------------------+--------------------------------------------------------------------------------+
+    | 5 year estimate (RMB)       |  **Equipment for Opticks and other GPU work** and totals                       | 
+    +=====================+=======+================================================================================+
+    |                     | 180k  | rack mount GPU server with 2 NVIDIA L20 RTX GPU (or similar) :b:`[CC managed]` |
+    +---------------------+-------+--------------------------------------------------------------------------------+
+    |                     | 20k   | 2 concurrent user "NVIDIA RTX virtual workstation" GPU licences                |  
+    +---------------------+-------+--------------------------------------------------------------------------------+
+    |                     | 80k   | non-NVIDIA GPUs when suitable devices become available                         |
+    +---------------------+-------+--------------------------------------------------------------------------------+
+    |                     | 20k   | 2 standalone all-in-one VR/AR device : eg Pico 4 or similar                    |
+    +----------+----------+-------+--------------------------------------------------------------------------------+
+    |          | **300k** |       | **TOTAL Equipment expense over 5 years**                                       |
+    +----------+----------+-------+--------------------------------------------------------------------------------+
+    |          | **350k** |       | **TOTAL Travel expense over 5 years :  5*70k**                                 |
+    +----------+----------+-------+--------------------------------------------------------------------------------+
+    |**650k**  |          |       | **GRAND TOTAL over 5 years**                                                   |
+    +----------+----------+-------+--------------------------------------------------------------------------------+
 
     1. economical sharing of interactive GPU compute and visualization resources :b:`(better developer scaling)` 
     2. evaluating "NVIDIA RTX virtual workstation" for convenience and usefulness
@@ -1933,6 +1742,12 @@ GPU Landscape over next 5 years
    * (2 international, 2 domestic) presenting Opticks at diverse conferences, visiting Opticks users 
    * (2 international) Geant4 meetings and workshops 
    * TOTAL PER YEAR: 2*5k + 4*15k = 70k RMB 
+
+
+.. s5_talk::
+
+    Requirements
+
 
 
 :small:`Summary`
@@ -2008,6 +1823,15 @@ Extras
 ---------
 
 * Opticks with non-NVIDIA GPU :  Need equivalents of CUDA and OptiX
+* 10 selected publications (out of more than 600) p1 of 2
+* 10 selected publications (out of more than 600) p2 of 2
+* 5 CHEP proceedings publications
+
+
+.. s5_talk::
+
+    extras 
+
 
 
 :small:`Opticks with non-NVIDIA GPU :  Need equivalents of CUDA and OptiX`
@@ -2034,7 +1858,7 @@ Extras
 
 .. class:: small
 
-     **Develop poor performance standin for NVIDIA OptiX ? POSSIBLE**
+     **Develop poor performance standin for NVIDIA OptiX ?** :b:`POSSIBLE`
 
      * compare performance of open source implementations of BVH triangulated 
      * find/develop BVH that handles custom primitive (not just triangles)  
@@ -2047,11 +1871,17 @@ Extras
 
 .. class:: small
 
-     **Develop competitive performance replacement for NVIDIA OptiX ? UNREALISTIC**
+     **Develop competitive performance replacement for NVIDIA OptiX ?** :b:`UNREALISTIC`
 
      * re-development for each GPU, GPU generation   
      * access to proprietary information for each GPU ray trace hardware
-     * :r:`Huawei likely to do this` (have ray tracing on phones already)
+     
+     :r:`Huawei likely to do this : they have ray tracing on phones already`
+
+
+.. s5_talk::
+
+   Possible
 
 
 .. comment
@@ -2069,4 +1899,139 @@ Extras
     NVIDIA GPUs for China
     ------------------------
 
+
+
+
+:small:`10 selected publications (out of more than 600) p1 of 2`
+-------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    <span class="r">Improved measurements of color-suppressed decays anti-B0 ->D0 pi0, D0 eta, D0 omega, D*0 pi0, D*0 eta and D*0 omega</span>
+    BELLE Collaboration, Blyth, S. et al.
+    Phys.Rev. D74 (2006) 092002 (11 pages)
+    http://inspirehep.net/literature/721820 <span class="b">(26 citations, First and primary author of paper and analysis)</span>  
+    https://doi.org/10.1103/PhysRevD.74.092002
+
+    <span class="r">Measurement of the e+ e- ->Z -> b anti-b forward - backward asymmetry and the B0 anti-B0 mixing parameter using prompt leptons</span>  
+    L3 Collaboration M. Acciarri et.al
+    Phys.Lett.B 448 (1999) 152-162 (16 pages)
+    https://inspirehep.net/literature/478185 <span class="b">(48 citations, Primary author of paper and analysis)</span>
+    https://doi.org/10.1016/S0370-2693(98)01601-3
+
+    <span class="r">QCD corrections to the forward - backward asymmetries of c and b quarks at the Z pole</span>
+    LEP Heavy Flavor Working Group,  D. Abbaneo et al.
+    Eur.Phys.J.C 4 (1998)
+    https://inspirehep.net/literature/468178 <span class="b">(72 citations)</span>
+    https://doi.org/10.1007/s100520050196
+
+    <span class="r">A Study of radiative muon pair events at 𝑍0 energies and limits on an additional 𝑍′gauge boson</span>
+    DELPHI Collaboration, Abreu, P. et al.
+    Z.Phys. C65 (1995) 603-618  (32 pages)
+    https://inspirehep.net/literature/375963 <span class="b">(68 citations)</span> 
+    (Primary author of paper and analysis that was part of my Oxford University D.Phil thesis)  
+    https://doi.org/10.1007/BF01578669
+
+    <span class="r">Measurement of Cosmic-ray Muons and Muon-induced Neutrons in the Aberdeen Tunnel Underground Laboratory</span>
+    Aberdeen Tunnel Experiment Collaboration, S.C. Blyth et al.
+    Phys.Rev.D 93 (2016) 7, 072005, Phys.Rev.D 94 (2016) 9, 099906 (addendum) (14 pages)
+    https://inspirehep.net/literature/1395459 <span class="b">(11 citations)</span>
+    https://doi.org/10.1103/PhysRevD.93.072005
+    </pre>
+
+.. s5_talk::
+
+    Klop
+
+:small:`10 selected publications (out of more than 600) p2 of 2`
+----------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    <span class="r">Simulation software of the JUNO experiment</span>
+    Tao Lin et. al
+    Eur.Phys.J.C 83 (2023) 5, 382, Eur.Phys.J.C 83 (2023) 7, 660 (erratum) (15 pages)
+    https://inspirehep.net/literature/2616961 <span class="b">(10 citations)</span>
+    https://doi.org/10.1140/epjc/s10052-023-11514-x
+
+    <span class="r">Observation of electron-antineutrino disappearance at Daya Bay</span> 
+    Daya Bay Collaboration, F.P. An et. al
+    Phys.Rev.Lett. 108 (2012) 171803 (7 pages)
+    https://inspirehep.net/literature/1093266 <span class="b">(2,894 citations)</span>
+    https://doi.org/10.1103/PhysRevLett.108.171803
+
+    <span class="r">Measurement of the Reactor Antineutrino Flux and Spectrum at Daya Bay</span>
+    Daya Bay Collaboration,  Feng Peng An et al.
+    Phys.Rev.Lett. 116 (2016) 6, 061801, Phys.Rev.Lett. 118 (2017) 9, 099902 (erratum)
+    https://inspirehep.net/literature/1388361 <span class="b">(293 citations)</span>
+    https://doi.org/10.1103/PhysRevLett.116.061801
+
+    <span class="r">Electroweak Measurements in Electron-Positron Collisions at W-Boson-Pair Energies at LEP</span>
+    ALEPH and DELPHI and L3 and OPAL and LEP Electroweak Collaborations, S. Schael et al.
+    Phys.Rept. 532 (2013) 119-244
+    https://inspirehep.net/literature/1219330 <span class="b">(823 citations)</span>
+    https://doi.org/10.1016/j.physrep.2013.07.004
+
+    <span class="r">Precision electroweak measurements on the Z resonance</span>
+    ALEPH and DELPHI and L3 and OPAL and SLD Collaborations and LEP 
+    Electroweak Working Group and SLD Electroweak Group and SLD Heavy Flavour Group, S. Schael et al.
+    Phys.Rept. 427 (2006) 257-454
+    https://inspirehep.net/literature/691576 <span class="b">(3,174 citations)</span>
+    https://doi.org/10.1016/j.physrep.2005.12.006
+    </pre>
+
+.. s5_talk::
+
+    Klop
+
+
+:small:`5 CHEP proceedings publications`
+------------------------------------------
+
+.. raw:: html
+
+   <pre class="mypretiny">
+   <span class="r">Opticks: GPU Optical Photon Simulation via NVIDIA OptiX</span> 
+   Simon C. Blyth, EPJ Web of Conferences 295, 11014 (2024) (CHEP Proceedings, 8 pages)      
+   https://doi.org/10.1051/epjconf/202429511014 
+   https://www.epj-conferences.org/articles/epjconf/abs/2024/05/epjconf_chep2024_11014/epjconf_chep2024_11014.html
+   (Retrieved 29 May 2024, Online 28 days) <span class="b">Abstract Views:34 Article Views: 26</span>
+
+   <span class="r">Integration of JUNO simulation framework with Opticks: GPU accelerated optical propagation via NVIDIA OptiX</span>
+   Simon Blyth, EPJ Web of Conferences 251, 03009 (2021) (CHEP Proceedings, 10 pages)
+   https://doi.org/10.1051/epjconf/202125103009
+   https://www.epj-conferences.org/articles/epjconf/abs/2021/05/epjconf_chep2021_03009/epjconf_chep2021_03009.html
+   (Retrieved 22 May 2024) Abstract Views:593, Article Views: 435
+   https://badge.dimensions.ai/details/id/pub.1140589485
+   (Retrieved 22 May 2024) <span class="b">8 citations, 7 recent citations, 4.9 field citation ratio</span>
+
+    <span class="r">Meeting the challenge of JUNO simulation with Opticks: GPU optical photon acceleration via NVIDIA OptiX</span>
+    Simon Blyth, EPJ Web of Conferences 245, 11003 (2020)  (CHEP Plenary Proceedings, 9 pages)
+    https://doi.org/10.1051/epjconf/202024511003
+    https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11003/epjconf_chep2020_11003.html
+    (Retrieved 22 May 2024) Abstract Views:433, Article Views:312
+    https://badge.dimensions.ai/details/id/pub.1132665551
+    (Retrieved 22 May 2024) <span class="b">7 citations, 3 recent citations, 3.63 field citation ratio</span>
+
+    <span class="r">Opticks : GPU Optical Photon Simulation for Particle Physics using NVIDIA OptiX</span>
+    Simon Blyth, EPJ Web Conf. 214 02027 (2019)  (CHEP Proceedings, 8 pages)
+    https://doi.org/10.1051/epjconf/201921402027
+    https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02027/epjconf_chep2018_02027.html
+    (Retrieved 22 May 2024) Abstract Views: 1,009, Article Views: 611
+    https://badge.dimensions.ai/details/id/pub.1121060235
+    (Retrieved 22 May 2024) <span class="b">13 citations, 7 recent citations, 6.45 field citation ratio</span>
+
+    <span class="r">Opticks : GPU Optical Photon Simulation for Particle Physics using NVIDIA OptiX</span>
+    Blyth, Simon C, 2017 J. Phys.: Conf. Ser. 898 042001 (CHEP Proceeding, 8 pages)
+    http://dx.doi.org/10.1088/1742-6596/898/4/042001
+    http://iopscience.iop.org/article/10.1088/1742-6596/898/4/042001
+    https://badge.dimensions.ai/details/id/pub.1092925325
+    (Retrieved 22 May 2024) <span class="b">2334 Total downloads, 10 citations, 3 recent citations, 4.36 field citation ratio</span>
+    </pre>
+
+.. s5_talk::
+
+    Klop
 

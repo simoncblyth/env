@@ -1377,6 +1377,18 @@ p--(){
   : ~/env/presentation/presentation.bash
   presentation--  
 }
+p-vi(){
+  : ~/env/presentation/presentation.bash
+  presentation-vi  
+}
+p-e(){
+  : ~/env/presentation/presentation.bash
+  presentation-e  
+}
+
+
+
+
 
 presentation--2(){
    local msg="=== $FUNCNAME :"
