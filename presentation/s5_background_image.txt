@@ -22,8 +22,8 @@
     ## would be more convenient if this switch was in presentation metadata
     ## avoiding the need for users to set it 
     ##
-    ##slide0_D
-    slide0
+    ##slide0
+    slide0_D
     ../graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -754,6 +754,16 @@
     fermilab_geant4_team/integration_of_opticks_and_geant4.png 640px_360px 0px_360px
     fermilab_geant4_team/hans_nov2020_lar_tpc_p13_half.png 640px_360px 640px_360px
 
+    Integration of Opticks and Geant4 : Working with Fermilab Geant4 Group
+    fermilab_geant4_team/integration_of_opticks_and_geant4.png 640px_360px 0px_360px
+    fermilab_geant4_team/hans_nov2020_lar_tpc_p13_half.png 640px_360px 640px_360px
+
+    CaTS: Integration of Geant4 and Opticks 0
+    CaTS/EPJ_abs_Hans.png 761px_598px 480px_80px 
+
+    CaTS: Integration of Geant4 and Opticks
+    CaTS/cats_001.jpg 1280px_720px 
+
     Geant4_Bug_2305 
     fermilab_geant4_team/geant4_bugzilla_2305_half.png 1180px_310px 50px_10px
 
@@ -1067,7 +1077,7 @@
     logos/Oisin_future_of_LZ_optical_simulations_half.png 640px_360px 640px_360px
     logos/nvidia.png 235px_215px 800px_100px 
 
-    LZ with Opticks (Images from Sam Eriksen, University of Bristol)
+    LZ using Opticks (Sam Eriksen, University of Bristol)
     lz/LZ_Opticks_OpenGL.png 508px_572px 100px_100px
     lz/LZ_Opticks_Composite.png 580px_551px 640px_100px
     # 762px_857px 381px_428px np.array([762,858])*2/3 
@@ -2555,6 +2565,24 @@
     NVIDIA GPUs for China
     nvidia/H20_L20_L2/tomshardware_h20_l20_l2_spec.png 624px_764px 400px_0px
 
+    cxr_min__eye_0,1,0__zoom_1__tmin_0.1__GZ1.B06_07_FlangeI_Web_FlangeII:0:-1.jpg
+    GEOM/J_2024may20/CSGOptiXRenderInteractiveTest/cxr_min__eye_0,1,0__zoom_1__tmin_0.1__GZ1.B06_07_FlangeI_Web_FlangeII:0:-1.jpg 1280px_720px
+
+    cxr_min__eye_0,1,0__zoom_1__tmin_0.1__GZ1.B06_07_FlangeI_Web_FlangeII:0:-100000.jpg 
+    GEOM/J_2024may20/CSGOptiXRenderInteractiveTest/cxr_min__eye_0,1,0__zoom_1__tmin_0.1__GZ1.B06_07_FlangeI_Web_FlangeII:0:-100000.jpg 1280px_720px
+
+    cxr_min__eye_0,1,0__zoom_1__tmin_0.1__sDeadWater:0:-1.jpg
+    GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_0,1,0__zoom_1__tmin_0.1__sDeadWater:0:-1.jpg 1280px_720px
+
+    cxr_min__eye_-1,0,0__zoom_1__tmin_0.1__GZ1.A06_07_FlangeI_Web_FlangeII:0:-100001.jpg
+    GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_-1,0,0__zoom_1__tmin_0.1__GZ1.A06_07_FlangeI_Web_FlangeII:0:-100001.jpg 1280px_720px
+
+    cxr_min__eye_0,3,-1.5__zoom_1__tmin_0.5__uni1:0:0.jpg
+    GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_0,3,-1.5__zoom_1__tmin_0.5__uni1:0:0.jpg 1280px_720px
+
+    cxr_min__eye_0,3,-1.5__zoom_1__tmin_0.5__uni1:0:000000.jpg
+    GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_0,3,-1.5__zoom_1__tmin_0.5__uni1:0:000000.jpg 1280px_720px   
+ 
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored

@@ -1194,6 +1194,7 @@ presentation-dir(){ echo $(env-home)/presentation ; }
 presentation-bdir(){ echo $HOME/simoncblyth.bitbucket.io/env/presentation ; }
 presentation-index-(){ index.py $(presentation-bdir) ; }
 presentation-index(){ open -a Safari.app http://localhost/env/presentation/index.html ; }
+p-index(){  presentation-index ; }
 
 
 presentation-c(){   cd $(presentation-dir); }
@@ -1369,7 +1370,8 @@ presentation--(){
    presentation-
    presentation-info
    presentation-make
-   presentation-open ${PAGE:-0}
+   local p=${P:-0}
+   presentation-open ${PAGE:-$p}
    presentation-rst2talk
 }
 
@@ -1384,6 +1386,14 @@ p-vi(){
 p-e(){
   : ~/env/presentation/presentation.bash
   presentation-e  
+}
+p-cd(){
+  : ~/env/presentation/presentation.bash
+  presentation-cd 
+}
+p-index(){
+  : ~/env/presentation/presentation.bash
+  presentation-index 
 }
 
 
@@ -1553,6 +1563,7 @@ presentation-rst2talk-(){
 #presentation-iname(){ echo ${INAME:-opticks_20240227_zhejiang_seminar} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20240227_zhejiang_seminar_TALK} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20240418_ihep_epd_seminar_story_of_opticks} ; }
-presentation-iname(){ echo ${INAME:-opticks_20240606_ihep_panel_30min} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20240606_ihep_panel_30min} ; }
 
+presentation-iname(){ echo ${INAME:-opticks_202406XX_kaiping_status_and_plan} ; }
 
