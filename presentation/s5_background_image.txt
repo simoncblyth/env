@@ -2313,6 +2313,22 @@
     U4Mesh_test2_facrSolid_review.png
     U4Mesh_test2/pvcap/U4Mesh_test2_facrSolid_review.png 1280px_720px
 
+    XJ triangulated
+    U4Mesh_test2/pvcap/U4Mesh_test2_xjfcSolid_review.png 640px_360px 640px_0px
+    U4Mesh_test2/pvcap/U4Mesh_test2_xjacSolid_review.png 640px_360px 640px_360px
+
+    cxr_min__eye_-1,-1,3__zoom_1__tmin_0.5__solidXJfixture:55:-1.jpg 
+    GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_-1,-1,3__zoom_1__tmin_0.5__solidXJfixture:55:-1.jpg 1280px_720px
+
+    SJ triangulated render
+    U4Mesh_test2/pvcap/U4Mesh_test2_sjclSolid_review.png 640px_360px 0px_0px
+    U4Mesh_test2/pvcap/U4Mesh_test2_sjfxSolid_review.png 640px_360px 640px_0px
+    U4Mesh_test2/pvcap/U4Mesh_test2_sjrcSolid_review.png 640px_360px 0px_360px 
+    U4Mesh_test2/pvcap/U4Mesh_test2_sjrfSolid_review.png 640px_360px 640px_360px
+
+    FastenerAcrylicConstruction
+    U4Mesh_test2/pvcap/U4Mesh_test2_facrSolid_review.png 640px_360px 640px_360px
+
     mandelbrot000.png
     mandelbrot/mandelbrot000.png 1280px_720px
 
@@ -2582,6 +2598,20 @@
 
     cxr_min__eye_0,3,-1.5__zoom_1__tmin_0.5__uni1:0:000000.jpg
     GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_0,3,-1.5__zoom_1__tmin_0.5__uni1:0:000000.jpg 1280px_720px   
+
+    cxr_min__eye_1,0,0__zoom_1__tmin_0.5__World_solid.jpg 
+    GEOM/OrbGridMultiUnion10_30_YX/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__World_solid.jpg 1280px_720px
+
+    cxr_min__eye_1,0,0__zoom_1__tmin_0.5__sSurftube_0V1_0:0:-1.jpg
+    GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__sSurftube_0V1_0:0:-1.jpg 1280px_720px
+
+    2024/06 JUNO+Opticks Geom Fix
+    GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_-1,0,0__zoom_1__tmin_0.1__GZ1.A06_07_FlangeI_Web_FlangeII:0:-100001.jpg 640px_360px 0px_360px
+    GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_0,3,-1.5__zoom_1__tmin_0.5__uni1:0:000000.jpg 640px_360px 640px_0px 
+    GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__sSurftube_0V1_0:0:-1.jpg 640px_360px 640px_360px
+
+    cxr_min__eye_1,0,0__zoom_1__tmin_0.5__solidXJfixture:0:-1.jpg
+    GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__solidXJfixture:0:-1.jpg 1280px_720px
  
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p

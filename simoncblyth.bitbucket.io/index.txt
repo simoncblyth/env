@@ -228,6 +228,15 @@ Opticks Presentations
 ~~~~~
 
 
+`env/presentation/opticks_202406XX_kaiping_status_and_plan.html <env/presentation/opticks_202406XX_kaiping_status_and_plan.html>`_
+
+   **WIP : PRESENTATION IN PREPARATION**
+
+   *JUNOSW+Opticks : Status and Plan*
+
+   JUNO Collaboration Meeting, 0? July 2024, Kaiping
+     
+
 
 `env/presentation/opticks_20240418_ihep_epd_seminar_story_of_opticks.html <env/presentation/opticks_20240418_ihep_epd_seminar_story_of_opticks.html>`_
 
