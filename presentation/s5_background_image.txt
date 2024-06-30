@@ -2313,7 +2313,7 @@
     U4Mesh_test2_facrSolid_review.png
     U4Mesh_test2/pvcap/U4Mesh_test2_facrSolid_review.png 1280px_720px
 
-    XJ triangulated
+    XJfixture/anchor triangulated
     U4Mesh_test2/pvcap/U4Mesh_test2_xjfcSolid_review.png 640px_360px 640px_0px
     U4Mesh_test2/pvcap/U4Mesh_test2_xjacSolid_review.png 640px_360px 640px_360px
 
@@ -2612,6 +2612,19 @@
 
     cxr_min__eye_1,0,0__zoom_1__tmin_0.5__solidXJfixture:0:-1.jpg
     GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__solidXJfixture:0:-1.jpg 1280px_720px
+
+    GuideTube : Torus Triangulated
+    U4Mesh_test/G4Torus/U4Mesh_test_NumberOfRotationSteps_48.png 640px_360px 640px_0px
+    U4Mesh_test/G4Torus/U4Mesh_test_NumberOfRotationSteps_480.png 640px_360px 640px_360px
+
+    sDeadWater
+    GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__sDeadWater:0:-1.jpg 1280px_720px
+
+    solidXJfixture:27:-1 
+    GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__solidXJfixture:27:-1.jpg 1280px_720px
+
+    20240626_171555_00000_wireframe.jpg
+    GEOM/J_2024jun14/SGLFW_SOPTIX_Scene_test/20240626_171555_00000_wireframe.jpg 1280px_720px
  
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p

@@ -3,9 +3,8 @@
    :title: JUNOSW + Opticks : Status and Plan
    :name: opticks_20240224_offline_software_review.txt
    :description: (2 July 2024)
-   :notes: 22nd collaboration meeting : Kaiping : 22-26 Feb 2024 : 15 min talk
-   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?sessionid=2642
-   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=11290
+   :notes: 23rd collaboration meeting : Kaiping : jun/july 2024 : 15 min talk
+   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?sessionid=2866
 
 
 .. include:: my_s5defs.txt
@@ -17,6 +16,8 @@
 .. comment
 
    to cover : interactive geometry view
+
+   02 Jul 2024 at 13:30
 
 
 .. comment
@@ -53,27 +54,26 @@
 
 .. class:: small
 
-
-
-   * Opticks Reminder 
+   * Opticks Reminder + "list-nodes"  
 
      * Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
      * Geometry Model Translation : Geant4 => CSGFoundry => NVIDIA OptiX 7+
-
-   * JUNOSW+Opticks (2024/06) 
-
-     * Geometry Issues Summary 
      * Opticks: n-ary CSG Compound "List-Nodes" => Much Smaller CSG trees
 
-   * WaterPoolConstruction
+   * JUNOSW+Opticks (2024/06) Geometry Issues 
 
-     * WaterPoolConstruction "sibling soup" vs HIERARCHY 
+     * WaterPoolConstruction "sibling soup" vs HIERARCHY
      * WaterPoolConstruction__CONFIG : testing alternative geometry
+     * FastenerAcrylicConstruction (:r:`discontiguous list-node working`)
+     * XJ{fixture/anchor} triangulated(?) 
+     * SJ{Fixture/Receiver/ReceiverFastern/CLSanchor} triangulated(?)
+     * GuideTube : Torus Triangulated (:r:`looking good, precision is adaptable`) 
 
-   * FastenerAcrylicConstruction
-   * XJ triangulated
-   * SJ triangulated
-   * NEXT STEPS/PLAN 
+   * 2024/06 JUNO+Opticks Summary 
+
+     * Geometry Fixes
+     * Status + Plan
+
    * Opticks Links, JUNOSW+Opticks DocDB 
 
 
@@ -86,7 +86,6 @@
    * [2] B:U4Recorder / A:CSGOptiX Ratio only 190 !
 
 
-
 .. raw:: html
 
     <div class="mycredit">
@@ -97,8 +96,8 @@
 
 .. s5_talk::
 
-    This talk will outline progress with the integration of JUNOSW and Opticks 
-
+    This talk mainly covers some issues that arose from recent geometry updates of the WaterPool 
+    and the steps towards handling remaining difficult aspects of the geometry translated to the GPU. 
 
 
 
@@ -126,9 +125,12 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-    How to use GPU ray tracing in simulation ? That is what Opticks does. 
+    GPU ray tracing is fantastically fast : hundreds of millions of ray geometry 
+    intersections per second
 
-    Opticks acts as a bridge between Geant4 on the CPU and NVIDIA OptiX GPU ray tracing 
+    Opticks applies GPU ray tracing to optical photon simulation    
+
+    It does this by acting as a bridge between Geant4 on the CPU and NVIDIA OptiX GPU ray tracing 
 
     * at initialization Opticks translates the Geant4 model of 
       detector geometry into a suitable form and uploads that to the GPU
@@ -216,48 +218,6 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 
 
-
-
-:small:`JUNOSW+Opticks (2024/06) : Geometry Issues Summary` 
-----------------------------------------------------------------
-
-.. class:: small
-
-
-    **WaterPoolConstruction + HBeamConstruction** : Addition of DeadWater + Tyvek 
-
-    * "sibling soup" model forces complex CSG gymnastics (>60 holes subtracted)
- 
-      * :b:`very deep CSG tree breaks Opticks translation`
-
-    * lower HBeam cross pieces and all lower pillar sections impinge into pool bottom  
-
-      * :b:`may cause Geant4 "stuck" tracks` 
-
-    :r:`FIX (MR 458) under test : simplify geometry using hierarchy approach` (**WaterPoolConstruction__CONFIG** envvar) 
-
-
-    **FastenerAcrylicConstruction**
-
-    * Deep CSG tree causes Opticks translation issue
-  
-    :r:`FIX (MR 468) under test : using G4MultiUnion/list-node` (**FastenerAcrylicConstruction__CONFIG** envvar)
-
-
-
-.. s5_talk::
-
-    Geometry Issues Summary 
-
-
-.. comment
-
-   * `csg_intersect_tree.h <https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_tree.h>`_ 
-   * `csg_intersect_node.h <https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_node.h>`_
-   * `csg_intersect_leaf.h <https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_leaf.h>`_
-
-
-
 :small:`n-ary CSG Compound "List-Nodes" => Much Smaller CSG trees`
 -------------------------------------------------------------------
 
@@ -315,6 +275,16 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
    reduce tree size and avoid large tree overheads. 
 
 
+
+.. comment
+
+   * `csg_intersect_tree.h <https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_tree.h>`_ 
+   * `csg_intersect_node.h <https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_node.h>`_
+   * `csg_intersect_leaf.h <https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_leaf.h>`_
+
+
+
+
 :i:`cxr_min__eye_1,0,0__zoom_1__tmin_0.5__World_solid.jpg`
 --------------------------------------------------------------
 
@@ -328,7 +298,71 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-   List-node
+   This test geometry would not be possible without list-node. 
+
+
+
+
+
+:small:`JUNOSW+Opticks (2024/06) : Geometry Issues Summary` 
+----------------------------------------------------------------
+
+.. class:: small
+
+
+    **WaterPoolConstruction + HBeamConstruction** : Addition of DeadWater + Tyvek 
+
+    * "sibling soup" model forces complex CSG gymnastics (>60 holes subtracted)
+ 
+      * :b:`very deep CSG tree breaks Opticks translation`
+
+    * lower HBeam cross pieces and all lower pillar sections impinge into pool bottom  
+
+      * :b:`may cause Geant4 "stuck" tracks` 
+
+    :r:`FIX (MR 458, J24.1.1) under test : simplify geometry using hierarchy approach` (**WaterPoolConstruction__CONFIG** envvar) 
+
+    **FastenerAcrylicConstruction**
+
+    * Deep CSG tree causes Opticks translation issue
+  
+    :r:`FIX (MR 468, J24.1.1) under test : using G4MultiUnion/list-node` (**FastenerAcrylicConstruction__CONFIG** envvar)
+
+    **XJfixtureConstruction + SJReceiverFasternConstruction**
+
+    * Complicated CSG causing performance issue => :b:`trying triangulated or list-node`
+
+      * :r:`FIX requires Opticks geometry generalization for triangulation`
+
+    **Calib_GuideTube_Construction**
+
+    * 39*2*2 = 156 G4Torus : double precision intersect on GPU : very expensive => :b:`triangulated looking OK` 
+    * :r:`FIX requires no JUNOSW change, needs Opticks geometry generalization`
+
+    
+
+.. s5_talk::
+
+    Geometry Issues Summary 
+
+
+
+
+:i:`sDeadWater`
+-----------------
+
+.. raw:: html
+
+    <p style="margin-bottom:165mm;" />
+
+.. class:: center
+
+    ``"sDeadWater/sTyvekFilm" issues at WaterPool base``
+
+
+.. s5_talk::
+
+    First issue at base of WaterPool  
 
 
 
@@ -414,7 +448,11 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-     Using hierarcy enables much simpler CSG
+    Currently the WaterPool is modelled using a "Sibling soup" approach where DeadWater, Tyvek, Air and Steel
+    are all siblings within vetoWater. This approach forces use of complex CSG for all the solids. To avoid 
+    overlaps between siblings it even necessary to subtract holes for all 60 support pillars. 
+
+    Using hierarcy enables much simpler CSG and fixes both these issues.
 
 
 :small:`WaterPoolConstruction__CONFIG : testing alternative geometry`
@@ -422,7 +460,9 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. class:: small
 
-    blyth-WaterPoolConstruction__CONFIG-to-fix-pillar-impingement-and-opticks-translation
+    branch: blyth-WaterPoolConstruction__CONFIG-to-fix-pillar-impingement-and-opticks-translation
+
+    https://code.ihep.ac.cn/JUNO/offline/junosw/-/merge_requests/458 :b:`MERGED: 2024-06-17` (J24.1.1)
 
     +--------------------+------------------------------------------------------------+
     | CONFIG             | Notes on WaterPoolConstruction HBeamConstruction           |
@@ -438,8 +478,6 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
     |                    | * skip bottom angled cross piece                           |
     |                    | * raise base of pillars within vetoWater                   |  
     +--------------------+------------------------------------------------------------+
-
-    https://code.ihep.ac.cn/JUNO/offline/junosw/-/merge_requests/458 :b:`MERGED: 2024-06-17`
 
     Set CONFIG envvar to change geometry, default is no change "sibling soup":
 
@@ -538,7 +576,7 @@ FastenerAcrylicConstruction
         |        U                     |
         |       / \                    |
         |      /   \                   |
-        |     D     U[A,B,C,D,E,F,G,H] |
+        |     S     U[A,B,C,D,E,F,G,H] |
         |    / \                       | 
         |   I   J                      |
         +------------------------------+</pre>
@@ -556,7 +594,7 @@ FastenerAcrylicConstruction
     |                           U              |
     |                          / \             |
     |                         /   \            |
-    |                        /     D           |
+    |                        /     S           |
     |                       U     / \          |
     |                      / \   I   J         |
     |                     U   H                | 
@@ -576,6 +614,7 @@ FastenerAcrylicConstruction
     +------------------------------------------+
 
     U : Union
+    S : Subtraction
     A-J : Tubs (cylinder) primitive 
     </pre>
 
@@ -625,8 +664,18 @@ FastenerAcrylicConstruction
 
 
 
-XJ triangulated
-----------------
+:i:`20240626_171555_00000_wireframe.jpg`
+------------------------------------------
+
+``triangulated wireframe render``
+
+.. s5_talk::
+
+    OpenGL wireframe 
+
+
+:small:`XJfixture/anchor triangulated(?)`
+-------------------------------------------
 
 .. raw:: html
 
@@ -704,38 +753,40 @@ XJ triangulated
 
 
 
-SJ triangulated 
-----------------
+.. comment
 
-.. sidebar:: :small:`Counts in Geometry`
+    SJ triangulated 
+    ----------------
+
+    .. sidebar:: :small:`Counts in Geometry`
+
+        .. class:: small
+
+            +--------------------+----+-----------+
+            |  Construction      | #  | Material  |
+            +====================+====+===========+
+            | SJCLSanchor        |  2 | Acrylic   |
+            +--------------------+----+-----------+
+            | SJFixture          | 36 | Acrylic   |
+            +--------------------+----+-----------+
+            | SJReceiver         |  8 | Acrylic   |
+            +--------------------+----+-----------+
+            | SJReceiverFastern  |  8 | PE_PA     |
+            +--------------------+----+-----------+
+
+            
+
 
     .. class:: small
 
-        +--------------------+----+
-        |  Construction      | #  |
-        +====================+====+
-        | SJCLSanchor        |  2 |
-        +--------------------+----+
-        | SJfixture          | 36 |
-        +--------------------+----+
-        | SJReceiver         |  8 |
-        +--------------------+----+
-        | SJReceiverFastern  |  8 |
-        +--------------------+----+
+       **SJCLSanchor**
+
+       **SJFixture** 
 
 
-.. class:: small
+    .. s5_talk::
 
-   **SJCLSanchor**
-
-   **SJfixture** 
-
-
-.. s5_talk::
-
-    Triangulation is shortcut : maybe can avoid re-implementing to avoid coincident surfaces + spurious 
-
-
+        Triangulation is shortcut : maybe can avoid re-implementing to avoid coincident surfaces + spurious 
 
 
 
@@ -745,10 +796,18 @@ SJ triangulated render
 .. raw:: html
 
     <p style="margin-bottom:-10mm;" />
-    <p style="position:fixed;top:-10px;left:10px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">(0):sjcl:SJCLSanchor</p>
-    <p style="position:fixed;top:-10px;left:680px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">(1):sjfx:SJfixture</p>
-    <p style="position:fixed;top:350px;left:10px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">(2):sjrc:SJReceiver</p>
-    <p style="position:fixed;top:350px;left:680px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">(3):sjrf:SJReceiverFastern</p>
+    <p style="position:fixed;top:-10px;left:10px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">
+       (0):sjcl:SJCLSanchor [only 2, Acrylic]
+    </p>
+    <p style="position:fixed;top:-10px;left:680px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">
+       (1):sjfx:SJFixture [36, Acrylic]
+    </p>
+    <p style="position:fixed;top:350px;left:10px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">
+       (2):sjrc:SJReceiver [only 8, Acrylic]
+    </p>
+    <p style="position:fixed;top:350px;left:680px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">
+       (3):sjrf:SJReceiverFastern [only 8, PE_PA]
+    </p>
     
 
 .. s5_talk::
@@ -786,6 +845,49 @@ SJ triangulated render
 
 
 
+:small:`GuideTube : Torus Triangulated`
+------------------------------------------
+
+.. comment
+
+   export U4Mesh__NumberOfRotationSteps_entityType_G4Torus=48
+   export U4Mesh__NumberOfRotationSteps_entityType_G4Torus=480
+
+
+.. class:: small
+
+
+   GuideTube (39*2*2 = 156 G4Torus) 
+      split in phi segments, radius breaks
+
+   Intersect with torus expensive on GPU 
+
+   * requires double precision to solve quartic
+   * even with double precision analytic solution imprecise  
+   * :b:`numerical approach favored` => :r:`triangulation`
+
+   Triangulation using **G4Polyhedron**
+
+   ``G4Poly..::SetNumberOfRotationSteps``  
+
+   +--------------------------+-----------------------+ 
+   |                          | NumberOfRotationSteps |
+   +==========================+=======================+
+   | HepPolyhedron Default    |      24               |
+   +--------------------------+-----------------------+ 
+   | Top Right                |      48               |
+   +--------------------------+-----------------------+ 
+   | Bottom Right             |      480              | 
+   +--------------------------+-----------------------+ 
+
+   Adjustable: precision of intersect,  number of triangles
+   
+   :b:`GPUs evolved for triangles => fast even with many`
+
+
+.. s5_talk::
+
+    Torus triangulated
 
 
 :i:`cxr_min__eye_1,0,0__zoom_1__tmin_0.5__sSurftube_0V1_0:0:-1.jpg`
@@ -809,91 +911,69 @@ SJ triangulated render
 
 
 
-:small:`Remaining CPU/GPU Geometry Differences`
--------------------------------------------------
+solidXJfixture:27:-1
+-----------------------
 
-.. class:: small
+.. raw:: html
 
-   Virtual surface shifts used to avoid degeneracy, together with defaults (shifts avoid chi2 discrepancies from degenerate surfaces)::
+    <p style="margin-bottom:150mm;" />
+ 
 
-       export Tub3inchPMTV3Manager__VIRTUAL_DELTA_MM=0.10           ## 1.e-3 
-       export HamamatsuMaskManager__MAGIC_virtual_thickness_MM=0.10 ## 0.05 
-       export NNVTMaskManager__MAGIC_virtual_thickness_MM=0.10      ## 0.05
+``TRIMESH=1 MOI=solidXJfixture:27:-1 EYE=0,0.1,-20 ~/o/cxr_min.sh``
 
-   * :b:`TODO: check virtual shifts have no performance effects or overlap issues` 
-
-     * :r:`convince offline group to enlarge defaults : avoiding these Opticks only shifts`                                                 
-
-   * :b:`TODO: add optional triangulated geometry handling : use for guide tube`
-
-     * :r:`torus quartic analytic solution painful : expect triangulation approximation more robust+precise`
-
-   * :b:`TODO: test "listnode" solution for handling deep CSG trees (complex solid shape)`
-
-
-.. class:: center
-
-   **Completing these three : will match GPU and CPU geometry**
 
 
 .. s5_talk::
 
-    The geometry differerences can be grouped into three. 
-
-    First there are some small shifts in PMT virtual wrapper volumes to avoid degeneracy. 
-    Once I demonstrate that these shifts have no performance effects or overlap issues in
-    standard (non-Opticks) running I hope the defaults can be enlarged to keep geometries the same.
-
-    Secondly the guide tube is skipped. To remedy this requires adding triangulated geometry handling.
-    Old opticks had this functionality : I need to revive this into the new Opticks. 
-
-    The third difference is skipping of some complex CSG solids.  I have a solution for this 
-    that needs to be tested.  
-   
+    GT at bottom of CD
 
 
 
 
-Opticks Links, JUNOSW+Opticks DocDB 
--------------------------------------
+.. comment
 
-.. table::
-    :align: center
+    :small:`Remaining CPU/GPU Geometry Differences`
+    -------------------------------------------------
 
-    +----------------------------------------------+---------------------------------------------+
-    | https://bitbucket.org/simoncblyth/opticks    | code repository (day-to-day)                |     
-    +----------------------------------------------+---------------------------------------------+
-    | https://github.com/simoncblyth/opticks       | code repository (~month-to-month), releases |     
-    +----------------------------------------------+---------------------------------------------+
-    | https://simoncblyth.bitbucket.io             | publications, presentations, videos         |   
-    | https://simoncblyth.github.io                |                                             | 
-    | https://juno.ihep.ac.cn/~blyth/              |                                             |
-    +----------------------------------------------+---------------------------------------------+
-    | https://groups.io/g/opticks                  | forum/mailing list archive                  |    
-    +----------------------------------------------+---------------------------------------------+
-    | email:opticks+subscribe@groups.io            | subscribe to mailing list                   |    
-    +----------------------------------------------+---------------------------------------------+ 
+    .. class:: small
 
+       Virtual surface shifts used to avoid degeneracy, together with defaults (shifts avoid chi2 discrepancies from degenerate surfaces)::
 
+           export Tub3inchPMTV3Manager__VIRTUAL_DELTA_MM=0.10           ## 1.e-3 
+           export HamamatsuMaskManager__MAGIC_virtual_thickness_MM=0.10 ## 0.05 
+           export NNVTMaskManager__MAGIC_virtual_thickness_MM=0.10      ## 0.05
 
-**JUNOSW+Opticks**
+       * :b:`TODO: check virtual shifts have no performance effects or overlap issues` 
 
+         * :r:`convince offline group to enlarge defaults : avoiding these Opticks only shifts`                                                 
 
-.. class:: normal
+       * :b:`TODO: add optional triangulated geometry handling : use for guide tube`
 
-    .. table::
-        :align: center
+         * :r:`torus quartic analytic solution painful : expect triangulation approximation more robust+precise`
 
-        +-------------+-----------+------------------------------------------------------------+
-        | DocDB-10968 |2023/12/19 | Using first JUNOSW+Opticks Pre-Release at IHEP GPU cluster |
-        +-------------+-----------+------------------------------------------------------------+
-        | DocDB-10929 |2023/12/11 | JUNOSW + Opticks : Profiling and Status                    |
-        +-------------+-----------+------------------------------------------------------------+
+       * :b:`TODO: test "listnode" solution for handling deep CSG trees (complex solid shape)`
 
 
-.. s5_talk::
+    .. class:: center
 
-    Links and recent DocDB numbers
+       **Completing these three : will match GPU and CPU geometry**
+
+
+    .. s5_talk::
+
+        The geometry differerences can be grouped into three. 
+
+        First there are some small shifts in PMT virtual wrapper volumes to avoid degeneracy. 
+        Once I demonstrate that these shifts have no performance effects or overlap issues in
+        standard (non-Opticks) running I hope the defaults can be enlarged to keep geometries the same.
+
+        Secondly the guide tube is skipped. To remedy this requires adding triangulated geometry handling.
+        Old opticks had this functionality : I need to revive this into the new Opticks. 
+
+        The third difference is skipping of some complex CSG solids.  I have a solution for this 
+        that needs to be tested.  
+       
+
 
 
 
@@ -976,7 +1056,7 @@ Opticks Links, JUNOSW+Opticks DocDB
 
    * generalize Opticks geometry for fine-grained triangulation control
    * geometry performance scan + validation check
-   * :b:`Make full geometry JUNO+Opticks release`
+   * :b:`Make full geometry JUNO+Opticks release (aim ~September)`
    * automate performance + validation monitoring 
    * :r:`convince offline group to change defaults, adopting geometry fixes+simplifications`                                                 
  
@@ -992,5 +1072,48 @@ Opticks Links, JUNOSW+Opticks DocDB
 .. s5_talk::
 
     Klop
+
+
+
+Opticks Links, JUNOSW+Opticks DocDB 
+-------------------------------------
+
+.. table::
+    :align: center
+
+    +----------------------------------------------+---------------------------------------------+
+    | https://bitbucket.org/simoncblyth/opticks    | code repository (day-to-day)                |     
+    +----------------------------------------------+---------------------------------------------+
+    | https://github.com/simoncblyth/opticks       | code repository (~month-to-month), releases |     
+    +----------------------------------------------+---------------------------------------------+
+    | https://simoncblyth.bitbucket.io             | publications, presentations, videos         |   
+    | https://simoncblyth.github.io                |                                             | 
+    | https://juno.ihep.ac.cn/~blyth/              |                                             |
+    +----------------------------------------------+---------------------------------------------+
+    | https://groups.io/g/opticks                  | forum/mailing list archive                  |    
+    +----------------------------------------------+---------------------------------------------+
+    | email:opticks+subscribe@groups.io            | subscribe to mailing list                   |    
+    +----------------------------------------------+---------------------------------------------+ 
+
+
+
+**JUNOSW+Opticks**
+
+
+.. class:: normal
+
+    .. table::
+        :align: center
+
+        +-------------+-----------+------------------------------------------------------------+
+        | DocDB-10968 |2023/12/19 | Using first JUNOSW+Opticks Pre-Release at IHEP GPU cluster |
+        +-------------+-----------+------------------------------------------------------------+
+        | DocDB-10929 |2023/12/11 | JUNOSW + Opticks : Profiling and Status                    |
+        +-------------+-----------+------------------------------------------------------------+
+
+
+.. s5_talk::
+
+    Links and recent DocDB numbers
 
 
