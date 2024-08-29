@@ -514,6 +514,78 @@ vim substitute tips
 * http://vim.wikia.com/wiki/Search_and_replace
 
 
+
+TEST else if replace
+----------------------
+
+::
+
+    355 int spath_test::ALL()
+    356 {
+    357     int rc = 0 ;
+    358     
+    359     rc += Resolve_defaultOutputPath() ;
+    360     rc += Resolve_with_undefined_token();
+    361     rc += Resolve_with_undefined_TMP();
+    362     rc += Resolve_inline();
+    363     rc += ResolveToken(); 
+    364     rc += Resolve(); 
+    365     rc += Exists(); 
+    366     rc += Exists2(); 
+    367     rc += Basename(); 
+    368     rc += Name(); 
+    369     rc += Remove(); 
+    370     rc += IsTokenWithFallback(); 
+    371     rc += ResolveTokenWithFallback(); 
+    372     rc += _ResolveToken(); 
+    373     rc += Resolve(); 
+    374     rc += ResolveToken1(); 
+    375     rc += Resolve1(); 
+    376     rc += _Check(); 
+    377     rc += Write(); 
+    378     
+    379     return rc ;
+    380 }   
+    381 
+    382 
+    383 int spath_test::Main()
+    384 {
+    385     const char* TEST = ssys::getenvvar("TEST", "Resolve_defaultOutputPath" );
+    386     
+    387     int rc = 0 ;
+    388     if(     strcmp(TEST, "Resolve_defaultOutputPath")==0 )   rc = Resolve_defaultOutputPath();
+    389     else if(strcmp(TEST, "Resolve_with_undefined_token")==0) rc = Resolve_with_undefined_token();
+    390     else if(strcmp(TEST, "Resolve_with_undefined_TMP")==0) Resolve_with_undefined_TMP();
+    391     else if(strcmp(TEST, "Resolve_inline")==0) Resolve_inline();
+    392     else if(strcmp(TEST, "ResolveToken")==0) ResolveToken();
+    393     else if(strcmp(TEST, "Resolve")==0) Resolve();
+    394     else if(strcmp(TEST, "Exists")==0) Exists();
+    395     else if(strcmp(TEST, "Exists2")==0) Exists2();
+    396     else if(strcmp(TEST, "Basename")==0) Basename();
+    397     else if(strcmp(TEST, "Name")==0) Name();
+    398     else if(strcmp(TEST, "Remove")==0) Remove();
+    399     else if(strcmp(TEST, "IsTokenWithFallback")==0) IsTokenWithFallback();
+    400     else if(strcmp(TEST, "ResolveTokenWithFallback")==0) ResolveTokenWithFallback();
+    401     else if(strcmp(TEST, "_ResolveToken")==0) _ResolveToken();
+    402     else if(strcmp(TEST, "Resolve")==0) Resolve();
+    403     else if(strcmp(TEST, "ResolveToken1")==0) ResolveToken1();
+    404     else if(strcmp(TEST, "Resolve1")==0) Resolve1();
+    405     else if(strcmp(TEST, "_Check")==0) _Check();
+    406     else if(strcmp(TEST, "Write")==0) Write();
+    407     
+    408     
+    409 
+    :392,408s/^\(\s*\)rc = \(\w*\)();.*$/\1else if(strcmp(TEST, "\2")==0) \2();/gc
+
+
+    ## \1 : leading whitespace 
+    ## \2 : method name with brackets excluded
+
+    ## actually not quite : missed the "rc = " fixed that with below
+    :.,406s/0)/0) rc =/gc
+
+
+
 add std::setw after first stream chevron on the line
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -528,6 +600,11 @@ add std::setw after first stream chevron on the line
 ::
 
     :.,+20s/^\(\s*\)<</\1<< std::setw(w) <</gc
+
+     ^\(\s*\)<<                 ## match whitespace at start of the line and capture into \1
+     \1<< std::setw(w) <<       ## replace with the captured start of line and the desired suffix
+
+
 
     # NB: must escape the capturing bracket 
 

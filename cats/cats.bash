@@ -4,18 +4,22 @@ cats-usage(){ cat << EOU
 cats.bash
 ===========
 
+Experimenting with this in "C" account on workstation
+
 ~/Downloads/alexei.txt 
 
 EOU
 }
 
+cats-local(){ echo ${CATS_LOCAL:-/data/blyth/local} ; }
 cats-base(){ echo ${CATS_BASE:-/data/blyth/cats} ; }
 cats-clhep-url(){  echo https://proj-clhep.web.cern.ch/proj-clhep/dist1/clhep-2.4.6.2.tgz ; }
 cats-geant4-url(){ echo https://geant4-data.web.cern.ch/releases/geant4-v11.1.2.tar.gz ; } 
 
-cats-init(){
+cats-cd(){
     local base=$(cats-base)
-    mkdir -p $base && cd $base
+    mkdir -p $base 
+    cd $base
 }
 
 cats-curl(){
@@ -32,23 +36,42 @@ cats-curl(){
     fi
 }
 
-cats-clhep(){
-    cats-init
-    local url=$($FUNCNAME-url)
+cats-clhep-ver()
+{
+    local url=$(cats-clhep-url)
+    local dist=$(basename $url)
+    local stem=${dist%.*}  # trim away string from last .   eg stem clhep-2.4.6.2
+    local vers=${stem#*-}
+    local ver=${vers//./}   # remove .  
+    echo $ver 
+}
+cats-clhep-get()
+{
+    local url=$(cats-clhep-url)
     local dist=$(basename $url)
     local edir=${dist/.tgz}
     edir=${edir/clhep-}
 
-    cats-curl $url $dist $edir
+    echo $FUNCNAME url $url dist $dist edir $edir
 
+    cats-cd 
+    cats-curl $url $dist $edir
     cd $edir
+    pwd
+}
+
+cats-clhep(){
+    cats-cd
+    cats-clhep-get
+    local ver=$(cats-clhep-ver)
+
     local bdir=CLHEP-build
-    local idir=CLHEP-install
+    local idir=$CATS_LOCAL/clhep-$ver
     mkdir -p $bdir && cd $bdir
 
     # -GNinja
     cmake \
-        -DCMAKE_INSTALL_PREFIX=$idir \ 
+        -DCMAKE_INSTALL_PREFIX=$idir \
         -DCMAKE_BUILD_TYPE=Release \
         -DCLHEP_BUILD_CXXSTD=-std=c++17 \
         ../CLHEP
@@ -57,16 +80,35 @@ cats-clhep(){
 }
 
 
-cats-geant4(){
-    cats-init
-    local url=$($FUNCNAME-url)
+cats-geant4-get(){
+    local url=$(cats-geant4-url)
     local dist=$(basename $url)
     local edir=${dist/.tar.gz}
+    edir=${edir/geant4-}
 
+    echo $FUNCNAME url $url dist $dist edir $edir
+
+    cats-cd 
     cats-curl $url $dist $edir
+    cd $edir
+    pwd
 
-    local bdir=${edir}-build
-    local idir=${edir}-install
+
+}
+
+
+cats-geant4(){
+    cats-cd
+    local url=$(cats-geant4-url)
+    local dist=$(basename $url)  ## eg geant4-v11.1.2.tar.gz
+    local stem=${dist/.tar.gz}   ## eg geant4-v11.1.2  
+    local vers=${stem#*v}        ## eg 11.1.2   
+    local ver=${vers//./}        ## eg 1112
+
+    cats-curl $url $dist $stem
+
+    local bdir=${stem}-build
+    local idir=$CATS_LOCAL/geant4-$ver
 
     mkdir -p $bdir && cd $bdir
 
