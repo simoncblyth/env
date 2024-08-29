@@ -11,6 +11,13 @@ BITBUCKET
 ==========
 
 
+Check permissions for repo in info page
+----------------------------------------
+
+Note "Merge" button will not appear in pull requests
+page when not logged into "SB(gmail)"  (eg when logging in as "B(hep1)")
+
+
 Web UI : Select a pull request from the list
 -----------------------------------------------
 
@@ -29,12 +36,6 @@ Then to Merge or take other action click the "..." dropdown with options::
    Stop watching
    View in VS Code
  
-
-     
-
-
-
-
 
 May 2023 : SSH key rotation : RSA key removal 
 -----------------------------------------------

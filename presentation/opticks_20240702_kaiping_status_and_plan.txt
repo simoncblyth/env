@@ -1,10 +1,10 @@
 .. meta::
 
    :title: JUNOSW + Opticks : Status and Plan
-   :name: opticks_20240224_offline_software_review.txt
+   :name: opticks_20240702_kaiping_status_and_plan_.txt
    :description: (2 July 2024)
-   :notes: 23rd collaboration meeting : Kaiping : jun/july 2024 : 15 min talk
-   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?sessionid=2866
+   :notes: 23rd collaboration meeting : Kaiping : jun/july 2024 : 20 min talk
+   :url: JUNO-doc-12035
 
 
 .. include:: my_s5defs.txt
@@ -125,8 +125,10 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-    GPU ray tracing is fantastically fast : hundreds of millions of ray geometry 
-    intersections per second
+    GPU ray tracing gives hundreds of millions of ray geometry 
+    intersections per second : but how to use that in simulation
+
+    That is what opticks does
 
     Opticks applies GPU ray tracing to optical photon simulation    
 

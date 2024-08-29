@@ -1409,6 +1409,7 @@ videola-(){  . $(env-home)/videola/videola.bash && videola-env $* ; }
 mediamosa-(){      . $(env-home)/mediamosa/mediamosa.bash && mediamosa-env $* ; }
 tcpdump-(){      . $(env-home)/base/tcpdump.bash && tcpdump-env $* ; }
 svnlog-(){      . $(env-home)/tools/svnlog.bash && svnlog-env $* ; }
+linux-(){      . $(env-home)/tools/linux.bash && linux-env $* ; }
 macports-(){      . $(env-home)/base/macports.bash && macports-env $* ; }
 xsd-(){      . $(env-home)/xml/xsd.bash && xsd-env $* ; }
 bdbxml-(){      . $(env-home)/db/bdbxml.bash && bdbxml-env $* ; }
