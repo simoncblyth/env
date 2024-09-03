@@ -64,6 +64,9 @@ Fix:
 Issue : dropping file
 ----------------------
 
+FIXED ? on alma linux by changing to the other nc commandline in ~/.git/config
+
+
 HUH : git pull via proxy dropping file 127.0.0.1:8080::
 
     L7[blyth@lxslc708 opticks]$ git pull 

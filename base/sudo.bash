@@ -17,12 +17,20 @@ sudo-usage(){
            trac-- TRAC_INSTANCE=newtest trac-admin- permission list
            TRAC_INSTANCE=newtest trac-admin-- permission list
     
-                               
+                              
+hop to other user::
+
+    sudo su - simon 
+
+ 
 EOU
 
 }
 
 sudo-env(){ echo -n ; }
+sudo-vi(){ vi $BASH_SOURCE ; }
 sudo--(){  
    sudo bash -c "export ENV_HOME=$ENV_HOME ; . $ENV_HOME/env.bash ; env- ; $* "
 }
+
+

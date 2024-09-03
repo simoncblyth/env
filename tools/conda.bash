@@ -332,6 +332,44 @@ problem with installing ipython into 2
 
 
 
+
+Anaconda had not updated Python internally to 3.6, but later versions of Anaconda has a Python 3.6 version here.
+
+a) Method 1
+
+    If you wanted to update, you will type conda update python
+
+    To update Anaconda, type conda update conda
+
+    If you want to upgrade between major python versions, like 3.5 to 3.6, you'll have to do
+
+    conda install python=$pythonversion$
+
+b) Method 2 - Create a new environment (the better method)
+
+conda create --name py36 python=3.6
+
+c) To get the absolute latest Python (3.6.5 at time of writing)
+
+conda create --name py365 python=3.6.5 --channel conda-forge
+
+You can see all this from here.
+
+Also, refer to this for force upgrading.
+
+
+
+
+
+conda update guidelines
+
+https://github.com/conda/conda/issues/12456
+
+
+
+
+
+
 EOU
 }
 
