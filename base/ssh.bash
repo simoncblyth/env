@@ -182,6 +182,9 @@ Recover from a forgotten passphrase
 
 NB this can be automated with *ssh--putkey* when you have control of both ends 
 
+NOWADAYS ssh-copy-id SEEMS A STANDARD ALTERNATIVE 
+
+
 Appending keys for restricted no-login shell identity
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -929,12 +932,33 @@ ssh--putkeys(){
 }
 
 ssh--putkey(){
+
+    type $FUNCNAME
+    : NOWADAYS ssh-copy-id SEEMS A STANDARD ALTERNATIVE TO THIS 
+
     X=${1:-$TARGET_TAG}
     ssh $X "mkdir .ssh"
     cat ~/.ssh/id_{d,r}sa.pub | ssh $X "cat - >> ~/.ssh/authorized_keys"
     ssh $X "chmod 700 .ssh ; chmod 700 .ssh/authorized_keys" 
 
 }
+
+ssh-copy-id-notes(){ cat << EON
+
+[blyth@localhost .ssh]$ ssh-copy-id -i id_rsa.pub A
+/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "id_rsa.pub"
+/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+blyth@192.168.185.246's password: 
+
+Number of key(s) added: 1
+
+Now try logging into the machine, with:   "ssh 'A'"
+and check to make sure that only the key(s) you wanted were added.
+
+EON
+}
+
 
 ssh--pk2(){  cat $2 | ssh $1 "cat - >> ~/.ssh/authorized_keys" ; }
 
