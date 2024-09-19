@@ -6,6 +6,43 @@ osx_env(){      elocal- ; }
 osx_usage(){ cat << EOU
 
 
+reset PRAM
+-----------
+
+* https://www.avast.com/c-reset-mac-pram-smc
+
+  * option + command + P + R  : for 20s while rebooting
+  * OR: sudo nvram -c  and then reboot
+
+reset SMC (system management controller)
+------------------------------------------
+
+* https://www.avast.com/c-reset-mac-pram-smc
+* https://support.apple.com/en-us/103265
+
+Older mbp without t2
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Here’s how to reset the SMC on notebooks with non-removable batteries:
+
+    Shut down your Mac.
+
+    Press and hold Shift, Control, and Option on the left side of the keyboard. At the same time, press the power button.
+
+
+
+* https://discussions.apple.com/thread/250464804?sortBy=rank
+
+
+
+free keyboard repair
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+* https://support.apple.com/keyboard-service-program-for-mac-notebooks
+
+
+
 screencapture
 ----------------
 

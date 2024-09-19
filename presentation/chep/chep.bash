@@ -7,6 +7,60 @@ chep-notes(){ cat << EON
 
 
 
+CHEP 2024 registration
+=======================
+
+* https://indico.cern.ch/event/1338689/registrations/99376/
+
+Registration is open
+Deadline 29 Sept 2024
+
+825.00 EUR
+
+Conference 	21-25.10.2024
+ 
+
+
+Registration for CHEP 2024 in Krakow is almost finished! Please hurry up if you
+want to attend.  We close the registration on September 23 and we expect the
+electronics payment by September 30.  There will be a possibility of paying on
+the spot. If you want to choose this option, please let us know upfront.
+
+I hope to see you soon in Krakow!
+
+
+
+McGill, Montreal, Canada
+==========================
+
+Electronic Travel Authorization (eTA)
+
+For visits of up to 6 months or to transit via a Canadian airport.
+Cost: CAN $7
+
+
+
+CHEP 2024 travel
+==================
+
+
+Travel Discounts for CHEP 2024 Conference Attendees
+
+Participants of the the 27th International Conference on Computing in
+High-Energy & Nuclear Physics and their travel partners can benefit from
+discounts of up to 16% on LOT Economy Class travel and up to 21% on LOT Premium
+Economy Class and LOT Business Class travel to Kraków. The offer is limited to
+the travel period: 17.10.2024 to 27.10.2024. 
+
+The discount is granted based on the promotional code: 06WPK28, which must be
+entered in the field "Promo Code" when booking a ticket via www.lot.com;
+
+Discounted tickets are valid for travel between 17.10.2024 to 27.10.2024.
+
+
+
+
+
 29th Geant4 Collaboration Meeting 7-11 October
 -------------------------------------------------
 
