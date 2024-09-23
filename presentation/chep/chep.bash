@@ -10,6 +10,20 @@ chep-notes(){ cat << EON
 CHEP 2024 registration
 =======================
 
+
+* https://indico.cern.ch/event/1338689/registrations/99376/?token=114a148c-8909-422f-b9c6-fddf4fb32ad0
+
+* https://www.airbnb.co.uk/rooms/15705225?location=Krak%C3%B3w%20Old%20Town%2C%20Pa%C5%84skie%20Pola%2C%20Lesser%20Poland%20Voivodeship%2C%20Poland&search_mode=regular_search&check_in=2024-10-20&check_out=2024-10-23&source_impression_id=p3_1726813441_P3pO7F539WUVSigz&previous_page_section_name=1001&federated_search_id=404a5b76-0f9f-4da7-8229-01c5774b770e
+
+
+
+Registered using simon.c.blyth@gmail.com::
+
+    825 EUR
+
+
+
+
 * https://indico.cern.ch/event/1338689/registrations/99376/
 
 Registration is open
