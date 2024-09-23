@@ -1346,3 +1346,29 @@ ssh--pwauth(){
 
 
 }
+
+ssh-fingerprints-notes(){ cat << EON
+
+gitlab sends emails warning of ssh keys that are about to expire
+with the MD5 style fingerprint. The ssh-fingerprints function
+lists the fingerprints of all the keys. 
+
+
+EON
+}
+
+ssh-fingerprints(){
+   local iwd=$PWD
+   cd ~/.ssh 
+   local keys="id_rsa id_dsa id_ecdsa"
+   local key
+   local cmd
+   for key in $keys ; do  
+       if [ -f "$key" ]; then
+           cmd="ssh-keygen -l -E md5 -f $key" 
+           echo $cmd
+           eval $cmd   
+       fi 
+   done
+}
+
