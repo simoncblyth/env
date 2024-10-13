@@ -11,6 +11,65 @@ CHEP 2024 registration
 =======================
 
 
+
+Dear simon,
+
+You can now check the schedule of your contribution Opticks : GPU ray trace
+accelerated optical photon simulation under "My Contributions" on the main page
+of CHEP24: https://indico.cern.ch/e/chep24
+
+Please note that talks are 15 + 3 minutes, which have to be respected strictly
+because of the packed schedule.
+
+Best regards,
+the CHEP24 Programme Committee
+
+* https://indico.cern.ch/event/1338689/contributions/mine
+
+* https://indico.cern.ch/event/1338689/contributions/6016185/
+
+21 Oct 2024, 16:45
+18m
+Room 1.B (Medium Hall B) 
+
+
+
+
+
+Dear Marta, 
+
+Thank you for your response. However our secretary, Tian Lei,  
+advised me that because of an upcoming holiday in China it is 
+highly likely there is insufficient time to: 
+
+1. get approval + do the direct transfer from IHEP to you 
+2. request + receive signed invitation letter from you 
+3. use signed invite to make trip approval request submitted 
+   before an upcoming holiday in China from Oct 1->7
+
+Due to the urgency, I have enlisted help from a Chinese colleague, 
+ZHANG HAO SEN, who has today initiated the Wire transfer to you
+on my behalf from his ICBC account (Industrial and Commercial Bank of China)
+The Wire transfer annotation is:
+
+    SIMON CHARLES BLYTH, PRELIMINARY DOCUMENT NO.454, REGISTRATION NUMBER 481    
+
+The amount sent is 850 EUR, more than 825 EUR to cover charges. 
+I hope the money arrives quickly, enabling my registration to be 
+approved in order that I can receive the signed invitation letter before
+September 30th.   
+
+Sincerely, 
+Simon C Blyth
+
+
+
+
+
+
+
+
+
 * https://indico.cern.ch/event/1338689/registrations/99376/?token=114a148c-8909-422f-b9c6-fddf4fb32ad0
 
 * https://www.airbnb.co.uk/rooms/15705225?location=Krak%C3%B3w%20Old%20Town%2C%20Pa%C5%84skie%20Pola%2C%20Lesser%20Poland%20Voivodeship%2C%20Poland&search_mode=regular_search&check_in=2024-10-20&check_out=2024-10-23&source_impression_id=p3_1726813441_P3pO7F539WUVSigz&previous_page_section_name=1001&federated_search_id=404a5b76-0f9f-4da7-8229-01c5774b770e

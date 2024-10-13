@@ -17,6 +17,31 @@ TODO
 * update to latest Sphinx, using github fork 
 
 
+
+
+sphinx-build source_suffix
+----------------------------
+
+* https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-source_suffix
+
+~/home/conf.py::
+
+    101 # The suffix of source filenames.
+    102 source_suffix = '.rst'
+
+* Changed in version 1.3: Support a list of file extensions.
+* Changed in version 1.8: Change to a map of file extensions to file types.
+
+::
+
+    epsilon:home blyth$ which sphinx-build
+    /opt/local/bin/sphinx-build
+    epsilon:home blyth$ sphinx-build --version
+    sphinx-build 1.7.6
+
+
+
+
 New Sphinx breakage of modified todo
 --------------------------------------
 
