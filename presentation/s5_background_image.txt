@@ -22,8 +22,8 @@
     ## would be more convenient if this switch was in presentation metadata
     ## avoiding the need for users to set it 
     ##
-    ##slide0
-    slide0_D
+    ##slide0_D
+    slide0
     ../graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -821,6 +821,11 @@
     nvidia/2nd_generation_rt_core_half.png 640px_360px 640px_360px
 
     NVIDIA Ada : 3rd Generation RTX 
+    nvidia/ada_lovelace/ada_lovelace_leap_in_ray_tracing_performance_19206531.jpg 640px_360px 0px_360px
+    nvidia/ada_lovelace/Ada_throughput_efficiency.png 640px_360px 640px_0px
+    nvidia/ada_lovelace/2022_Geforce_RTX_4090.png 640px_360px 640px_360px
+
+    NVIDIA RTX Generations
     nvidia/ada_lovelace/ada_lovelace_leap_in_ray_tracing_performance_19206531.jpg 640px_360px 0px_360px
     nvidia/ada_lovelace/Ada_throughput_efficiency.png 640px_360px 640px_0px
     nvidia/ada_lovelace/2022_Geforce_RTX_4090.png 640px_360px 640px_360px
@@ -2232,6 +2237,9 @@
     cxr_overview_emm_t0_elv_t_moi__ALL_with-debug-disable-xj.jpg
     GEOM/V1J009/CSGOptiXRenderTest/CVD1/70000/ALL/cxr_overview_emm_t0_elv_t_moi__ALL_with-debug-disable-xj.jpg 1280px_720px
 
+    Ada_cxr_overview_emm_t0_elv_t_moi__ALL.jpg
+    GEOM/J_2024aug27/CSGOptiXRenderTest/CVD0/80000/ALL/cxr_overview_emm_t0_elv_t_moi__ALL.jpg 1280px_720px
+
     image_grid_elv_scan.jpg
     GEOM/V1J009/CSGOptiXRenderTest/CVD1/70000/sWaterTube/scan-elv/image_grid_elv_scan.jpg 1280px_720px
 
@@ -2625,6 +2633,14 @@
 
     20240626_171555_00000_wireframe.jpg
     GEOM/J_2024jun14/SGLFW_SOPTIX_Scene_test/20240626_171555_00000_wireframe.jpg 1280px_720px
+
+    Analytic + triangulated geometry
+    GEOM/J_2024aug27/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__NNVT:0:0.jpg 640px_360px 640px_360px 
+    GEOM/J_2024aug27/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__ALL00000.jpg 640px_360px 640px_0px
+    GEOM/J_2024aug27/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__ALL00001.jpg 640px_360px 0px_360px
+
+    cxr_min__eye_1,0,0__zoom_1__tmin_0.5__sSurftube_0V1_0:0:-1.jpg 
+    GEOM/J_2024aug27/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__sSurftube_0V1_0:0:-1.jpg 1280px_720px 
  
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p

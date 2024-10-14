@@ -63,8 +63,8 @@
 
 
 
-
-
+.. |nv| image:: nvidia/icon.png
+   :height: 2.5ex
 
 .. include:: s5_background_image.txt
 
