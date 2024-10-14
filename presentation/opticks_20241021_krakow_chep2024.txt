@@ -736,73 +736,73 @@ optical photon simulation, P ~ 99% of CPU time
 
 
 
-
-
-:small:`Assistance : Geant4 Collab. + Dark Matter Search Community + NVIDIA`
-------------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Assistance from NVIDIA engineers`
-
-   .. class:: small
-
-       :b:`Organized by interested experiments`
-
-       **LBNL + LZ + NVIDIA** : 2021 
-
-       :r:`Series of seven meetings dedicated to Opticks`
-         OptiX 7 API migration
-
-       **Univ. Manchester + LHCb-RICH** : 2022 
-
-       UK GPU Hackathon
-         optimization guidance
-
-
-.. class:: small
-
-    **Geant4 11.0+ (Dec 2021) : Opticks Advanced Example** 
-
-    * **CaTS : Calorimeter and Tracker Simulation**
-
-      * for Liquid Argon TPC, eg DUNE
-
-    * :r:`Hans Wentzel, Fermilab Geant4 Group`
-    * *...demonstrates how to use Opticks for the creation and propagation of optical photons...*
-    * https://geant4.web.cern.ch/download/release-notes/notes-v11.0.0.html
-
-
-    **Dark Matter Search Community (XENON,LZ,DARWIN,..)** 
-
-    Dark-matter And Neutrino Computation Explored (DANCE) 
-
-    * Input to Snowmass 2021
-    * https://arxiv.org/pdf/2203.08338.pdf
-    * *...Opticks package may provide a solution to the tracking of optical photons...*
-
-
-.. class:: center
-
-    :r:`Great interest in Opticks => Lots of help from NVIDIA` 
-       :r:`(~3 Trillion Dollar company)`
-
-
-.. s5_talk::
-
-    The great interest in Opticks from the community has
-    meant that I have received lots of help from NVIDIA engineers. 
-
-    The Fermilab Geant4 Group was an early adopter of Opticks and has assisted by 
-    developing a Geant4 advanced example demonstrating Opticks which 
-    has been in the Geant4 distribution since 2021. 
-
-    A group of experiments from the Dark Matter search community 
-    made a significant contribution to Opticks development by organizing 
-    a series of meetings with NVIDIA engineers that were very useful to 
-    guide a re-implementation of Opticks to work with a completely new OptiX API. 
-
 .. comment
 
-    https://gitlab.cern.ch/geant4/geant4/-/tree/master/examples/advanced/CaTS 
+    :small:`Assistance : Geant4 Collab. + Dark Matter Search Community + NVIDIA`
+    ------------------------------------------------------------------------------------
+
+    .. sidebar:: :small:`Assistance from NVIDIA engineers`
+
+       .. class:: small
+
+           :b:`Organized by interested experiments`
+
+           **LBNL + LZ + NVIDIA** : 2021 
+
+           :r:`Series of seven meetings dedicated to Opticks`
+             OptiX 7 API migration
+
+           **Univ. Manchester + LHCb-RICH** : 2022 
+
+           UK GPU Hackathon
+             optimization guidance
+
+
+    .. class:: small
+
+        **Geant4 11.0+ (Dec 2021) : Opticks Advanced Example** 
+
+        * **CaTS : Calorimeter and Tracker Simulation**
+
+          * for Liquid Argon TPC, eg DUNE
+
+        * :r:`Hans Wentzel, Fermilab Geant4 Group`
+        * *...demonstrates how to use Opticks for the creation and propagation of optical photons...*
+        * https://geant4.web.cern.ch/download/release-notes/notes-v11.0.0.html
+
+
+        **Dark Matter Search Community (XENON,LZ,DARWIN,..)** 
+
+        Dark-matter And Neutrino Computation Explored (DANCE) 
+
+        * Input to Snowmass 2021
+        * https://arxiv.org/pdf/2203.08338.pdf
+        * *...Opticks package may provide a solution to the tracking of optical photons...*
+
+
+    .. class:: center
+
+        :r:`Great interest in Opticks => Lots of help from NVIDIA` 
+           :r:`(~3 Trillion Dollar company)`
+
+
+    .. s5_talk::
+
+        The great interest in Opticks from the community has
+        meant that I have received lots of help from NVIDIA engineers. 
+
+        The Fermilab Geant4 Group was an early adopter of Opticks and has assisted by 
+        developing a Geant4 advanced example demonstrating Opticks which 
+        has been in the Geant4 distribution since 2021. 
+
+        A group of experiments from the Dark Matter search community 
+        made a significant contribution to Opticks development by organizing 
+        a series of meetings with NVIDIA engineers that were very useful to 
+        guide a re-implementation of Opticks to work with a completely new OptiX API. 
+
+    .. comment
+
+        https://gitlab.cern.ch/geant4/geant4/-/tree/master/examples/advanced/CaTS 
 
 
 

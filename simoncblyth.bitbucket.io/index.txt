@@ -228,14 +228,20 @@ Opticks Presentations
 ~~~~~
 
 
-`env/presentation/opticks_202406XX_kaiping_status_and_plan.html <env/presentation/opticks_202406XX_kaiping_status_and_plan.html>`_
+`env/presentation/opticks_20241021_krakow_chep2024.html <env/presentation/opticks_20241021_krakow_chep2024.html>`_
 
    **WIP : PRESENTATION IN PREPARATION**
 
+   *Opticks : GPU ray trace accelerated optical photon simulation*
+
+   CHEP, Krakow, Poland, 21 October 2024
+
+
+`env/presentation/opticks_20240702_kaiping_status_and_plan.html <env/presentation/opticks_20240702_kaiping_status_and_plan.html>`_
+
    *JUNOSW+Opticks : Status and Plan*
 
-   JUNO Collaboration Meeting, 0? July 2024, Kaiping
-     
+   JUNO Collaboration Meeting, 2 July 2024, Kaiping
 
 
 `env/presentation/opticks_20240418_ihep_epd_seminar_story_of_opticks.html <env/presentation/opticks_20240418_ihep_epd_seminar_story_of_opticks.html>`_
