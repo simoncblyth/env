@@ -583,13 +583,14 @@ th CPU and GPU
 
 .. class:: small
 
-   * mostly analytic CSG solids
+   * default : analytic CSG solids
    * user can name solids for triangulation    
 
      * avoids issue with toruses + complex solids
      * BUT : approximate geometry 
      * triangulation from G4Polyhedron
-     * config per-solid NumberOfRotationSteps by envvar
+     * config per-solid NumberOfRotationSteps by envvars
+     * uses OptiX "built-in" triangle intersection
 
 
 :i:`cxr_min__eye_1,0,0__zoom_1__tmin_0.5__sSurftube_0V1_0:0:-1.jpg` 
@@ -597,7 +598,11 @@ th CPU and GPU
 
 ``Interactive ray traced visualization via OpenGL/OptiX interop``
 
-``configure viewpoint, geometry exclusions via envvars``
+``initial viewpoint, geometry exclusions via envvars``
+
+``WASDQE+mouse 3D navigation``
+
+
 
 :small:`GuideTube : Torus Triangulated`
 ------------------------------------------
@@ -645,7 +650,190 @@ th CPU and GPU
 
 
 
+List-node avoids deep CSG trees 
+---------------------------------
 
+.. sidebar:: :small:`With list-node : shrink CSG tree`
+
+    .. raw:: html
+
+        <pre class="mypre15" >+------------------------------+
+        |        U                     |
+        |       / \                    |
+        |      /   \                   |
+        |     S     U[A,B,C,D,E,F,G,H] |
+        |    / \                       | 
+        |   I   J                      |
+        +------------------------------+</pre>
+
+.. class:: small
+
+    Problematic deep CSG tree without list-node
+
+.. raw:: html
+
+    <pre class="mypre15" >
+    +------------------------------------------+
+    |                                          |
+    |                                          | 
+    |                           U              |
+    |                          / \             |
+    |                         /   \            |
+    |                        /     S           |
+    |                       U     / \          |
+    |                      / \   I   J         |
+    |                     U   H                | 
+    |                    / \                   |
+    |                   U   G                  |
+    |                  / \                     |
+    |                 U   F                    |
+    |                / \                       | 
+    |               U   E                      |
+    |              / \                         | 
+    |             U   D                        |
+    |            / \                           |
+    |           U   C                          |
+    |          / \                             |
+    |         A   B                            |
+    |                                          |
+    +------------------------------------------+
+
+    U : Union
+    S : Subtraction
+    A-J : Tubs (cylinder) primitive 
+    </pre>
+
+
+.. class:: small
+
+   :r:`Simple G4MultiUnion is translated to Opticks list-node`
+
+
+.. s5_talk::
+
+    using list-node shrinks the tree
+
+    * eg allows sub hundreds of holes
+
+
+
+
+
+
+:small:`Pure Optical TorchGenstep scan : 1M to 100M photons`
+------------------------------------------------------------------------------------
+
+::
+
+    TEST=medium_scan ~/opticks/cxs_min.sh 
+    
+
+
+.. class:: small
+
+    Generate optical only events with 1M->100M photons starting from CD center, 
+    gather and save only Hits.
+
+
+::
+
+    OPTICKS_RUNNING_MODE=SRM_TORCH  ## "Torch" running enables num_photon scan
+    OPTICKS_NUM_PHOTON=M1,10,20,30,40,50,60,70,80,90,100
+    OPTICKS_NUM_EVENT=11
+    OPTICKS_EVENT_MODE=Hit
+
+.. class:: small
+
+   * uses CSGOptiXSMTest executable (no Geant4 dependency, avoids ~150s of initialization time)
+   * load and upload geometry in ~2s 
+
+   Compare simulation scans on two Dell Precision Workstations:
+
+   +------------------------+------+--------------+----------------+---------+---------+--------+--------+
+   |   GPU (VRAM)           |Arch  | GPU Release  | CUDA(RT) Cores | RTX Gen | Driver  | CUDA   | OptiX  |
+   +========================+======+==============+================+=========+=========+========+========+
+   |  NVIDIA TITAN RTX(24G) |Turing|     Dec 2018 | 4,608(72)      |  1st    | 515.43  | 11.7   | 7.5    |
+   +------------------------+------+--------------+----------------+---------+---------+--------+--------+
+   |  NVIDIA RTX 5000(32G)  |Ada   |     Aug 2023 | 12,800(100)    |  3rd    | 550.76  | 12.4   | 8.0    |
+   +------------------------+------+--------------+----------------+---------+---------+--------+--------+
+
+   * max launch size : 24/32/48G VRAM ~200/266/400M photons
+
+.. s5_talk::
+
+    Using Torch gensteps allows the number of photons to be scanned
+
+
+
+
+
+:i:`ALL1_scatter_10M_photon_22pc_hit_alt.png`
+----------------------------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:150mm;" />
+ 
+
+``4.5M hits from 20M photon TorchGenstep, 4.4(1.1) seconds``
+    ``with: NVIDIA TITAN RTX(NVIDIA RTX 5000 Ada)  1st(3rd) gen RTX``
+
+
+.. s5_talk::
+
+    2.2M hits in 3.1 seconds
+
+
+
+
+:i:`AB_Substamp_ALL_Etime_vs_Photon_rtx_gen1_gen3.png`
+--------------------------------------------------------
+
+
+.. raw:: html
+
+     <p style="margin-bottom:45mm;" />
+
+
+.. class:: tiny
+
+    .. table:: Event Time(s) vs PH(M)
+        :align: right 
+
+        +-------+--------+-------+--------+
+        | PH(M) |   G1   |  G3   | G1/G3  |
+        +=======+========+=======+========+
+        |  1    |  0.47  | 0.14  |  3.28  |
+        +-------+--------+-------+--------+
+        | 10    |  0.44  | 0.13  |  3.48  |
+        +-------+--------+-------+--------+
+        | 20    |  4.39  | 1.10  |  3.99  |
+        +-------+--------+-------+--------+
+        | 30    |  8.87  | 2.26  |  3.93  |
+        +-------+--------+-------+--------+
+        | 40    | 13.29  | 3.38  |  3.93  |
+        +-------+--------+-------+--------+
+        | 50    | 18.13  | 4.49  |  4.03  |
+        +-------+--------+-------+--------+
+        | 60    | 22.64  | 5.70  |  3.97  |
+        +-------+--------+-------+--------+
+        | 70    | 27.31  | 6.78  |  4.03  |
+        +-------+--------+-------+--------+
+        | 80    | 32.24  | 7.99  |  4.03  |
+        +-------+--------+-------+--------+
+        | 90    | 37.92  | 9.33  |  4.06  |
+        +-------+--------+-------+--------+
+        |100    | 41.93  | 10.42 |  4.03  |
+        +-------+--------+-------+--------+
+
+
+
+.. raw:: html
+
+    <p class="mymidleftbox">Optical simulation 4x faster 1st->3rd gen RTX </p>
+    <pre>
+   
 
 
 :small:`How much parallelized speedup actually useful to overall speedup?`
@@ -852,5 +1040,17 @@ optical photon simulation, P ~ 99% of CPU time
     simulations. Adopting Opticks means you will 
     improve your CPU simulation whilst also giving you a GPU simulation.  
  
+
+
+
+:i:`Ilker_Parmaksiz_CRAB_Prototype`
+------------------------------------
+
+.. class:: small
+
+   New Opticks user : Ilker Parmaksiz, NEXT-CRAB0 Prototype 
+
+   * careful comparison : Data, Geant4, Opticks
+   * :r:`Opticks 181x over Geant4`
 
 
