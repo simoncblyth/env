@@ -228,9 +228,19 @@ Opticks Presentations
 ~~~~~
 
 
-`env/presentation/opticks_20241021_krakow_chep2024.html <env/presentation/opticks_20241021_krakow_chep2024.html>`_
+
+`env/presentation/opticks_20241025_montreal_nEXO_light_simulations_workshop.html <env/presentation/opticks_20241025_montreal_nEXO_light_simulations_workshop.html>`_
 
    **WIP : PRESENTATION IN PREPARATION**
+
+   *nEXO + Opticks ? NVIDIA OptiX accelerated optical photon simulation ?*
+
+   nEXO Light Simulation Framework Workshop, invited talk 
+
+   McGill University, Montreal, Canada, 25 October 2024
+
+`env/presentation/opticks_20241021_krakow_chep2024.html <env/presentation/opticks_20241021_krakow_chep2024.html>`_
+
 
    *Opticks : GPU ray trace accelerated optical photon simulation*
 

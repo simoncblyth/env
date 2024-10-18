@@ -1564,8 +1564,11 @@ presentation-rst2talk-(){
 #presentation-iname(){ echo ${INAME:-opticks_20240227_zhejiang_seminar_TALK} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20240418_ihep_epd_seminar_story_of_opticks} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20240606_ihep_panel_30min} ; }
-presentation-iname(){ echo ${INAME:-opticks_20241021_krakow_chep2024} ; }
+
+
 
 #presentation-iname(){ echo ${INAME:-opticks_202406XX_kaiping_status_and_plan} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20240702_kaiping_status_and_plan} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20241021_krakow_chep2024} ; }
+presentation-iname(){ echo ${INAME:-opticks_20241025_montreal_nEXO_light_simulations_workshop} ; }
 
