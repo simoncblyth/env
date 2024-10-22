@@ -1088,6 +1088,12 @@
     # 762px_857px 381px_428px np.array([762,858])*2/3 
     # 871px_827px 435px_413px np.array([871,827])*2/3 
 
+    LZ + Opticks (Sam Eriksen, University of Bristol)
+    lz/LZ_Opticks_OpenGL.png 508px_572px 100px_100px
+    lz/LZ_Opticks_Composite.png 580px_551px 640px_100px
+    # 762px_857px 381px_428px np.array([762,858])*2/3 
+    # 871px_827px 435px_413px np.array([871,827])*2/3 
+
     LZ with Opticks
     lz/LZ_Opticks_OpenGL.png 640px_720px 0px_0px
     lz/LZ_Opticks_Composite.png 758px_720px 600px_0px
@@ -2652,6 +2658,10 @@
     GEOM/J_2024aug27/CSGOptiXSMTest/ALL1_sreport/figs/sreport_ab/mpcap/AB_Substamp_ALL_Etime_vs_Photon_rtx_gen1_gen3.png 1280px_720px
 
     Ilker Parmaksiz, NEXT-CRAB0 Prototype
+    Ilker_Parmaksiz_CRAB_Prototype/CRAB_Prototype_CHEP_2024_001.png 640px_360px 0px_360px
+    Ilker_Parmaksiz_CRAB_Prototype/CRAB_Prototype_CHEP_2024_002.png 640px_360px 640px_360px
+
+    NEXT-CRAB0 Prototype + Opticks
     Ilker_Parmaksiz_CRAB_Prototype/CRAB_Prototype_CHEP_2024_001.png 640px_360px 0px_360px
     Ilker_Parmaksiz_CRAB_Prototype/CRAB_Prototype_CHEP_2024_002.png 640px_360px 640px_360px
  

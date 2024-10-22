@@ -49,91 +49,6 @@
 
 
 
-
-:small:`Opticks : History of GPU ray trace accelerated optical photon simulation`
------------------------------------------------------------------------------------
-
-
-.. sidebar:: :small:`Opticks reincarnated`
-
-   .. class:: small
-
-       * 2020->2022 : Opticks re-implemented
-
-         * optical sim. implemented in CUDA  
-         * entire new CSGFoundry geometry model
-         * :r:`2021 : 7 meetings NVIDIA, LBNL, LZ`
-
-       * 2022->2023 : Opticks validation
-
-         * reveals JUNO geometry + physics bugs
-         * => reimpl JUNO PMT optical model
-
-       * 2024 : limited re-introduce triangles
-
-         * some shapes (Torus) better with tri.
-        
-
-.. sidebar:: :small:`Tri. : easy + fast on GPU, BUT:`
-
-   .. class:: small
-
-     * approximate : cannot match Geant4
-     * good tri. are hard to find  
-
-
-
-.. class:: small
-
-   * 2014 : fork Chroma for DayaBay Optical sim
-
-     * develop G4DAE : exports Geant4 geometry into triangles
-    
-   * 2015 : drop Chroma for :b:`NVIDIA OptiX` : :r:`50x faster RT` 
-
-     * adopt the name "Opticks" in honour of Isaac 
-
-   * 2016 : :r:`triangulated geometry problems`
-
-     * PMT impossible to match with Geant4 : "disco ball" effect
-     * G4Polyhedron => cleaved mesh ~25/250 DYB solids 
-     * develop "manual" analytic PMT, everything else triangles
-
-       * :r:`start move away from tri.`
-
-   * 2017 : impl. general analytic CSG intersection, instancing
-
-     * => fully analytic geometry, can precisely match Geant4 
-
-       * :r:`no tri.`
-
-   * 2018 : consolidation/automation
-
-     * Optical Physics implemented on OptiX 6 [:r:`OOPS`]
-     * Geant4 -> Opticks CSG auto-translation
-     * :b:`NVIDIA: "world first ray tracing GPU" (RTX 1st Gen)`
-     * adapt Opticks to work with RTX
-
-   * 2019 : NVIDIA drops bombshell : entirely new OptiX 7.0.0 API
-
-     * :r:`much of previous two years work out the window`
-
-
-
-.. raw:: html
-
-   <p style="margin-bottom:17mm;" />
-
-.. class:: normal
-
-   Attempt to use mainly triangulated detector geometry : eventually led nowhere 
-   
-
-.. s5_talk::
-
-    Brief Decade of work 
-
-
 Outline (0)
 ------------
 
@@ -152,7 +67,7 @@ Outline (0)
 
 .. class:: normal
 
-   * ~15 min : Current Opticks  
+   * ~15 min : Opticks Status  
 
      * (as presented at CHEP on Monday)
 
@@ -162,9 +77,9 @@ Outline (0)
 
 .. class:: normal
 
-   * ~10 min : Review early use of Chroma, triangulated geometry  
+   * ~10 min : Opticks History, early Chroma use, triangles... 
 
-     * temptation by triangles
+     * tempted by triangles  
 
 .. raw:: html
 
@@ -182,13 +97,15 @@ Outline (0)
    <p style="margin-bottom:17mm;" />
 
 
+.. s5_talk::
+
+    L0
 
 
 
 
-
-Outline (1) : Current Opticks Description
--------------------------------------------
+Outline (1) : Opticks Status  
+--------------------------------------
 
 .. image:: newtons-opticks.png 
    :width: 299px
@@ -203,28 +120,27 @@ Outline (1) : Current Opticks Description
 
     * Optical Photon Simulation : Context and Problem
 
-      * p3: (JUNO) Optical Photon Simulation Problem...
-      * p4: Optical photons limit many simulations => lots of interest in Opticks
-      * p5: Optical Photon Simulation ≈ Ray Traced Image Rendering
-      * p6: NVIDIA RTX Generations : :b:`RT performance : ~2x every ~2 years`
-      * p7: NVIDIA OptiX : Ray Tracing Engine
+      * (JUNO) Optical Photon Simulation Problem...
+      * Optical photons limit many simulations => lots of interest in Opticks
+      * Optical Photon Simulation ≈ Ray Traced Image Rendering
+      * NVIDIA RTX Generations : :b:`RT performance : ~2x every ~2 years`
+      * NVIDIA OptiX : Ray Tracing Engine
 
     * Opticks : Solution to Optical Photon Simulation Problem
  
-      * p8: Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
-      * p9: Geometry Model Translation : Geant4 => CSGFoundry => NVIDIA OptiX 
-      * p10: Full JUNO, Opticks, OptiX 7.5/8.0
-      * p11: :r:`Integrated Analytic + Triangulated Geometry (NEW)`
-      * p12: :b:`Interactive ray traced visualization via OpenGL/OptiX interop (NEW)`
-      * p14: GuideTube : Torus Triangulated
-      * p15: List-node : avoids deep CSG trees
-      * p16: Pure Optical TorchGenstep scan : 1M to 100M photons
-      * p18: :b:`Optical simulation 4x faster 1st->3rd gen RTX`
-      * p20: How much parallelized speedup actually useful to overall speedup?
+      * Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
+      * Geometry Model Translation : Geant4 => CSGFoundry => NVIDIA OptiX 
+      * Full JUNO, Opticks, OptiX 7.5/8.0
+      * :r:`Integrated Analytic + Triangulated Geometry (NEW)`
+      * :b:`Interactive ray traced visualization via OpenGL/OptiX interop (NEW)`
+      * GuideTube : Torus Triangulated
+      * List-node : avoids deep CSG trees
+      * Pure Optical TorchGenstep scan : 1M to 100M photons
+      * :b:`Optical simulation 4x faster 1st->3rd gen RTX`
+      * How much parallelized speedup actually useful to overall speedup?
 
-    * p21: Summary + Links 
-    * p22: Acknowledgements
-    * p23: NEW Opticks User : Ilker Parmaksiz, NEXT-CRAB0 Prototype
+    * Summary + Links 
+    * Acknowledgements
 
 
 .. raw:: html
@@ -1239,27 +1155,29 @@ Acknowledgements
 
 
 
-``Ilker Parmaksiz, NEXT-CRAB0 Prototype``
----------------------------------------------
 
-.. class:: normal
+:i:`Divider`
+-------------
 
-   New active bug reporting Opticks user : Ilker Parmaksiz
+.. raw:: html
 
-   * careful comparison : Data, Geant4, Opticks
-   * :r:`Opticks 181x over Geant4`
+     <p style="margin-bottom:30mm;" />
 
+
+.. class:: huge 
+
+    **Opticks History, early Chroma use, triangles...**
 
 .. s5_talk::
 
-   New User : found bugs
+    Klop
 
 
 
 
 
-Outline (2) : Review Early Chroma Investigations
---------------------------------------------------
+Outline (2) : Review Opticks History 
+-------------------------------------------
 
 .. image:: newtons-opticks.png 
    :width: 299px
@@ -1273,32 +1191,144 @@ Outline (2) : Review Early Chroma Investigations
 
        <span>&nbsp;</span>
 
-   * Opticks Early History 
+.. class:: tiny 
 
-     * p25: Opticks pre-History (2014) : Chroma investigations for DayaBay
-     * Triangulated Geometry, G4DAE Geometry exporter 
-     * Chroma + G4DAE -> NVIDIA OptiX + "Opticks"
-     * Handling Huge Geometry (eg JUNO) with instancing 
-     * NVIDIA OptiX 5 Ray Tracing Engine 
-     * Triangulated Geometry Problems
+   * Opticks : Decade of GPU ray trace optical photon simulation
+   * Early : pure triangles, Chroma, instancing
+    
+     * Opticks pre-History (2014) : Chroma investigations for DayaBay
+     * G4DAE : DYB pool bottom, Chroma raycast + OpenGL render
+     * Daya Bay Chroma Photon Propagation (1)
+     * Opticks History (2015) : Chroma + G4DAE -> NVIDIA OptiX + "Opticks"
+     * Opticks History (2016) : Handling Huge Geometry (JUNO) with instancing
 
-   * Fully Analytic CSG 
+   * Transition from triangles to analytic CSG
 
-     * Analytic PMT (12 parts, not 2928 triangles)
-     * GPU Geometry starts from ray-primitive intersection
+     * Opticks History (2016) : Triangulated Geometry Problems
+     * Opticks History (2016) : Analytic PMT (12 parts, not 2928 triangles)
+     * Daya Bay Opticks Propagation : Triangulated + Analytic PMT
+     * Opticks History (2017) GPU Geometry starts from ray-primitive intersection
      * Torus : much more difficult/expensive than other primitives
      * Constructive Solid Geometry (CSG) : Which intersect ? 
-     * CSG Problems : deep trees, coincident faces
-     * Opticks Instancing : "Factorizes" Geometry
+     * Opticks History (2017) : Developed GPU CSG Impl. based on short note with the idea 
+     * Ray intersection with general CSG binary trees, on GPU
+     * CSG Complete Binary Tree Serialization -> simplifies GPU side
+     * Opticks Analytic Daya Bay Near Site, GPU Raytrace
+     * Pure analytic CSG JUNO geometry
+     * Approximate triangulated JUNO geometry
 
-   * Porting the physics
+   * Validation  
 
-     * Translate Geant4 Optical Physics to GPU (OptiX/CUDA)
-     * Optical Photon Simulation : Deciding history on way to boundary
-      
-   * Validation of Opticks Simulation by Comparison with Geant4
-   * Performance : Scanning from 1M to 400M Photons
-   * NVIDIA Giveth and NVIDIA Taketh away ...
+     * Validation of Opticks Simulation by Comparison with Geant4
+     * Optical Simulation Comparison : Statistical OR Direct
+     * Full photon step point details enable debug, here from input photons
+
+   * nEXO + Opticks ?
+
+     * nEXO + Opticks : Typical Issues 
+     * Some Opticks users 
+     * NEXT-CRAB0 Prototype + Opticks
+     * CaTS: Integration of Geant4 and Opticks
+     * LHCb-RICH + Opticks
+     * LZ + Opticks (Sam Eriksen, University of Bristol)
+
+   * Summary and Links
+ 
+
+.. s5_talk::
+
+    Klop
+
+
+
+
+
+
+
+:small:`Opticks : Decade of GPU ray trace optical photon simulation`
+-----------------------------------------------------------------------------------
+
+
+.. sidebar:: :small:`Opticks reincarnated`
+
+   .. class:: small
+
+       * 2020->2022 : Opticks re-implemented
+
+         * optical sim. implemented in CUDA  
+         * entire new CSGFoundry geometry model
+         * :r:`2021 : 7 meetings NVIDIA, LBNL, LZ`
+
+       * 2022->2023 : Opticks validation
+
+         * reveals JUNO geometry + physics bugs
+         * => reimpl JUNO PMT optical model
+
+       * 2024 : limited re-introduce triangles
+
+         * :b:`some shapes (Torus) better with tri.`
+        
+
+.. sidebar:: :small:`Tri. : easy + fast on GPU, BUT:`
+
+   .. class:: small
+
+     * approximate : cannot match Geant4
+     * good tri. are hard to find  
+
+
+
+.. class:: small
+
+   * 2014 : fork Chroma for DayaBay Optical sim
+
+     * develop G4DAE : exports Geant4 geom. => triangles
+    
+   * 2015 : drop Chroma for :b:`NVIDIA OptiX` : :r:`50x faster RT` 
+
+     * adopt the name "Opticks" in honour of Isaac 
+
+   * 2016 : :r:`triangulated geometry problems`
+
+     * PMT impossible to match with G4 : "disco ball" 
+     * G4Polyhedron => cleaved mesh ~25/250 DYB solids 
+     * "manual" analytic PMT, rest triangles
+
+       * :r:`start move away from tri.`
+
+   * 2017 : impl. general analytic CSG intersection, instancing
+
+     * => fully analytic geometry, can precisely match Geant4 
+
+       * :r:`no tri.`
+
+   * 2018 : consolidation/automation
+
+     * Optical Physics implemented on OptiX 6 [:r:`OOPS`]
+     * Geant4 -> Opticks CSG auto-translation
+     * :b:`NVIDIA: "world first ray tracing GPU" (RTX)`
+     * adapt Opticks to work with RTX
+
+   * 2019 : NVIDIA bombshell : entirely new OptiX 7.0.0 API
+
+     * :r:`much of previous two years work out the window`
+
+
+
+.. raw:: html
+
+   <p style="margin-bottom:20mm;" />
+
+.. class:: normal
+
+   Attempt to use mainly triangulated detector geometry : eventually led nowhere 
+   
+
+.. s5_talk::
+
+    Brief Decade of work 
+
+
 
 
 
@@ -1370,14 +1400,13 @@ Outline (2) : Review Early Chroma Investigations
 
 .. s5_talk::
 
-    While working on DYB simulation, I started looking 
-    at photon acceleration with reweighting techniques. 
-    Searching around, The only thing I found was Chroma. 
+    Searching around for GPU optical simulation 10 
+    years ago : the only thing I found was Chroma. 
 
-    Chroma needs triangles, so I developed a Geant4 geometry 
-    exporter following the approach of GDML export but instead exporting 
-    the geometry into a 3D file format called DAE. 
-    This includes all the triangles.
+    BUT Chroma needs triangles, so I developed a Geant4 geometry 
+    exporter to provide the triangles in DAE format 
+
+    Tri have problems
 
 
 :i:`chroma_camera_raycast`
@@ -1386,12 +1415,23 @@ Outline (2) : Review Early Chroma Investigations
 ``(g4daeview.py) Chroma Raycast of Daya Bay geometry (3x3 CUDA kernel launches, 1.8s for 1.23M pixels, Geforce 750M GPU)``
 
 
+
+.. raw:: html
+
+     <p style="margin-bottom:14cm;" />
+
+
+``Split launch + use CUDA/OpenGL interop => enable mobile GPU render`` 
+
+
 .. s5_talk::
 
     Chroma was developed on workstations with CPUs and GPUs and much more capable than my mac book pro laptop.  
     I had to make Chroma operate more efficiently in order to get it to even run at all.  
     Using interop techniques that enable OpenGL visualization and CUDA compute to share the 
     same GPU buffers made the vizualization much more efficient 
+
+
 
 
 ``G4DAE : DYB pool bottom, Chroma raycast`` 
@@ -1406,11 +1446,12 @@ Outline (2) : Review Early Chroma Investigations
 .. class:: normal
 
     ``(g4daeview.py) Chroma raycast render of triangulated geometry``
-
+         ``approximate geometry apparent``
 
 .. s5_talk::
 
     With this more closup view, you can see the trianglated approximate geometry. 
+
 
 
 
@@ -1436,58 +1477,60 @@ Outline (2) : Review Early Chroma Investigations
 
 
 
-Triangulated Geometry : Great for Visualization
--------------------------------------------------
+.. comment
 
-.. sidebar:: :small:`G4DAE Geometry Exporter`
+    Triangulated Geometry : Great for Visualization
+    -------------------------------------------------
+
+    .. sidebar:: :small:`G4DAE Geometry Exporter`
+
+        .. class:: small
+
+            Exports *Geant4* geometry into **standard** 3D files:
+
+            * standard digital asset exchange (DAE) 
+            * volume tree: solid/physical+logical volumes
+            * vertices, tri. from *G4Polyhedron* 
+            * material/surface props. in *extra* XML elements
+
+            * https://bitbucket.org/simoncblyth/g4dae 
+
 
     .. class:: small
 
-        Exports *Geant4* geometry into **standard** 3D files:
+        **Many apps/libs can view/edit DAE/COLLADA files**
 
-        * standard digital asset exchange (DAE) 
-        * volume tree: solid/physical+logical volumes
-        * vertices, tri. from *G4Polyhedron* 
-        * material/surface props. in *extra* XML elements
+        * Meshlab, Blender, Sketchup, ...
+        * macOS: Finder/Quickview/Preview/Xcode
+        * threejs, pycollada, SceneKit, ...
+        * OpenGL, WebGL, pyopengl, glumpy 
+     
+        **Triangle Visualization Advantage**
 
-        * https://bitbucket.org/simoncblyth/g4dae 
+        * GPUs evolved to rasterize trianglated geometry 
+        * Developed pyopengl/pycollada renderer 
 
+          * entire geometry in single OpenGL draw call
+          * :r:`shockingly fast on mobile GPU`
 
-.. class:: small
+        **CUDA/OpenGL interoperation**
 
-    **Many apps/libs can view/edit DAE/COLLADA files**
+        * share GPU buffers between compute and visualization 
+        * visualize steps of millions of photons within geometry   
 
-    * Meshlab, Blender, Sketchup, ...
-    * macOS: Finder/Quickview/Preview/Xcode
-    * threejs, pycollada, SceneKit, ...
-    * OpenGL, WebGL, pyopengl, glumpy 
- 
-    **Triangle Visualization Advantage**
+    .. class:: normal
 
-    * GPUs evolved to rasterize trianglated geometry 
-    * Developed pyopengl/pycollada renderer 
-
-      * entire geometry in single OpenGL draw call
-      * :r:`shockingly fast on mobile GPU`
-
-    **CUDA/OpenGL interoperation**
-
-    * share GPU buffers between compute and visualization 
-    * visualize steps of millions of photons within geometry   
-
-.. class:: normal
-
-    :r:`Liberating Detector Geometry From Geant4 C++ Tree into Triangles Has Some Advantages` 
+        :r:`Liberating Detector Geometry From Geant4 C++ Tree into Triangles Has Some Advantages` 
 
 
 
-.. s5_talk::
+    .. s5_talk::
 
-    A great advantage of triangles is the simplicity which allows standard and widely supported
-    3D file formats to be used. 
+        A great advantage of triangles is the simplicity which allows standard and widely supported
+        3D file formats to be used. 
 
-    I recall the first occasion that I visualized the Dayabay geometry, I was shocked by 
-    the speed and smoothness possible even with my laptop GPU. 
+        I recall the first occasion that I visualized the Dayabay geometry, I was shocked by 
+        the speed and smoothness possible even with my laptop GPU. 
 
 
 ``Daya Bay Chroma Photon Propagation (1)``
@@ -1510,53 +1553,56 @@ Triangulated Geometry : Great for Visualization
    I also visualized optical photon propagations using OpenGL shaders.  
 
 
-``Daya Bay Chroma Photon Propagation (2)``
-------------------------------------------
+
+.. comment 
+
+    ``Daya Bay Chroma Photon Propagation (2)``
+    ------------------------------------------
 
 
-.. raw:: html
+    .. raw:: html
 
-     <p style="margin-bottom:14cm;" />
+         <p style="margin-bottom:14cm;" />
 
-.. class:: tiny
+    .. class:: tiny
 
-   ``(g4daeview.py) Chroma GPU photon propagation at 14 nanoseconds. 
-   The interface provides interactive control of the propagation time 
-   allowing any stage of the propagation to be viewed by 
-   scrubbing time backwards/forwards. The speed of this visualization 
-   is achieved by interoperation of CUDA kernels and OpenGL shaders accessing
-   the same GPU resident photon propagation data.`` 
-
-
-.. s5_talk::
-
-    The propagation visulaization uses a record array with photon histories
-    at different times, so propagation time is an input to the visualization  
-    which you can scrub backwards and forwards. 
+       ``(g4daeview.py) Chroma GPU photon propagation at 14 nanoseconds. 
+       The interface provides interactive control of the propagation time 
+       allowing any stage of the propagation to be viewed by 
+       scrubbing time backwards/forwards. The speed of this visualization 
+       is achieved by interoperation of CUDA kernels and OpenGL shaders accessing
+       the same GPU resident photon propagation data.`` 
 
 
-``Daya Bay Chroma Photon Propagation (3)``
----------------------------------------------
+    .. s5_talk::
 
-.. raw:: html
-
-     <p style="margin-bottom:14cm;" />
-
-.. class:: tiny
-
-   ``(g4daeview.py) Initial photon positions of a Geant4 simulated muon that crosses
-   between the Dayabay Near hall ADs. Colors represent photon wavelengths. 
-   Optical photons: collected in G4 StackAction, serialized, sent over ZeroMQ, deserialized, 
-   presented using OpenGL GLSL shaders.`` 
+        The propagation visulaization uses a record array with photon histories
+        at different times, so propagation time is an input to the visualization  
+        which you can scrub backwards and forwards. 
 
 
-.. s5_talk::
+    ``Daya Bay Chroma Photon Propagation (3)``
+    ---------------------------------------------
 
-   This shows the initial positions of the photons. The photons are being collected 
-   from Geant4 in a separate process and sent over the network via a message queue to
-   the optical simulation and visualization process. 
-    
-   Resorting to using network adds complexity.
+    .. raw:: html
+
+         <p style="margin-bottom:14cm;" />
+
+    .. class:: tiny
+
+       ``(g4daeview.py) Initial photon positions of a Geant4 simulated muon that crosses
+       between the Dayabay Near hall ADs. Colors represent photon wavelengths. 
+       Optical photons: collected in G4 StackAction, serialized, sent over ZeroMQ, deserialized, 
+       presented using OpenGL GLSL shaders.`` 
+
+
+    .. s5_talk::
+
+       This shows the initial positions of the photons. The photons are being collected 
+       from Geant4 in a separate process and sent over the network via a message queue to
+       the optical simulation and visualization process. 
+        
+       Resorting to using network adds complexity.
 
 
 
@@ -1673,74 +1719,6 @@ Triangulated Geometry : Great for Visualization
     geometry with many millions of triangles. To get this to work it wa necessry to use geometry instancing. 
     This is a composited visualization, combining rasterized photon propagation with ray traced geometry. 
     It you look closely you can see that the geometry is still triangulated.  In order to make this work 
-
-
-:small:`Ray Intersection with Transformed Object -> Geometry Instancing`
------------------------------------------------------------------------------
-
-
-.. |H2O| replace:: H\ :sub:`2`\ O
-
-.. |IM| replace:: M\ :sup:`-1`
-
-.. |IMT| replace:: M\ :sup:`-1T`
-
-.. |NP| replace:: N\ :sup:`1`
-
-
-
-.. figure:: instancing/ray_intersection_in_two_spaces_p308_shirley_ch13_half.png
-    :width: 700px
-    :align: right
-
-    .. class:: small
-
-        Fig 13.5 "Realistic Ray Tracing", Peter Shirley
-
-    .. class:: normal
-
-        :redbold:`Advantages apply equally to acceleration structures`
-
-.. class:: small
-
-   **Equivalent Intersects -> same** *t*
-
-   1. **ray** with *ellipsoid* : **M*p**
-   2. |IM| **ray** with *sphere* : **p**
-
-   **Local Frame Advantages**
-
-   1. simpler intersect (sphere vs ellipsoid)
-   2. closer to origin -> better precision
-
-   **Geometry Instancing Advantages**
-
-   * many objects share local geometry
-
-     * orient+position with 4x4 **M**
-
-   * huge VRAM saving, less to copy 
-   
-   **Requirements**
-
-   * must **not** normalize ray direction
-   * normals transform differently 
-
-     * |NP| = N * |IMT|   
-     * (due to non-uniform scaling) 
-
-
-.. s5_talk::
-
-    The basis for instancing is the equivalence of intersects in two spaces.
-
-    For example a ray-ellipsoid intersect is equivalent to in inverse 
-    transformed ray intersect with a sphere.
-
-    Local frame intersects advantages...
-
-    This illustrates with non-uniform scaling for an ellipoid but the idea is the 
-    same for translations and rotations. 
 
 
 
@@ -1860,6 +1838,8 @@ Triangulated Geometry : Great for Visualization
 
 
 
+
+
 :small:`Torus : much more difficult/expensive than other primitives`
 ------------------------------------------------------------------------
 
@@ -1904,39 +1884,42 @@ Triangulated Geometry : Great for Visualization
     The torus, or doughnut shape, is not so sweet. 
 
 
-:small:`Torus : different artifacts as change implementation/params/viewpoint`
---------------------------------------------------------------------------------
 
-.. class:: small
+.. comment
 
-   * :red:`Only use Torus when there is no alternative` 
-   * especially avoid CSG combinations with Torus  
+    :small:`Torus : different artifacts as change implementation/params/viewpoint`
+    --------------------------------------------------------------------------------
 
-.. image:: torus_cloud_artifact_2017_08_14.png
-   :width: 500px
-   :align: left
+    .. class:: small
 
-.. image:: torus_cuts_artifact_2017_08_08.png
-   :width: 550px
-   :align: right
+       * :red:`Only use Torus when there is no alternative` 
+       * especially avoid CSG combinations with Torus  
 
-.. image:: torus_fan_artifact_2017_07_28.png
-   :width: 350px
-   :align: right
- 
+    .. image:: torus_cloud_artifact_2017_08_14.png
+       :width: 500px
+       :align: left
 
+    .. image:: torus_cuts_artifact_2017_08_08.png
+       :width: 550px
+       :align: right
 
-.. s5_talk::
-
-   You get lots of artifacts. And even when eventually you do get something 
-   to work, it doesnt work well in CSG combination. 
-    
+    .. image:: torus_fan_artifact_2017_07_28.png
+       :width: 350px
+       :align: right
+     
 
 
+    .. s5_talk::
+
+       You get lots of artifacts. And even when eventually you do get something 
+       to work, it doesnt work well in CSG combination. 
+        
 
 
-:small:`Constructive Solid Geometry (CSG)`
--------------------------------------------------------
+
+
+:small:`Constructive Solid Geometry (CSG) : Which intersect ?`
+----------------------------------------------------------------
 
 .. sidebar:: CSG Binary Tree
 
@@ -1983,51 +1966,6 @@ Triangulated Geometry : Great for Visualization
     Detector geometry is usually composed of more complex shapes than just primitives.
     These shapes are usually represented using constructive solid geometry or CSG. 
 
-
-:small:`CSG : Which primitive intersect to pick ?`
--------------------------------------------------------
-    
-
-.. sidebar:: In/On/Out transitions
-
-    .. class:: small
-
-    .. image:: hanrahan_example_of_solid_object_formed_using_csg_roth_diagram.png
-       :width: 450px
-       :align: right
-
-
-.. class:: small
-
-   Classical Roth diagram approach
-
-   * find all ray/prim intersects
-   * recursively combine inside intervals using CSG operator
-   * works from leaves upwards
-
-   Computational requirements:
-
-   * find all intersects, store them, order them
-   * recursive traverse
-
-   BUT : **High performance on GPU requires**:
-
-   * massive parallelism -> more the merrier
-   * low register usage -> keep it simple
-   * small stack size -> **avoid recursion** 
-
-.. class:: large
-
-   :red:`Classical approach not appropriate on GPU`
-
-
-.. s5_talk::
-
-    How to find intersects with CSG geometry.  The intersect will be onto one 
-    of the constituent solids, but how to pick the intersect. One way is to 
-    compute intervals and then combine them. But that involves lots of temporary storage.
-    On the GPU the more resources you use the less you can do at once, so combining 
-    intervals is not a good approach.  
 
 
 :small:`2017 : Developed GPU CSG Impl. based on short note with the idea`  
@@ -2233,6 +2171,17 @@ Triangulated Geometry : Great for Visualization
 --------------------
 
 
+
+
+
+   
+
+
+
+
+
+
+
 .. class:: small
 
     ``Approximate triangulated JUNO geometry [note impingement of torus guide tube and acrylic "sphere"], OpenGL rasterized render (GGeoView)``
@@ -2245,944 +2194,7 @@ Triangulated Geometry : Great for Visualization
 
 
 
-:small:`Deep CSG tree from complex solids, can cause performance issue`
--------------------------------------------------------------------------------------------------
 
-.. class:: small 
-
-    * Dayabay ESR reflector : disc with 9 holes
-    * JUNO "fastener"
-
-.. image:: lvidx_57_esr_deep_tree_disc_with_holes.png
-   :width: 550px
-   :align: left
-
-.. image:: x016_deeptree.png
-   :width: 550px
-   :align: right
-
-
-.. s5_talk::
-
-   Performance issue 
-
-
-:small:`Subtraction of thin CSG_CYLINDER -> speckle in the  hole`
--------------------------------------------------------------------------------------------------
-
-.. class:: small
-
-   CSG_DISC implemented to handle disc like cylinders : intersects at middle (z1+z2)/2 and offsets, :red:`avoids issue`
-
-.. image:: ../opticks_refs/speckle_lvTopESR.png
-   :width: 600px
-   :align: left
-
-.. image:: ../opticks_refs/tboolean_esr_speckle_centered_on_pole_delta_10-3.png
-   :width: 500px
-   :align: right
-
-
-.. s5_talk::
-
-   CSG is a convenient way to define complex shapes, but it is inherently fragile
-   and has problems when there are coincident faces. Which is actually very common.
-   It is often easy to fix but not always, and its difficult to automate.  
-
-
-:small:`Coincident Faces are Primary Cause of Issues : Fake Intersects`
--------------------------------------------------------------------------------------------------
-
-.. sidebar:: Cylinder - Cone 
-
-    .. class:: small
-
-       Coincident endcaps -> issue 
-
-    .. image:: ../opticks_refs/lvidx_83_tbool_coincidence_artifact_at_cylinder_base.png
-       :width: 450px
-       :align: center
-
-    .. class:: small
-
-       Grow subtracted cone downwards, avoids coincidence : **does not change composite solid**
-
-.. class:: small
-
-    Coincidences common (alignment too tempting?). To fix:
-
-    * **A-B** : grow correct dimension of subtracted shape
-    * **A+B** : grow smaller interface shape into bigger, making join
-
-    * :red:`case-by-case fixes straightforward, not so easy to automate`
-    * :blue:`need to design joints like a carpenter (with overlaps)` 
-
-    .. image:: ../opticks_refs/opticks_tscan_29_nzero_5_OcrGdsPrt.png
-       :width: 500px
-       :align: left
-
-   
-
-.. s5_talk::
-
-   Need to design CSG like a carpenter with overlaps to avoid coincident faces.
-
-
-
-.. comment
-
-    :small:`Debugging Coincident Subtractions`
-    -------------------------------------------------------------------------------------------------
-
-    .. class:: small
-
-       Switching subtraction into union with complemented -> can see whats subtracted.
-
-    .. image:: ../opticks_refs/lvidx_69_ring_box_cuts_artifact.png
-       :width: 900px
-       :align: center
-
-    .. s5_talk::
-
-       Converting a CSG subtraction into union allows seeing what is being subtracted. 
-
-
-:small:`Opticks : translates G4 geometry to GPU, without approximation`
-------------------------------------------------------------------------------------
-
-.. sidebar:: Volumes -> Boundaries 
-
-    .. class:: small
-
-      **Ray tracing favors Boundaries**
-
-      Material/surface boundary : 4 indices
-
-      * outer material (parent)
-      * outer surface (inward photons, parent -> self)
-      * inner surface (outward photons, self -> parent)
-      * inner material (self)
-
-      Primitives labelled with unique boundary index
-
-      * ray primitive intersection -> boundary index
-      * texture lookup -> material/surface properties
-
-      **Material/Surface/Scintillator properties**
-
-      * interpolated to standard wavelength domain
-      * interleaved into "boundary" texture  
-      * "reemission" texture for wavelength generation 
-
-
-.. class:: small
-
-    Geant4 Solids+Volumes -> Opticks CSG,GGeo -> GPU
-
-    * simpler : no G4DAE+GDML export/import
-
-    **Structure of Volumes**
-
-    * repeated geometry instances identified (progeny digests)
-    * instance transforms used in OptiX/OpenGL geometry 
-    * merge CSG trees into global + instance buffers 
-
-
-.. s5_talk::
-
-   The CSG implementation enables the full translation without approximation 
-
-
-
-:small:`Validation of Opticks Simulation by Comparison with Geant4`  
---------------------------------------------------------------------
-
-
-.. sidebar:: :small:`Random Aligned Bi-Simulation`
-
-    .. class:: small
-
-        Same inputs to *Opticks* and *Geant4*:
-
-        * CPU generated photons 
-        * GPU generated randoms, fed to *Geant4*
-
-        Common recording into *OpticksEvents*:
-
-        * compressed photon step record, up to 16 steps
-        * persisted as *NumPy* arrays for python analysis   
-
-        Aligned random consumption, direct comparison:
-
-        * ~every **scatter, absorb, reflect, transmit** 
-          at matched positions, times, polarization, wavlen
-
-
-
-.. class:: small
-
-
-   **Bi-simulations of all JUNO solids, with millions of photons**
-
-   mis-aligned histories
-       mostly < 0.25%, < 0.50% for largest solids    
-       
-   deviant photons within matched history
-       < 0.05% (500/1M) 
- 
-   **Primary sources of problems**
-
-   * grazing incidence, edge skimmers
-   * incidence at constituent solid boundaries 
-
-
-   **Primary cause : float vs double** 
-      
-   *Geant4* uses *double* everywhere, *Opticks* only sparingly (observed *double* costing 10x slowdown with RTX) 
-
-   **Conclude** 
-
-   * :blue:`neatly oriented photons more prone to issues than realistic ones`
-   * perfect "technical" matching not feasible
-   * instead shift validation to more realistic full detector "calibration" situation    
-
-
-.. s5_talk::
-
-   Aligned bi-simulation very efficiently finds discrepancies. Because it 
-   is a direct comparison unclouded by statistical variation : so issues show up 
-   very clearly.   
-
-   Comparing individual solids shows discrepancies at the fraction of a percent level.
-
-   Main cause is float vs double. 
-
-
-
-
-
-
-:i:`scan-pf-check-GUI-TO-SC-BT5-SD`
---------------------------------------
-
-.. s5_talk::
-
-   This GUI allows interactive selection between tens of millions 
-   of photons based on their histories.  
-
-   Here its showing the photons that scattered before boundary transmitting straight 
-   through to surface detect.
-
-   Its implemented by indexing the photon histories using some very fast 
-   GPU big integer sorting provided by CUDA Thrust, 
-   and using OpenGL shaders to switch between selections.
-
-   The 64-bit integers hold up to 16 4-bit flags for each step of the photon.
-
-   All of this is done using interop capabilities of OpenGL/CUDA/Thrust and OptiX
-   so GPU buffers can be written to and rendered inplace with no copying around.
-
-
-:i:`scan-pf-check-GUI-TO-BT5-SD`
-----------------------------------
-
-.. s5_talk::
-
-   The GUI also provides interactive time scrubbing of the propagation 
-   of tens of millions of photons. 
-
-   This is some nanoseconds later for a different history category. 
-  
-   I created this GUI to help with debugging the simulation. 
-
-
-.. comment
-
-     * DELL Precision 7920T Workstation
-     * Intel Xeon Silver 4114, 2.2GHz, 40 cores, 65G 
-     * NVIDIA Quadro RTX 8000, 48G 
-
-     * DELL Precision 7920T Workstation
-     * Intel Xeon Gold 5118, 2.3GHz, 48 cores, 65G  
-     * NVIDIA TITAN RTX, 24G
-     * NVIDIA TITAN V, 12G
-
-
-
-
-.. comment 
-
-    :small:`Performance : Scanning from 1M to 400M Photons`  
-    ---------------------------------------------------------------
-
-    .. sidebar:: :small:`Test Hardware + Software`
-
-         .. class:: small
-
-             **Workstation**
-
-             * DELL Precision 7920T Workstation
-             * Intel Xeon Gold 5118, 2.3GHz, 48 cores, 62G  
-             * NVIDIA Quadro RTX 8000 (48G) 
-        
-             **Software**
-
-             * Opticks 0.0.0 Alpha 
-             * Geant4 10.4p2 
-             * NVIDIA OptiX 6.5.0
-             * NVIDIA Driver 435.21
-             * CUDA 10.1
-
-             **IHEP GPU Cluster**
-
-             * 10 nodes of 8x NVIDIA Tesla GV100 (32G) 
-
-
-
-
-    .. class:: small
-
-         **Full JUNO Analytic Geometry j1808v5**
-
-         * "calibration source" genstep at center of scintillator
-
-         **Production Mode : does the minimum**
-
-         * only saves hits  
-         * skips : genstep, photon, source, record, sequence, index, ..
-         * no *Geant4* propagation (other than at 1M for extrapolation)
-
-         **Multi-Event Running, Measure:**
-
-         :red:`interval` 
-           avg time between successive launches, including overheads:
-           (upload gensteps + :blue:`launch` + download hits)
-
-         :blue:`launch` 
-           avg of 10 OptiX launches
-
-
-         * overheads < 10% beyond 20M photons
-
-
-
-    .. s5_talk::
-
-       Emitting millions of photons from the center of the scintillator 
-       and timing the interval and launch times of the propagation 
-       provides a measure of the performance of a geometry.
-       
-       By interval, I mean the time between suceessive launches : so this 
-       covers all the overheads of copying the gensteps to the GPU and 
-       pulling back the hits to the CPU.
-
-       Overheads are less than 10%    
-
-
-
-    .. comment
-
-        .. sidebar:: :small:`Genstep/Hit Copying Overheads`
-
-             .. class:: small
-
-                 **launch**
-                   time of each OptiX launch (avg of 10)
-
-                 **interval, including overhead**
-                   time between subsequent launches (avg of 9)
-
-                 :red:`Mostly < 10% Overhead beyond 20M photons`
-
-
-
-
-.. comment
-
-    :i:`scan-pf-1_NHit`
-    ---------------------
-
-    .. raw:: html
-
-         <pre>
-
-
-
-
-
-
-
-
-         </pre>
-
-
-    .. sidebar:: :small:`Photon Launch Size : VRAM Limited`
-
-         .. class:: small
-
-
-             **NVIDIA Quadro RTX 8000 (48 GB)**
-
-             * photon 4*4 floats : 64 bytes
-             * curandState       : 48 bytes 
-
-             **400M photons** x :blue:`112 bytes` ~ 45G  
-
-
-
-    .. s5_talk::
-
-        The first check is that you get the expected number of hits 
-        as a function of the number of photons.
-
-        The photon parameters takes 64 bytes and curandState takes 48 bytes
-         
-        So thats 112 bytes per photon, so the limit on the number 
-        of photons that can be simulated in a single launch with this 48G 
-        GPU is a bit more than 400M.
-
-
-    :i:`scan-pf-1_Opticks_vs_Geant4 2`
-    ------------------------------------
-
-    .. raw:: html
-
-        <pre>
-       
-
-
-     
-        </pre>
-
-
-    .. class:: small
-
-        .. table:: 
-            :align: center
-
-            +--------------------+----------------------------+------------------+
-            | JUNO analytic, 400M photons from center         |  Speedup         |
-            +====================+============================+==================+
-            | Geant4 Extrap.     | 95,600 s (26 hrs)          |                  | 
-            +--------------------+----------------------------+------------------+
-            | Opticks RTX ON (i) | 58 s                       |   1650x          |
-            +--------------------+----------------------------+------------------+
-
-
-    .. s5_talk::
-
-       This compares the extrapolated Geant4 propagation time with the Opticks launch
-       interval with RTX on.   The speedup is more than a factor of 1000.   Need to 
-       use a log scale to make them both visible. 
-
-       For 400M photons, Geant4 takes more than a day, Opticks takes less than a minute.   
-
-       This is with analytic geometry. Speedup is a lot more with triangles.
-
-
-
-    :i:`scan-pf-1_Opticks_Speedup 2`
-    ---------------------------------
-
-    .. raw:: html
-      
-         <pre>
-
-
-
-
-
-
-
-
-
-         </pre>
-
-    .. class:: small
-
-         .. table:: 
-            :align: center
-
-            +-------------------------+------------------+------------------+
-            | JUNO analytic, 400M photons from center    |   Speedup        |
-            +=========================+==================+==================+
-            | Opticks RTX ON (i)      | 58s              |   1650x          |
-            +-------------------------+------------------+------------------+
-            | Opticks RTX OFF (i)     | 275s             |   350x           |
-            +-------------------------+------------------+------------------+
-            | Geant4 Extrap.          | 95,600s (26 hrs) |                  |
-            +-------------------------+------------------+------------------+
-
-
-    .. s5_talk::
-
-        This is the same information shown as a ratio.
-
-
-
-
-
-    ``CHEP 2019 Plenary, Adelaide, Australia``
-    ---------------------------------------------
-
-    .. s5_talk::
-
-        This photo shows me presenting this at the CHEP plenary
-
-
-
-NVIDIA Giveth and NVIDIA Taketh away ...
-------------------------------------------
-
-.. class:: small 
-
-   +------+------------------------------------------------------------------------------------------------------+
-   | 2006 |  CUDA 1.0                                                                                            |
-   +------+------------------------------------------------------------------------------------------------------+
-   | 2009 |  NVIDIA OptiX 1.0                                                                                    |
-   +------+------------------------------------------------------------------------------------------------------+
-   | 2018 |  NVIDIA: "World's first ray tracing GPU" : ray trace dedicated RT cores, RTX, :b:`10 Giga Rays/s`    | 
-   +------+------------------------------------------------------------------------------------------------------+
-   | 2019 | Opticks: [1st Gen. RTX GPU] OptiX 6.5, JUNO analytic: 58s 400M photons (7M photons/s, ~70M rays/s)   | 
-   +------+------------------------------------------------------------------------------------------------------+
-   | 2019 |  NVIDIA OptiX 7.0 : **ENTIRELY NEW API**  :r:`=> Opticks needs full re-implementation`               | 
-   +------+------------------------------------------------------------------------------------------------------+
-   | 2021 |  NVIDIA Engineers assist Opticks dev. for 6->7 in series of seven meetings (LBNL, LZ )               | 
-   +------+------------------------------------------------------------------------------------------------------+
-   | 2022 |  3rd generation RTX : :strike:`expect` observe 4x ray trace performance of 1st gen.                  |   
-   +------+------------------------------------------------------------------------------------------------------+
-
-.. s5_talk::
-
-
-    IN 2019 NVIDIA introduced an entirely new OptiX API, which effectively meant that Opticks
-    had to be full re-implemented
-
-    In 2018 NVIDIA introduced a GPU with hardware dedicated to accelerating ray tracing.
-    NVIDIA claims it can reach 10 billion ray geometry intersections per second
-    with a single GPU. 
-
-    Assuming each simulated photon costs 10 rays, that means the upper limit per GPU is 
-    1 billion photons/second.
-
-    
-
-
-
-
-
-:small:`NVIDIA OptiX 7 : Entirely new thin API => Full Opticks Re-implementation`
------------------------------------------------------------------------------------
-
-.. sidebar:: :small:`GPU Ray Tracing APIs Converged`
-
-    .. class:: small
-
-        * 3 APIs (DXR,VKRay,OptiX7) over RTX 
-        * Driver updates :r:`independent of application`  
-        * Support new GPUs, performance improvements 
-
-.. class:: small
-
-    **NVIDIA OptiX 6->7** : :b:`drastically slimmed down`
-
-    * low-level CUDA-centric thin API (Vulkan-ized)
-    * headers only (no library, impl in Driver) 
-    * Minimal host state,  :red:`All host functions are thread-safe`
-    * GPU launches : explicit, asynchronous (CUDA streams)
-    * :strike:`near perfect scaling to 4 GPUs, for free` 
-    * :strike:`Shared CPU/GPU geometry context` 
-
-      * :r:`=> NEED CPU/GPU GEOMETRY MODEL + TRANSLATOR`
-
-    * :strike:`GPU memory management`
-    * :strike:`Multi-GPU support`
-
-
-.. class:: small
-
-    **Advantages of 6->7 transition**
-
-    * More control/flexibility over everything 
-    * :b:`Keep pace with state-of-the-art GPU ray tracing` 
-    * Fully benefit from current + future GPUs : RT cores, RTX 
-
-.. class:: small
-
-    **BUT:** :r:`demanded full re-implementation of Opticks` 
-     
-
-
-.. s5_talk::
-
-   * OptiX 7 is an entirely new API, dropping many features used by the old Opticks
-   * re-implementation of almost all of Opticks was necessary
-
-   [Notes: No need to read slide, just the above comments]
-
-
-
-:small:`"Foundry" Model : Shared CPU/GPU Geometry Context`
------------------------------------------------------------------------------------------------------
-
-.. sidebar:: :small:`IAS < Inst < Solid < Prim < Node`
-
-    .. class:: small
-
-        * **Inst** : 4x4 tran. + **Solid** ref. ( **Inst** -> 1 **IAS** )
-        * **Solid** : 1 or more **Prim**  : ( **Solid** -> **GAS** )
-        * **Prim** : 1,3,7,15,31,... **Node**  : (**Prim** ~ *G4VSolid*) 
-
-    .. raw:: html
-
-        <pre class="mypretiny">
-        struct CSGFoundry
-        {
-           void upload(); <span class="redbold">// to GPU </span> 
-        ...
-           std::vector&lt;CSGSolid&gt;  solid ; // compounds (eg PMT)
-           std::vector&lt;CSGPrim&gt;   prim ;
-           std::vector&lt;CSGNode&gt;   node ; // shapes, operators
-
-           std::vector&lt;float4&gt; plan ; // planes
-           std::vector&lt;qat4&gt;   tran ; // CSG transforms
-           std::vector&lt;qat4&gt;   itra ; // inverse CSG transforms
-           std::vector&lt;qat4&gt;   inst ; // instance transforms
-
-           <span class="redbold">// entire geometry in four GPU allocations</span>
-           CSGPrim*    d_prim ; 
-           CSGNode*    d_node ; 
-           float4*     d_plan ; 
-           qat4*       d_itra ;    
-         };
-        </pre>
-
-    .. class:: small
-
-        :bluebold:`referencing by offset, count`  
-
-.. class:: small
-
-    **Geometry model designed for CPU/GPU**
-
-    * very different to Geant4 model (dense tree of C++ objects)
-    * :r:`replaces geometry context dropped in OptiX 6->7` 
-    * array-based -> simple, inherent serialization + persisting 
-    * entire geometry in 4 GPU allocations 
-
-    **Simple CPU/GPU intersect headers** 
-
-    :b:`https://github.com/simoncblyth/opticks/tree/master/CSG` 
-        **csg_intersect_tree.h/csg_intersect_node.h/...**
-
-
-.. raw:: html
-
-    <pre>
-
-    </pre>
-
-.. class:: tiny
-
-   **GAS** : Geometry Acceleration Structure
-
-   **IAS** : Instance Acceleration Structure
-   
-   **CSG** : Constructive Solid Geometry 
-
-
-.. s5_talk::
-
-   SMALL 
-   The Foundry geometry model comprises : Inst, Solid, Prim and Node
-
-   Starting from the bottom:
-
-   * the Node are CSG constituent shapes or operators
-   * the Prim reference a range of Node forming serialized complete binary trees
-   * the Solid reference one or more Prim
-   * the Inst reference one or more Solid 
-
-   **Prim:** are equivalent to G4VSolid
-
-   **Solid:** are compound Prim, each type of PMT corresponds to a Solid 
-
-   **Inst:** are 4x4 transforms with index refererences to Solid 
-
-   The model is designed to work with the OptiX 7 acceleration structures:
-
-   * Solid -> GAS (Geometry Acceleration Structure)
-   * Inst  -> IAS (Instance Acceleration Structure)
-
-   The JUNO geometry of 300,000 volumes is factorized into 10 Solid which 
-   are referenced from a single instance acceleration structure. 
-    
-   The array-based simplicity makes it fast to upload to GPU, 
-   with the entire geometry in 4 GPU allocations. 
-
-
-
-
-.. comment
-
-    Translation, initially 2 step::
-
-               X4      CSG_GGeo
-        Geant4 --> GGeo -->  CSG   
-
-    Later one step::
- 
-                U4/tree
-        Geant4 -> stree/CSG 
-
-
-
-
-:small:`Two-Level Hierarchy : Instance transforms (IAS) over Geometry (GAS)`
--------------------------------------------------------------------------------
-
-.. class:: small
-
-    **OptiX supports multiple instance levels : IAS->IAS->GAS** BUT: :redbold:`Simple two-level is faster` : :red:`works in hardware RT Cores` 
-
-
-.. class:: small
-
-    .. figure:: nvidia/tlas_blas_two_level_hierarchy.png
-        :width: 800px
-        :align: right 
-
-        https://developer.nvidia.com/blog/introduction-nvidia-rtx-directx-ray-tracing/
-
-.. class:: small
-
-   AS
-      Acceleration Structure
-
-   **IAS** (aka TLAS) 
-      :b:`4x4 transforms, refs to GAS`
-       
-   **GAS** (aka BLAS)
-      | :b:`custom primitives : AABB` 
-      | triangles : vertices, indices
-
-   AABB
-      axis-aligned bounding box 
-
-
-   **SBT : Shader Binding Table**
-
-   Flexibly binds together:
- 
-   1. geometry objects
-   2. shader programs 
-   3. data for shader programs
-
-   **Hidden in OptiX 1-6 APIs**
-
-
-
-.. s5_talk::
-
-   OptiX uses the terms : IAS and GAS for instance and geometry acceleratiom structures.
-   The other APIs use terms: TLAS and BLAS for top level and bottom level acceleration structures
-   This is because OptiX supports multiple instance levels. 
-   But the simple two level is faster as that can be done on the RT cores.
-
-   Simple two-level hierarchy : **just one set of instances with transforms and references to geometry**  
-
-
-
-
-
-:small:`Primary Packages and Structs Of Re-Implemented Opticks`
------------------------------------------------------------------
-
-.. sidebar:: :small:`Flexible Multi-Package Organization`
-
-    .. class:: small
-
-         **Code Organized by Dependency (not "Topic")**
-     
-         * :r:`maximizes: utility, re-use, ease of testing` 
-         * => "GPU" code usable+tested on CPU 
-
-         **Many small header-only implementations** 
-
-         * common CPU/GPU headers   
-
-
-
-.. class:: small 
-
-   *SysRap* : many small CPU/GPU headers
-     * *stree.h,snode.h* : geometry base types
-     * *sctx.h* *sphoton.h* : event base types
-     * *NP.hh* : serialization into NumPy .npy format files     
-
-   *QUDARap* 
-     * *QSim* : optical photon simulation steering
-     * *QScint,QCerenkov,QProp,...* : modular CUDA implementation 
-
-   *U4*
-     * *U4Tree* : convert geometry into *stree.h*
-     * *U4* : collect gensteps, return hits 
-
-   *CSG*
-     * *CSGFoundry/CSGSolid/CSGPrim/CSGNode* geometry model
-     * *csg_intersect_tree.h* *csg_intersect_node.h* *csg_intersect_leaf.h* : CPU/GPU intersection functions 
-
-   *CSGOptiX*
-     * *CSGOptiX.h* : manage geometry convert from *CSG* to OptiX 7 *IAS* *GAS*, pipeline creation
-     * *CSGOptiX7.cu* : compiled into ptx that becomes OptiX 7 pipeline
-
-       * includes QUDARap headers for simulation   
-       * includes *csg_intersect_tree.h,..* headers for CSG intersection    
-     
-   *G4CX*
-     * *G4CXOpticks* : Top level Geant4 geometry interface
-
-
-.. s5_talk::
-
-   [HMM: COULD SKIP THIS ONE?]
-
-   Opticks code is split into multiple packages by-dependency, not by-topic
-   This means that more of the code has less dependencies, making 
-   it more useful and easier to test.   
-
-   Using mocking,  most of the "GPU" code can be tested on CPU.  
-
-   [Notes: <30s slide, mainly for offline consumption, no need to read out]
-
-
-
-.. comment
-
-    :small:`Full re-implementation of Opticks for NVIDIA OptiX 7 API` 
-    --------------------------------------------------------------------
-
-    .. class:: small
-
-        * :r:`Huge change unavoidable from new OptiX API` --> :b:`So profit from rethink of simulation code` --> **2nd impl advantage** 
-
-        +------------------------------------------+--------------------------------------------------------+
-        |  Old simulation (OptiXRap)               |  New simulation (QUDARap/qsim.h + CSGOptiX, CSG)       | 
-        +==========================================+========================================================+
-        |  * implemented on top of old OptiX API   | * pure CUDA implementation                             |
-        |                                          | * :r:`OptiX use kept separate, just for intersection`  |
-        |                                          |                                                        |
-        +------------------------------------------+--------------------------------------------------------+
-        |  * monolithic .cu                        | * many small headers                                   |
-        |  * GPU only implementation               | * many GPU+CPU headers                                 |
-        |  * deep stack of support code            | * shallow stack : QUDARap depends only on SysRap       | 
-        +------------------------------------------+--------------------------------------------------------+
-        |  * most code in GPU only context,        | * strict code segregation                              |
-        |    even when not needing OptiX or CUDA   |                                                        |
-        |                                          |   * :r:`code not needing GPU in SysRap not QUDARap`    |
-        +------------------------------------------+--------------------------------------------------------+
-        |  * testing : GPU only, coarse            | * :r:`testing : CPU+GPU , fine-grained`                |
-        |                                          | * curand mocking on CPU                                | 
-        +------------------------------------------+--------------------------------------------------------+
-        |  * limited CPU/GPU code sharing          | * maximal sharing : SEvt.hh, sphoton.h, ...            |
-        +------------------------------------------+--------------------------------------------------------+
-        |  * timeconsuming manual random alignment | * :b:`new systematic approach to random alignment`     |  
-        |    conducted via debugger                |                                                        |
-        +------------------------------------------+--------------------------------------------------------+
-
-        **Goals of re-implementation : flexible, modular GPU simulation, easily testable, less code**
-
-        * code reduction, sharing as much as possible between CPU and GPU
-        * fine grained testing on both CPU and GPU, with GPU curand mocking 
-        * profit from several years of CUDA experience, eg QSim.hh/qsim.h host/device counterpart pattern:
-
-          * hostside initializes and uploads device side counterpart --> :r:`device side hits ground running` 
-
-
-    .. s5_talk::
-
-        Embracing the change : might as well profit from a rethink 
-
-        [Notes: dont read out as too much text, just read a few of the highlighted]
-
-
-
-
-
-
-
-
-
-:small:`QUDARap : CUDA Optical Simulation Implementation`
-------------------------------------------------------------
-
-.. sidebar:: :small:`CPU Pre-Init of GPU Counterpart`
-
-    .. class:: small
-
-        hh
-           instanciate device .h **on host**, upload constituents (eg texture buffers),  
-           set constituent device pointers into .h instance, upload .h instance to GPU  
-        h
-           simple device header, testable on CPU 
-            
-        --> :r:`device side hits ground running` 
-
-
-.. class:: small
-
-    **CPU/GPU Counterpart Code Organization for Simulation**
-
-    +-------------------------------+-----------------+-----------------------+
-    |                               | CPU             | GPU                   |
-    +===============================+=================+=======================+
-    | context steering              | QSim.hh         |  qsim.h               |  
-    +-------------------------------+-----------------+-----------------------+
-    | curandState setup             | QRng.hh         |  qrng.h               |
-    +-------------------------------+-----------------+-----------------------+
-    | property interpolation        | QProp.hh        |  qprop.h              |
-    +-------------------------------+-----------------+-----------------------+
-    | event handling                | QEvent.hh       |  qevent.h             |
-    +-------------------------------+-----------------+-----------------------+
-    | Cerenkov generation           | QCerenkov.hh    |  qcerenkov.h          |
-    +-------------------------------+-----------------+-----------------------+
-    | Scintillation generation      | QScint.hh       |  qscint.h             |
-    +-------------------------------+-----------------+-----------------------+
-    | texture handling              | QTex.hh         |  cudaTextureObject_t  |
-    +-------------------------------+-----------------+-----------------------+
-    
-
-    * :r:`facilitate fine-grained modular testing` 
-    * bulk of GPU code in simple to test headers 
-
-      * test most "GPU" code on CPU,  eg using mock curand
-
-    * *QUDARap* does not depend on OptiX -> more flexible -> simpler testing    
-
-
-
-.. s5_talk::
-
-    Of course in addition to geometry intersections the simulation also 
-    needs the optical physics. The QUDARap package is a pure CUDA port 
-    of the Geant4 optical simulation, with no OptiX dependency. 
-
-    [Notes: mainly of intersect for people writing CUDA code, a useful pattern] 
-
-
-.. comment
-
-       +---------------------------------------+
-       | **A** (GPU) CSGOptiX/qsim.h           |
-       +=======================================+
-       |  qsim => sctx/sevent/SEvt             |
-       +---------------------------------------+
-
-       +---------------------------------------+
-       | **B** (CPU) U4Recorder                |
-       +=======================================+
-       | G4StepPoint => sctx/sevent/SEvt       |
-       +---------------------------------------+
 
 
 
@@ -3272,6 +2284,62 @@ NVIDIA Giveth and NVIDIA Taketh away ...
 
 
 
+
+:i:`scan-pf-check-GUI-TO-SC-BT5-SD`
+--------------------------------------
+
+.. s5_talk::
+
+   This GUI allows interactive selection between tens of millions 
+   of photons based on their histories.  
+
+   Here its showing the photons that scattered before boundary transmitting straight 
+   through to surface detect.
+
+   Its implemented by indexing the photon histories using some very fast 
+   GPU big integer sorting provided by CUDA Thrust, 
+   and using OpenGL shaders to switch between selections.
+
+   The 64-bit integers hold up to 16 4-bit flags for each step of the photon.
+
+   All of this is done using interop capabilities of OpenGL/CUDA/Thrust and OptiX
+   so GPU buffers can be written to and rendered inplace with no copying around.
+
+
+
+.. comment
+
+    :i:`scan-pf-check-GUI-TO-BT5-SD`
+    ----------------------------------
+
+    .. s5_talk::
+
+       The GUI also provides interactive time scrubbing of the propagation 
+       of tens of millions of photons. 
+
+       This is some nanoseconds later for a different history category. 
+      
+       I created this GUI to help with debugging the simulation. 
+
+
+    .. comment
+
+         * DELL Precision 7920T Workstation
+         * Intel Xeon Silver 4114, 2.2GHz, 40 cores, 65G 
+         * NVIDIA Quadro RTX 8000, 48G 
+
+         * DELL Precision 7920T Workstation
+         * Intel Xeon Gold 5118, 2.3GHz, 48 cores, 65G  
+         * NVIDIA TITAN RTX, 24G
+         * NVIDIA TITAN V, 12G
+
+
+
+
+
+
+
+
 :small:`Optical Simulation Comparison : Statistical OR Direct`
 ----------------------------------------------------------------
 
@@ -3321,8 +2389,11 @@ NVIDIA Giveth and NVIDIA Taketh away ...
 
 
 
+
 :i:`B_V1J008_N1_ip_MOI_Hama:0:1000_yy_frame_close.png`
 ----------------------------------------------------------
+
+``Full photon step point details enable debug, here from input photons``
 
 .. raw:: html
 
@@ -3341,80 +2412,241 @@ NVIDIA Giveth and NVIDIA Taketh away ...
     The squares indicates the target frame.
 
 
-:i:`B_V1J008_N1_ip_MOI_Hama:0:1000_b.png`
--------------------------------------------
+.. comment
 
-.. class:: small
+    :i:`B_V1J008_N1_ip_MOI_Hama:0:1000_b.png`
+    -------------------------------------------
 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   |emsp| |emsp| |emsp| |emsp| |emsp| 
-   ``cd ~/j/ntds ; N=1 ./ntds.sh ana``  
+    ``Input photons directed within plane convenient for debug``
+
+    .. raw:: html
+
+        <p style="margin-bottom:150mm;" />
+
+    .. class:: small
+
+       :b:`Geant4/U4Recorder 3D photon points transformed into target frame, viewed in 2D`
+     
+
+    .. s5_talk::
+
+       This is a 2D view of the target frame, showing intersection positions on the
+       PMT mask and inside the PMT. 
+
+       cd ~/j/ntds ; N=1 ./ntds.sh ana  
+
+
+
+
+
+nEXO + Opticks : Typical Issues 
+---------------------------------
+
+.. class:: normal 
+
+    Opticks geometry translation is general, :r:`but often work needed to`:
+
+    * support all your solids
+    * be performant with all your solids
+
+      * deep CSG trees problematic
+      * use geometry scanning to find slow solids
+
+    * avoid problems of coincident surfaces
+
+      * float precision CSG more susceptible than G4
+      * detailed validation required
+
+    * get instance "factorized" optimally
+
 
 .. raw:: html
 
-    <p style="margin-bottom:150mm;" />
+     <p style="margin-bottom:30mm;" />
 
-.. class:: small
 
-   :b:`Geant4/U4Recorder 3D photon points transformed into target frame, viewed in 2D`
+.. class:: normal 
+
+    :b:`Potential to make your simulation unlimited by optical photons`
+
+
+.. s5_talk::
+
+   Klop
+
+
+
+Some Opticks users
+--------------------
+
+* NEXT-CRAB0 Prototype (Ilker Parmaksiz)
+* CaTS (Hans Wentzel, Fermilab Geant4 Group)
+* LHCb-RICH (Sajan Easo + Manchester Group)  
+* LZ (Sam Eriksen + ..)
+
+
+.. class:: normal
+
+   While Opticks changing rapidly...
+
+   * did not seek users much, some brave ones turned up anyhow
+   * :r:`many thanks to active bug reporting users`
+
+   More active users very welcome,
+
+   * :b:`necessary for Opticks to mature`
+   * users still need to be brave + must be willing to read the code
+
+
+.. s5_talk::
+
+   As JUNO starts data-taking, hope:
+
+   * pace of change to simulation slows 
+   * => document Opticks, make easier to use
+
+     * plenty of docs, but they go out of date   
+
+
+
+``Ilker Parmaksiz, NEXT-CRAB0 Prototype``
+---------------------------------------------
+
+.. class:: normal
+
+   New active bug reporting Opticks user : Ilker Parmaksiz
+
+   * careful comparison : Data, Geant4, Opticks
+   * :r:`Opticks 181x over Geant4`
+
+
+.. s5_talk::
+
+   New User : found bugs
+
+
+
+:i:`CaTS: Integration of Geant4 and Opticks`
+--------------------------------------------------
+
+
+.. s5_talk::
+
+    A recent paper from the Fermilab Geant4 team 
+    reports on the integration
  
 
+
+
+:i:`lhcb_rich1_epjc_001.png`
+-----------------------------
+
 .. s5_talk::
 
-   This is a 2D view of the target frame, showing intersection positions on the
-   PMT mask and inside the PMT. 
+    The LHCb-RICH (ring-imaging Cherenkov particle id detector) 
+    group from Manchester and RAL evaluated Opticks in an EPJ paper. 
+
+    I helped them via ZOOM calls and they helped me by arranging 
+    a UK HACKATHON with NVIDIA Europe engineers. 
+    Some NVIDIA GPU experts used their profiling tools on Opticks
+    and studied the code. They gave me detailed advice on some better ways 
+    to do things.    
+
+.. comment
+
+    * they got a speedup of 10x only : due to using not so many photons
+    * Opticks needs event joining to avoid overheads reducing performance 
+      for few photon events  
 
 
 
-:i:`B_V1J008_N1_OIPF_NNVT:0:1000_gridxy.png`
-----------------------------------------------
+
+:small:`LZ + Opticks (Sam Eriksen, University of Bristol)`
+---------------------------------------------------------------------------
+
+``had contacts with ~5 LZ people``
+
+.. s5_talk::
+
+    I assisted the LZ dark matter expt to get their geometry to work with Opticks.   
+    I had contacts with more than 5 people from LZ.
 
 
-::
 
-     export OPTICKS_INPUT_PHOTON=GridXY_X1000_Z1000_40k_f8.npy
-     export OPTICKS_INPUT_PHOTON_FRAME=NNVT:0:1000
 
-     MODE=3 EDL=1 N=0 EYE=500,0,2300 CHECK=not_first ~/j/ntds/ntds.sh ana
+
+:small:`Summary and Links`
+-------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Extra Benefits of Adopting Opticks`
+
+   .. class:: small
+
+      * :b:`high performance novel visualization`
+      * detailed photon instrumentation, validation 
+      * comparisons find issues with both simulations:
+       
+        * complex geometry, overlaps, bugs... 
+
+      :r:`=> using Opticks improves CPU simulation too !!`
+
+.. raw:: html
+
+     <p style="margin-bottom:5mm;" />
+
+..
+
+  *Opticks* : state-of-the-art GPU ray traced optical simulation integrated with *Geant4*, 
+  with automated geometry translation into GPU optimized form.   
 
 
 .. raw:: html
 
-    <p style="margin-bottom:110mm;" />
-    
+     <p style="margin-bottom:15mm;" />
 
-::
+.. class:: normal
 
-    Photon step points from grid of input photons target NNVT:0:1000 (POM:1)
+  * NVIDIA Ray Trace Performance continues rapid progress (2x each gen., every ~2 yrs) 
+  * **any simulation limited by optical photons can benefit from Opticks**
+  * more photon limited -> more overall speedup (99% -> ~90x)
 
+
+.. table::
+    :align: center
+
+    +--------------------------------------------------+-----------------------------------------+
+    | https://bitbucket.org/simoncblyth/opticks        | day-to-day code repository              |                   
+    +--------------------------------------------------+-----------------------------------------+
+    | https://simoncblyth.bitbucket.io                 | presentations and videos                |
+    +--------------------------------------------------+-----------------------------------------+
+    | https://groups.io/g/opticks                      | forum/mailing list archive              |
+    +--------------------------------------------------+-----------------------------------------+
+    | email: ``opticks+subscribe@groups.io``           | subscribe to mailing list               |
+    +--------------------------------------------------+-----------------------------------------+ 
+    | ``simon.c.blyth@gmail.com``                      | any questions                           |   
+    +--------------------------------------------------+-----------------------------------------+ 
+
+
+.. comment 
+
+    | https://github.com/simoncblyth/opticks           | releases                                |                   
+    +--------------------------------------------------+-----------------------------------------+
 
 .. s5_talk::
 
-    This is a 3D pyvista view of photon points from a grid of input photons. 
-    Looking closely you can distinguish the type of PMT 
-    by the size of ring inside. 
+    Summary is that : Opticks provides state-of-the-art GPU ray tracing integrated with Geant4 and that 
+    there has been substantial progress with the migration to OptiX 7, 
+    which is essential to keep up with the state-of-the-art.
+ 
+    Links to get you started with using Opticks are listed here.
 
+    Opticks brings state-of-the-art GPU ray tracing performance to optical photon 
+    simulations. 
 
-:i:`cxr_min__eye_1,0,5__zoom_2__tmin_0.5__NNVT:0:1000_demo.jpg`
------------------------------------------------------------------
-
-``ray traced renders : exact same geometry "seen" by simulation``
-
-
-.. s5_talk::
-
-    This is a ray trace render targetting the same group of PMTs. 
-    You can see the same pattern of PMTs from the ray trace and from the simulation. 
-
-
-
-
-
-  
-
-
+    The detailed validations needed when adopting a new simulation has a 
+    hidden benefit in that detailed comparisons reveal problems with both 
+    simulations. Adopting Opticks means you will 
+    improve your CPU simulation whilst also giving you a GPU simulation.  
+ 
 
 
