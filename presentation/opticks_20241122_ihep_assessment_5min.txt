@@ -64,7 +64,6 @@
 
 
 
-
 :small:`Evaluation Estimate : (position started September 2nd 2024)`
 ----------------------------------------------------------------------
 
@@ -261,7 +260,6 @@ II. Work status this year
 
 
 
-
 Outline 1
 -----------
 
@@ -330,6 +328,93 @@ I. Job responsibilities
 
 * Enable GPU accelerated optical photon simulation in JUNO + other expts
 * Maximize Opticks+GPU benefits to JUNO and other experiments
+
+
+Completion of research tasks
+------------------------------
+
+.. comment
+
+   what to highlight, how to illustrate : cherry pick from presentations
+
+   * full geometry ray trace render 
+
+
+
+:small:`Personal research results (papers, innovative technology development, ..)`
+------------------------------------------------------------------------------------------------------
+
+
+
+
+
+Academic Exchanges : Europe + N.America
+-----------------------------------------
+
+
+.. class:: small
+
+    * 2024 October 25, nEXO Light Simulation Workshop,  McGill University, Montreal, Canada : *Invited guest speaker*  
+
+      * demonstrated the performance and precision of Opticks, contrasted with Chroma
+      * :r:`presentation + two days of extensive discussions with nEXO Simulation Group`
+      * tentative plan to try Opticks with LoLX "Light-only Liquid Xenon experiment"
+
+
+    * 2024 October 21, CHEP 2024, Krakow, Poland : *Opticks parallel presentation* 
+
+      * presented progress with JUNO+Opticks
+      * :b:`gained attention by demonstrating rapid performance gains with NVIDIA ray tracing` 
+      * prominently reported in plenary simulation summary talk (Giacomo De Pietro)
+
+.. class:: tiny
+
+    https://indico.cern.ch/event/1338689/contributions/6182301/attachments/2954600/5194791/20241025_Track5_Summary.pdf 
+
+.. raw:: html
+
+   <p style="position:fixed;top:350px;left:900px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">
+     nEXO Light Simulation Workshop, McGill University, Montreal 
+   </p>    
+
+.. comment
+
+    My visit to the CHEP conference in Krakow, Poland enabled me to present progress 
+    with JUNO+Opticks to diverse colleagues from all over the world and 
+    to discuss my work with others from CERN and the US who are also using GPUs 
+    to accelerate simulation. My presentation demonstrated the ongoing strong improvement
+    in ray tracing and simulation performance of NVIDIA RTX GPUs. 
+    My work was prominently included in the summary session for the simulation track. 
+
+    My visit to the nEXO optical photon simulation workshop at McGill University, Montreal, 
+    Canada enabled me to present the case for the nEXO experiment to adopt the Opticks 
+    simulation package to principal investigators, postdocs and students working 
+    on nEXO optical simulations. The performance and precision enabled by Opticks 
+    and demonstrated by my presentation and extensive discussions 
+    was of great interest and resulted in a tentative plan to test Opticks 
+    simulation with the LoLX "Light-only Liquid Xenon experiment" to evaluate 
+    feasibility of adoption of Opticks by the nEXO experiment.   
+
+
+.. comment
+
+    ``McGill_nEXO_light_simulation_workshop_202410.png``
+    ------------------------------------------------------
+
+
+.. comment
+
+    Academic Exchanges :  China
+    ------------------------------------
+
+    .. class:: small
+
+              * Geant4 Technical Forum, Online, 15 Feb 2024
+              * Zhejiang University Seminar, Hangzhou, 27 Feb 2024 
+              * IHEP EPD Seminar, Beijing, April 18, 2024
+        
+
+
 
 
 

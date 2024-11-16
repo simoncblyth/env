@@ -2664,7 +2664,17 @@
     NEXT-CRAB0 Prototype + Opticks
     Ilker_Parmaksiz_CRAB_Prototype/CRAB_Prototype_CHEP_2024_001.png 640px_360px 0px_360px
     Ilker_Parmaksiz_CRAB_Prototype/CRAB_Prototype_CHEP_2024_002.png 640px_360px 640px_360px
+
+    McGill_nEXO_light_simulation_workshop_202410.png
+    nEXO/McGill_nEXO_light_simulation_workshop_202410.png 1280px_720px
+
+    chep2024_simulation_track_summary_Giacomo_De_Pietro.png
+    chep2024/chep2024_simulation_track_summary_Giacomo_De_Pietro.png 1280px_720px
  
+    Academic Exchanges : Europe + N.America
+    chep2024/chep2024_simulation_track_summary_Giacomo_De_Pietro.png 640px_360px 0px_360px
+    nEXO/McGill_nEXO_light_simulation_workshop_202410.png 640px_360px 640px_360px
+
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
