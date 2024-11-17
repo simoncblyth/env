@@ -2671,9 +2671,12 @@
     chep2024_simulation_track_summary_Giacomo_De_Pietro.png
     chep2024/chep2024_simulation_track_summary_Giacomo_De_Pietro.png 1280px_720px
  
-    Academic Exchanges : Europe + N.America
+    Academic Exchanges : nEXO Workshop at McGill + CHEP 2024
     chep2024/chep2024_simulation_track_summary_Giacomo_De_Pietro.png 640px_360px 0px_360px
     nEXO/McGill_nEXO_light_simulation_workshop_202410.png 640px_360px 640px_360px
+
+    Academic Exchanges : Geant4 Technical Forum, Zhejiang Uni, IHEP EPD 
+    60th_geant4_technical_forum_feb_2024/cecile_jollet_custom_boundary_process_for_JUNO_PMT_Optical_Model.png 640px_360px 0px_360px
 
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
