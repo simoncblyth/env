@@ -2627,6 +2627,11 @@
     GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_0,3,-1.5__zoom_1__tmin_0.5__uni1:0:000000.jpg 640px_360px 640px_0px 
     GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__sSurftube_0V1_0:0:-1.jpg 640px_360px 640px_360px
 
+    2024 : JUNO+Opticks Geom Fixes
+    GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__sDeadWater:0:-1.jpg 640px_360px 0px_360px
+    GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_0,3,-1.5__zoom_1__tmin_0.5__uni1:0:000000.jpg 640px_360px 640px_0px 
+    GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__sSurftube_0V1_0:0:-1.jpg 640px_360px 640px_360px
+
     cxr_min__eye_1,0,0__zoom_1__tmin_0.5__solidXJfixture:0:-1.jpg
     GEOM/J_2024jun14/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__solidXJfixture:0:-1.jpg 1280px_720px
 
