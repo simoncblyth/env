@@ -10,6 +10,14 @@ NVIDIA
 ========
 
 
+
+
+Demystify CUDA Debugging and Performance with Powerful Developer Tools
+-----------------------------------------------------------------------
+
+* https://www.nvidia.com/en-us/on-demand/search/?facet.mimetype[]=event%20session&layout=list&page=1&q=S62256&sort=relevance&sortDir=desc
+
+
 GPUs March 2024
 ----------------
 

@@ -2683,6 +2683,9 @@
     Academic Exchanges : Geant4 Technical Forum, Zhejiang Uni, IHEP EPD 
     60th_geant4_technical_forum_feb_2024/cecile_jollet_custom_boundary_process_for_JUNO_PMT_Optical_Model.png 640px_360px 0px_360px
 
+    Public services : JUNO Geom, Students, Geant4 Collab, Opticks Users
+    Ilker_Parmaksiz_CRAB_Prototype/CRAB_Prototype_CHEP_2024_002.png 640px_360px 640px_360px
+
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored

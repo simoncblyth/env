@@ -231,8 +231,6 @@ Opticks Presentations
 
 `env/presentation/opticks_20241025_montreal_nEXO_light_simulations_workshop.html <env/presentation/opticks_20241025_montreal_nEXO_light_simulations_workshop.html>`_
 
-   **WIP : PRESENTATION IN PREPARATION**
-
    *nEXO + Opticks ? NVIDIA OptiX accelerated optical photon simulation ?*
 
    nEXO Light Simulation Framework Workshop, invited talk 
