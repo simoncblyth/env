@@ -88,6 +88,15 @@ glm/ext/matrix_clip_space.inl::
     |     0          0               -1          0           |
                                      ^ 
 
+    This matches the documented matrix from the below
+
+    * https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glFrustum.xml
+
+    (left, bottom, -near)   ==>   lower left of window  (-1,-1)
+    (right,  top,  -far)    ==>   upper right of window (+1,+1)
+
+
+
 
     131     template<typename T>
     132     GLM_FUNC_QUALIFIER mat<4, 4, T, defaultp> frustumLH_NO(T left, T right, T bottom, T top, T nearVal, T farVal)
@@ -237,17 +246,28 @@ N = Matrix([
     ])
 
 
+Z = Matrix([
+      [1,   0,    0,     0],
+      [0,   1,    0,     0],
+      [0,   0,   -1,     0],
+      [0,   0,    0,     1]
+    ])
 
 
-BAP = simplify(B*A*P)
-BAN = simplify(B*A*N)
 
 
-print("simplify(BAP)")
-print(simplify(BAP))
+print("simplify(B*A*P)")
+print(simplify(B*A*P))
 
-print("simplify(BAN)")
-print(simplify(BAN))
+print("simplify(B*A*Z*P)")
+print(simplify(B*A*Z*P))
+
+
+
+
+#BAN = simplify(B*A*N)
+#print("simplify(BAN)")
+#print(simplify(BAN))
 
 
 
