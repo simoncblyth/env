@@ -1574,5 +1574,6 @@ presentation-rst2talk-(){
 #presentation-iname(){ echo ${INAME:-opticks_20241025_montreal_nEXO_light_simulations_workshop} ; }
 
 presentation-iname(){ echo ${INAME:-opticks_20241122_ihep_assessment_5min} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20241122_ihep_assessment_5min_TALK} ; }
 
 

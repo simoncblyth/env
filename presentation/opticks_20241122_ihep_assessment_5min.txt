@@ -2,6 +2,7 @@
    :title: Simon C Blyth : IHEP Assessment Report
    :description: (2024 November 22) JUNO, OptiX, Opticks
    :note0: 5+2 min 
+   :url: https://indico.ihep.ac.cn/event/24089/timetable/
 
 .. include:: my_s5defs.txt
 
@@ -30,19 +31,14 @@
 
 .. s5_talk:: 
 
-    Opticks is an open source package that offloads the simulation of optical 
-    photons to the GPU, solving the optical photon problem for JUNO and others 
-    with too many photons for serial processing. 
-  
-    This render shows many millions of photons resulting from a muon crossing 
-    the JUNO scintillator.
-    The bottleneck for simulation is finding intersects between rays representing 
-    the photons and the detector geometry. 
+   This render illustrates the many millions of photons resulting from a 200GeV muon crossing the JUNO scintillator.
+   Finding intersects between rays representing the photons and the detector geometry is the bottleneck for simulation. 
+   Offloading the optical simulation to the GPU can eliminate this bottleneck.   
+   I developed the Opticks package to do exactly that. 
 
 
-
-Outline
----------
+Standard Outline
+-----------------
 
 .. class:: normal 
 
@@ -70,15 +66,15 @@ Outline
 
 .. s5_talk::
 
-    Outline [dont read, just 2s flash]
+    Standard Outline
 
 
-**I. Job responsibilities** : Dr Simon C. Blyth (D.Phil)
-----------------------------------------------------------
+**I. Job responsibilities** : Dr Simon C. Blyth
+--------------------------------------------------
 
 .. class:: normal
 
-   2024/09-2029/09 : *IHEP Associate Researcher*
+   **2024/09**-2029/09 : *IHEP Associate Researcher*
     
      +-------------------------------------------------------------------------------+
      |                                                                               |
@@ -109,8 +105,8 @@ Outline
 
 .. s5_talk::
 
-   From 2018 I worked as a visitor to IHEP, in September I joined IHEP. 
-   My primary responsibility is to maximize Opticks benefits to JUNO and other experiments. 
+   * I joined IHEP 2 months ago, before then I worked as a visitor.  
+   * I aim to maximize Opticks benefits to JUNO and other experiments. 
 
 
 
@@ -124,8 +120,6 @@ Outline
      </p>    
 
      <p style="margin-bottom:7cm;" />
-
-
 
 
 .. sidebar:: :small:`Huge CPU Memory+Time Expense`
@@ -145,8 +139,10 @@ Outline
 
 .. s5_talk::
 
-   Simulating tens of millions of optical photons takes lots of CPU memory and time.  
-   Opticks applies NVIDIA GPU ray tracing to prevent optical photons from limiting simulation.   
+   * Serial optical simulation is hugely expensive.   
+   * Opticks applies massively parallel GPU ray tracing, to solve the optical simulation problem 
+   * For many experiments Opticks can prevent optical photons from limiting simulation 
+
 
 
 Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
@@ -166,14 +162,13 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. class:: tiny
 
-    [1] Actual performance depends on geometry and its modelling, optical simulation speedups > 1000x Geant4 have been measured  
+    [1] Actual performance depends on geometry and its modelling, JUNO optical simulation speedups > 1000x Geant4 have been measured  
  
 
 .. s5_talk::
 
-    This shows how Opticks integrates Geant4 based simulations
-    with state-of-the-art GPU ray tracing from NVIDIA OptiX.  
-  
+    * This shows how Opticks integrates Geant4 simulations with NVIDIA OptiX GPU ray tracing.  
+    * The most crucial part is the translation of geometry into the form needed on the GPU 
 
 
 :small:`II. Work status this year : Completion of research tasks`
@@ -229,20 +224,9 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-   My work can be split into phases:
-
-   * Develop 
-   * Validate 
-   * Measure 
-   * and Release
-
-   with lots of overlap between Develop and Validate phases.
-
-   Validation uses a chi2 that compares photon history frequencies 
-   in the Opticks and Geant4 optical simulations. 
-   Its very sensitive to deviations between the simulations.  
-   Typically deviations point to geometry modelling issues, which then 
-   need to be reimplemented within JUNOSW. 
+   * my work cycle has phases : Develop/Validate/Measure/Release
+   * Validation uses a chi2 that compares photon histories between the simulations. 
+   * Deviations usually point to geometry needing to be re-implemented
 
 
 
@@ -279,9 +263,10 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-   Primary new development in the past year is integrating triangulated geometry 
-   together with the analytic CSG geometry. 
-   This allows the full JUNO geometry to be translated to the GPU. 
+   * main new feature is geometry generalization : integrating triangulated with analytic 
+   * this allows translation of the full JUNO geometry, by triangulating the guide tube torus
+
+.. comment
 
    Triangulated geometry is very useful for the JUNO guide tube torus, 
    as finding analytic intersects with toruses requires solving quartics
@@ -340,10 +325,7 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-    Validation revealed issues with the JUNO Waterpool geometry 
-    and the acrylic support stick fasteners. 
-    I re-implemented the geometry for these to fix the issues.
-    
+    * geometry issues this year were with the Waterpool and the support stick fasteners. 
 
 
 
@@ -354,8 +336,12 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. raw:: html
 
-     <p style="margin-bottom:45mm;" />
+    <p style="margin-bottom:45mm;" />
 
+    <p style="position:fixed;top:575px;left:650px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">
+    Updates for CUDA 12.4 enabled 3rd gen RTX tests
+    </p>
+ 
 
 .. class:: tiny
 
@@ -398,12 +384,16 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-    Updates to work with recent CUDA 12.4 allows use of state-of-the-art 3rd generation RTX GPUs. 
-    Comparing performance shows a factor of 4 speedup compared with 1st generation GPUs.   
+    * measured factor of 4 speedup from the 1st to 3rd generation RTX GPUs
+
+
+.. comment
 
     GPU launch time vs number of photons becomes linear between 10M and 20M photons
 
-    This is with JUNOs unusual PMT optical model where photons bounce around inside PMT and TMM
+    This is with JUNOs unusual PMT optical model where photons bounce around inside PMT 
+    and interference effects in the thin layers of photocathode and anti-reflection coating are 
+    modelled using the transfer matrix method (TMM).
 
 
 
@@ -417,7 +407,6 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
     * integration of state-of-the-art GPU ray tracing with Geant4 
     * open source analytic CSG implementation developed for GPU
-    * shared analytic CPU/GPU geometry model
 
     **2024 : extending these innovations:** 
 
@@ -425,6 +414,10 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
     * apply "listnode" reducing CSG tree depth for complex solids 
     * :b:`smoothly interactive ray traced visualization as "fly" around full detector geometries`
 
+      * OpenGL/OptiX/CUDA interop : viz shares GPU buffers with simulation
+      * :r:`viz geometry exactly same as simulated geometry`  
+      * => find issues by visual inspection  
+    
 
 .. class:: huge
  
@@ -436,9 +429,23 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
         +------------------------------------------+
 
 
+
 .. s5_talk::
 
-     Most Opticks development is innovative.  
+   * Most Opticks development is innovative,  
+   * for example interactive ray traced vizualizations enabled me to confirm issues just by visual inspection
+   * possible as vizualization and simulation use the same intersect code
+
+
+.. comment
+
+    * shared analytic CPU/GPU geometry model
+
+.. comment
+
+     The only other project doing something similar is Chroma, 
+     which is triangles only and does not benefit from 
+     state-of-the-art ray tracing. 
 
      For example this year I implemented an interactive ray trace rendering 
      application that allows flying around the geometry with state-of-the-art 
@@ -485,8 +492,7 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-   My conference proceedings paper from the previous CHEP was published 
-   this year, and has been getting lots of views in 7 months.  
+   * my last Opticks proceedings paper has been getting attention
 
 
 
@@ -499,7 +505,7 @@ Funding Supporting my work on Opticks
    |  Period            | Amount   |  Source     | Principal         |                                                                               |
    |                    |  (RMB)   |             |                   |                                                                               |
    +====================+==========+=============+===================+===============================================================================+
-   | 2018,2019,2020     | Stipend  |  PIFI       |  Li Weidong       |                                                                               |
+   | 2018,2019,2020     | Stipend  |  PIFI       |  Li Weidong       |  Visiting Scientist, CAS Presidents International Fellowship Initiative       |
    +--------------------+----------+-------------+-------------------+-------------------------------------------------------------------------------+
    | 2021, 2022         | Stipend  |  MOST       |  Wen Liangjian    |  High-end Foreign Experts Introduction Program                                |
    +--------------------+----------+-------------+-------------------+-------------------------------------------------------------------------------+
@@ -512,7 +518,7 @@ Funding Supporting my work on Opticks
 
    **Strong potential for further funding :**
 
-   * :b:`clear benefits to JUNO and other experiments : simulation optically unlimited`
+   * :b:`immediate benefits to JUNO and others : make simulation unlimited by photons`
    * innovative + straightforward to explain
    * novel visualizations with strong potential for outreach 
 
@@ -521,8 +527,8 @@ Funding Supporting my work on Opticks
 
 .. s5_talk::
 
-   There is strong potential for getting further Opticks funding, because of 
-   the clear benefits and innovative nature. 
+   * Opticks has strong funding potential, because its innovative and has immediate benefits
+   * but, I need lots of help to find and apply for grants
 
 
 :small:`Academic Exchanges : nEXO Workshop at McGill + CHEP 2024`
@@ -570,13 +576,9 @@ Funding Supporting my work on Opticks
 
 .. s5_talk::
 
-   nEXO invited me to their light simulation workshop in Canada. nEXO currently uses Chroma 
-   for GPU optical photon simulation, which is limited to triangulated geometry and does not 
-   take advantage of NVIDIA OptiX. They are very interested to try using Opticks. 
-   
-   In the same week I presented JUNO+Opticks progress at the CHEP conference in Poland. 
-   Opticks performance improvements with GPU generations grabbed attention, as was reported
-   in the plenary summary.  
+   * nEXO invited me to their light simulation workshop in Canada, they are interested to use Opticks. 
+   * in the same week I presented Opticks at CHEP in Poland 
+   * performance improvements grabbed attention, and was reported in the plenary summary
   
 
 
@@ -631,11 +633,9 @@ Funding Supporting my work on Opticks
      :r:`Many domestic academic exchanges also`
 
 
-
 .. s5_talk::
 
-    In addition to international exchanges, I also had many domestic exchanges too
-    over the past year.
+    * In addition to international exchanges, I also had many domestic exchanges too
 
 
 :small:`Public "services" : JUNO Geom, Students, Geant4 Collab, Opticks Users` 
@@ -696,9 +696,13 @@ Funding Supporting my work on Opticks
 
 .. s5_talk::
 
-   Services include re-implementing parts of the JUNO geometry, working with students and Opticks users
-   including updates for latest Geant4. One Opticks user from UTA working on the NEXT-CRAB-0 prototype 
-   succeeded to demonstrate simulation speeds 181x Geant4 with an RTX 4090 consumer grade GPU.      
+   Support activities included 
+
+   * re-implementing parts of the JUNO geometry 
+   * working with students, Geant4 developers and Opticks users 
+   * I helped Ilker from UTA to get the NEXT-CRAB-0 prototype working with Opticks. 
+
+     * He succeeded to demonstrate simulation speedups of 181x Geant4 with an RTX 4090. 
 
 
 
@@ -731,9 +735,9 @@ III. Existing problems
 
 .. s5_talk::
 
-   Problems : lots of work, that only I can do 
-
-   JUNO continues to change, 
+   * Primary problem is too much work that only I can do.  
+   * Its difficult to make progress while JUNO keeps changing and providing more issues. 
+   * Have to swim against the stream of issues just to stay in the same place. 
 
 
 
@@ -793,8 +797,7 @@ III. Existing problems
 
 .. s5_talk::
 
-    Work plan 
-
+    * main goal for next year is smooth JUNOSW+Opticks Production Running
 
 
 .. comment
@@ -879,7 +882,7 @@ III. Existing problems
 
 .. s5_talk::
 
-    If your simulation is limited by optical photons then Opticks can help you remove those limits
+    I end with some links : Opticks can make simulation unlimited by optical photons
 
 
 :i:`Extra Slides`

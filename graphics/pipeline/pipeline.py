@@ -79,7 +79,7 @@ glm/ext/matrix_clip_space.inl::
  
     Copying from above frustumRH_NO
 
-    |    2n/(r-l)    0           (r+1)/(r-1)     0           |
+    |    2n/(r-l)    0           (r+l)/(r-l)     0           |
     |                                                        |
     |     0        2n/(t - b)    (t+b)/(t-b)     0           | 
     |                                                        |  
@@ -95,7 +95,14 @@ glm/ext/matrix_clip_space.inl::
     (left, bottom, -near)   ==>   lower left of window  (-1,-1)
     (right,  top,  -far)    ==>   upper right of window (+1,+1)
 
+    * https://www.songho.ca/opengl/gl_projectionmatrix.html
 
+    songho HAS DERIVATION : AND MIGHT HAVE NAILED THE Z-SIGN-FLIP CONFUSION::
+
+        Note that the eye coordinates are defined in the right-handed coordinate
+        system, but NDC uses the left-handed coordinate system. That is, the camera at
+        the origin is looking along -Z axis in eye space, but it is looking along +Z
+        axis in NDC.
 
 
     131     template<typename T>
@@ -239,19 +246,12 @@ and then multiply by -1
 """
 
 N = Matrix([
-      [-n,  0,    0,     0],
-      [0,  -n,    0,     0],
-      [0,   0,  -(n+f), -f*n],
-      [0,   0,    1,     0]
+      [n,   0,    0,     0],
+      [0,   n,    0,     0],
+      [0,   0,  (n+f), f*n],
+      [0,   0,    -1,     0]
     ])
 
-
-Z = Matrix([
-      [1,   0,    0,     0],
-      [0,   1,    0,     0],
-      [0,   0,   -1,     0],
-      [0,   0,    0,     1]
-    ])
 
 
 
