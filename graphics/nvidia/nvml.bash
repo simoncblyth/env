@@ -100,7 +100,8 @@ nvml-get(){
     fi 
 }
 
-nvml-cudadir(){ echo /usr/local/cuda-10.1 ; } 
+#nvml-cudadir(){ echo /usr/local/cuda-10.1 ; } 
+nvml-cudadir(){ echo /usr/local/cuda-11.7 ; } 
 
 nvml-make()
 {

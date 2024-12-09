@@ -77,7 +77,7 @@ glm/ext/matrix_clip_space.inl::
     170         return Result;
     171     }
  
-    Copying from above frustumRH_NO
+    Copying from above frustumRH_NO (caution below is transposed cf the memory layout)
 
     |    2n/(r-l)    0           (r+l)/(r-l)     0           |
     |                                                        |
@@ -87,6 +87,8 @@ glm/ext/matrix_clip_space.inl::
     |                           ^                            | 
     |     0          0               -1          0           |
                                      ^ 
+
+    
 
     This matches the documented matrix from the below
 
