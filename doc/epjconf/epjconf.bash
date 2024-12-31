@@ -329,7 +329,8 @@ epjconf-open(){ open $(epjconf-opdf) ; }
 #epjconf-confname(){ echo chep2018 ; }
 #epjconf-confname(){ echo chep2019 ; }
 #epjconf-confname(){ echo chep2021 ; }
-epjconf-confname(){ echo chep2023 ; }
+#epjconf-confname(){ echo chep2023 ; }
+epjconf-confname(){ echo chep2024 ; }
 
 epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v0 ; }
 #epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v1 ; }
@@ -337,6 +338,10 @@ epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v0 ; }
 
 #epjconf-filename(){ echo opticks-snowmass21-loi-v0 ; }
 #epjconf-filename(){ echo opticks-snowmass21-loi-v1 ; }
+
+
+epjconf-absname(){ echo opticks-blyth-$(epjconf-confname)-v0-abstract ; }
+
 
 
 epjconf-filename-notes(){ cat << EON
@@ -363,6 +368,7 @@ epjconf-texname(){  echo $(epjconf-filename).tex ; }
 epjconf-bibname(){  echo $(epjconf-filename) ; }
 
 epjconf-etex(){     echo $(epjconf-dir)/$(epjconf-filename).tex ; }
+epjconf-eabs(){     echo $(epjconf-dir)/$(epjconf-absname).tex ; }
 epjconf-ebib(){     echo $(epjconf-dir)/opticks.bib ; }
 epjconf-textmpl(){  echo template.tex ; }
 
@@ -375,10 +381,12 @@ epjconf-textmpl  : $(epjconf-textmpl)
 epjconf-dir      : $(epjconf-dir)
 epjconf-texname  : $(epjconf-texname)
 epjconf-filename : $(epjconf-filename)
+epjconf-absname  : $(epjconf-absname)
 epjconf-odir     : $(epjconf-odir) 
 epjconf-opdf     : $(epjconf-opdf) 
 
 epjconf-etex     : $(epjconf-etex) 
+epjconf-eabs     : $(epjconf-eabs) 
 epjconf-ebib     : $(epjconf-ebib) 
 
 EOI
@@ -549,17 +557,19 @@ EON
 
 epjconf-edit(){ 
    local etex=$(epjconf-etex) 
+   local eabs=$(epjconf-eabs) 
    local ebib=$(epjconf-ebib) 
    local aux=$(epjconf-aux)
-   echo $FUNCNAME etex $etex ebib $ebib aux $aux 
-   vi $etex $aux
+   echo $FUNCNAME etex $etex eabs $eabs 
+   echo ebib $ebib aux $aux 
+   vi $etex $eabs
 }
 epjconf-e(){    epjconf-edit ; }
 
 epjconf-aux(){ cat << EOA | grep -v ^#
 #/Users/blyth/env/presentation/opticks_gpu_optical_photon_simulation_jul2018_chep.txt
 #/Users/blyth/env/doc/epjconf/chep2021/opticks-blyth-chep2021-abstract.tex
-/Users/blyth/env/doc/epjconf/chep2023/opticks-blyth-chep2023-abstract.tex
+#/Users/blyth/env/doc/epjconf/chep2023/opticks-blyth-chep2023-abstract.tex
 EOA
 }
 

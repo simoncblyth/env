@@ -7,6 +7,33 @@ chep-notes(){ cat << EON
 
 
 
+CHEP Proceedings 2024
+======================
+
+Dear simon,
+
+We invite you to submit proceedings for your CHEP contribution on:
+
+Opticks : GPU ray trace accelerated optical photon simulation
+
+You can find all details on the Indico web page: https://indico.cern.ch/event/1338689/page/36591-paper-submission
+
+The submission deadline is set to January 31st 2025, since the reviewing process will take some time.
+
+Best,
+
+Dorothea, Katy, Markus, Stephan (PC chairs)
+
+
+
+https://indico.cern.ch/event/1338689/abstracts/175263/
+
+
+
+
+
+
+
 CHEP 2024 registration
 =======================
 
