@@ -6,6 +6,12 @@
 \usepackage{array}
 \comment{
 
+1. integrated analytic and triangulated
+2. out-of-core multi-launch, billion photon test
+3. interactive ray traced viz
+4. jump to Philox 
+5. 1st vs 3rd gen performance
+
 }
 %
 \begin{document}
@@ -54,8 +60,7 @@ Any optical photon limited simulation can benefit from Opticks.
 Opticks was presented to the five prior CHEP conferences, with each contribution
 covering different aspects of its development. The 2023 contribution\cite{chep2023} 
 covered the almost complete re-implementation of Opticks required to adopt the entirely new NVIDIA OptiX 7+ API
-and developments to improve performance with complex solid shapes with "list-nodes" and CPU/GPU 
-modelling of multiple thin layer interference effects in the JUNO PMT optical model. 
+with particular emphasis on the various geometry models and conversions between them.  
 %
 The 2021 contribution\cite{chep2021} covered initial stages of the transition to the NVIDIA OptiX 7+ API and 
 the integration of Opticks with detector simulation frameworks. 
@@ -63,11 +68,10 @@ The 2019 plenary presentation and proceedings\cite{chep2019} focused on RTX\cite
 The earlier contributions[7,8] covered the first 
 implementations of geometry translation and the CUDA port of photon generation and optical physics.
 
-
 These proceedings describe new features developed to facilitate and optimize production usage of Opticks 
 within the JUNO simulation framework. The features include generalizations enabling 
 integrated use of analytic and triangulated geometry representations and the automated handling of 
-events with more photons than can fit within VRAM and also the adoption
+events with more photons than can fit within VRAM, interactive ray traced visualization and also the adoption
 of the Philox counter-based random number generator optimizing random number generation.
 In addition a simulation performance comparison between GPUs from the 1st and 3rd RTX generations
 is provided. 
@@ -98,9 +102,9 @@ from huge numbers of photons and low register usage from simplicity of the physi
 The most computationally demanding aspect of photon propagation
 is the calculation of intersection positions of rays representing photons with the detector geometry.
 This ray tracing limitation of simulation is shared with the synthesis of realistic images in computer graphics. 
-Many recent NVIDIA GPUs include 3rd generation RTX\cite{rtx} hardware dedicated to ray geometry intersection. 
-NVIDIA GPU ray tracing performance continues to improve rapidly, with performance doubling  
-with each RTX generation. 
+NVIDIA RTX\cite{rtx} GPUs include hardware RT cores dedicated to ray geometry intersection. 
+The first generation of RTX GPUs was introduced in 2018, each of the subsequent RTX generations have 
+approximately doubled ray tracing performance.  
 %
 %
 \subsection{NVIDIA\textregistered\ OptiX\texttrademark\ ray tracing engine}
@@ -109,15 +113,16 @@ OptiX makes GPU ray tracing accessible with a single ray programming model.
 Ray tracing pipelines are constructed combining code for acceleration structure traversal, 
 with user code for ray generation, intersection and closest hit handling.
 Spatial index acceleration structures (AS) provide accelerated ray geometry intersection. 
-OptiX provides only acceleration, not the intersection itself, thus allowing any form of geometry 
-to be implemented. 
+%
+OptiX allows user-defined primitives bounded by specified axis-aligned bounding
+to be implemented with CUDA intersection functions. Alternatively geometry can be 
+defined with a set of triangles that use built-in triangle intersection.  
 %
 %optix7
 In August 2019 NVIDIA introduced the OptiX 7 API\cite{optix7},
 that together with the Vulkan and DirectX ray tracing extensions provides access 
 to the same NVIDIA ray tracing technology including AS construction and RTX hardware access. 
-%
-%
+The latest OptiX 8.1 release in October 2024 has a very similar API to OptiX 7.   
 %
 %
 \begin{figure}[t]
@@ -159,7 +164,7 @@ material properties such as absorption and scattering lengths.
 Converting these lengths to distances using pseudorandom numbers and 
 the known exponential distributions allows a comparison of absorption and scattering distances 
 with geometrical boundary distance to assign photon histories. 
-Earlier proceedings\cite{chep2016} detail efficient use of the cuRAND\cite{curandURL} pseudorandom generator.
+%Earlier proceedings\cite{chep2016} detail efficient use of the cuRAND\cite{curandURL} pseudorandom generator.
 %
 %
 \begin{figure}
@@ -186,12 +191,10 @@ At initialization Opticks translates between geometry models in the below sequen
 %
 The {\tt stree} intermediate model is created from the Geant4 model by {\tt U4Tree.h},
 which traverses the Geant4 volume tree converting materials, surfaces, solids, volumes and sensors.
+Triangle and face data for all solids are collected by {\tt U4Mesh.h} using 
+the Geant4 tesselation accessed from {\tt G4Polyhedron}. 
 Subsequently the {\tt CSGFoundry} model is created from the intermediate model and uploaded to GPU.   
-The intermediary provides a complete representation of the needed geometry information
-implemented in a minimal way using only a handful of structs, very different from the heavyweight {\tt GGeo} 
-model that it replaces. 
-The geometry information formerly managed with a large number of classes becomes 
-in the {\tt stree} model separate directories managed by a single header only struct, {\tt NPFold.h}, 
+Most of the geometry information in the intermediate model is managed by a single header only struct, {\tt NPFold.h}, 
 which provides an in memory directory tree of arrays using a recursive folders of folders of arrays data structure.
 The complete structural n-ary tree of volumes and n-ary CSG trees for each {\tt G4VSolid} 
 are serialized into arrays using first child and sibling references.
@@ -199,7 +202,12 @@ are serialized into arrays using first child and sibling references.
 Both the {\tt stree} and {\tt CSGFoundry} geometry models are independent of Geant4 and can be persisted into directories of NumPy\cite{numpy} binary files. 
 Fast binary file loading and uploading to GPU allows optical simulation and visualization
 executables to initialize full detector geometries in less than a second.  
+The prior proceedings\cite{chep2023} provide a detailed description of the geometry models and conversion between them,
+including the crucial geometry factorization into repeated groups of volumes and a remainder of 
+other insufficiently repeated volumes that is done within the intermediate model.
+
 %
+\comment{
 \subsection{Structural volumes and geometry factorization}%
 %
 The Geant4 model of the JUNO geometry contains almost 400,000 structural volumes organized in a deep containment tree
@@ -213,8 +221,7 @@ that specify the locations and orientations of each instance.
 The factorization of the volumes into repeated groups of volumes and a remainder of 
 other insufficiently repeated volumes is done within the intermediate model by the 
 {\tt stree::factorize} method which uses sub-tree digests that represent the geometry and transforms 
-beneath every node of the geometry tree. The factorization implemented in a minimal way 
-reproduces the results of the former heavyweight implementation spread across many classes. 
+beneath every node of the geometry tree. 
 The outcome of the factorization is a repeat index on every structural node allowing 
 the instance transforms of each repeat to be collected. 
 
@@ -226,9 +233,9 @@ The instanced {\tt CSGSolid} typically contain a few {\tt CSGPrim}, for example 
 and the remainder solid contains several thousand {\tt CSGPrim}. 
 The {\tt CSGPrim} refer to sequences of {\tt CSGNode} which are one-to-one related to the {\tt sn.h} CSG nodes
 of the intermediate model. These CSG nodes typically correspond to constituent {\tt G4VSolid} such as {\tt G4Ellipsoid} and {\tt G4Tubs}. 
+}
 %
-%Figure~\ref{j1808} presents a ray traced rendering of the analytic representation of the JUNO detector geometry. 
-%
+\comment{
 \subsection{CSGFoundry geometry model}
 %
 Table~\ref{tabcsgfoundry} summarizes the role and associations of the vector members 
@@ -265,14 +272,12 @@ for the entire geometry is created from the instance transform vector.
 \end{table}
 \vspace{-8mm}
 \end{center}%
+}
 %
 \subsection{Solid shapes}%
 %
 The {\tt stree} intermediate model carries solid shape information
 within an n-ary tree of {\tt sn.h} CSG nodes. 
-%Although most of the geometry 
-%can be treated as a binary tree certain Geant4 solids such as {\tt G4MultiUnion}
-%are better handled with an n-ary tree.   
 %
 %primitives
 The Opticks CSG package implements ray primitive shape intersection in simple headers that 
@@ -287,52 +292,53 @@ which builds shapes from the combination of primitive constituents by boolean se
 and is represented with a binary tree data structure.
 %
 % serialization 
-Each primitive or operator node is serialized into an array of up to 16 elements. 
+Each primitive or operator node is serialized into an array of up to 16 four byte elements. 
 These elements include float parameters of the primitives and integer index references 
 into a separate transform array. 
 A complete binary tree serialization with array indices matching level order tree indices
 and zeros at missing nodes is used for the serialization of the CSG trees. This simple 
 serialization allows tree navigation directly from bitwise manipulations of the serialized array index.
-%
-%
-% balancing
 Complete binary tree serialization is simple and effective for small trees but very inefficient 
 with the large trees that result from complex shapes with many constituent primitives. 
-Prior proceedings\cite{chep2018} describe the use of tree balancing to reduce the  
-tree depth and avoid poor performance with complex solids. However studies have revealed that 
-tree balancing is not compatible with the CSG intersection algorithm currently used by Opticks
-with some complex shapes. 
 
-The Opticks CSG intersection implementation has been generalized into three levels : 
-tree, node and leaf. This generalization allows the node level to support compound 
+The Opticks CSG intersection implementation arranged into three levels : 
+tree, node and leaf. This allows the node level to support compound 
 multi-leaf shapes without resorting to recursion in the intersect function, which is disallowed in OptiX pipelines. 
 As multi-leaf nodes can be used within binary CSG trees it becomes possible for complex solids to 
 be represented by binary trees of greatly reduced depth avoiding deep tree performance issues.
 The multi-leaf nodes are similar to {\tt G4MultiUnion}, but are restricted to leaf constituents.   
-Various types multi-leaf nodes are under development including dis-contiguous, contiguous and overlap nodes.
+%Various types multi-leaf nodes are under development including dis-contiguous, contiguous and overlap nodes.
 Communicating the intent of the multi-leaf nodes allows use of better suited intersect algorithms.
 For example, a common cause of deep CSG trees is the subtraction of a union of many "holes" 
 from a base shape. Typically the holes do not overlap making it possible to 
 use a simple low resource dis-contiguous intersect function providing more efficient 
 intersection thanks to both reduced tree height and the better communication of the 
 dis-contiguous nature of the holes. 
+%
+%
+\subsection{Integrated Analytic and Triangulated geometry}
+% why use an approx geom
+Use of analytic CSG geometry typically allows float precision intersection 
+positions to very closely match the double precision intersection positions 
+that Geant4 would provide. 
+Intersection of a ray with a torus requires solution of a quartic equation
+with coefficients of greatly varying magnitude that result in unacceptably 
+poor numerical precision for some rays when using float precision. 
+Replacing the analytic torus geometry with an approximate
+tesselated geometry is found to yield more robust intersect positions
+and avoid performance reductions from resorting to double precision.  
 
+% how used at high level
+During geometry factorization the {\tt stree::collectGlobalNodes} method
+assigns non-instanced structural nodes as analytic or
+triangulated according to a user provided list of solid names to use 
+a tesselated representation. This assignment is communicated via the {\tt CSGSolid}     
+to the geometry acceleration structure creation of {\tt SBT::createGAS}. 
 %
-%
-\subsection{Multi-layer thin film interference effects} 
-%
-The JUNO PMT optical model\cite{jpom} accounts for optical processes inside PMTs including 
-interference effects from thin layers of anti-reflection coating and photocathode between 
-the PMT glass and interior vacuum. The optical model is implemented using a transfer matrix method (TMM) 
-calculation of reflectance, transmittance and absorption based on layer thicknesses 
-and complex refractive indices of the layer materials. 
-
-In order to optionally perform equivalent calculations within Opticks a CPU/GPU 
-single header {\tt C4MultiLayrStack.h} implementation of TMM 
-has been developed within the Custom4 package\cite{custom4}. 
-Custom4 is an optional external package that when available 
-is integrated with the Opticks QUDARap package providing special 
-optical surface handling that performs the interference calculations.   
+% stree::findForceTriangulateLVID
+% stree::collectGlobalNodes into rem and tri vectors of snode
+% CSGSolid.h intent R:rem F:fac T:tri 
+% SBT::createGAS 
 %
 %
 %
@@ -366,6 +372,23 @@ to the GPU. This approach simplifies GPU/CPU testing of the simulation.
 \vspace{-4mm}
 \end{table}%
 %
+\subsection{Out-of-core optical photon simulation}
+%
+Simulation of more photons than can fit within VRAM is implemented
+within {\tt QSim::simulate} by first forming a vector of genstep slices
+where the slice start stop indices are chosen to make the photon count of the slice 
+less than the maximum number of CUDA thread "slots" that can be  a single launch 
+
+the {\tt SEventConfig::MaxSlot}.
+
+which is by default determined within {\tt SEventConfig::SetDevice} based on the
+total global memory.     
+ 
+
+
+
+
+
 %
 \section{Summary}
 %
@@ -387,14 +410,10 @@ and an example of Opticks usage is now included within the Geant4 distribution.
 \section*{Acknowledgements}
 %
 The JUNO collaboration is acknowledged for the use of detector 
-geometries and simulation software. Dr. Tao Lin is acknowledged for presenting 
-this work at conference at short notice and for his assistance with 
-the JUNO offline software. NVIDIA is acknowledged for assistance 
-with the OptiX 7+ API transition provided during a series of meetings 
-throughout 2021 and a UK GPU hackathon in 2022. 
-The LZ and LHCb physicists that suggested and organized these meetings with 
-NVIDIA are also acknowledged.  
-
+geometries and simulation software. Dr. Tao Lin is acknowledged 
+for his JUNO software assistance over many years. NVIDIA is acknowledged for extensive 
+support for the OptiX 7+ API transition.
+%
 This work is supported by National Natural Science Foundation of China (NSFC)
 under grant No. 12275293.
 %
@@ -453,7 +472,7 @@ OptiX introduction, {\tt https://developer.nvidia.com/optix}
 OptiX API, {\tt https://raytracing-docs.nvidia.com/optix8/index.html}
 %15
 \bibitem{optix7}
-OptiX 7 {\tt https://developer.nvidia.com/blog/how-to-get-started-with-optix-7/}
+OptiX 7, {\tt https://developer.nvidia.com/blog/how-to-get-started-with-optix-7/}
 %16
 \bibitem{rtx}
 NVIDIA RTX\texttrademark\, Platform, {\tt https://developer.nvidia.com/rtx}
@@ -478,7 +497,7 @@ M. Garland, D.B. Kirk, Commun. ACM {\bf 53}(11), 58 (2010)
 cuRAND, {\tt http://docs.nvidia.com/cuda/curand/index.html}
 %
 \bibitem{curandRNGTest}
-Statistical tests of cuRAND generators, {\tt https://docs.nvidia.com/cuda/curand/testing.html}
+cuRAND generator tests, {\tt https://docs.nvidia.com/cuda/curand/testing.html}
 %19
 \bibitem{numpy}
 The NumPy array: a structure for efficient numerical computation \\
