@@ -342,35 +342,36 @@ to the geometry acceleration structure creation of {\tt SBT::createGAS}.
 %
 %
 %
+\section{Visualization}%
+%
+Opticks provides several OpenGL based visualization executables 
+implemented using the lightweight Graphics Library Framework GLFW,
+which manages OpenGL windows as well as keyboard and mouse inputs. 
+Interoperation between OpenGL and CUDA is used by {\tt SGLFW\_CUDA.h}
+allowing OptiX ray trace render kernels to effectively write to OpenGL 
+pixel buffer objects on the GPU which are accessed from the 
+rasterization pipeline via texture samplers. 
+Due to the high performance OptiX ray tracing it becomes possible 
+to interactively render exactly the same geometry as that used 
+by the simulation. Navigation in 3D via keys and mouse together 
+with viewpoint bookmarking have proved useful for finding geometry issues.      
+   
+The ray traced pixel {\tt uchar4} values assign an RGB color based on the surface normal direction
+at geometry intersects with the fourth component set to the z-depth in the eye frame adapted
+appropriately for the perspective or orthographic projection matrix in use. 
+The depth component is used from the OpenGL shader rasterization pipeline to set the 
+so called fragment depth of the ray traced pixel.   
+This allow compositing of OptiX rendered pixels together with OpenGL rasterized 
+fragments for example from representations of photon positions or gensteps.
+ 
+% simtrace 
+
+
 \section{Optical physics}%
 %
-Opticks optical photon simulation is now implemented in the QUDARap package, 
+Opticks optical photon simulation is implemented in the QUDARap package, 
 that depends only on the SysRap base package and CUDA, with no dependency on OptiX. 
-Table~\ref{tabqsim} illustrates the simple host/device counterpart pattern 
-adopted where each CPU struct sets up its GPU counterpart first on the host, 
-uploading constituents and setting device pointers within a host instance prior to uploading it 
-to the GPU. This approach simplifies GPU/CPU testing of the simulation.  
-%
-%
-\begin{table}
-\begin{center}
-\begin{tabular}{ |m{40mm}|m{30mm}|m{30mm}| } 
-\hline
-     Role                          & CPU             & GPU                   \\    
- \hline\hline
-     simulation steering           & QSim.hh         &  qsim.h               \\   
-     curandState setup             & QRng.hh         &  qrng.h               \\   
-     property interpolation        & QProp.hh        &  qprop.h              \\   
-     event handling                & QEvent.hh       &  qevent.h             \\    
-     Cerenkov generation           & QCerenkov.hh    &  qcerenkov.h          \\    
-     scintillation generation      & QScint.hh       &  qscint.h             \\    
-     texture handling              & QTex.hh         &  cudaTextureObject\_t \\
- \hline
-\end{tabular}
-\end{center}
-\caption{\label{tabqsim}Simple host/device counterpart pattern adopted by the Opticks QUDARap package.} 
-\vspace{-4mm}
-\end{table}%
+The prior proceedings\cite{chep2023} provide further details. 
 %
 \subsection{Optimizing random number generation}
 %
