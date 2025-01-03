@@ -372,23 +372,48 @@ to the GPU. This approach simplifies GPU/CPU testing of the simulation.
 \vspace{-4mm}
 \end{table}%
 %
+\subsection{Optimizing random number generation}
+%
+The curand library provides several random number generators
+including the default {\tt XORWOW} generator which has been used within Opticks.  
+The curand XORWOW implementation requires resource intensive state initialization.
+This requirement motivated use of install time creation of {\tt curandStateXORWOW} 
+struct for all photon "slots" which are persisted to binary files. 
+These state files are loaded and uploaded to device at initialization 
+of the simulation. This allows every simulation kernel thread 
+to use the XORWOW generator with its prepared state without having the expense of 
+initializing the state. However this approach has the inconvenience of 
+limiting the maximum number of photons that can be simulated to the number
+of persisted states and also the initialization time to load and upload the 
+states becomes significant when supporting simulation of hundreds of millions 
+of photons. 
+
+The {\tt Philox4\_32\_10} random number generator is also provided by the curand library. 
+Philox is a counter based random number generator which may be implemented to 
+use only integer counters for internal state. 
+The statistical quality of Philox generated uniform random numbers are comparable to those from XORWOW\cite{curandRNGTest} 
+Adopting the Philox random number generator within Opticks allows direct initialization within
+the simulation kernels avoiding the use of state files and hence removing the 
+limitation on the number of photons that can be simulated and greatly reducing 
+initialization time. 
+%
 \subsection{Out-of-core optical photon simulation}
 %
 Simulation of more photons than can fit within VRAM is implemented
-within {\tt QSim::simulate} by first forming a vector of genstep slices
-where the slice start stop indices are chosen to make the photon count of the slice 
-less than the maximum number of CUDA thread "slots" that can be  a single launch 
-
-the {\tt SEventConfig::MaxSlot}.
-
-which is by default determined within {\tt SEventConfig::SetDevice} based on the
-total global memory.     
- 
-
-
-
-
-
+using multiple kernel launches invoked from {\tt QSim::simulate}. 
+Following genstep collection index range genstep slices are chosen 
+such that the number of photons within each slice is less than 
+the configured maximum number of CUDA thread "slots" within a single launch.
+The default maximum number of slots is determined based upon the total
+global memory of the GPU. Result arrays such as photons and hits are gathered
+from device to host into separate {\tt NPFold} instances for each kernel launch 
+which are subsequently concatenated. To check this functionality 
+one billion photon events were simulated with an NVIDIA RTX 5000 Ada 
+generation GPU with VRAM of 32GB in four kernel launches 
+in a total time under 100 seconds. 
+% SEvt::gather_components  
+% QSim::simulate
+%
 %
 \section{Summary}
 %
