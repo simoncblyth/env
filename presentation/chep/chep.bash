@@ -10,6 +10,65 @@ chep-notes(){ cat << EON
 CHEP Proceedings 2024
 ======================
 
+
+
+Dear CHEP contributors,
+ 
+We are now accepting the proceeding papers with the hard deadline for sending
+the complete draft by Feb 28 2025.  There will be no further deadline
+extensions because of the strict publication timeline. Please refer to our web
+page for more information:
+https://indico.cern.ch/event/1338689/page/36591-paper-submission. Should you
+need help with the submission, please send a message to chep2024-pc@cern.ch.
+
+Authors are strongly encouraged to consult the official journal guidelines before sending inquiries to the PCs:
+
+Instructions "how to prepare your article":
+ 
+* https://www.epj-conferences.org/doc_journal/woc/pdf_guidelines.pdf
+
+Publication right form (to be signed by at least one of the authors):
+
+* https://www.epj-conferences.org/doc_journal/woc/publication_right_form.pdf
+
+Ethical rules 
+
+* https://www.epj-conferences.org/about-the-journal/publishing-policies-ethics 
+
+and General editorial guideline 
+
+* https://www.epj-conferences.org/doc_journal/woc/epjconf_editorial_guidelines.pdf
+
+The templates are available at: 
+
+* https://www.epj-conferences.org/for-authors. 
+
+We will use the single-column version, and because of the guidelines from the
+journal, we encourage authors to choose a latex template. NOTE: the templates
+should not be changed or adjusted apart from the content you put in.
+
+Please take great care of preparing the correct author list with proper
+affiliations. Any corrections after the publication has been accepted will not
+be possible (this would be required to write an addendum to the online issue at
+a price tag we cannot cover).
+
+Finally, the journal requires that a plagiarism report be sent along with the
+paper. The journal's rules can be consulted here:
+https://publicationethics.org/cope-positions#plagiarism.
+
+On behlf of IAC, LOC and PC Tomasz Szumlak
+
+
+
+
+
+
+
+
+
+
+
+
 Dear simon,
 
 We invite you to submit proceedings for your CHEP contribution on:

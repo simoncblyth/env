@@ -348,24 +348,28 @@ Opticks provides several OpenGL based visualization executables
 implemented using the lightweight Graphics Library Framework GLFW,
 which manages OpenGL windows as well as keyboard and mouse inputs. 
 Interoperation between OpenGL and CUDA is used by {\tt SGLFW\_CUDA.h}
-allowing OptiX ray trace render kernels to effectively write to OpenGL 
-pixel buffer objects on the GPU which are accessed from the 
-rasterization pipeline via texture samplers. 
-Due to the high performance OptiX ray tracing it becomes possible 
-to interactively render exactly the same geometry as that used 
-by the simulation. Navigation in 3D via keys and mouse together 
+allowing CUDA/OptiX ray trace render kernels to effectively write to OpenGL 
+pixel buffer objects on the GPU which are subsequently accessed from the 
+rasterization pipeline via texture samplers. This approach together with
+high performance OptiX ray tracing enables smoothly interactively rendering of 
+exactly the same detector geometry as that used by the simulation. 
+Navigation in 3D via keys and mouse together 
 with viewpoint bookmarking have proved useful for finding geometry issues.      
-   
-The ray traced pixel {\tt uchar4} values assign an RGB color based on the surface normal direction
-at geometry intersects with the fourth component set to the z-depth in the eye frame adapted
-appropriately for the perspective or orthographic projection matrix in use. 
-The depth component is used from the OpenGL shader rasterization pipeline to set the 
-so called fragment depth of the ray traced pixel.   
-This allow compositing of OptiX rendered pixels together with OpenGL rasterized 
-fragments for example from representations of photon positions or gensteps.
+Initialization time of visualization of the full JUNO geometry 
+is minimized when using the CSGFoundry geometry as the binary NumPy arrays defining 
+the geometry can be loaded and uploaded within a few seconds.  
+
+The Opticks render kernel computes {\tt uchar4} values for each pixel in the image 
+plane with RGB color values based on the surface normal direction at geometry intersects. 
+The fourth component of the pixel values is set to the z-depth in the eye frame 
+mapped appropriately for the effective perspective or orthographic projection matrix. 
+This depth component is used from the OpenGL shader rasterization pipeline to set the 
+so called fragment depth of the ray traced pixel. This allows compositing of OptiX ray 
+trace rendered pixels together with OpenGL rasterized fragments for example 
+allowing representations of photon positions or gensteps to be 
+drawn together with the ray traced geometry. 
  
 % simtrace 
-
 
 \section{Optical physics}%
 %
@@ -414,6 +418,30 @@ generation GPU with VRAM of 32GB in four kernel launches
 in a total time under 100 seconds. 
 % SEvt::gather_components  
 % QSim::simulate
+%
+\section{Simulation performance}
+
+Using artificial "torch" gensteps with increasing numbers of photons in a sequence of 
+purely optical fabricated events provides a convenient way to scan performance as 
+a function of photon count. The purely optical events 
+avoids dependency on Geant4 allowing initialization times of a few seconds only rather than the several minutes for Geant4 
+voxelization and physics setup of the JUNO geometry.  
+
+\begin{figure}
+\centering
+%                                    left lower right upper
+\includegraphics[width=\textwidth,trim={0 0 0 4cm},clip]{env/presentation/GEOM/J_2024aug27/CSGOptiXSMTest/ALL1_sreport/figs/sreport_ab/mpcap/AB_Substamp_ALL_Etime_vs_Photon_rtx_gen1_gen3.png}
+\caption{%
+Optical photon simulation times for a sequence of purely optical events with numbers of photons 
+in the range from one million to one hundred million. The blue and orange points are measurements from 
+two Dell workstations with NVIDIA Titan RTX (1st gen.) and NVIDIA RTX 5000 Ada (3rd gen.) respectively.
+For both sets of measurements the simulation time is found to scale linearly with photon counts. The 
+performance of the 3rd generation RTX GPU is found to be approximately a factor of four.   
+
+}
+\label{scan}
+\vspace{-5mm}
+\end{figure}%
 %
 %
 \section{Summary}
