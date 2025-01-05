@@ -1569,9 +1569,10 @@ presentation-rst2talk-(){
 
 #presentation-iname(){ echo ${INAME:-opticks_202406XX_kaiping_status_and_plan} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20240702_kaiping_status_and_plan} ; }
-presentation-iname(){ echo ${INAME:-opticks_20241021_krakow_chep2024} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20241021_krakow_chep2024} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20241025_montreal_nEXO_light_simulations_workshop} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20241025_montreal_nEXO_light_simulations_workshop} ; }
+presentation-iname(){ echo ${INAME:-opticks_202501XX_kaiping} ; }
 
 #presentation-iname(){ echo ${INAME:-opticks_20241122_ihep_assessment_5min} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20241122_ihep_assessment_5min_TALK} ; }
