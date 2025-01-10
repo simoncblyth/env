@@ -235,6 +235,67 @@ Outline
    * no VRAM limit 
 
 
+Simulating One Billion Photon Event in under 100 sec
+--------------------------------------------------------
+
+
+.. class:: small
+
+    cxs_min.sh 
+        pure optical simulation of 40 torch gensteps from CD center totalling 1 billion photons
+        on Dell Precision Workstation with NVIDIA RTX 5000 Ada (3rd Gen)  
+        [``sreport`` shows microsecond timestamp deltas]
+       
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    [NP::MakeMetaKVS_ranges2_table num_specs 8
+         SEvt__Init_RUN_META ==>    CSGFoundry__Load_HEAD          655                    ## init
+       CSGFoundry__Load_HEAD ==>    CSGFoundry__Load_TAIL    4,235,189                    ## load_geom
+       CSGOptiX__Create_HEAD ==>    CSGOptiX__Create_TAIL      266,810                    ## upload_geom
+    A000_QSim__simulate_HEAD ==> A000_QSim__simulate_LBEG          251                    ## slice_genstep
+    A000_QSim__simulate_PREL ==> A000_QSim__simulate_POST   23,137,923                    ## simulate slice
+    A000_QSim__simulate_POST ==> A000_QSim__simulate_DOWN    3,975,867                    ## download slice
+    A000_QSim__simulate_PREL ==> A000_QSim__simulate_POST   23,449,227 REP  46,587,150    ## simulate slice
+    A000_QSim__simulate_POST ==> A000_QSim__simulate_DOWN    3,924,104 REP   7,899,971    ## download slice
+    A000_QSim__simulate_PREL ==> A000_QSim__simulate_POST   23,736,442 REP  70,323,592    ## simulate slice
+    A000_QSim__simulate_POST ==> A000_QSim__simulate_DOWN    4,108,315 REP  12,008,286    ## download slice
+    A000_QSim__simulate_PREL ==> A000_QSim__simulate_POST   23,850,920 REP  94,174,512    ## simulate slice
+    A000_QSim__simulate_POST ==> A000_QSim__simulate_DOWN    4,119,275 REP  16,127,561    ## download slice
+    A000_QSim__simulate_LEND ==> A000_QSim__simulate_PCAT   15,900,158                    ## concat slices
+    A000_QSim__simulate_BRES ==> A000_QSim__simulate_TAIL  117,551,399                    ## save arrays
+                                                   TOTAL:  248,256,535
+    ]NP::MakeMetaKVS_ranges2_table num_keys:69
+   </pre>
+
+
+.. sidebar:: :small:`Auto Config based on VRAM`
+
+    .. class:: small
+
+        ``OPTICKS_MAX_SLOT=0`` (default)
+            Determine max slots 263M for VRAM 32G
+ 
+
+.. class:: small
+
+    +-------------------------------------------------+
+    | Out-of-core optical simulation                  |
+    +=========================================+=======+
+    | four kernel executions, total time      |  94 s |
+    +-----------------------------------------+-------+
+    | four hit slice downloads, total time    |  16 s |         
+    +-----------------------------------------+-------+
+    | saving 216M hits (13GB .npy file)       | 117 s | 
+    +-----------------------------------------+-------+
+    | loading geometry from /cvmfs            |   4 s |
+    +-----------------------------------------+-------+
+    | total time                              | 248 s |
+    +-----------------------------------------+-------+
+
+ 
+
 
 `(JUNO) Optical Photon Simulation Problem...`
 ---------------------------------------------------------
@@ -287,6 +348,30 @@ Outline
    These characteristics make it straightforward integrate an external optical
    simulation.
  
+
+
+:i:`ALL0_Debug_Philox_GUN4_mu214gev.png`
+------------------------------------------
+
+.. sidebar:: :small:`Simulation of 214 GeV mu-`
+
+   .. class:: small
+
+      +-------------------------------------------------------+
+      |  jok-tds-gdb : tut_detsim.py simulation time          |
+      +============+==========================+===============+
+      |  Geant4 (Dell Precison)               |               | 
+      +---------------------------------------+---------------+
+      |  Opticks (TITAN RTX, 1st G)           |               |
+      +---------------------------------------+---------------+
+      |  Opticks (Ada 5000 RTX, 3rd G)        |               |
+      +---------------------------------------+---------------+
+
+   .. class:: tiny
+
+       38M photons, 147k gensteps, Debug build 
+
+
 
 
 
