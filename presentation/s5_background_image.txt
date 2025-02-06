@@ -22,8 +22,8 @@
     ## would be more convenient if this switch was in presentation metadata
     ## avoiding the need for users to set it 
     ##
-    ##slide0_D
-    slide0
+    ##slide0
+    slide0_D
     ../graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -2688,6 +2688,9 @@
 
     ALL0_Debug_Philox_GUN4_mu214gev.png
     GEOM/J_2025jan08/jok-tds/ALL0_Debug_Philox_GUN4/A000_OIM1/figs/sgenstep__test/pvcap/ALL0_Debug_Philox_GUN4_mu214gev.png 1280px_720px
+
+    peidong_cpu_gpu.png
+    production/peidong_cpu_gpu.png 1280px_720px
 
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p

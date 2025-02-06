@@ -1,0 +1,118 @@
+.. meta::
+   :name: cpu_gpu_production.txt
+   :title: Opticks : GPU ray trace accelerated optical photon simulation
+   :description: (2025 January 14) JUNO, OptiX, Opticks
+   :note0: 15+3 min 
+
+.. include:: my_s5defs.txt
+
+.. comment
+
+   * integrated tri/ana
+   * viz
+   * RNG Philox
+   * out-of-core
+   * billion photon event 
+
+
+:i:`Opticks : GPU ray trace accelerated optical photon simulation`
+==========================================================================================
+
+.. raw:: html
+
+    <div class="mytitle">
+    <header>
+    <h1 style="background-color:lightgrey;text-align:center;"> 
+        <i>Opticks</i> :<br/> Production Integration Ideas
+        <h2 style="background-color:lightgrey;text-align:center">
+            Open source, https://bitbucket.org/simoncblyth/opticks 
+        </h2>
+    </h1>
+    </header>
+    </div>
+    <!--img style="position:absolute; top:200px; LEFT:100px; WIDTH:200px; " src="juno/JUNO_logo.png"  /-->
+    <div class="mycredit">
+       <h2 style="background-color:lightgrey">
+          Simon C Blyth, IHEP, CAS &mdash; Kaiping &mdash; 18 January 2025
+       </h2>
+    </div>
+
+.. s5_talk:: 
+
+    This render shows the photons resulting from a muon crossing the JUNO scintillator, 
+    each line represents a single photon.
+
+
+.. raw:: html
+
+     <p style="margin-bottom:30mm;" />     
+
+.. class:: normal 
+
+    * Peidong : Implementation for CPU + GPU combine production 
+    * Discussion
+    * Opticks Server : receive gensteps, returns hits over network
+
+
+.. comment
+
+    Opticks is an open source project that applies GPU ray tracing to optical photon simulation 
+    and integrates this with Geant4. This can give drastic speedups of more than a factor of 1000.
+    This approach removes memory and processing bottlenecks that can prevent the 
+    optical photons from limiting simulations.  
+
+    The actual speedup depends on your geometry and your effort in avoiding 
+    geometry issues. 
+
+
+
+:i:`peidong_cpu_gpu.png`
+---------------------------
+
+
+Discussion
+------------
+
+.. class:: normal 
+
+
+    * "uniform" job level approach for production simplicity
+    * First without optical processing => "job energy" (max of events, or sum)
+    * "job energy" : :b:`establishes priority on which benefits most from Opticks`    
+    * **subsequent CPU/GPU resource choice can then take better decision**  
+
+    * "job" event numbers : kept low : 5-10 events ? 
+
+      * prevent large file sizes 
+      * increase probability for some lower "job energy"
+
+
+.. raw:: html
+
+    <hr/>
+
+
+.. class:: normal 
+
+    **THOUGHTS**
+
+    * With high energy samples like muons : simplify and do all with Opticks in one-step
+
+      * :r:`CPU nodes help little when all "job energy" are high`    
+
+
+
+**Opticks Server : receive gensteps, returns hits over network** 
+--------------------------------------------------------------------
+
+.. class:: normal 
+
+    * CPU nodes then benefit from Opticks 
+    * (such a demo worked in early Opticks : using boost-asio and ZeroMQ)
+    
+      * working in demo and reliably in heavy usage are very different matters
+      * requires light weight client
+ 
+        * sends off gensteps and awaits for hits in reply 
+
+

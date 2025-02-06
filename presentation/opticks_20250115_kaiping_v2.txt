@@ -53,6 +53,11 @@
     geometry issues. 
 
 
+.. comment
+
+
+    ``peidong_cpu_gpu.png``
+    ---------------------
 
 
 Outline
@@ -71,28 +76,29 @@ Outline
 
     * Optical Photon Simulation : Context and Problem
 
-      * p2: (JUNO) Optical Photon Simulation Problem...
-      * p3: Optical photons limit many simulations => lots of interest in Opticks
-      * p4: Optical Photon Simulation ≈ Ray Traced Image Rendering
-      * p5: NVIDIA RTX Generations : :b:`RT performance : ~2x every ~2 years`
-      * p6: NVIDIA OptiX : Ray Tracing Engine
+      * (JUNO) Optical Photon Simulation Problem... 
+      * Simulation of 214 GeV mu-
+      * Optical Photon Simulation ≈ Ray Traced Image Rendering
+      * NVIDIA RTX Generations : :b:`RT performance : ~2x every ~2 years`
+      * NVIDIA OptiX : Ray Tracing Engine
 
     * Opticks : Solution to Optical Photon Simulation Problem
  
-      * p7: Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
-      * p8: Geometry Model Translation : Geant4 => CSGFoundry => NVIDIA OptiX 
-      * p9: Full JUNO, Opticks, OptiX 7.5/8.0
-      * p10: :r:`Integrated Analytic + Triangulated Geometry (NEW)`
-      * p11: :b:`Interactive ray traced visualization via OpenGL/OptiX interop (NEW)`
-      * p13: GuideTube : Torus Triangulated
-      * p14: List-node : avoids deep CSG trees
-      * p15: Pure Optical TorchGenstep scan : 1M to 100M photons
-      * p17: :b:`Optical simulation 4x faster 1st->3rd gen RTX`
-      * p19: How much parallelized speedup actually useful to overall speedup?
+      * Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
+      * Geometry Model Translation : Geant4 => CSGFoundry => NVIDIA OptiX 
+      * Full JUNO, Opticks, OptiX 7.5/8.0
+      * :r:`Integrated Analytic + Triangulated Geometry (NEW)`
+      * :b:`Interactive ray traced visualization via OpenGL/OptiX interop (NEW)`
+      * GuideTube : Torus Triangulated
+      * :r:`Optimized curand random number generation with Philox4_32_10 (NEW)`
+      * :b:`Out-of-core optical photon simulation : multi-launch (NEW)`
+      * Simulating One Billion Photons in under 100 sec
+      * Pure Optical TorchGenstep scan : 1M to 100M photons
+      * :b:`Optical simulation 4x faster 1st->3rd gen RTX`
 
-    * p20: Summary + Links 
-    * p21: Acknowledgements
-    * p22: NEW Opticks User : Ilker Parmaksiz, NEXT-CRAB0 Prototype
+    * JUNOSW+Opticks : Release when ?
+    * Summary + Links 
+    * Acknowledgements
 
 
 .. raw:: html
@@ -109,192 +115,7 @@ Outline
 
 
 
-:small:`Optimized curand random number generation with Philox4_32_10` 
----------------------------------------------------------------------------
 
-
-.. sidebar:: :small:`curand RNG generators`
-
-    .. class:: small
-
-        +----------------------------+----------------+---------------------------------------+
-        |                            |  sizeof state  |   notes                               |   
-        +============================+================+=======================================+
-        | XORWOW                     |    48          |  curand default, :r:`expensive init`  |
-        +----------------------------+----------------+---------------------------------------+
-        | Philox4_32_10              |    64          |  :b:`cheap init`, counter based       |   
-        +----------------------------+----------------+---------------------------------------+
-        | Philox4_32_10              |    32          |  slimmed state                        |
-        |   _OpticksLite             |                |                                       |
-        +----------------------------+----------------+---------------------------------------+
-
-        XORWOW
-           split init from usage by persisting state files
-
-           * :r:`max photons limited by persisted states` 
-
-    
-        Philox-4x32-10 (10 round calc) 
-           init within simulate kernel
-
-           * :b:`avoid states limiting photons`
-
-
-.. class:: small
-
-   **Philox Advantages**
-
-   * no curandState pre-initialization
-   * avoid large files + slow init + global memory usage
-   * avoids limiting photons by pre-prepared states
-
-.. class:: small
-
-   **Philox Disadvantages**
-
-   * curand impl : larger state than XORWOW 
-
-     * potentially to slim state if causes issue
-
-
-
-:small:`Out-of-core optical photon simulation : multi-launch`
----------------------------------------------------------------
-
-.. comment
-
-    Simulation of more photons than can fit within VRAM is implemented
-    using multiple kernel launches invoked from {\tt QSim::simulate}. 
-    Following genstep collection index range genstep slices are chosen 
-    such that the number of photons within each slice is less than 
-    the configured maximum number of CUDA thread "slots" within a single launch.
-    The default maximum number of slots is determined based upon the total
-    global memory of the GPU. Result arrays such as photons and hits are gathered
-    from device to host into separate {\tt NPFold} instances for each kernel launch 
-    which are subsequently concatenated. To check this functionality 
-    one billion photon events were simulated with an NVIDIA RTX 5000 Ada 
-    generation GPU with VRAM of 32GB in four kernel launches 
-    in a total time under 100 seconds. 
-
-
-.. sidebar:: :small:`Genstep slices : sslice.h`
-
-   .. raw:: html
-
-       <pre class="mypretiny">
-       struct sslice
-       {
-       int gs_start ;  // 1st gs idx
-       int gs_stop ;   // after last gs idx
-       int ph_offset ; // tot photon before this slice
-       int ph_count ;  // tot photon within this slice
-
-       static int TotalPhoton(const std::vector&lt;sslice&gt;& sl );
-       static int TotalPhoton(const std::vector&lt;sslice&gt;& sl, 
-         int i0, int i1);
-       static void SetOffset(std::vector&lt;sslice&gt;& slice);
-       ...
-       };
-       </pre>
-
-
-.. class:: small
-
-   **Out-of-core** 
-          :b:`simulate more photons than fit VRAM`
-
-   **Approach centered on** ``QSim::simulate``
-
-   0. configure max slots, default based on VRAM
-   1. collect scintillation + cerenkov gensteps from Geant4
-   2. form vector of genstep slices
-
-      * each slice photon count less than max slots 
-
-   3. loop over slices:
-
-      * upload genstep array slice 
-      * kernel launch simulate
-      * gather results into NPFold 
-
-   4. concatenate results (**NPFold::concat**)
-
-   
-   :r:`curand "slot" offset by ph_offset`  
-       => perfect match with any slicing 
-
-.. raw:: html
-
-   <p style="margin-bottom:2cm;" />
-
-.. class:: small
-
-   Philox counter based RNG + Out-of-core  => :r:`Opticks un-limited`
-       
-   * no curandState limit 
-   * no VRAM limit 
-
-
-Simulating One Billion Photon Event in under 100 sec
---------------------------------------------------------
-
-
-.. class:: small
-
-    cxs_min.sh 
-        pure optical simulation of 40 torch gensteps from CD center totalling 1 billion photons
-        on Dell Precision Workstation with NVIDIA RTX 5000 Ada (3rd Gen)  
-        [``sreport`` shows microsecond timestamp deltas]
-       
-
-.. raw:: html
-
-   <pre class="mypretiny">
-    [NP::MakeMetaKVS_ranges2_table num_specs 8
-         SEvt__Init_RUN_META ==>    CSGFoundry__Load_HEAD          655                    ## init
-       CSGFoundry__Load_HEAD ==>    CSGFoundry__Load_TAIL    4,235,189                    ## load_geom
-       CSGOptiX__Create_HEAD ==>    CSGOptiX__Create_TAIL      266,810                    ## upload_geom
-    A000_QSim__simulate_HEAD ==> A000_QSim__simulate_LBEG          251                    ## slice_genstep
-    A000_QSim__simulate_PREL ==> A000_QSim__simulate_POST   23,137,923                    ## simulate slice
-    A000_QSim__simulate_POST ==> A000_QSim__simulate_DOWN    3,975,867                    ## download slice
-    A000_QSim__simulate_PREL ==> A000_QSim__simulate_POST   23,449,227 REP  46,587,150    ## simulate slice
-    A000_QSim__simulate_POST ==> A000_QSim__simulate_DOWN    3,924,104 REP   7,899,971    ## download slice
-    A000_QSim__simulate_PREL ==> A000_QSim__simulate_POST   23,736,442 REP  70,323,592    ## simulate slice
-    A000_QSim__simulate_POST ==> A000_QSim__simulate_DOWN    4,108,315 REP  12,008,286    ## download slice
-    A000_QSim__simulate_PREL ==> A000_QSim__simulate_POST   23,850,920 REP  94,174,512    ## simulate slice
-    A000_QSim__simulate_POST ==> A000_QSim__simulate_DOWN    4,119,275 REP  16,127,561    ## download slice
-    A000_QSim__simulate_LEND ==> A000_QSim__simulate_PCAT   15,900,158                    ## concat slices
-    A000_QSim__simulate_BRES ==> A000_QSim__simulate_TAIL  117,551,399                    ## save arrays
-                                                   TOTAL:  248,256,535
-    ]NP::MakeMetaKVS_ranges2_table num_keys:69
-   </pre>
-
-
-.. sidebar:: :small:`Auto Config based on VRAM`
-
-    .. class:: small
-
-        ``OPTICKS_MAX_SLOT=0`` (default)
-            Determine max slots 263M for VRAM 32G
- 
-
-.. class:: small
-
-    +-------------------------------------------------+
-    | Out-of-core optical simulation                  |
-    +=========================================+=======+
-    | four kernel executions, total time      |  94 s |
-    +-----------------------------------------+-------+
-    | four hit slice downloads, total time    |  16 s |         
-    +-----------------------------------------+-------+
-    | saving 216M hits (13GB .npy file)       | 117 s | 
-    +-----------------------------------------+-------+
-    | loading geometry from /cvmfs            |   4 s |
-    +-----------------------------------------+-------+
-    | total time                              | 248 s |
-    +-----------------------------------------+-------+
-
- 
 
 
 `(JUNO) Optical Photon Simulation Problem...`
@@ -357,81 +178,29 @@ Simulating One Billion Photon Event in under 100 sec
 
    .. class:: small
 
-      +-------------------------------------------------------+
-      |  jok-tds-gdb : tut_detsim.py simulation time          |
-      +============+==========================+===============+
-      |  Geant4 (Dell Precison)               |               | 
-      +---------------------------------------+---------------+
-      |  Opticks (TITAN RTX, 1st G)           |               |
-      +---------------------------------------+---------------+
-      |  Opticks (Ada 5000 RTX, 3rd G)        |               |
-      +---------------------------------------+---------------+
+      +--------------------------------------------------------------+
+      |  jok-tds-gdb : tut_detsim.py simulation time                 |
+      +=======================================+======================+
+      |  Single threaded Geant4 (*)           |  41 hrs              | 
+      +---------------------------------------+----------------------+
+      |  Opticks (TITAN RTX, 1st G)           |  [AWAIT VALIDATION]  |
+      +---------------------------------------+----------------------+
+
+      :r:`Need validation to establish equivalent simulation`
+
 
    .. class:: tiny
 
        38M photons, 147k gensteps, Debug build 
 
+       (*) DELL Precision 7920T Workstation, Intel Xeon Gold 5118, 2.3GHz, 48 cores, 62G
 
-
-
-
-:small:`Optical photons limit many simulations => lots of interest in Opticks`
---------------------------------------------------------------------------------
-
-.. class:: small
-
-    +--------------+-----------------------------------------------------------------------------+
-    | **EXPT**     | **Reactor neutrino**                                                        |  
-    +--------------+-----------------------------------------------------------------------------+
-    | Daya Bay     | neutrino oscillations                                                       |
-    +--------------+-----------------------------------------------------------------------------+
-    | JUNO         | mass heirarchy + oscillations  => :r:`NVIDIA CN Contacts`                   |
-    +--------------+-----------------------------------------------------------------------------+
-    |              | **Long baseline neutrino beam**                                             |
-    +--------------+-----------------------------------------------------------------------------+
-    | DUNE         | FermiLab->Sanford, LAr TPC, => Assistance from :b:`Fermilab Geant4 Group`   |
-    +--------------+-----------------------------------------------------------------------------+
-    |              | **Neutrinoless double beta decay, dark matter, other search**               |
-    +--------------+-----------------------------------------------------------------------------+
-    | LZ           | LUX-ZEPLIN dark matter experiment, Sandford  => :r:`NVIDIA US Contacts`     |
-    +--------------+-----------------------------------------------------------------------------+
-    | LEGEND       | Large Enriched Germanium Experiment, Gran Sasso/SNOLAB                      |
-    +--------------+-----------------------------------------------------------------------------+
-    | SABRE        | dark matter direct-detection, Australia                                     |
-    +--------------+-----------------------------------------------------------------------------+
-    | AMoRE        | Mo-based Rare process Experiment, S.Korea                                   |
-    +--------------+-----------------------------------------------------------------------------+
-    | nEXO         | next Enriched Xenon Observatory, LLNL                                       |
-    +--------------+-----------------------------------------------------------------------------+
-    | NEXT-CRAB0   | High Pressure Gaseous Xenon TPC with a Direct VUV Camera Based Readout      |      
-    +--------------+-----------------------------------------------------------------------------+
-    |              | **Neutrino telescope**                                                      |
-    +--------------+-----------------------------------------------------------------------------+
-    | KM3Net       | Cubic Kilometre Neutrino Telescope, Mediterranean                           |
-    +--------------+-----------------------------------------------------------------------------+
-    | IceCube      | IceCube Neutrino Observatory, South Pole                                    |
-    +--------------+-----------------------------------------------------------------------------+
-    |              | **Air shower : gamma-ray and cosmic-ray observatory**                       |
-    +--------------+-----------------------------------------------------------------------------+
-    | LHAASO       | Large High Altitude Air Shower Observatory, Sichuan                         |
-    +--------------+-----------------------------------------------------------------------------+
-    |              | **Accelerator**                                                             |
-    +--------------+-----------------------------------------------------------------------------+
-    | LHCb-RICH    | LHCb ring imaging Cherenkov sub-detector, CERN => :r:`NVIDIA EU Contacts`   |
-    +--------------+-----------------------------------------------------------------------------+
 
 
 
 .. s5_talk::
 
-    Many simulations are limited by optical photons. 
-    So, there is wide interest in Opticks.
-    Many groups have assisted by using Opticks and reporting issues. 
-
-    Some have gone further, and used their contacts 
-    to provide expert help from NVIDIA in China, Europe and the US 
-
-
+    Huge speedup 
 
 
 :small:`Optical Photon Simulation ≈ Ray Traced Image Rendering`
@@ -499,10 +268,13 @@ Simulating One Billion Photon Event in under 100 sec
 
 
 :small:`NVIDIA RTX Generations`
---------------------------------------------------------------------------
+------------------------------------
 
 
 .. comment
+
+   https://mashable.com/article/ces-2025-nvidia-geforce-rtx-50-series-announcement
+
 
    * **NVIDIA GeForce RTX 4090 (2022)** 
 
@@ -515,11 +287,11 @@ Simulating One Billion Photon Event in under 100 sec
 
    * :r:`Each gen : large ray tracing improvements:` 
 
-     * **Blackwell** (2024?5) :r:`Expect:` ~2x ray trace over **Ada**
+     * **Blackwell** (2025) :r:`Expect:` ~2x ray trace over **Ada**
      * **Ada** (2022) ~2x ray trace over **Ampere**
      * **Ampere** (2020) ~2x ray trace over **Turing** (2018)  
     
-   * :r:`NVIDIA Blackwell 4th Gen RTX : expected Q1 2025` 
+   * :r:`Blackwell 4th Gen RTX : announced Jan 6th 2025` 
 
    :b:`ray trace performance : ~2x every ~2 years` 
 
@@ -794,14 +566,16 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 
 
-:i:`Ada_cxr_min__eye_1,0,0__zoom_1__tmin_0.5__sSurftube_0V1_0:0:-100000.jpg`
------------------------------------------------------------------------------
+.. comment
 
-``Render on NVIDIA RTX 5000 Ada Generation in 0.0060 s (not 0.0200 s)``
+    :i:`Ada_cxr_min__eye_1,0,0__zoom_1__tmin_0.5__sSurftube_0V1_0:0:-100000.jpg`
+    -----------------------------------------------------------------------------
 
-.. s5_talk::
+    ``Render on NVIDIA RTX 5000 Ada Generation in 0.0060 s (not 0.0200 s)``
 
-   More than 3x  
+    .. s5_talk::
+
+       More than 3x  
 
    
 
@@ -851,74 +625,278 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 
 
-List-node avoids deep CSG trees 
----------------------------------
+.. comment
 
-.. sidebar:: :small:`With list-node : shrink CSG tree`
+    List-node avoids deep CSG trees 
+    ---------------------------------
+
+    .. sidebar:: :small:`With list-node : shrink CSG tree`
+
+        .. raw:: html
+
+            <pre class="mypre15" >+------------------------------+
+            |        U                     |
+            |       / \                    |
+            |      /   \                   |
+            |     S     U[A,B,C,D,E,F,G,H] |
+            |    / \                       | 
+            |   I   J                      |
+            +------------------------------+</pre>
+
+    .. class:: small
+
+        Problematic deep CSG tree without list-node
 
     .. raw:: html
 
-        <pre class="mypre15" >+------------------------------+
-        |        U                     |
-        |       / \                    |
-        |      /   \                   |
-        |     S     U[A,B,C,D,E,F,G,H] |
-        |    / \                       | 
-        |   I   J                      |
-        +------------------------------+</pre>
+        <pre class="mypre15" >
+        +------------------------------------------+
+        |                                          |
+        |                                          | 
+        |                           U              |
+        |                          / \             |
+        |                         /   \            |
+        |                        /     S           |
+        |                       U     / \          |
+        |                      / \   I   J         |
+        |                     U   H                | 
+        |                    / \                   |
+        |                   U   G                  |
+        |                  / \                     |
+        |                 U   F                    |
+        |                / \                       | 
+        |               U   E                      |
+        |              / \                         | 
+        |             U   D                        |
+        |            / \                           |
+        |           U   C                          |
+        |          / \                             |
+        |         A   B                            |
+        |                                          |
+        +------------------------------------------+
+
+        U : Union
+        S : Subtraction
+        A-J : Tubs (cylinder) primitive 
+        </pre>
+
+
+    .. class:: small
+
+       :r:`Simple G4MultiUnion is translated to Opticks list-node`
+
+
+    .. s5_talk::
+
+        using list-node shrinks the tree
+
+        * eg allows sub hundreds of holes
+
+
+:small:`Optimized curand random number generation with Philox4_32_10` 
+---------------------------------------------------------------------------
+
+
+.. sidebar:: :small:`curand RNG generators`
+
+    .. class:: small
+
+        +----------------------------+----------------+---------------------------------------+
+        |                            |  sizeof state  |   notes                               |   
+        +============================+================+=======================================+
+        | XORWOW                     |    48          |  curand default, :r:`expensive init`  |
+        +----------------------------+----------------+---------------------------------------+
+        | Philox4_32_10              |    64          |  :b:`cheap init`, counter based       |   
+        +----------------------------+----------------+---------------------------------------+
+        | Philox4_32_10              |    32          |  slimmed state                        |
+        |   _OpticksLite             |                |                                       |
+        +----------------------------+----------------+---------------------------------------+
+
+        XORWOW
+           split init from usage by persisting state files
+
+           * :r:`max photons limited by persisted states` 
+
+    
+        Philox-4x32-10 (10 round calc) 
+           init within simulate kernel
+
+           * :b:`avoid states limiting photons`
+
 
 .. class:: small
 
-    Problematic deep CSG tree without list-node
+   **Philox Advantages**
 
-.. raw:: html
-
-    <pre class="mypre15" >
-    +------------------------------------------+
-    |                                          |
-    |                                          | 
-    |                           U              |
-    |                          / \             |
-    |                         /   \            |
-    |                        /     S           |
-    |                       U     / \          |
-    |                      / \   I   J         |
-    |                     U   H                | 
-    |                    / \                   |
-    |                   U   G                  |
-    |                  / \                     |
-    |                 U   F                    |
-    |                / \                       | 
-    |               U   E                      |
-    |              / \                         | 
-    |             U   D                        |
-    |            / \                           |
-    |           U   C                          |
-    |          / \                             |
-    |         A   B                            |
-    |                                          |
-    +------------------------------------------+
-
-    U : Union
-    S : Subtraction
-    A-J : Tubs (cylinder) primitive 
-    </pre>
-
+   * no curandState pre-initialization
+   * avoid large files + slow init + global memory usage
+   * avoids limiting photons by pre-prepared states
 
 .. class:: small
 
-   :r:`Simple G4MultiUnion is translated to Opticks list-node`
+   **Philox Disadvantages**
+
+   * curand impl : larger state than XORWOW 
+
+     * potentially to slim state if causes issue
+
 
 
 .. s5_talk::
 
-    using list-node shrinks the tree
-
-    * eg allows sub hundreds of holes
+     Philox advantages are compelling 
 
 
+:small:`Out-of-core optical photon simulation : multi-launch`
+---------------------------------------------------------------
+
+.. comment
+
+    Simulation of more photons than can fit within VRAM is implemented
+    using multiple kernel launches invoked from {\tt QSim::simulate}. 
+    Following genstep collection index range genstep slices are chosen 
+    such that the number of photons within each slice is less than 
+    the configured maximum number of CUDA thread "slots" within a single launch.
+    The default maximum number of slots is determined based upon the total
+    global memory of the GPU. Result arrays such as photons and hits are gathered
+    from device to host into separate {\tt NPFold} instances for each kernel launch 
+    which are subsequently concatenated. To check this functionality 
+    one billion photon events were simulated with an NVIDIA RTX 5000 Ada 
+    generation GPU with VRAM of 32GB in four kernel launches 
+    in a total time under 100 seconds. 
 
 
+.. sidebar:: :small:`Genstep slices : sslice.h`
+
+   .. raw:: html
+
+       <pre class="mypretiny">
+       struct sslice
+       {
+       int gs_start ;  // 1st gs idx
+       int gs_stop ;   // after last gs idx
+       int ph_offset ; // tot photon before this slice
+       int ph_count ;  // tot photon within this slice
+
+       static int TotalPhoton(const std::vector&lt;sslice&gt;& sl );
+       static int TotalPhoton(const std::vector&lt;sslice&gt;& sl, 
+         int i0, int i1);
+       static void SetOffset(std::vector&lt;sslice&gt;& slice);
+       ...
+       };
+       </pre>
+
+
+.. class:: small
+
+   **Out-of-core** 
+          :b:`simulate more photons than fit VRAM`
+
+   **Approach centered on** ``QSim::simulate``
+
+   0. configure max slots, default based on VRAM
+   1. collect scintillation + cerenkov gensteps from Geant4
+   2. form vector of genstep slices
+
+      * each slice photon count less than max slots 
+
+   3. loop over slices:
+
+      * upload genstep array slice 
+      * kernel launch simulate
+      * gather results into NPFold 
+
+   4. concatenate results (**NPFold::concat**)
+
+   
+   :r:`curand "slot" offset by ph_offset`  
+       => perfect match with any slicing 
+
+.. raw:: html
+
+   <p style="margin-bottom:1cm;" />
+
+.. class:: small
+
+   Philox counter based RNG + Out-of-core  => :r:`Opticks un-limited`
+       
+   * no curandState limit 
+   * no VRAM limit 
+
+
+
+.. s5_talk::
+
+    Following the move to Philox and out-of-core impl Opticks can simulate any number of photons
+    even on  
+
+
+
+
+
+Simulating One Billion Photons in under 100 sec
+--------------------------------------------------------
+
+
+.. class:: small
+
+    cxs_min.sh 
+        pure optical simulation of 40 torch gensteps from CD center totalling 1 billion photons
+        on Dell Precision Workstation with NVIDIA RTX 5000 Ada (3rd Gen)  
+        [``sreport`` shows microsecond timestamp deltas]
+       
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    [NP::MakeMetaKVS_ranges2_table num_specs 8
+         SEvt__Init_RUN_META ==>    CSGFoundry__Load_HEAD          655                    ## init
+       CSGFoundry__Load_HEAD ==>    CSGFoundry__Load_TAIL    4,235,189                    ## load_geom
+       CSGOptiX__Create_HEAD ==>    CSGOptiX__Create_TAIL      266,810                    ## upload_geom
+    A000_QSim__simulate_HEAD ==> A000_QSim__simulate_LBEG          251                    ## slice_genstep
+    A000_QSim__simulate_PREL ==> A000_QSim__simulate_POST   23,137,923                    ## simulate slice
+    A000_QSim__simulate_POST ==> A000_QSim__simulate_DOWN    3,975,867                    ## download slice
+    A000_QSim__simulate_PREL ==> A000_QSim__simulate_POST   23,449,227 REP  46,587,150    ## simulate slice
+    A000_QSim__simulate_POST ==> A000_QSim__simulate_DOWN    3,924,104 REP   7,899,971    ## download slice
+    A000_QSim__simulate_PREL ==> A000_QSim__simulate_POST   23,736,442 REP  70,323,592    ## simulate slice
+    A000_QSim__simulate_POST ==> A000_QSim__simulate_DOWN    4,108,315 REP  12,008,286    ## download slice
+    A000_QSim__simulate_PREL ==> A000_QSim__simulate_POST   23,850,920 REP  94,174,512    ## simulate slice
+    A000_QSim__simulate_POST ==> A000_QSim__simulate_DOWN    4,119,275 REP  16,127,561    ## download slice
+    A000_QSim__simulate_LEND ==> A000_QSim__simulate_PCAT   15,900,158                    ## concat slices
+    A000_QSim__simulate_BRES ==> A000_QSim__simulate_TAIL  117,551,399                    ## save arrays
+                                                   TOTAL:  248,256,535
+    ]NP::MakeMetaKVS_ranges2_table num_keys:69
+   </pre>
+
+
+.. sidebar:: :small:`Auto Config based on VRAM`
+
+    .. class:: small
+
+        ``OPTICKS_MAX_SLOT=0`` (default)
+            Determine max slots 263M for VRAM 32G
+ 
+
+.. class:: small
+
+    +-------------------------------------------------+
+    | Out-of-core optical simulation                  |
+    +=========================================+=======+
+    | four kernel executions, total time      |  94 s |
+    +-----------------------------------------+-------+
+    | four hit slice downloads, total time    |  16 s |         
+    +-----------------------------------------+-------+
+    | saving 216M hits (13GB .npy file)       | 117 s | 
+    +-----------------------------------------+-------+
+    | loading geometry from /cvmfs            |   4 s |
+    +-----------------------------------------+-------+
+    | total time                              | 248 s |
+    +-----------------------------------------+-------+
+
+ 
+.. s5_talk::
+
+   Stress test 
 
 
 :small:`Pure Optical TorchGenstep scan : 1M to 100M photons`
@@ -1044,163 +1022,34 @@ List-node avoids deep CSG trees
 
 
 
-:small:`How much parallelized speedup actually useful to overall speedup?`
---------------------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Amdahls "Law" : Expected Speedup` 
-
-
-    .. comment
-
-       :width: 1176px
-       :height: 358px
-       :width: 588px 
-       :height: 179px
-            
-    .. image:: parallel/amdahl.png
-       :width: 392px 
-       :height: 112px
-       :align: center
-
-    .. class:: small
-
-        **Overall speed limited by serial portion**
-
-        *P* 
-             parallelizable proportion
-        *1-P*
-             non-parallelizable portion
-        *n*
-             parallel speedup factor  
-
-
-
-optical photon simulation, P ~ 99% of CPU time  
-
-* => limit on overall speedup S(n) is 100x 
-* even with parallel speedup factor >> 1000x  
-
-
-**Traditional simulation use:**
-
-* :b:`speedup beyond 1000x not needed`
-
-
-
-.. s5_talk::
-
-   The large speedup factors are due to parallel processing 
-   on the GPU. Less resources for each photon means more that 
-   can be in flight at the same time giving more speedup. 
-
-   After the time for the photons is parallelized down to zero 
-   you are still left with the rest of the simulation, 
-   which determines the overall speedup. 
-
-   **Speculative+novel uses:**
-
-   * GPU integration to generate PDFs
-   * "simulation-as-reconstruction" (direct ML fits)  
-
-   Require ultra-extreme speedup
-
-
-
-:i:`amdahl_p_sensitive.png`
------------------------------
+JUNOSW+Opticks 
+---------------
 
 .. class:: small
 
-    .. image:: parallel/amdahl.png
-       :width: 392px 
-       :height: 112px
-       :align: center
+
+    * Opticks v0.3.1 (11 Jan 2025) ready to be used in candidate release 
+
+    BUT requires:
+
+    * JUNOSW branch "blyth-hierarchical-sticks-fastener-geometry-with-thin-water" (26 Nov 2024) to be merged
+ 
+      * fixes incorrect hierarchy in fastener geometry (found by Geant4:Opticks chi2)
+      * adds thin 0.1mm layer of water around the steel screws of fastener (Ziyan requested) 
+
+    * envvars making small geometry changes, needed for Geant4:Opticks agreement
+
+      * adopting the small changes : avoid different GPU/CPU geometry + need for envvars  
+
+    **How to handle continuous geometry change ? (longstanding problem to keep up with changing geometry)**
+
+    * improve automation of validations, helpful
+    * :b:`BUT: no way to automate the debugging of issues that are often revealed by Geant4:Opticks chi2 validation`
 
 
 .. s5_talk::
 
-   The red curve is for a parallel fraction of 0.99 
-   with a parallelized speedup of 1000x the overall 
-   speedup is around 90x  
-
-   The benefits of going much beyond 1000x are small 
-   for traditional uses of optical photon simulation. 
-
-   Some novel ideas for how to use ultra fast 
-   optical simulation need more performance.
-
-
-
-
-.. comment
-
-    :small:`Assistance : Geant4 Collab. + Dark Matter Search Community + NVIDIA`
-    ------------------------------------------------------------------------------------
-
-    .. sidebar:: :small:`Assistance from NVIDIA engineers`
-
-       .. class:: small
-
-           :b:`Organized by interested experiments`
-
-           **LBNL + LZ + NVIDIA** : 2021 
-
-           :r:`Series of seven meetings dedicated to Opticks`
-             OptiX 7 API migration
-
-           **Univ. Manchester + LHCb-RICH** : 2022 
-
-           UK GPU Hackathon
-             optimization guidance
-
-
-    .. class:: small
-
-        **Geant4 11.0+ (Dec 2021) : Opticks Advanced Example** 
-
-        * **CaTS : Calorimeter and Tracker Simulation**
-
-          * for Liquid Argon TPC, eg DUNE
-
-        * :r:`Hans Wentzel, Fermilab Geant4 Group`
-        * *...demonstrates how to use Opticks for the creation and propagation of optical photons...*
-        * https://geant4.web.cern.ch/download/release-notes/notes-v11.0.0.html
-
-
-        **Dark Matter Search Community (XENON,LZ,DARWIN,..)** 
-
-        Dark-matter And Neutrino Computation Explored (DANCE) 
-
-        * Input to Snowmass 2021
-        * https://arxiv.org/pdf/2203.08338.pdf
-        * *...Opticks package may provide a solution to the tracking of optical photons...*
-
-
-    .. class:: center
-
-        :r:`Great interest in Opticks => Lots of help from NVIDIA` 
-           :r:`(~3 Trillion Dollar company)`
-
-
-    .. s5_talk::
-
-        The great interest in Opticks from the community has
-        meant that I have received lots of help from NVIDIA engineers. 
-
-        The Fermilab Geant4 Group was an early adopter of Opticks and has assisted by 
-        developing a Geant4 advanced example demonstrating Opticks which 
-        has been in the Geant4 distribution since 2021. 
-
-        A group of experiments from the Dark Matter search community 
-        made a significant contribution to Opticks development by organizing 
-        a series of meetings with NVIDIA engineers that were very useful to 
-        guide a re-implementation of Opticks to work with a completely new OptiX API. 
-
-    .. comment
-
-        https://gitlab.cern.ch/geant4/geant4/-/tree/master/examples/advanced/CaTS 
-
-
+   Stress test 
 
 
 
@@ -1236,8 +1085,8 @@ optical photon simulation, P ~ 99% of CPU time
 .. class:: normal
 
   * NVIDIA Ray Trace Performance continues rapid progress (2x each gen., every ~2 yrs) 
-  * **any simulation limited by optical photons can benefit from Opticks**
-  * more photon limited -> more overall speedup (99% -> ~90x)
+  * :r:`out-of-core + adoption of Philox RNG removes limits, makes Opticks easier to use`
+
 
 
 .. table::
@@ -1311,24 +1160,6 @@ Acknowledgements
 .. s5_talk::
 
    Acknowledgements
-
-
-
-
-``Ilker Parmaksiz, NEXT-CRAB0 Prototype``
----------------------------------------------
-
-.. class:: normal
-
-   New active bug reporting Opticks user : Ilker Parmaksiz
-
-   * careful comparison : Data, Geant4, Opticks
-   * :r:`Opticks 181x over Geant4`
-
-
-.. s5_talk::
-
-   New User : found bugs
 
 
 

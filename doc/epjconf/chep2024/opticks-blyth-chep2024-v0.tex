@@ -180,7 +180,7 @@ using a single NVIDIA TITAN RTX GPU and NVIDIA OptiX 7.
 \label{secgeom}%
 % FIRST : HIGH LEVEL DESCRIPTION OF THE VARIOUS GEOMETRY MODELS AND TRANSLATIONS BETWEEN THEM
 % AND THEN GET INTO THE DETAILS IN THE SUBSECTIONS
-At initialization Opticks translates between geometry models in the below sequence:
+At initialization Opticks translates the geometry through the below sequence of models:
 %
 \begin{enumerate}
 \item Geant4 : deep hierarchy of structural volumes and trees of {\tt G4VSolid} CSG nodes
@@ -205,7 +205,9 @@ executables to initialize full detector geometries in less than a second.
 The prior proceedings\cite{chep2023} provide a detailed description of the geometry models and conversion between them,
 including the crucial geometry factorization into repeated groups of volumes and a remainder of 
 other insufficiently repeated volumes that is done within the intermediate model.
-
+Also the representation of solid shapes using n-ary trees of {\tt sn.h} CSG nodes within  
+the {\tt stree} intermediate model are detailed in the prior proceedings. 
+%
 %
 \comment{
 \subsection{Structural volumes and geometry factorization}%
@@ -233,7 +235,7 @@ The instanced {\tt CSGSolid} typically contain a few {\tt CSGPrim}, for example 
 and the remainder solid contains several thousand {\tt CSGPrim}. 
 The {\tt CSGPrim} refer to sequences of {\tt CSGNode} which are one-to-one related to the {\tt sn.h} CSG nodes
 of the intermediate model. These CSG nodes typically correspond to constituent {\tt G4VSolid} such as {\tt G4Ellipsoid} and {\tt G4Tubs}. 
-}
+}%endcomment
 %
 \comment{
 \subsection{CSGFoundry geometry model}
@@ -272,8 +274,9 @@ for the entire geometry is created from the instance transform vector.
 \end{table}
 \vspace{-8mm}
 \end{center}%
-}
+}%endcomment
 %
+\comment{
 \subsection{Solid shapes}%
 %
 The {\tt stree} intermediate model carries solid shape information
@@ -314,19 +317,20 @@ from a base shape. Typically the holes do not overlap making it possible to
 use a simple low resource dis-contiguous intersect function providing more efficient 
 intersection thanks to both reduced tree height and the better communication of the 
 dis-contiguous nature of the holes. 
+}%endcomment
 %
 %
 \subsection{Integrated Analytic and Triangulated geometry}
 % why use an approx geom
 Use of analytic CSG geometry typically allows float precision intersection 
 positions to very closely match the double precision intersection positions 
-that Geant4 would provide. 
+that Geant4 provides. 
 Intersection of a ray with a torus requires solution of a quartic equation
 with coefficients of greatly varying magnitude that result in unacceptably 
 poor numerical precision for some rays when using float precision. 
 Replacing the analytic torus geometry with an approximate
 tesselated geometry is found to yield more robust intersect positions
-and avoid performance reductions from resorting to double precision.  
+and avoids performance reductions from resorting to double precision.  
 
 % how used at high level
 During geometry factorization the {\tt stree::collectGlobalNodes} method
@@ -347,11 +351,11 @@ to the geometry acceleration structure creation of {\tt SBT::createGAS}.
 Opticks provides several OpenGL based visualization executables 
 implemented using the lightweight Graphics Library Framework GLFW,
 which manages OpenGL windows as well as keyboard and mouse inputs. 
-Interoperation between OpenGL and CUDA is used by {\tt SGLFW\_CUDA.h}
-allowing CUDA/OptiX ray trace render kernels to effectively write to OpenGL 
+Interoperation between OpenGL and CUDA used by {\tt SGLFW\_CUDA.h}
+allows CUDA/OptiX ray trace render kernels to effectively write to OpenGL 
 pixel buffer objects on the GPU which are subsequently accessed from the 
 rasterization pipeline via texture samplers. This approach together with
-high performance OptiX ray tracing enables smoothly interactively rendering of 
+high performance OptiX ray tracing enables smoothly interactive rendering of 
 exactly the same detector geometry as that used by the simulation. 
 Navigation in 3D via keys and mouse together 
 with viewpoint bookmarking have proved useful for finding geometry issues.      
