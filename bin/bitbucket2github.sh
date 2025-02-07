@@ -3,23 +3,45 @@ usage(){ cat << EOU
 ~/env/bin/bitbucket2github.sh : migration script 
 ===================================================
 
-Usage::
+See: ~/home/notes/bitbucket/migrate_repos_from_bitbucket_to_github.rst
 
-   cd ~/mountains # cd to the working copy repo directory  
+Migration SOP
+--------------
 
-   git remote -v  # check that repo origin is actually bitbucket
-   git status     # check that the repo is clean and uptodate, notice master OR main
-   git pull       # if not, get it clean and updated 
+1. clone repo from bitbucket to laptop
+2. check the email addresses associated to the commits::
 
-   ~/env/bin/bitbucket2github.sh    
-       # run script which emits migration commands to stdout 
-   
-   ## before piping to shell must use github web interface 
-   ## to create an empty correspondingly named repo
-   ## setting it to public or private as appropriate 
+   git log --pretty=format:%ae | sort -u
 
-   ~/env/bin/bitbucket2github.sh | sh   # if the commands look correct pipe them to shell to run them 
+3. if any email addresses not yet added to github, do so. Currently have::
 
+    simon.c.blyth@gmail.com
+    simoncblyth@gmail.com    
+    blyth@hep1.phys.ntu.edu.tw
+    blyth@ihep.ac.cn
+
+4. use github web interface to create repo with same name as the bitbucket one being migrated
+
+5. take a look for issues/complications, notice if master OR main::
+
+    cd ~/sphinxtest
+    git remote -v  # check that repo origin is actually bitbucket
+    git status     # check that the repo is clean and uptodate, notice master OR main
+    git pull       # if not clean, make it clean and updated 
+
+6. run this migration script from the repo directory::
+
+    ~/env/bin/bitbucket2github.sh       ## list commands
+    ~/env/bin/bitbucket2github.sh | sh  ## run them 
+
+    BR=main ~/env/bin/bitbucket2github.sh       ## list commands
+    BR=main ~/env/bin/bitbucket2github.sh | sh  ## run them 
+
+7. check github web interface for the migrated repo
+
+
+Details
+--------
 
 master OR main
    older repos use default branch name of master, 
@@ -39,27 +61,29 @@ EOU
 
 git_reponame(){  git config --local remote.origin.url|sed -n 's#.*/\([^.]*\)\.git#\1#p' ; }
 
-github_username=simoncblyth
-
 repo=$(git_reponame)
 test -z $repo && echo "Failed to determine git repo name." 1>&2 && exit 1
 
-github_repo_url=git@github.com:${github_username}/${repo}.git
-github_https_url=https://github.com/${github_username}/${repo}"
+github_username=simoncblyth
+github_ssh_url=git@github.com:${github_username}/${repo}.git
+github_https_url=https://github.com/${github_username}/${repo}
 
-# curl -u "${username}:${password}" https://api.github.com/user/repos -d "{\"name\":\"$existin_repo_name\", \"private\":\"true\" , \"description\":\"Private Repo for ${username} Project - ${existin_repo_name}\" }"
+cat << EOC
 
+git remote -v
 
-echo git remote rename origin bitbucket
+git remote rename origin bitbucket
 
-echo git remote add origin ${github_repo_url}
+git remote add origin ${github_ssh_url}
  
-echo git remote set-url origin ${github_repo_url}
+git remote set-url origin ${github_ssh_url}
 
-echo git push --set-upstream origin ${BR:-master}
+git remote -v
 
-#echo git remote rm bitbucket
+git push --set-upstream origin ${BR:-master}
 
+open ${github_https_url}
 
+EOC
 
 
