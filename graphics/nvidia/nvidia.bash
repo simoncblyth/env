@@ -12,6 +12,12 @@ NVIDIA
 
 
 
+OptiX 9.0 Release : 2025 January
+----------------------------------
+
+* https://forums.developer.nvidia.com/t/optix-9-0-release/322842
+
+
 Demystify CUDA Debugging and Performance with Powerful Developer Tools
 -----------------------------------------------------------------------
 

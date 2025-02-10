@@ -2692,6 +2692,8 @@
     peidong_cpu_gpu.png
     production/peidong_cpu_gpu.png 1280px_720px
 
+    cxr_min__eye_1,0,0__zoom_1__tmin_0p5__NNVT:0:000000.jpg
+    GEOM/J_2025jan08/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0p5__NNVT:0:000000.jpg 1280px_720px
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
