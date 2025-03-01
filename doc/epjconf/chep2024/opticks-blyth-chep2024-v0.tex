@@ -194,7 +194,6 @@ material properties such as absorption and scattering lengths.
 Converting these lengths to distances using pseudorandom numbers and 
 the known exponential distributions allows a comparison of absorption and scattering distances 
 with geometrical boundary distance to assign photon histories. 
-%Earlier proceedings\cite{chep2016} detail efficient use of the cuRAND\cite{curandURL} pseudorandom generator.
 %
 %
 \begin{figure}
@@ -321,7 +320,7 @@ as detailed in the prior proceedings\cite{chep2023}.
 %
 \subsection{Optimizing random number generation}
 %
-The curand library provides several random number generators
+The curand library\cite{curandURL}  provides several pseudorandom number generators
 including the default {\tt XORWOW} generator which has been used within Opticks.  
 The XORWOW implementation requires resource intensive state initialization, which 
 motivated install time creation of {\tt curandStateXORWOW} struct for all photon "slots" 
@@ -396,7 +395,7 @@ adoption of the curand Philox random number generator remove limits on the numbe
 photons that can be simulated and make Opticks easier to use. 
 Comparisons between different GPUs shows optical simulation performance 
 to closely follow ray tracing performance with a factor of four improvement between 
-between GPUs from the first and third RTX generations. 
+GPUs from the first and third RTX generations. 
 %
 %
 \newpage
@@ -473,35 +472,20 @@ NVIDIA RTX\texttrademark\, Platform, {\tt https://developer.nvidia.com/rtx}
 \bibitem{juno}
 Neutrino physics with JUNO \\
 F. An et al., J. Phys. G. {\bf 43}, 030401 (2016) 
-%
-\comment{
-\bibitem{jpom}
-A new optical model for photomultiplier tube\\
-Y. Wang, G. Cao, L. Wen, Y. Wang, Eur. Phys. J. C 82(4), 329 (2022).\\
-{\tt https://doi.org/10.1140/epjc/s10052-022-10288-y}
-%
-\bibitem{custom4}
-Custom4 repository, {\tt https://github.com/simoncblyth/customgeant4}
-%
-}
+%18
 \bibitem{throughput}
 Understanding Throughput Oriented Architectures \\
 M. Garland, D.B. Kirk, Commun. ACM {\bf 53}(11), 58 (2010) 
-%18
-\bibitem{curandURL}
-cuRAND, {\tt http://docs.nvidia.com/cuda/curand/index.html}
-%
-\bibitem{curandRNGTest}
-cuRAND generator tests, {\tt https://docs.nvidia.com/cuda/curand/testing.html}
 %19
 \bibitem{numpy}
 The NumPy array: a structure for efficient numerical computation \\
 S. Van der Walt, S. Colbert, G. Varoquaux, Comput. Sci. Eng. {\bf 13}, 22 (2011)
 %20
-%\bibitem{thrust}
-%Chapter 26 - Thrust: A Productivity-Oriented Library for CUDA \\
-%N. Bell, J. Hoberock, GPU Computing Gems Jade Edition, (2012), pp 359-371
-%
+\bibitem{curandURL}
+cuRAND, {\tt http://docs.nvidia.com/cuda/curand/index.html}
+%21
+\bibitem{curandRNGTest}
+cuRAND generator tests, {\tt https://docs.nvidia.com/cuda/curand/testing.html}
 \end{thebibliography}
 %
 \end{document}
