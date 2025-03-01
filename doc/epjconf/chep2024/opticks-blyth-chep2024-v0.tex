@@ -353,7 +353,7 @@ The default maximum number of slots is determined based upon the total
 global memory of the GPU. Result arrays such as photons and hits are gathered
 from device to host into separate {\tt NPFold} instances for each kernel launch 
 which are subsequently concatenated. To check this functionality 
-one billion photon events were simulated with an NVIDIA RTX 5000 Ada 
+an event with one billion photons was simulated with an NVIDIA RTX 5000 Ada 
 generation GPU with VRAM of 32GB in four kernel launches 
 in a total time under 100 seconds. 
 % SEvt::gather_components  
