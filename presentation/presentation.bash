@@ -1566,16 +1566,15 @@ presentation-rst2talk-(){
 #presentation-iname(){ echo ${INAME:-opticks_20240606_ihep_panel_30min} ; }
 
 
-
 #presentation-iname(){ echo ${INAME:-opticks_202406XX_kaiping_status_and_plan} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20240702_kaiping_status_and_plan} ; }
-presentation-iname(){ echo ${INAME:-opticks_20241021_krakow_chep2024} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20241021_krakow_chep2024} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20241025_montreal_nEXO_light_simulations_workshop} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20241025_montreal_nEXO_light_simulations_workshop} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20250115_kaiping_v2} ; }
 #presentation-iname(){ echo ${INAME:-cpu_gpu_production} ; }
-
 #presentation-iname(){ echo ${INAME:-opticks_20241122_ihep_assessment_5min} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20241122_ihep_assessment_5min_TALK} ; }
+presentation-iname(){ echo ${INAME:-opticks_20250303_ihep_gpu_symposium} ; }
 
 

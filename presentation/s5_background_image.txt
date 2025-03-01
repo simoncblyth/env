@@ -22,8 +22,8 @@
     ## would be more convenient if this switch was in presentation metadata
     ## avoiding the need for users to set it 
     ##
-    ##slide0
-    slide0_D
+    ##slide0_D
+    slide0
     ../graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -829,6 +829,11 @@
     nvidia/ada_lovelace/ada_lovelace_leap_in_ray_tracing_performance_19206531.jpg 640px_360px 0px_360px
     nvidia/ada_lovelace/Ada_throughput_efficiency.png 640px_360px 640px_0px
     nvidia/ada_lovelace/2022_Geforce_RTX_4090.png 640px_360px 640px_360px
+
+    NVIDIA RTX Generations 1=>4
+    rtx4/the-cards-03.jpg 640px_360px 640px_0px
+    rtx4/architecture-10.jpg 640px_360px 0px_360px
+    rtx4/architecture-08.jpg 640px_360px 640px_360px 
 
     Hardware accelerated Ray tracing (RT Cores) in the Data Center
     nvidia/ada_lovelace/NVIDIA-L4-Render-2.jpg 640px_360px 0px_360px
@@ -2653,6 +2658,15 @@
     GEOM/J_2024aug27/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__ALL00000.jpg 640px_360px 640px_0px
     GEOM/J_2024aug27/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__ALL00001.jpg 640px_360px 0px_360px
 
+    GrantDemo 
+    GEOM/J_2024aug27/CSGOptiXRenderTest/CVD0/80000/ALL/cxr_overview_emm_t0_elv_t_moi__ALL.jpg 640px_360px 0px_0px
+    GEOM/J_2024aug27/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__NNVT:0:0.jpg 640px_360px 640px_360px 
+    GEOM/J_2024aug27/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__ALL00000.jpg 640px_360px 640px_0px
+    GEOM/J_2024aug27/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__ALL00001.jpg 640px_360px 0px_360px
+
+    demo_raytrace.png
+    pr/rfis/demo_raytrace.png 
+
     cxr_min__eye_1,0,0__zoom_1__tmin_0.5__sSurftube_0V1_0:0:-1.jpg 
     GEOM/J_2024aug27/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0.5__sSurftube_0V1_0:0:-1.jpg 1280px_720px 
 
@@ -2694,6 +2708,10 @@
 
     cxr_min__eye_1,0,0__zoom_1__tmin_0p5__NNVT:0:000000.jpg
     GEOM/J_2025jan08/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0p5__NNVT:0:000000.jpg 1280px_720px
+
+    lhcb_g_corti_compute_accelerators.png
+    lhcb/lhcb_g_corti_compute_accelerators.png 1280px_720px
+
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored

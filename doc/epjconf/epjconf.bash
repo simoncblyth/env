@@ -384,6 +384,9 @@ epjconf-filename : $(epjconf-filename)
 epjconf-absname  : $(epjconf-absname)
 epjconf-odir     : $(epjconf-odir) 
 epjconf-opdf     : $(epjconf-opdf) 
+epjconf-ppdf     : $(epjconf-ppdf) 
+   ## use epjconf-ppdf-copy to copy here
+
 
 epjconf-etex     : $(epjconf-etex) 
 epjconf-eabs     : $(epjconf-eabs) 
@@ -475,6 +478,8 @@ epjconf-pdflatex()
     local texname=$(epjconf-texname)
     [ ! -f "$texname" ] && echo $msg texname $texname does not exist : CREATE IT AND TRY AGAIN && return 2 
 
+
+    type $FUNCNAME
     TEXINPUTS=$(epjconf-texinputs) pdflatex -output-directory $odir $texname
 }
 
@@ -599,7 +604,8 @@ EON
 }
 epjconf-check-pdf(){ $FUNCNAME-notes ; open http://pdf-analyser.edpsciences.org ; }
 
-epjconf-ref(){ cp $(epjconf-opdf) ~/opticks_refs/ ; }
-epjconf-oref(){ open ~/opticks_refs/$(epjconf-filename).pdf ; }
+epjconf-ppdf(){  echo ~/opticks_refs/$(epjconf-filename).pdf ; }
+epjconf-ppdf-copy(){  cp -f $(epjconf-opdf) $(epjconf-ppdf) ; }
+epjconf-ppdf-open(){  open $(epjconf-ppdf) ; }
 
 epjconf-lsref(){  ls -l ~/opticks_refs/*$(epjconf-confname)*.pdf ; }

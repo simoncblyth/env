@@ -12,6 +12,23 @@ CHEP Proceedings 2024
 
 
 
+Submitted : Wednesday February 12th 
+
+
+* https://indico.cern.ch/event/1338689/papers/6016185/
+
+
+
+* https://indico.cern.ch/event/1338689/papers/
+
+
+
+* http://pdf-analyser.edpsciences.org/
+
+
+
+
+
 Dear CHEP contributors,
  
 We are now accepting the proceeding papers with the hard deadline for sending

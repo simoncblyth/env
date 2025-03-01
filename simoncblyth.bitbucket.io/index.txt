@@ -239,7 +239,6 @@ Opticks Presentations
 
 `env/presentation/opticks_20241021_krakow_chep2024.html <env/presentation/opticks_20241021_krakow_chep2024.html>`_
 
-
    *Opticks : GPU ray trace accelerated optical photon simulation*
 
    CHEP, Krakow, Poland, 21 October 2024
