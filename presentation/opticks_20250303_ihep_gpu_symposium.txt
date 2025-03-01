@@ -92,7 +92,7 @@ Outline
       * p2: (JUNO) Optical Photon Simulation Problem...
       * p3: Optical photons limit many simulations => lots of interest in Opticks
       * p4: Optical Photon Simulation ≈ Ray Traced Image Rendering
-      * p5: NVIDIA RTX Generations : :b:`RT performance : ~2x every ~2 years`
+      * p5: NVIDIA RTX Generations 1=>4: :b:`RT performance : ~2x every ~2 years`
       * p6: NVIDIA OptiX : Ray Tracing Engine
 
     * Opticks : Solution to Optical Photon Simulation Problem
@@ -100,17 +100,19 @@ Outline
       * p7: Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
       * p8: Geometry Model Translation : Geant4 => CSGFoundry => NVIDIA OptiX 
       * p9: Full JUNO, Opticks, OptiX 7.5/8.0
-      * p10: :r:`Integrated Analytic + Triangulated Geometry (NEW)`
-      * p11: :b:`Interactive ray traced visualization via OpenGL/OptiX interop (NEW)`
-      * p13: GuideTube : Torus Triangulated
-      * p14: List-node : avoids deep CSG trees
-      * p15: Pure Optical TorchGenstep scan : 1M to 100M photons
-      * p17: :b:`Optical simulation 4x faster 1st->3rd gen RTX`
-      * p19: How much parallelized speedup actually useful to overall speedup?
+      * p10: :r:`NEW : Integrated Analytic + Triangulated Geometry`
+      * p11: 2024 : JUNO+Opticks Geom Fixes
+      * p12-13: :r:`NEW : Interactive ray traced visualization via OpenGL/OptiX interop`
+      * p14: GuideTube : Torus Triangulated
+      * p15: :r:`NEW : Optimized Random Number Generation (RNG) : remove states limit` 
+      * p16: :r:`NEW : Out-of-core optical photon simulation : multi-launch`
+      * p17: Simulating One Billion Photons in under 100 sec 
+      * p18-19: Pure Optical TorchGenstep scan : 1M to 100M photons
+      * p20: :b:`Optical simulation 4x faster 1st->3rd gen RTX`
+      * p21-22: How much parallelized speedup actually useful to overall speedup?
 
-    * p20: Summary + Links 
-    * p21: Acknowledgements
-    * p22: NEW Opticks User : Ilker Parmaksiz, NEXT-CRAB0 Prototype
+    * p23: Summary + Links 
+    * p24: Acknowledgements, p25-28: Highlighted Opticks Users
 
 
 .. raw:: html
@@ -614,7 +616,6 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 
 
-
 :small:`Analytic + triangulated geometry` 
 ------------------------------------------------------
 
@@ -624,17 +625,108 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
    * user can name solids for triangulation    
 
      * avoids issue with toruses + complex solids
-     * BUT : approximate geometry 
      * triangulation from G4Polyhedron
-     * config per-solid NumberOfRotationSteps by envvars
      * uses OptiX "built-in" triangle intersection
 
    :r:`NEW FEATURE`
        :r:`Integration of analytic + triangulated geometry`
 
+
+.. raw:: html
+
+
+    <p style="position:fixed;top:25px;left:650px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">
+    Cutaway ray traced render of JUNO CD
+    </p>
+    <p style="position:fixed;top:375px;left:10px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">
+    Mostly Analytic CSG
+    </p>
+    <p style="position:fixed;top:375px;left:650px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">
+    Guide Tube Torus Triangulated
+    </p>
+ 
+
+
 .. s5_talk::
 
-   Integration of analytic + triangulated geometry : NEW FEATURE 
+   * main new feature is geometry generalization : integrating triangulated with analytic 
+   * this allows translation of the full JUNO geometry, by triangulating the guide tube torus
+
+.. comment
+
+   Triangulated geometry is very useful for the JUNO guide tube torus, 
+   as finding analytic intersects with toruses requires solving quartics
+   which is imprecise even in double precision.  
+
+
+
+:small:`2024 : JUNO+Opticks Geom Fixes`
+------------------------------------------
+
+.. comment
+
+    for targetting seems need to use full page dimension half the actual dimension
+
+
+.. raw:: html
+
+    <p style="margin-bottom:-10mm;" />
+    <p style="position:fixed;top:375px;left:10px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">
+    WaterPool HBeam Overlaps FIXED with simpler approach
+    </p>
+    <p style="position:fixed;top:275px;left:650px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">
+    FastenerAcrylic translated to "list-node"
+    </p>
+    <p style="position:fixed;top:625px;left:650px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">
+    Testing triangulated GuideTube + XJ + SJ solids
+    </p>
+    <p style="margin-bottom:20mm;" />
+ 
+
+.. raw:: html
+
+    <p style="margin-bottom:-15mm;" />
+
+.. class:: small
+
+   * Re-implemented WaterPool with hierarchy approach 
+
+     * avoid : ~120 overlaps, complex CSG
+     * enables translation to Opticks/GPU
+  
+   * FastenerAcrylic (590) working using "list-node" 
+
+     * discontiguous => simple + fast 
+
+   * GuideTube (39*2*2 = 156 G4Torus) 
+
+     * torus intersect v.expensive on GPU => :r:`triangulate` 
+     * adjust precision with NumberOfRotationSteps  
+
+   * XJ + SJ solids (less numerous) 
+
+     * many concident surfaces, testing :r:`triangulated` 
+
+
+
+.. s5_talk::
+
+    * geometry issues this year were with the Waterpool and the support stick fasteners. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 :i:`cxr_min__eye_1,0,0__zoom_1__tmin_0.5__sSurftube_0V1_0:0:-1.jpg` 
@@ -702,6 +794,8 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
    
    :b:`GPUs evolved for triangles => fast even with many`
 
+
+   :r:`RTX : Uses "builtin" RT Core triangle intersect`
 
 .. s5_talk::
 
@@ -810,13 +904,13 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. class:: small
 
-    Philox4_32_10 is alternative curand generator
+    ``Philox4_32_10`` is alternative curand generator
 
     * counter based random number generator
     * simple state : integer counters
     * :r:`cheap to initialize Philox state`
 
-      * avoid need for workaround 
+      * avoid need for the workaround -> 
       * simply init within simulation kernel
       
    
@@ -826,23 +920,209 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
     * no state files
     * :b:`no photon limit from states`
     * no global memory for the states
-    * faster initialization      
+    * faster initialization 
+    * default ``OPTICKS_MAX_PHOTON`` now 1 billion 
 
-    Statistical quality of Philox generated randoms comparable to XORWOW[1]
+    Stat. quality of Philox randoms comparable to XORWOW[1]
 
 .. class:: tiny
 
      [1] cuRAND generator tests https://docs.nvidia.com/cuda/curand/testing.html
 
 
+.. s5_talk::
+
+    RNG
 
 
-:small:`NEW : Out-of-core optical photon simulation : remove VRAM limit`
--------------------------------------------------------------------------
 
 
 
 
+
+:small:`Out-of-core optical photon simulation : multi-launch`
+---------------------------------------------------------------
+
+.. comment
+
+    Simulation of more photons than can fit within VRAM is implemented
+    using multiple kernel launches invoked from {\tt QSim::simulate}. 
+    Following genstep collection index range genstep slices are chosen 
+    such that the number of photons within each slice is less than 
+    the configured maximum number of CUDA thread "slots" within a single launch.
+    The default maximum number of slots is determined based upon the total
+    global memory of the GPU. Result arrays such as photons and hits are gathered
+    from device to host into separate {\tt NPFold} instances for each kernel launch 
+    which are subsequently concatenated. To check this functionality 
+    one billion photon events were simulated with an NVIDIA RTX 5000 Ada 
+    generation GPU with VRAM of 32GB in four kernel launches 
+    in a total time under 100 seconds. 
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+        struct sslice
+        {
+        int gs_start ;  // 1st gs idx
+        int gs_stop ;   // after last gs idx
+        int ph_offset ; // tot photon before this slice
+        int ph_count ;  // tot photon within this slice
+
+        static int TotalPhoton(const std::vector&lt;sslice&gt;& sl );
+        static int TotalPhoton(const std::vector&lt;sslice&gt;& sl, 
+          int i0, int i1);
+        static void SetOffset(std::vector&lt;sslice&gt;& slice);
+        ...
+        };
+        </pre>
+
+
+
+
+
+.. sidebar:: Opticks Unlimited
+
+    .. class:: small
+
+       Philox counter based RNG + Out-of-core: 
+           
+       * no curandState limit 
+       * no VRAM limit 
+
+       => :b:`simulate billion-photon evt, no special setup`
+
+       * other than switch off debug arrays! 
+
+
+
+.. class:: small
+
+   **Out-of-core** 
+          :b:`simulate more photons than fit VRAM`
+
+   **Use sliced genstep array in:** ``QSim::simulate``
+
+   0. configure max slots, default based on VRAM
+   1. collect scintillation + cerenkov gensteps from Geant4
+   2. form vector of int4 slices :tiny:`sslice.h` with:
+
+      * photons in each slice less than max slots 
+
+   3. loop over slices:
+
+      * upload slice of genstep array
+      * kernel launch simulate
+      * gather results into NPFold 
+
+   4. concatenate results (**NPFold::concat**)
+
+   
+   :r:`curand "slot" offset by ph_offset`  
+       => perfect match with any slicing 
+
+.. raw:: html
+
+   <p style="margin-bottom:1cm;" />
+
+
+
+.. s5_talk::
+
+    Following the move to Philox and out-of-core impl Opticks can simulate any number of photons
+    even on  
+
+
+
+
+
+Simulating One Billion Photons in under 100 sec
+--------------------------------------------------------
+
+
+.. class:: small
+
+    cxs_min.sh 
+        pure optical simulation of 40 torch gensteps from CD center totalling 1 billion photons
+        on Dell Precision Workstation with NVIDIA RTX 5000 Ada (3rd Gen)  
+        [``sreport`` shows microsecond timestamp deltas]
+       
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    [NP::MakeMetaKVS_ranges2_table num_specs 8
+         SEvt__Init_RUN_META ==>    CSGFoundry__Load_HEAD          655                    ## init
+       CSGFoundry__Load_HEAD ==>    CSGFoundry__Load_TAIL    4,235,189                    ## load_geom
+       CSGOptiX__Create_HEAD ==>    CSGOptiX__Create_TAIL      266,810                    ## upload_geom
+    A000_QSim__simulate_HEAD ==> A000_QSim__simulate_LBEG          251                    ## slice_genstep
+    A000_QSim__simulate_PREL ==> A000_QSim__simulate_POST   23,137,923                    ## simulate slice
+    A000_QSim__simulate_POST ==> A000_QSim__simulate_DOWN    3,975,867                    ## download slice
+    A000_QSim__simulate_PREL ==> A000_QSim__simulate_POST   23,449,227 REP  46,587,150    ## simulate slice
+    A000_QSim__simulate_POST ==> A000_QSim__simulate_DOWN    3,924,104 REP   7,899,971    ## download slice
+    A000_QSim__simulate_PREL ==> A000_QSim__simulate_POST   23,736,442 REP  70,323,592    ## simulate slice
+    A000_QSim__simulate_POST ==> A000_QSim__simulate_DOWN    4,108,315 REP  12,008,286    ## download slice
+    A000_QSim__simulate_PREL ==> A000_QSim__simulate_POST   23,850,920 REP  94,174,512    ## simulate slice
+    A000_QSim__simulate_POST ==> A000_QSim__simulate_DOWN    4,119,275 REP  16,127,561    ## download slice
+    A000_QSim__simulate_LEND ==> A000_QSim__simulate_PCAT   15,900,158                    ## concat slices
+    A000_QSim__simulate_BRES ==> A000_QSim__simulate_TAIL  117,551,399                    ## save arrays
+                                                   TOTAL:  248,256,535
+    ]NP::MakeMetaKVS_ranges2_table num_keys:69
+   </pre>
+
+
+.. sidebar:: :small:`Auto Config based on VRAM`
+
+    .. class:: small
+
+        ``OPTICKS_MAX_SLOT=0`` (default)
+            Determine max slots 263M for VRAM 32G [1]
+
+    .. class:: tiny
+
+        [1] SEventConfig::HeuristicMaxSlot_Rounded
+
+
+
+.. class:: small
+
+    +----------------------------------------------------------+
+    |    Out-of-core optical simulation                        |
+    +============================================+=============+
+    |:r:`four kernel executions, total time`     | :r:`94 s`   |
+    +--------------------------------------------+-------------+
+    |    four hit slice downloads, total time    |     16 s    |         
+    +--------------------------------------------+-------------+
+    |    saving 216M hits (13GB .npy file)       |    117 s    | 
+    +--------------------------------------------+-------------+
+    |    loading geometry from /cvmfs            |      4 s    |
+    +--------------------------------------------+-------------+
+    |    total time                              |    248 s    |
+    +--------------------------------------------+-------------+
+
+ 
+.. s5_talk::
+
+   Stress test 
+
+
+
+.. comment
+
+    Heuristic
+
+    Auto 
+
+    Simulation of more photons than can fit within VRAM is implemented using
+    multiple kernel launches invoked from QSim::simulate. Following genstep
+    collection index range genstep slices are chosen such that the number of
+    photons within each slice is less than the configured maximum number of CUDA
+    thread "slots" within a single launch. The default maximum number of slots is
+    determined based upon the total global memory of the GPU. Result arrays such as
+    photons and hits are gathered from device to host into separate NPFold
+    instances for each kernel launch which are subsequently concatenated. To check
+    this functionality a one billion photon event was simulated with an 
+    NVIDIA RTX 5000 Ada generation GPU with VRAM of 32GB in four kernel launches 
+    in a total time under 100 seconds
 
 
 
@@ -1209,7 +1489,7 @@ Acknowledgements
 
 * Opticks users
 
-  * ~38 members of forum : https://groups.io/g/opticks
+  * 39 members of forum : https://groups.io/g/opticks
   * :r:`many thanks to active bug reporting users` 
 
     * (especially from JUNO, LZ, LHAASO, LHCb-RICH, DUNE, NEXT-CRAB0) 
@@ -1240,12 +1520,45 @@ Acknowledgements
 
 
 
+Future of GPU Ray tracing ?
+------------------------------
+
+
+.. class:: small 
+
+    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
+    | GPU vendor  |  compute framework  | ray trace framework     | hardware RT                     | notes                                        |
+    +=============+=====================+=========================+=================================+==============================================+
+    | NVIDIA      |   CUDA              |  OptiX                  | RTX/RT Core (2018-)             | first, mature, improving, dominant           |  
+    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
+    | Apple       |   Metal/MPS         |  Metal/MPS              | From M1 (2020-)                 |                                              |  
+    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
+    | AMD         |   ROCm              | RadeonRays, HIP RT      | From Radeon RX 6000 (2020-)     |                                              |  
+    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
+    | Intel       |   oneAPI            |  Embree?                | From Xe Arc Alchemist (2022-)   | uses SYCL                                    |  
+    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
+    | Huawei      |   ?HarmonyOS-NEXT?  |  mobile only            | mobile only                     |                                              |  
+    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
+    | Sugon       |    ?                |  ?                      | ?                               |                                              |  
+    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
+    | "Vulkan"    | compute shaders     | ray trace extension     |                                 |"cross-vendor" but needs vendor support       |
+    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
+    |             |  OpenCL             |                         |                                 |  dead?                                       |
+    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
+    |             |  OpenMP             |                         |                                 |  new support for GPU offloading              |
+    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
+
+
+
+
+
+
 ``Ilker Parmaksiz, NEXT-CRAB0 Prototype``
 ---------------------------------------------
 
 .. class:: normal
 
-   New active bug reporting Opticks user : Ilker Parmaksiz
+   New active bug reporting (+leak finding/fixing) Opticks user : Ilker Parmaksiz
 
    * careful comparison : Data, Geant4, Opticks
    * :r:`Opticks 181x over Geant4`
@@ -1254,6 +1567,51 @@ Acknowledgements
 .. s5_talk::
 
    New User : found bugs
+
+
+
+
+:i:`CaTS: Integration of Geant4 and Opticks`
+--------------------------------------------------
+
+
+.. s5_talk::
+
+    A recent paper from the Fermilab Geant4 team 
+    reports on the integration
+ 
+
+:i:`lhcb_rich1_epjc_001.png`
+-----------------------------
+
+.. s5_talk::
+
+    The LHCb-RICH (ring-imaging Cherenkov particle id detector) 
+    group from Manchester and RAL evaluated Opticks in an EPJ paper. 
+
+    I helped them via ZOOM calls and they helped me by arranging 
+    a UK HACKATHON with NVIDIA Europe engineers. 
+    Some NVIDIA GPU experts used their profiling tools on Opticks
+    and studied the code. They gave me detailed advice on some better ways 
+    to do things.    
+
+.. comment
+
+    * they got a speedup of 10x only : due to using not so many photons
+    * Opticks needs event joining to avoid overheads reducing performance 
+      for few photon events  
+
+
+
+:small:`LZ + Opticks (Sam Eriksen, University of Bristol)`
+---------------------------------------------------------------------------
+
+``had contacts with ~5 LZ people``
+
+.. s5_talk::
+
+    I assisted the LZ dark matter expt to get their geometry to work with Opticks.   
+    I had contacts with more than 5 people from LZ.
 
 
 

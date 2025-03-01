@@ -224,9 +224,27 @@ data preparation for upload to the GPU and analysis of results.
 Opticks Presentations 
 ----------------------
 
+2025
+~~~~~~
+
+`env/presentation/opticks_20250303_ihep_gpu_symposium.html <env/presentation/opticks_20250303_ihep_gpu_symposium.html>`_
+
+    *JUNO + Opticks : GPU ray trace accelerated optical photon simulation*
+
+    GPU symposium on parallel and AI acceleration of high energy physics applications
+
+    IHEP, Beijing, 3 March 2025    
+
+
 2024
 ~~~~~
 
+
+`env/presentation/opticks_20250115_kaiping_v2.html <env/presentation/opticks_20250115_kaiping_v2.html>`_
+
+   *Opticks : GPU ray trace accelerated optical photon simulation*
+ 
+   JUNO Collaboration Meeting, 15 January 2025, Kaiping, China
 
 
 `env/presentation/opticks_20241025_montreal_nEXO_light_simulations_workshop.html <env/presentation/opticks_20241025_montreal_nEXO_light_simulations_workshop.html>`_
@@ -248,7 +266,7 @@ Opticks Presentations
 
    *JUNOSW+Opticks : Status and Plan*
 
-   JUNO Collaboration Meeting, 2 July 2024, Kaiping
+   JUNO Collaboration Meeting, 2 July 2024, Kaiping, China
 
 
 `env/presentation/opticks_20240418_ihep_epd_seminar_story_of_opticks.html <env/presentation/opticks_20240418_ihep_epd_seminar_story_of_opticks.html>`_
