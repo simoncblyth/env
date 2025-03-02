@@ -104,15 +104,15 @@ Outline
       * p11: 2024 : JUNO+Opticks Geom Fixes
       * p12-13: :r:`NEW : Interactive ray traced visualization via OpenGL/OptiX interop`
       * p14: GuideTube : Torus Triangulated
-      * p15: :r:`NEW : Optimized Random Number Generation (RNG) : remove states limit` 
-      * p16: :r:`NEW : Out-of-core optical photon simulation : multi-launch`
-      * p17: Simulating One Billion Photons in under 100 sec 
+      * p15: :r:`NEW : Optimized Random Number Generation (RNG) : no states limit` 
+      * p16: :r:`NEW : Out-of-core optical photon simulation : no VRAM limit`
+      * p17: :b:`Opticks Unlimited : Simulating One Billion Photons in under 100 sec` 
       * p18-19: Pure Optical TorchGenstep scan : 1M to 100M photons
       * p20: :b:`Optical simulation 4x faster 1st->3rd gen RTX`
       * p21-22: How much parallelized speedup actually useful to overall speedup?
 
     * p23: Summary + Links 
-    * p24: Acknowledgements, p25-28: Highlighted Opticks Users
+    * p24: Acknowledgements, p25-28: Highlighted Opticks Users, p29: GPU compute/RT frameworks
 
 
 .. raw:: html
@@ -873,8 +873,8 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 
 
-:small:`NEW : Optimized Random Number Generation (RNG) : remove states limit`
-----------------------------------------------------------------------------------
+:small:`NEW : Optimized Random Number Generation (RNG) : no states limit`
+---------------------------------------------------------------------------
 
 .. sidebar:: :small:`curand XORWOW workaround`
 
@@ -940,7 +940,7 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 
 
-:small:`Out-of-core optical photon simulation : multi-launch`
+:small:`Out-of-core optical photon simulation : no VRAM limit`
 ---------------------------------------------------------------
 
 .. comment
@@ -1035,8 +1035,8 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 
 
-Simulating One Billion Photons in under 100 sec
---------------------------------------------------------
+:small:`Opticks Unlimited : Simulating One Billion Photons in under 100 sec`
+-------------------------------------------------------------------------------
 
 
 .. class:: small
@@ -1520,37 +1520,6 @@ Acknowledgements
 
 
 
-Future of GPU Ray tracing ?
-------------------------------
-
-
-.. class:: small 
-
-    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
-    | GPU vendor  |  compute framework  | ray trace framework     | hardware RT                     | notes                                        |
-    +=============+=====================+=========================+=================================+==============================================+
-    | NVIDIA      |   CUDA              |  OptiX                  | RTX/RT Core (2018-)             | first, mature, improving, dominant           |  
-    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
-    | Apple       |   Metal/MPS         |  Metal/MPS              | From M1 (2020-)                 |                                              |  
-    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
-    | AMD         |   ROCm              | RadeonRays, HIP RT      | From Radeon RX 6000 (2020-)     |                                              |  
-    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
-    | Intel       |   oneAPI            |  Embree?                | From Xe Arc Alchemist (2022-)   | uses SYCL                                    |  
-    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
-    | Huawei      |   ?HarmonyOS-NEXT?  |  mobile only            | mobile only                     |                                              |  
-    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
-    | Sugon       |    ?                |  ?                      | ?                               |                                              |  
-    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
-    | "Vulkan"    | compute shaders     | ray trace extension     |                                 |"cross-vendor" but needs vendor support       |
-    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
-    |             |  OpenCL             |                         |                                 |  dead?                                       |
-    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
-    |             |  OpenMP             |                         |                                 |  new support for GPU offloading              |
-    +-------------+---------------------+-------------------------+---------------------------------+----------------------------------------------+
-
-
-
-
 
 
 ``Ilker Parmaksiz, NEXT-CRAB0 Prototype``
@@ -1615,4 +1584,38 @@ Future of GPU Ray tracing ?
 
 
 
+GPU compute and ray tracing frameworks
+---------------------------------------
+
+
+.. class:: small 
+
+    +---------------+---------------------+-----------------------------+---------------------------------+----------------------------------------------+
+    | GPU vendor    |  compute framework  | ray trace framework         | hardware RT                     | notes                                        |    
+    +===============+=====================+=============================+=================================+==============================================+
+    | NVIDIA        |   CUDA(2007-)       |  OptiX(2009-)               | RTX/RT Core (2018-)             |                                              |    
+    +---------------+---------------------+-----------------------------+---------------------------------+----------------------------------------------+
+    | Apple         |   Metal/MPS(2014-)  |  Metal/MPS(2020-)           | From M3 (2023-)                 |                                              |    
+    +---------------+---------------------+-----------------------------+---------------------------------+----------------------------------------------+
+    | AMD           |   ROCm(2016-)       | RadeonRays, HIP-RT(2022-)   | From Radeon RX 6000 (2020-)     |                                              |    
+    +---------------+---------------------+-----------------------------+---------------------------------+----------------------------------------------+
+    | Intel         |   oneAPI(?2020-)    |  Embree?                    | From Arc Alchemist (2022-)      | uses SYCL                                    |    
+    +---------------+---------------------+-----------------------------+---------------------------------+----------------------------------------------+
+    | Huawei        |  ?                  |  mobile only                | mobile only                     |                                              |    
+    +---------------+---------------------+-----------------------------+---------------------------------+----------------------------------------------+
+    | Cross-vendor  | Vulkan              | Vulkan                      | NVIDIA/AMD/Intel/?              |                                              |    
+    |               | compute shaders     | ray trace extension         |                                 | Depends on vendor drivers                    |    
+    +---------------+---------------------+-----------------------------+---------------------------------+----------------------------------------------+
+    |               |  OpenCL             |                             |                                 |  dead?                                       |    
+    +---------------+---------------------+-----------------------------+---------------------------------+----------------------------------------------+
+    |               |  OpenMP             |                             |                                 |  new support for GPU offloading              |    
+    +---------------+---------------------+-----------------------------+---------------------------------+----------------------------------------------+
+
+
+    Other GPU vendors such as Samsung and Qualcomm mostly focussed on mobile. 
+
+
+.. s5_talk::
+
+   Klop
 
