@@ -1525,12 +1525,16 @@ Acknowledgements
 ``Ilker Parmaksiz, NEXT-CRAB0 Prototype``
 ---------------------------------------------
 
-.. class:: normal
+.. class:: small 
 
    New active bug reporting (+leak finding/fixing) Opticks user : Ilker Parmaksiz
 
    * careful comparison : Data, Geant4, Opticks
    * :r:`Opticks 181x over Geant4`
+
+   *Performance of an Optical TPC Geant4 Simulation with Opticks GPU-Accelerated Photon Propagation*
+
+   NEXT Collaboration, I.Parmaksiz, Feb 18, 2025, https://doi.org/10.48550/arXiv.2502.13215
 
 
 .. s5_talk::

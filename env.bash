@@ -2138,5 +2138,8 @@ usd-(){       . $(env-home)/graphics/usd/usd.bash && usd-env $* ; }
 cats-(){      . $(env-home)/cats/cats.bash && cats-env $* ; }
 slurm-(){     . $(env-home)/slurm/slurm.bash && slurm-env $* ; }
 leak-(){     . $(env-home)/tools/leak.bash && leak-env $* ; }
+gitlab-(){     . $(env-home)/tools/gitlab.bash && gitlab-env $* ; }
+base64-(){     . $(env-home)/tools/base64.bash && base64-env $* ; }
+
 
 

@@ -15,7 +15,6 @@ nvidia-docker
 * https://github.com/NVIDIA/nvidia-docker
 
 
-
 GPU containerization ?
 -------------------------
 

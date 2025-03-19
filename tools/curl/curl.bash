@@ -26,6 +26,9 @@ Download zip using socks5 proxy
 
    > curl -L -O https://github.com/simoncblyth/opticks/archive/refs/tags/v0.2.0.zip 
 
+  
+   echo "proxy=socks5://127.0.0.1:8080" > ~/.curlrc 
+
 
 NB in addition to the above command need to first start the proxy
 -------------------------------------------------------------------

@@ -177,6 +177,76 @@ https://geant4-data.web.cern.ch/ReleaseNotes/ReleaseNotes.11.0.html
 
 
 
+Spires search for Opticks
+--------------------------
+
+* https://inspirehep.net/literature?sort=mostrecent&size=25&page=1&q=Opticks
+
+
+Other Publications featuring Opticks
+--------------------------------------
+
+https://inspirehep.net/literature/2891204
+
+    *Performance of an Optical TPC Geant4 Simulation with Opticks GPU-Accelerated Photon Propagation*
+   
+    NEXT Collaboration, I.Parmaksiz, Feb 18, 2025
+
+    https://arxiv.org/abs/2502.13215
+
+    https://doi.org/10.48550/arXiv.2502.13215
+
+
+https://inspirehep.net/literature/2785167
+
+    *CaTS: Integration of Geant4 and Opticks*
+
+    Hans Wenzel, Soon Yung Jun, Krzysztof Genser, Felipe De Figueiredo,  6 May 2024 
+    https://www.epj-conferences.org/articles/epjconf/abs/2024/05/epjconf_chep2024_11004/epjconf_chep2024_11004.html
+
+    EPJ Web Conf. 295 (2024) 11004
+
+
+https://inspirehep.net/literature/2725317
+
+    *CP violation in neutral B meson oscillations and fast optical photon simulation on GPUs*
+
+    Yunlong Li, Manchester U. PhD Thesis, Dec 31, 2023
+
+
+https://inspirehep.net/literature/2678743
+
+    *Gpu-based optical photon simulation for the LHCb RICH 1 detector*
+
+    Li, Y., Davis, A., Easo, S. et al. 
+
+    Eur. Phys. J. C 83, 1036 (2023)
+
+    https://doi.org/10.1140/epjc/s10052-023-12158-7     
+
+    https://link.springer.com/article/10.1140/epjc/s10052-023-12158-7
+
+
+https://inspirehep.net/literature/1911755
+
+    *GPU simulation with Opticks: The future of optical simulations for LZ*
+
+    Oisín Creaner, Simon Blyth, Sam Eriksen,  Lisa Gerhardt, Maria Elena Monzani, Quentin Riffard
+
+    EPJ Web Conf. 251 (2021) 03037,   14 November 2023
+
+    https://doi.org/10.1051/epjconf/202125103037
+
+    https://www.epj-conferences.org/articles/epjconf/abs/2021/05/epjconf_chep2021_03037/epjconf_chep2021_03037.html 
+
+
+
+
+
+
+
+
+
 Opticks Videos
 ----------------------
 

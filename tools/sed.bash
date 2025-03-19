@@ -68,6 +68,12 @@ Quote All Lines of a File : eg to handle filesystem paths with spaces in them wh
 
 
 
+Extract a range of lines from a file
+-------------------------------------
+
+    
+
+
 Extract a stretch of lines containing paths and quote them : eg when contain spaces
 --------------------------------------------------------------------------------------
 
