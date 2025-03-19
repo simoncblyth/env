@@ -3,6 +3,32 @@ base64-vi(){ vi $BASH_SOURCE ; }
 base64-usage(){ cat << EOU
 
 
+Note that the old Darwin base64 adds newline at the end of the encoded string
+causing wc -l to return 1::
+
+    epsilon:env blyth$ which base64
+    /usr/bin/base64
+    epsilon:env blyth$ ls -alst /usr/bin/base64
+    16 -rwxr-xr-x  1 root  wheel  23248 Jan 19  2018 /usr/bin/base64
+    epsilon:env blyth$ 
+
+
+    A[blyth@localhost env]$ which base64
+    /bin/base64
+    A[blyth@localhost env]$ ls -alst /bin/base64
+    36 -rwxr-xr-x. 1 root root 36560 Oct  3 05:44 /bin/base64
+
+
+
+
+    epsilon:env blyth$ cat /tmp/env/base64-check-file.encoded | wc 
+           1       1    1777
+
+    A[blyth@localhost env]$ cat /tmp/env/base64-check-file.encoded | wc 
+           0       1    1776
+
+
+
 EOU
 }
 
