@@ -326,21 +326,23 @@ epjconf-opdf(){ echo $(epjconf-odir)/$(epjconf-filename).pdf ; }
 epjconf-open(){ open $(epjconf-opdf) ; }
 
 
+#epjconf-vers(){ echo v0 ; }
+epjconf-vers(){ echo v1 ; }
+#epjconf-vers(){ echo v2 ; }
+
 #epjconf-confname(){ echo chep2018 ; }
 #epjconf-confname(){ echo chep2019 ; }
 #epjconf-confname(){ echo chep2021 ; }
 #epjconf-confname(){ echo chep2023 ; }
 epjconf-confname(){ echo chep2024 ; }
 
-epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v0 ; }
-#epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v1 ; }
-#epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v2 ; }
+epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-$(epjconf-vers) ; }
+epjconf-absname(){ echo $(epjconf-filename)-abstract ; }
 
 #epjconf-filename(){ echo opticks-snowmass21-loi-v0 ; }
 #epjconf-filename(){ echo opticks-snowmass21-loi-v1 ; }
 
 
-epjconf-absname(){ echo opticks-blyth-$(epjconf-confname)-v0-abstract ; }
 
 
 
