@@ -10,6 +10,14 @@ bash
 =====
 
 
+
+workstation console env vs ssh env
+-------------------------------------- 
+
+* https://askubuntu.com/questions/121073/why-bash-profile-is-not-getting-sourced-when-opening-a-terminal
+
+* http://mywiki.wooledge.org/DotFiles
+
 .bash_profile vs .bashrc
 ---------------------------
 

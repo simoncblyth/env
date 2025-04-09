@@ -15,6 +15,18 @@ sed
 
 
 
+when sed too difficult use python
+------------------------------------
+
+::
+
+
+   #sed -E 's/^(sSurftube|svacSurftube|solidSJ|solidXJ).*/#&/' $meshname > $tessname 
+   # HMM: cannot negate a match with sed, so do it line-by-line with python
+
+   oneline="import sys,re;ptn=re.compile('^(sSurftube|svacSurftube|solidSJ|solidXJ).*');print('\n'.join([('%s' if ptn.match(line) else '#%s') % line.rstrip() for line in sys.stdin.readlines()]))" 
+   cat $meshname | python -c "$oneline" - > $tessname
+
 
 
 remove comments from here doc lines 

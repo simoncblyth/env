@@ -68,7 +68,7 @@ base64-check-file()
     
     if [ "$(uname)" == "Darwin" ]; then 
       
-       cat ${path}.secret  | base64 -b0 > ${path}.encoded  
+       cat ${path}.secret  | base64 -b0 | tr -d '\n' > ${path}.encoded  
        cat ${path}.encoded | base64 -D  > ${path}.decoded
  
     elif [ "$(uname)" == "Linux" ]; then 
@@ -78,12 +78,37 @@ base64-check-file()
  
     fi 
 
+    echo ==== cat ${path}.encoded
     cat ${path}.encoded
-    cat ${path}.encoded | wc -l 
 
+    echo ==== cat ${path}.encoded \| wc
+    cat ${path}.encoded | wc  
+
+    echo ==== diff -y ${path}.secret ${path}.decoded
     diff -y ${path}.secret ${path}.decoded
     echo $?
 
 }
+
+
+base64-encode()
+{
+    local path=$1
+    case $(uname) in 
+       Darwin) cat $path  | base64 -b0 | tr -d '\n'  ;;
+       Linux)  cat $path | base64 -w0 ;;
+    esac 
+}
+
+base64-decode()
+{
+    local path=$1
+    case $(uname) in 
+       Darwin) cat $path | base64 -D  ;;
+       Linux)  cat $path | base64 -d ;;
+    esac 
+}
+
+
 
 

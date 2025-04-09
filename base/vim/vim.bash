@@ -12,6 +12,23 @@ VIM Tips
 * http://www.astrohandbook.com/ch20/vi_guide.html
 
 
+replace trailing whitespace
+----------------------------
+
+::
+
+    :%s/\s\+$//gc
+
+
+highlight trailing whitespace
+-------------------------------
+
+::
+
+    :set hlsearch     OR   :set hls
+    /\s\+$
+
+
 vim debug
 ----------
 
