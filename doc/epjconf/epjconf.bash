@@ -487,7 +487,7 @@ epjconf-pdflatex()
 
 epjconf--()
 {
-    epjconf-pdflatex
+    epjconf-pdflatex > /dev/null
     [ $? -ne 0 ] && return 1 
     epjconf-pdflatex
     #epjconf-open  # somehow Preview.app launced this way exits on changing window size

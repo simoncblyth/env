@@ -103,13 +103,18 @@ of gcc and c++ dialect that can be used::
 Publications
 ---------------
 
+TBD
+
+   **CHEP 2024 (Krakow, Poland)** 
+
+
 
 
 https://www.epj-conferences.org/articles/epjconf/abs/2024/05/epjconf_chep2024_11014/epjconf_chep2024_11014.html
 
    *Opticks: GPU Optical Photon Simulation via NVIDIA OptiX*
 
-   **CHEP 2023 Proceedings** : Simon C. Blyth, EPJ Web of Conferences 295, 11014 (2024)
+   **CHEP 2023 (Norfolk, USA) Proceedings** : Simon C. Blyth, EPJ Web of Conferences 295, 11014 (2024)
 
    * https://doi.org/10.1051/epjconf/202429511014 
 
@@ -122,7 +127,7 @@ https://www.epj-conferences.org/articles/epjconf/abs/2021/05/epjconf_chep2021_03
 
    *Integration of JUNO simulation framework with Opticks: GPU accelerated optical propagation via NVIDIA OptiX*
 
-   **CHEP 2021 Proceedings** : Simon Blyth, EPJ Web of Conferences 251, 03009 (2021)
+   **CHEP 2021 (Online, CERN) Proceedings** : Simon Blyth, EPJ Web of Conferences 251, 03009 (2021)
 
    * https://doi.org/10.1051/epjconf/202125103009
 
@@ -135,7 +140,7 @@ https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11
 
     *Meeting the challenge of JUNO simulation with Opticks: GPU optical photon acceleration via NVIDIA OptiX*
 
-    **CHEP 2019 Plenary Proceedings** : Simon Blyth, EPJ Web of Conferences 245, 11003 (2020)
+    **CHEP 2019 (Adelaide, Australia) Plenary Proceedings** : Simon Blyth, EPJ Web of Conferences 245, 11003 (2020)
 
     * https://doi.org/10.1051/epjconf/202024511003
 
@@ -148,9 +153,11 @@ https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02
 
     *Opticks : GPU Optical Photon Simulation for Particle Physics using NVIDIA OptiX*
 
-    **CHEP 2018 Proceedings** : Simon  Blyth, EPJ Web Conf. 214 02027 (2019)
+    **CHEP 2018 (Sofia, Bulgaria) Proceedings** : Simon  Blyth, EPJ Web Conf. 214 02027 (2019)
 
     * https://doi.org/10.1051/epjconf/201921402027
+
+    * https://www.epj-conferences.org/articles/epjconf/abs/2019/19/contents/contents.html#section_10.1051/epjconf/201921402001 
 
     * https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02027/epjconf_chep2018_02027.html
 
@@ -163,7 +170,11 @@ http://iopscience.iop.org/article/10.1088/1742-6596/898/4/042001
 
     *Opticks : GPU Optical Photon Simulation for Particle Physics using NVIDIA OptiX*
 
-    **CHEP 2017 Proceedings** : Published by IOP Science
+    **CHEP 2016 (San Francisco, USA) Proceedings** : Published by IOP Science
+
+    * https://iopscience.iop.org/issue/1742-6596/898/4
+
+    * https://iopscience.iop.org/article/10.1088/1742-6596/898/4/042001
 
 
 References to Opticks

@@ -66,12 +66,11 @@ enables drastically improved optical photon simulation performance.
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth,clip]{env/graphics/ggeoview/jpmt-before-contact_half.png}
-\caption{Cutaway OpenGL rendering of millions of simulated optical photons from a 200 GeV muon crossing the JUNO liquid scintillator. 
+\caption{
+Reproduced from\cite{chep2019} is a cutaway OpenGL rendering of millions of simulated optical photons from a 200 GeV muon crossing the JUNO liquid scintillator. 
 Each line corresponds to a single photon with line colors representing the polarization direction. 
 Primary particles are simulated by Geant4, "gensteps" are uploaded to the GPU and photons are generated, propagated
-and visualized all on the GPU. Figure reproduced from prior proceedings\cite{chep2019}. 
-%Representations of some of the many thousands of photomultiplier tubes that instrument the liquid scintillator are visible.
-%The acrylic vessel that contains the liquid scintillator is not shown.
+and visualized all on the GPU. 
 }
 \label{problem}
 \vspace{-5mm}
@@ -85,15 +84,18 @@ supports use with other detector geometries.
 Any optical photon limited simulation can benefit from Opticks.
 
 Opticks was presented to the five prior CHEP conferences, with each contribution
-covering different aspects of its development. The 2023 contribution\cite{chep2023} 
+covering different aspects of its development. 
+The first 2016 contribution\cite{chep2016} details the initial approach of using a mostly tesselated 
+geometry with manual analytic PMTs, low resource usage of the curand random number 
+generator within OptiX kernels as well as the CUDA port of photon generation and optical physics. 
+The subsequent 2018 contribution\cite{chep2018} highlighted development of a low resource CSG intersection algorithm. 
+The 2019 plenary presentation and proceedings\cite{chep2019} focused on RTX\cite{rtx} performance measurements, 
+and the development of automated geometry translation.  
+The 2021 contribution\cite{chep2021} covered initial stages of the transition to the NVIDIA OptiX 7+ API 
+and the integration of Opticks with detector simulation frameworks. The 2023 contribution\cite{chep2023}
 covered the almost complete re-implementation of Opticks required to adopt the entirely new NVIDIA OptiX 7+ API
 with particular emphasis on the various geometry models and conversions between them.  
 %
-The 2021 contribution\cite{chep2021} covered initial stages of the transition to the NVIDIA OptiX 7+ API and 
-the integration of Opticks with detector simulation frameworks. 
-The 2019 plenary presentation and proceedings\cite{chep2019} focused on RTX\cite{rtx} performance measurements.
-The earlier contributions[7,8] covered the first 
-implementations of geometry translation and the CUDA port of photon generation and optical physics.
 
 These proceedings describe new features developed to facilitate and optimize production usage of Opticks 
 within the JUNO simulation framework. The features include generalizations enabling 
@@ -158,12 +160,10 @@ The latest OptiX 9.0.0 release from January 2025 has a very similar API to OptiX
 \centering
 %                                    left lower right upper
 \includegraphics[width=\textwidth,trim={0 4cm 0 4cm},clip]{env/Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png}
-\caption{Hybrid Geant4 + Opticks workflow : {\tt G4CXOpticks} translates Geant4 geometry to GPU appropriate form. 
-{\tt U4} collects "gensteps" enabling GPU generation of scintillation and Cerenkov photons.
+\caption{Reproduced from\cite{chep2023}, which provides further details, illustrates the
+hybrid Geant4 + Opticks workflow : {\tt G4CXOpticks} translates Geant4 geometry to GPU appropriate form. 
+{\tt U4} collects "gensteps" enabling GPU generation of scintillation and Cerenkov photons. 
 }
-% including the number of photons to generate, the line segment along 
-%which to generate them and all other parameters used by the photon generatation loop.
-%}
 \label{workflow} 
 \vspace{-5mm}
 \end{figure}
@@ -232,13 +232,13 @@ At initialization Opticks translates the geometry through the below sequence of 
 %are serialized into arrays using first child and sibling references.
 %
 Both the {\tt stree} and {\tt CSGFoundry} geometry models are independent of Geant4 and can be persisted into directories of NumPy\cite{numpy} binary files. 
-Fast binary file loading and uploading to GPU allows optical simulation and visualization
-executables to initialize full detector geometries in less than a second.  
+%Fast binary file loading and uploading to GPU allows optical simulation and visualization
+%executables to initialize full detector geometries in a few seconds.  
 The prior proceedings\cite{chep2023} provide a detailed description of the geometry models and conversion between them,
 including the crucial geometry factorization into repeated groups of volumes and a remainder of 
 other insufficiently repeated volumes that is done within the intermediate {\tt stree} model.
 Also the representation of solid shapes using n-ary trees of {\tt sn.h} CSG nodes within  
-the {\tt stree} intermediate model are detailed in the prior proceedings. 
+the {\tt stree} intermediate model are detailed. 
 %
 %
 %
@@ -313,10 +313,11 @@ depending only on the SysRap base package and CUDA, with no dependency on OptiX,
 as detailed in the prior proceedings\cite{chep2023}.
 %
 \subsection{Optimizing random number generation}
+\label{optrng} 
 %
 The curand library\cite{curand} is used for concurrent generation 
 of pseudorandom numbers with separate curandState within each thread
-enabling reproducible simulation of single photons.
+enabling reproducible simulation.
 As detailed in prior proceedings\cite{chep2016}, with the old OptiX 5 API
 it was found that a large stack size was required to successfully initialize curand
 with the default XORWOW generator. This large stack size resulted in poor ray tracing 
@@ -368,10 +369,21 @@ Using artificial purely optical point source "torch" gensteps with increasing nu
 purely optical fabricated events provides a convenient way to scan performance as 
 a function of photon count. The purely optical events are simulated with Opticks with
 performance measurements shown in Figure~\ref{rtxgenscan}.
+For both sets of measurements the simulation time is found to scale linearly with photon counts
+above 20M. The performance of the 3rd generation RTX GPU is found to be approximately a factor of four faster 
+than the 1st generation GPU. For these measurements the default curand XORWOW generator 
+was used with state loading as described in section~\ref{optrng}.  
+It is notable that the times measured for photon counts of 1M and 10M 
+are small and almost the same. Potentially a fixed overhead is dominating 
+processing time. That overhead may be the copying of a fixed number of curandState 
+from global to local memory which is done to avoid initialization of the XORWOW generator, 
+as suggested in the curand manual performance notes\cite{curand}.  
+Further studies are required comparing scan timings in the low photon count region 
+between XORWOW and the Philox generator approaches to check this potential explanation. 
 
 The Opticks optical simulation is validated by comparisons to Geant4 with several approaches.
 One approach uses common input photons and aligns the consumption of randoms by the two optical only simulations 
-providing direct comparison unclouded by statistics, as described in prior proceedings\cite{chep2019}.   
+providing direct comparison unclouded by statistics, as described in\cite{chep2018}.   
 In addition a statistical approach is used which contrasts the histories of photons between the 
 two simulations using a Chi-squared comparison of the frequencies of different histories. 
 Each step of every photon is characterized with a 4 bit integer enumeration representing reflection, 
@@ -392,9 +404,7 @@ changes to the geometry or the modelling of the geometry to resolve.
 Optical photon simulation times for a sequence of purely optical events with numbers of photons 
 in the range from one million to one hundred million. The blue and orange points are measurements from 
 two Dell workstations with NVIDIA Titan RTX (1st gen.) and NVIDIA RTX 5000 Ada (3rd gen.) respectively.
-For both sets of measurements the simulation time is found to scale linearly with photon counts. The 
-performance of the 3rd generation RTX GPU is found to be approximately a factor of four faster 
-than the 1st generation GPU.%     
+
 }
 \label{rtxgenscan}
 \vspace{-5mm}
@@ -414,7 +424,7 @@ to closely follow ray tracing performance with a factor of four improvement betw
 GPUs from the first and third RTX generations. 
 %
 %
-\newpage
+%\newpage
 \section*{Acknowledgements}
 %
 The JUNO collaboration is acknowledged for the use of detector 
