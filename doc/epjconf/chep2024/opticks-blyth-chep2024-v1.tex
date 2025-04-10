@@ -67,7 +67,7 @@ enables drastically improved optical photon simulation performance.
 \centering
 \includegraphics[width=\textwidth,clip]{env/graphics/ggeoview/jpmt-before-contact_half.png}
 \caption{
-Reproduced from\cite{chep2019} is a cutaway OpenGL rendering of millions of simulated optical photons from a 200 GeV muon crossing the JUNO liquid scintillator. 
+This figure is reproduced from~\cite{chep2019}. Cutaway OpenGL rendering of millions of simulated optical photons from a 200 GeV muon crossing the JUNO liquid scintillator. 
 Each line corresponds to a single photon with line colors representing the polarization direction. 
 Primary particles are simulated by Geant4, "gensteps" are uploaded to the GPU and photons are generated, propagated
 and visualized all on the GPU. 
@@ -160,7 +160,7 @@ The latest OptiX 9.0.0 release from January 2025 has a very similar API to OptiX
 \centering
 %                                    left lower right upper
 \includegraphics[width=\textwidth,trim={0 4cm 0 4cm},clip]{env/Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png}
-\caption{Reproduced from\cite{chep2023}, which provides further details, illustrates the
+\caption{This figure is reproduced from~\cite{chep2023}, which provides further details. Illustration of the
 hybrid Geant4 + Opticks workflow : {\tt G4CXOpticks} translates Geant4 geometry to GPU appropriate form. 
 {\tt U4} collects "gensteps" enabling GPU generation of scintillation and Cerenkov photons. 
 }
@@ -332,8 +332,8 @@ that can be simulated to the number of persisted states and also the initializat
 to load and upload the states and required global memory becomes significant when simulating 
 hundreds of millions of photons. 
 The workaround of dividing curand initialization and generation into 
-separate kernel launches is described in the performance notes 
-section of the curand manual\cite{curand}. 
+separate kernel launches is described with example code in the performance notes 
+section of the curand manual~\cite{curand}. 
 
 In addition to the default {\tt XORWOW} generator, curand provides several 
 pseudorandom number generators including the {\tt Philox4\_32\_10} generator.
@@ -365,21 +365,22 @@ in a total time under 100 seconds.
 %
 \section{Simulation performance and validation techniques}
 %
-Using artificial purely optical point source "torch" gensteps with increasing numbers of photons in a sequence of 
+Using artificial point sources of photons known as "torch" gensteps with increasing numbers of photons in a sequence of 
 purely optical fabricated events provides a convenient way to scan performance as 
-a function of photon count. The purely optical events are simulated with Opticks with
-performance measurements shown in Figure~\ref{rtxgenscan}.
+a function of photon count. Measurements of Opticks optical simulation times with 1st and 3rd generation 
+RTX GPUs are shown in Figure~\ref{rtxgenscan}.
 For both sets of measurements the simulation time is found to scale linearly with photon counts
-above 20M. The performance of the 3rd generation RTX GPU is found to be approximately a factor of four faster 
+above 20M photons. The performance of the 3rd generation RTX GPU is found to be approximately a factor of four faster 
 than the 1st generation GPU. For these measurements the default curand XORWOW generator 
 was used with state loading as described in section~\ref{optrng}.  
-It is notable that the times measured for photon counts of 1M and 10M 
-are small and almost the same. Potentially a fixed overhead is dominating 
-processing time. That overhead may be the copying of a fixed number of curandState 
-from global to local memory which is done to avoid initialization of the XORWOW generator, 
-as suggested in the curand manual performance notes\cite{curand}.  
-Further studies are required comparing scan timings in the low photon count region 
-between XORWOW and the Philox generator approaches to check this potential explanation. 
+%
+It is notable that the measured times at 1M and 10M photons are almost the same at 0.45(0.14) 
+seconds with 1st(3rd) gen. RTX GPUs. Potentially a fixed overhead is dominating processing time. 
+That overhead may be the copying of a large fixed number of curandState 
+from global to local memory. This copying is done in order to avoid 
+initialization of the XORWOW generator, as described in section~\ref{optrng}.
+Further scans comparing performance with the XORWOW and Philox generators
+with and without curandState loading are needed to test this idea.  
 
 The Opticks optical simulation is validated by comparisons to Geant4 with several approaches.
 One approach uses common input photons and aligns the consumption of randoms by the two optical only simulations 
@@ -404,12 +405,15 @@ changes to the geometry or the modelling of the geometry to resolve.
 Optical photon simulation times for a sequence of purely optical events with numbers of photons 
 in the range from one million to one hundred million. The blue and orange points are measurements from 
 two Dell workstations with NVIDIA Titan RTX (1st gen.) and NVIDIA RTX 5000 Ada (3rd gen.) respectively.
-
 }
 \label{rtxgenscan}
 \vspace{-5mm}
 \end{figure}%
 %
+% Reproduced the v0 plot and Philox equialent on laptop::
+%     
+%      A=N7 B=A7 SLICE=3:12 PLOT=AB_Substamp_ALL_Etime_vs_Photon ~/o/sreport_ab.sh
+%      A=N8 B=A8 SLICE=2:12 PLOT=AB_Substamp_ALL_Etime_vs_Photon ~/o/sreport_ab.sh
 %
 \section{Summary}
 %
