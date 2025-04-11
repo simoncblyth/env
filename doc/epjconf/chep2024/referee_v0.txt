@@ -1,31 +1,29 @@
 Dear editor and reviewer,  
 
-> Dear authors,
-> In the reviewer’s comments, it was criticized that several passages in your
-> proceedings were taken from previous CHEP submissions, in some cases even
-> word-for-word.
->
-> We have discussed this matter with the CHEP program committee chairs, who agree
-> with the reviewer’s assessment.
+%%> Dear authors,
+%%> In the reviewer’s comments, it was criticized that several passages in your
+%%> proceedings were taken from previous CHEP submissions, in some cases even
+%%> word-for-word.
+%%>
+%%> We have discussed this matter with the CHEP program committee chairs, who agree
+%%> with the reviewer’s assessment.
 
 I have responded to the reviewer comments in the below and 
 the updated v1 draft. 
 
-> Our suggestion is to rewrite these sections using different wording, providing
-> sufficient context to explain the new work clearly, and to reduce the amount of
-> self-citation where possible.
+%> Our suggestion is to rewrite these sections using different wording, providing
+%> sufficient context to explain the new work clearly, and to reduce the amount of
+%> self-citation where possible.
 
+I have reworded and cut significant portions where that does not detract 
+from the understanding of a reader unfamiliar with Opticks. 
+Detailed responses to the comments are below. 
 
-As individual references are separately cited it is impractical to combine references 
-as that would then require extra text to remove the ambiguity over which is being cited.   
-
-
-
-> Here is the full text of the reviewer:
-> 
-> The first thing to note is that about half of the submission is an exact of the
-> author's previous CHEP submission , which indeed on further examination
-> self-plagiarises large passages of text from the 2021 CHEP proceedings. 
+%> Here is the full text of the reviewer:
+%> 
+%> The first thing to note is that about half of the submission is an exact of the
+%> author's previous CHEP submission , which indeed on further examination
+%> self-plagiarises large passages of text from the 2021 CHEP proceedings. 
 
 I reject that characterization.
 
@@ -38,42 +36,41 @@ The intention is to provide a reader unfamiliar with Opticks with a coherent des
 without requiring reading six proceedings in parallel, but helping them to do that 
 (and find what they are interested in) if they want to gain a deeper understanding.  
 
-> All but a few sentences of § 1, 
-> the first two figures and their captions, all of § 2,
-> the intro to § 3, and even the first sentence of the conclusion are unquoted
-> exact duplicates of previously published work. 
-> The previous work MUST be simply summarised with a reference to [4] 
-> or explicitly placed in block quotes. 
+%> All but a few sentences of § 1, 
+%> the first two figures and their captions, all of § 2,
+%> the intro to § 3, and even the first sentence of the conclusion are unquoted
+%> exact duplicates of previously published work. 
+%> The previous work MUST be simply summarised with a reference to [4] 
+%> or explicitly placed in block quotes. 
 
 
 Introductory context and figures in section 1 is obviously going to 
 need to cover the same ground, stating the problem and approach, 
-between proceedings and obviously cannot be significantly summarized more 
+and obviously cannot be significantly summarized more 
 than it already is without compromising clarity for readers unfamiliar with Opticks. 
-
 Nevertheless I was able to re-word and trim a little. 
 
 Context is essential to providing a paper that readers new to Opticks can easily follow.  
 While I am glad that the referee has been studying my prior proceedings I think 
 it is excessively onerous to require study of prior proceedings
-on the first reading by a general audience.  
+on the first reading of the general audience.  
 
 Regarding sections 2 and 3 your objection has some merit. I was able to 
 make significant cuts without loosing the context needed to convey 
 an initial understanding and explain the new developments
 
 
-> The pictures likewise should be removed 
-> or explicitly marked as being reproduced from ref [4] or [3] 
-> (or earlier, if these were also copied from previous work).
+%> The pictures likewise should be removed 
+%> or explicitly marked as being reproduced from ref [4] or [3] 
+%> (or earlier, if these were also copied from previous work).
 
 Figures 1 and 2 are now annotated as being reproduced 
 in their captions with citation. 
 
 
-> Some additional questions and comments that could enhance the novel sections of the paper:
-> 
-> - In 1.2: are the axis-aligned bounding [boxes] always in a global reference frame? 
+%> Some additional questions and comments that could enhance the novel sections of the paper:
+%> 
+%> - In 1.2: are the axis-aligned bounding [boxes] always in a global reference frame? 
 
 OptiX instanced geometry is represented via local frame AABBs 
 together with often many thousands of 4x4 transforms (JUNO PMTs).
@@ -84,18 +81,20 @@ multiple "CSGPrim" which in turn comprise multiple "CSGNode".
 Only non-instanced geometry uses global frame AABB. 
 OptiX instancing is rather similar to OpenGL instancing 
 
-> That is, does OptiX support the ability to have multiple "scenes"
-> embedded in another like Geant4's logical volumes, or does it "unfold" the
-> geometry into a single scene?
+%> That is, does OptiX support the ability to have multiple "scenes"
+%> embedded in another like Geant4's logical volumes, or does it "unfold" the
+%> geometry into a single scene?
+
+Some terminology is needed:
 
 * IAS : Instance AS (aka TLAS : top level AS), essentially 4x4 transform referencing a GAS
 * GAS : Geometry AS (aka BLAS : bottom level AS) : correspond to the compound "CSGSolid"
 
 OptiX (unlike DirectX RT, Vulkan RT) does supports IAS within IAS 
 so you could translate into a deep hierarchy. 
-However that is not recommended for performance as it reduces RTX benefits. 
-[Search for NVIDIA GTC (GPU Technology Conference) talks from OptiX
-engineers for details on OptiX optimization] 
+However deep hierarchy is not recommended for performance as it reduces RTX benefits
+and performance without RTX too. Search for NVIDIA GTC (GPU Technology Conference) talks from OptiX
+engineers for details on this and other OptiX optimization. 
 
 For this reason Opticks translates into a one level hierarchy 
 with a single IAS that references ~10 GAS (for JUNO geometry) 
@@ -103,21 +102,20 @@ after using a geometry factorization approach to find identical
 parts of the geometry using a geometry+transform digest 
 which become the GAS. The identical parts (JUNO PMTs and support structures)
 typically correspond to 4-10 Geant4 volumes. 
-
-This factorization is described in the 2018 proceedings [2nd of the five].  
-
+This factorization is best described in the 2018 proceedings [2nd of the five].  
 For JUNO geometry all the GAS, other than the first global one, 
 are referenced thousands of times from the IAS.
 
 
-> - In 3.1, does the single-precision intersection ever result in any tracking
->   errors, especially when moving from a distant point where the target object's
->   width is small? Or does OptiX perform the trace to the bounding box, and the
->   user code determines the intersection from that nearby point? Additional
->   details would be enlightening.
+%> - In 3.1, does the single-precision intersection ever result in any tracking
+%>   errors, especially when moving from a distant point where the target object's
+%>   width is small? Or does OptiX perform the trace to the bounding box, and the
+%>   user code determines the intersection from that nearby point? Additional
+%>   details would be enlightening.
 
-Essentially yes to 2nd sentence,. OptiX provides object(GAS) frame rays to 
-relevant intersection IS functions as hooked up via the shader binding table (SBT).
+
+Essentially yes to 2nd sentence. OptiX provides object(GAS) frame rays to 
+relevant intersection (IS) functions as hooked up via the shader binding table (SBT).
 
     711 extern "C" __global__ void __intersection__is()  // CSGOptiX/CSGOptiX7.cu
     ...
@@ -134,12 +132,13 @@ the PRD:per-ray-data is filled
     604     unsigned identity = optixGetInstanceId() ;
     605     OptixPrimitiveType type = optixGetPrimitiveType();
 
-The PRD communicates back from the CH:closest-hit to the RG:ray-gen
-function in which the optixTrace method was called with a global frame ray. 
+Then the PRD is used to communicates back from the CH:closest-hit to the 
+RG:ray-generation function in which the optixTrace method was called 
+with a global frame ray. 
 
-> - An example illustration of finding geometry overlaps (§ 4) would be a
->   valuable addition. Are they highlighted by the code or do they appear as
->   rendering artifacts?
+%> - An example illustration of finding geometry overlaps (§ 4) would be a
+%>   valuable addition. Are they highlighted by the code or do they appear as
+%>   rendering artifacts?
 
 Overlaps appear in the visualization as unexpected marks on surfaces, 
 due to the different normals, or in extreme cases as bits of geometry 
@@ -148,10 +147,10 @@ due to competing surface normals.
 Overlaps and coincidences also cause photon history Chi2 deviations 
 as is now described in section 6.  
 
-> - The discussion of initialisation time for XORWOW (§ 5.1) does not align with
->   this reviewer's experience. A description of the author's experience, including
->   timing of CUDA's built-in call versus the persist-and-copy approach, comparing
->   to the runtime, would be informative.
+%> - The discussion of initialisation time for XORWOW (§ 5.1) does not align with
+%>   this reviewer's experience. A description of the author's experience, including
+%>   timing of CUDA's built-in call versus the persist-and-copy approach, comparing
+%>   to the runtime, would be informative.
 
 The problem is not the initialization time it is the resource requirements of
 doing the initialization that limit the number of threads that can subsequently
@@ -178,38 +177,53 @@ To clarify this I have reworked section 5.1 citing my earlier proceedings
 which detailed the workaround and also citing the above performance notes. 
 
 
-> - The "out-of-core" nomenclature is somewhat confusing: is this just a matter
->   of queueing gensteps if more photons than slots are needed? (Also I cannot
->   parse "index range" in "Following genstep collection index range genstep slices
->   are chosen", perhaps there is a stray word?)
+%> - The "out-of-core" nomenclature is somewhat confusing: is this just a matter
+%>   of queueing gensteps if more photons than slots are needed? (Also I cannot
+%>   parse "index range" in "Following genstep collection index range genstep slices
+%>   are chosen", perhaps there is a stray word?)
 
 Out-of-core is explained in the first sentence and clarification is added:
  
     Following genstep collection index range slices into the genstep array are chosen ... 
 
-> - Figure 5 is not adequately discussed. In particular, why does the 10m photon
->   simulation take nearly zero time? The first two points on the graph require
->   explanation.
+%> - Figure 5 is not adequately discussed. In particular, why does the 10m photon
+%>   simulation take nearly zero time? The first two points on the graph require
+%>   explanation.
 
-zz
+I have added a discussion of those points:
+
+"""
+It is notable that the measured times at 1M and 10M photons are almost the same at 0.45(0.14) 
+seconds with 1st(3rd) gen. RTX GPUs. Potentially a fixed overhead is dominating processing time. 
+That overhead may be the copying of a large fixed number of curandState 
+from global to local memory. This copying is done in order to avoid 
+initialization of the XORWOW generator, as described in section~\ref{optrng}.
+Further scans comparing performance with the XORWOW and Philox generators
+with and without curandState loading are needed to test this idea.  
+"""
+
+I have done some of those further scans mentioned and find that Philox 
+with direct curand_init (so no state loading) behaves linearly down probably to ~2M. 
+So the time at 10M is significantly more than with XORWOW+state loading. 
+Further work is needed on this. 
 
  
-> - § 6 also requires additional elaboration. What are "torch gensteps", the
->   equivalent of a particle gun? 
+%> - § 6 also requires additional elaboration. What are "torch gensteps", the
+%>   equivalent of a particle gun? 
 
 Elaboration added : artificial purely optical point source "torch" gensteps
 
 
->   What are the "frequency of photon histories"? I
->   could not find where in prior proceedings (please do add a citation here!) this
->   approach was described.
+%>   What are the "frequency of photon histories"? I
+%>   could not find where in prior proceedings (please do add a citation here!) this
+%>   approach was described.
 
 Now elaborated in v1. 
 
  
-> Finally, the references section needs to be shortened especially with regard to
-> the author's prior publications; N articles by an author should not result in
-> $N^2$ citations. 
+%> Finally, the references section needs to be shortened especially with regard to
+%> the author's prior publications; N articles by an author should not result in
+%> $N^2$ citations. 
 
 The choice between no citation, single citation or grouped citation depends
 on the relevance of the reference to the current work in order to point out 
@@ -219,10 +233,16 @@ or provides further details from a summarized description.
 Grouping citations makes no sense when individual citation is required 
 to assist the reader in finding relevant prior work. 
 
-The target audience I have in mind for the proceedings is someone with 
-an optical photon problem that goes on to become an active user/developer 
-contributing bug reports/extensions/fixes etc..  
-That person is best served by having all the citations on Opticks development 
+I expect CHEP proceedings are likely to be the first introduction to Opticks for most people. 
+My priorities for Opticks CHEP presentations/proceedings are:
+
+1. [60%] introduce Opticks to people who are unfamiliar with it, 
+    with the aim to get those with optical photon problems to use and contribute
+
+2. [40%] report on new developments and provide a record 
+
+I think that my first priority and people with optical photon problems
+are best served by having all the citations on Opticks development 
 in one place together with a guide to what each focusses on. That is provided
 in the 2nd paragraph of the introduction. 
 
@@ -231,12 +251,12 @@ to refer back even to the very earliest proceedings in order
 to understand parts of Opticks.  
 
 
-> [1-3] should be combined, 
+%> [1-3] should be combined, 
 
 Done. 
 
-> as should [4-8] unless there are specific parts (not reproduced or summarised by subsequent work) 
-> that need citing. 
+%> as should [4-8] unless there are specific parts (not reproduced or summarised by subsequent work) 
+%> that need citing. 
 
 The first discussion of a development/issue/workaround within a sequence of proceedings 
 typically provides the fullest and best description expecially when the history of the 
@@ -244,8 +264,8 @@ development is relevant. The exception to this is where subsequent work supercee
 the earlier description. Hence directing readers to the proceedings with the 
 first description is usually preferred.   
 
-> The Geant4 citations[9-11] should be replaced by simply the newest
-> version used by the author, 
+%> The Geant4 citations[9-11] should be replaced by simply the newest
+%> version used by the author, 
 
 Given the importance of Geant4 to the work I follow the official recommendations 
 of the Geant4 Collaboration regarding citation, as stated at the bottom of 
@@ -260,26 +280,26 @@ Please make sure to cite the following papers if you use Geant4:
   Geant4 - A Simulation Toolkit, S. Agostinelli et al., Nucl. Instrum. Meth. A 506 (2003) 250-303
 """
 
-> and the Nvidia references [13-15, 20, 21] can also be combined.
+%> and the Nvidia references [13-15, 20, 21] can also be combined.
 
 The OptiX [13-15] and curand [20,21] references are now placed into two groups. 
 
-> I thank the author for his submission 
+%> I thank the author for his submission 
 
 I thank the reviewer for his comments. Some of which have resulted in
 improvements to the proceedings.
 
-> but urge him to delete the self-plagiarised text 
+%> but urge him to delete the self-plagiarised text 
 
 My rejection of that characterization is above. 
 
-> and use the freed space to elaborate on new methods and results.
+%> and use the freed space to elaborate on new methods and results.
 
 Elaborations to clarify the reviewer queries have been added and the 
 level of summarization has be increased for background text.  
 
 
-> You may apply the modifications to your paper and submit the modified version
-> (together with any additional files) for review.
-> 
-> In order to do that please proceed to your paper page:
+%> You may apply the modifications to your paper and submit the modified version
+%> (together with any additional files) for review.
+%> 
+%> In order to do that please proceed to your paper page:

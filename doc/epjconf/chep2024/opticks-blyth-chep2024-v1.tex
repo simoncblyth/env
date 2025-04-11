@@ -52,11 +52,11 @@
 \section{Introduction}%
 \label{intro}
 %
-Opticks[1-6] enables Geant4\cite{g4} based simulations 
+Opticks[1-6] enables Geant4~\cite{g4} based simulations 
 to benefit from high performance GPU ray tracing made accessible 
-by NVIDIA\textregistered\ OptiX\texttrademark\cite{optix}.
+by NVIDIA\textregistered\ OptiX\texttrademark~\cite{optix}.
 %
-The Jiangmen Underground Neutrino Observatory (JUNO)\cite{juno} 
+The Jiangmen Underground Neutrino Observatory (JUNO)~\cite{juno} 
 located in southern China is the world's largest liquid scintillator detector, 
 with a 20 kton spherical volume of 35 m diameter. The large size and high photon yield, illustrated in Figure~\ref{problem}, 
 makes optical photon simulation extremely computationally challenging in processing time and memory resources. 
@@ -85,14 +85,14 @@ Any optical photon limited simulation can benefit from Opticks.
 
 Opticks was presented to the five prior CHEP conferences, with each contribution
 covering different aspects of its development. 
-The first 2016 contribution\cite{chep2016} details the initial approach of using a mostly tesselated 
+The first 2016 contribution~\cite{chep2016} details the initial approach of using a mostly tesselated 
 geometry with manual analytic PMTs, low resource usage of the curand random number 
 generator within OptiX kernels as well as the CUDA port of photon generation and optical physics. 
-The subsequent 2018 contribution\cite{chep2018} highlighted development of a low resource CSG intersection algorithm. 
-The 2019 plenary presentation and proceedings\cite{chep2019} focused on RTX\cite{rtx} performance measurements, 
+The subsequent 2018 contribution~\cite{chep2018} highlighted development of a low resource CSG intersection algorithm. 
+The 2019 plenary presentation and proceedings~\cite{chep2019} focused on RTX~\cite{rtx} performance measurements, 
 and the development of automated geometry translation.  
-The 2021 contribution\cite{chep2021} covered initial stages of the transition to the NVIDIA OptiX 7+ API 
-and the integration of Opticks with detector simulation frameworks. The 2023 contribution\cite{chep2023}
+The 2021 contribution~\cite{chep2021} covered initial stages of the transition to the NVIDIA OptiX 7+ API 
+and the integration of Opticks with detector simulation frameworks. The 2023 contribution~\cite{chep2023}
 covered the almost complete re-implementation of Opticks required to adopt the entirely new NVIDIA OptiX 7+ API
 with particular emphasis on the various geometry models and conversions between them.  
 %
@@ -111,7 +111,7 @@ is provided.
 %
 %
 Suppression of cosmic muon induced backgrounds with veto selections are crucial for neutrino
-detectors such as JUNO\cite{juno}, necessitating production of large simulated samples of muon events. 
+detectors such as JUNO~\cite{juno}, necessitating production of large simulated samples of muon events. 
 However, a muon of typical energy 200 GeV crossing the JUNO scintillator can yield tens of millions of 
 optical photons, which are found with Geant4 simulations to consume more than 99\% of CPU time
 and impose severe memory constraints.
@@ -124,7 +124,7 @@ with a Geant4 simulation of all other particles.
 %
 \subsection{GPU ray tracing}%
 %
-GPUs evolved to perform rasterized rendering, optimizing throughput\cite{throughput} rather than minimizing latency.
+GPUs evolved to perform rasterized rendering, optimizing throughput~\cite{throughput} rather than minimizing latency.
 GPUs are suited to problems with millions of independent low resource parallel tasks allowing thousands of threads 
 to be in flight simultaneously.
 Optical simulation is well matched to these requirements with abundant parallelism 
@@ -133,14 +133,14 @@ from huge numbers of photons and low register usage from simplicity of the physi
 The most computationally demanding aspect of photon propagation
 is the calculation of intersection positions of rays representing photons with the detector geometry.
 This ray tracing limitation of simulation is shared with the synthesis of realistic images in computer graphics. 
-NVIDIA RTX\cite{rtx} GPUs include hardware RT cores dedicated to ray geometry intersection. 
+NVIDIA RTX~\cite{rtx} GPUs include hardware RT cores dedicated to ray geometry intersection. 
 The first generation of RTX GPUs was introduced in 2018, each of the subsequent RTX generations have 
-approximately doubled ray tracing performance.  
+approximately doubled ray tracing performance with the 4th generation introduced in 2025 providing approximately 8 times faster ray tracing. 
 %
 %
 \subsection{NVIDIA\textregistered\ OptiX\texttrademark\ ray tracing engine}
 %
-OptiX\cite{optix} makes GPU ray tracing accessible with a single ray programming model.
+OptiX~\cite{optix} makes GPU ray tracing accessible with a single ray programming model.
 Ray tracing pipelines are constructed combining code for acceleration structure traversal, 
 with user code for ray generation, intersection and closest hit handling.
 Spatial index acceleration structures (AS) provide accelerated ray geometry intersection. 
@@ -183,7 +183,7 @@ generation parameters termed "gensteps" that include the number of photons and t
 other parameters needed to reproduce photon generation on the GPU. Relocating photon generation to the
 GPU avoids CPU memory allocation. Only non-culled photon hits needed for the next stage electronics 
 simulation require CPU memory allocation. Details on the GPU implementation of the simulation 
-can be found in prior proceedings\cite{chep2023}. 
+can be found in prior proceedings~\cite{chep2023}. 
 %
 %GPU optical photon generation and propagation are implemented in simple headers that are included
 %into the OptiX ray tracing pipeline that runs in parallel. 
@@ -231,10 +231,10 @@ At initialization Opticks translates the geometry through the below sequence of 
 %The complete structural n-ary tree of volumes and n-ary CSG trees for each {\tt G4VSolid} 
 %are serialized into arrays using first child and sibling references.
 %
-Both the {\tt stree} and {\tt CSGFoundry} geometry models are independent of Geant4 and can be persisted into directories of NumPy\cite{numpy} binary files. 
+Both the {\tt stree} and {\tt CSGFoundry} geometry models are independent of Geant4 and can be persisted into directories of NumPy~\cite{numpy} binary files. 
 %Fast binary file loading and uploading to GPU allows optical simulation and visualization
 %executables to initialize full detector geometries in a few seconds.  
-The prior proceedings\cite{chep2023} provide a detailed description of the geometry models and conversion between them,
+The prior proceedings~\cite{chep2023} provide a detailed description of the geometry models and conversion between them,
 including the crucial geometry factorization into repeated groups of volumes and a remainder of 
 other insufficiently repeated volumes that is done within the intermediate {\tt stree} model.
 Also the representation of solid shapes using n-ary trees of {\tt sn.h} CSG nodes within  
@@ -310,15 +310,15 @@ ray traced geometry can be drawn together with representations of photon positio
 %
 Opticks optical photon simulation is implemented in the QUDARap package, 
 depending only on the SysRap base package and CUDA, with no dependency on OptiX,
-as detailed in the prior proceedings\cite{chep2023}.
+as detailed in the prior proceedings~\cite{chep2023}.
 %
 \subsection{Optimizing random number generation}
 \label{optrng} 
 %
-The curand library\cite{curand} is used for concurrent generation 
+The curand library~\cite{curand} is used for concurrent generation 
 of pseudorandom numbers with separate curandState within each thread
 enabling reproducible simulation.
-As detailed in prior proceedings\cite{chep2016}, with the old OptiX 5 API
+As detailed in prior proceedings~\cite{chep2016}, with the old OptiX 5 API
 it was found that a large stack size was required to successfully initialize curand
 with the default XORWOW generator. This large stack size resulted in poor ray tracing 
 performance, presumably due to larger thread resource usage limiting parallelism.  
@@ -340,7 +340,7 @@ pseudorandom number generators including the {\tt Philox4\_32\_10} generator.
 Philox is a counter based random number generator which may be implemented to 
 use only integer counters for internal state. 
 The statistical quality of Philox generated uniform random numbers are comparable 
-to those from XORWOW\cite{curand}.
+to those from XORWOW~\cite{curand}.
 Adopting the Philox random number generator within Opticks allows direct initialization within
 the simulation kernels avoiding the use of state files and hence removing the 
 limitation on the number of photons that can be simulated and greatly reducing 
@@ -377,14 +377,14 @@ was used with state loading as described in section~\ref{optrng}.
 It is notable that the measured times at 1M and 10M photons are almost the same at 0.45(0.14) 
 seconds with 1st(3rd) gen. RTX GPUs. Potentially a fixed overhead is dominating processing time. 
 That overhead may be the copying of a large fixed number of curandState 
-from global to local memory. This copying is done in order to avoid 
+from global to local memory of all threads. This copying is done in order to avoid 
 initialization of the XORWOW generator, as described in section~\ref{optrng}.
 Further scans comparing performance with the XORWOW and Philox generators
 with and without curandState loading are needed to test this idea.  
 
 The Opticks optical simulation is validated by comparisons to Geant4 with several approaches.
 One approach uses common input photons and aligns the consumption of randoms by the two optical only simulations 
-providing direct comparison unclouded by statistics, as described in\cite{chep2018}.   
+providing direct comparison unclouded by statistics, as described in~\cite{chep2018}.   
 In addition a statistical approach is used which contrasts the histories of photons between the 
 two simulations using a Chi-squared comparison of the frequencies of different histories. 
 Each step of every photon is characterized with a 4 bit integer enumeration representing reflection, 
@@ -412,8 +412,11 @@ two Dell workstations with NVIDIA Titan RTX (1st gen.) and NVIDIA RTX 5000 Ada (
 %
 % Reproduced the v0 plot and Philox equialent on laptop::
 %     
-%      A=N7 B=A7 SLICE=3:12 PLOT=AB_Substamp_ALL_Etime_vs_Photon ~/o/sreport_ab.sh
-%      A=N8 B=A8 SLICE=2:12 PLOT=AB_Substamp_ALL_Etime_vs_Photon ~/o/sreport_ab.sh
+%      A=N7 B=A7 SLI=3:12 PLOT=AB_Substamp_ALL_Etime_vs_Photon ~/o/sreport_ab.sh
+%      A=N8 B=A8 SLI=2:12 PLOT=AB_Substamp_ALL_Etime_vs_Photon ~/o/sreport_ab.sh
+%
+%      A=N7 B=A7 A_SLI=3:12 B_SLI=3:12 C=N8 D=A8 C_SLI=2:12 D_SLI=2:12 PLOT=ABCD_Substamp_ALL_Etime_vs_Photon ~/o/sreport_abcd.sh
+%
 %
 \section{Summary}
 %
