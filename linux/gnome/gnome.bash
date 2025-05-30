@@ -9,6 +9,48 @@ GNOME : Linux Desktop
 =======================
 
 
+Open terminal windows on workstation from ssh session
+------------------------------------------------------
+
+A::
+
+    A[blyth@localhost ~]$ VIP=none gnome-terminal
+    A[blyth@localhost ~]$ VIP=conda_ok gnome-terminal
+
+
+HMM: but maybe GUI issue with these ?
+
+
+::
+
+    A[blyth@localhost ~]$ gnome-terminal --command="/bin/bash -i -c 'export VIP=none; gnome-terminal'"
+    # Option “--command” is deprecated and might be removed in a later version of gnome-terminal.
+    # Use “-- ” to terminate the options and put the command line to execute after it.
+    A[blyth@localhost ~]$ 
+    A[blyth@localhost ~]$ gnome-terminal -- /bin/bash -i -c 'export VIP=none; gnome-terminal'
+    A[blyth@localhost ~]$ 
+    A[blyth@localhost ~]$ gnome-terminal -- /bin/bash -i -c 'export VIP=conda_ok; gnome-terminal'
+    A[blyth@localhost ~]$ gnome-terminal -- /bin/bash -i -c 'VIP=conda_ok gnome-terminal'
+
+
+Probably missing DISPLAY, the below starting to work::
+
+    A[blyth@localhost ~]$ env DISPLAY=:0 VIP=conda_ok gnome-terminal
+
+
+
+
+Add custom keyboard shortcut 
+----------------------------
+
+* Power > Settings : Keyboard > Keyboard Shortcuts, Customize Shortcuts > Custom Shortcuts [+] and Enter:
+
+  * Name eg [GnomeTerminal]
+  * Command eg [gnome-terminal]
+  * Shortcut eg [Ctrl+Alt+T] 
+
+
+
 Issue : Frozen GUI 
 ---------------------
 

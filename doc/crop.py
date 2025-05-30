@@ -92,7 +92,7 @@ class Crop(object):
 
 
 
-class SAFARI(object):
+class OLD_SAFARI(object):
     """
     Preview.app cropping tool gives pixel dimensions to use when 
     pulling out manual crops that can be used to set these param 
@@ -142,6 +142,10 @@ class SAFARI(object):
     description = "vertically chop the head by param[0] and tail by param[1]"
     #param = (148, 30 )
     param = (122, 0 )
+
+class SAFARI(object):
+    description = "vertically chop the head by param[0] only"
+    param = (159, 0 )
 
 class PYVISTA(object):
     description = "vertically chop the window chrome at the top only"

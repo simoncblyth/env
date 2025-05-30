@@ -454,6 +454,46 @@ prominent reference to the online html version of the slides.
 The advantage of having slides in html, generated from 
 plain text RST files outweighs the disadvantage.  
 
+
+
+zeta macOS sequoia error
+--------------------------
+
+::
+
+    zeta:presentation blyth$ slides-get 0 1
+    0, 38, 1280, 819
+    0, 38, 1280, 819
+    === slides-capture opening url http://localhost/env/presentation/opticks_202506XX.html?p=0
+    === slides-capture about to do screencapture -T0 -tpng -w -i -o 000.png : tap browser window once loaded and highlighted blue
+    could not create image from window
+    0, 38, 1280, 819
+    === slides-capture opening url http://localhost/env/presentation/opticks_202506XX.html?p=1
+    === slides-capture about to do screencapture -T0 -tpng -w -i -o 001.png : tap browser window once loaded and highlighted blue
+    could not create image from window
+    === slides-crop cropping png
+    /opt/local/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/bin/crop.py': [Errno 2] No such file or directory
+    === slides-get : ERROR from slides-crop
+
+
+    zeta:opticks_202506XX blyth$ slides-crop-
+    Traceback (most recent call last):
+      File "/Users/blyth/env/bin/crop.py", line 4, in <module>
+        from env.doc.crop import main
+      File "/Users/blyth/env/doc/crop.py", line 11, in <module>
+        from PIL import Image
+    ModuleNotFoundError: No module named 'PIL'
+
+
+
+screencapture permission to record screen
+-------------------------------------------
+
+System Settings > Search... [screen record]
+
+Leads to "Screen & System Audio Recording"
+
+
 PDF CREATION FUNCTIONS
 ------------------------
 
@@ -767,12 +807,12 @@ slides-crop0(){
    local msg="=== $FUNCNAME "
    slides-cd
    echo $msg cropping png
-   /opt/local/bin/python $ENV_HOME/bin/crop.py ???.png
+   /opt/local/bin/python $(env-home)/bin/crop.py ???.png
 }
 
 slides-crop-()
 {
-   ${OPTICKS_PYTHON:-python} $ENV_HOME/bin/crop.py ???.png
+   ${OPTICKS_PYTHON:-python} $(env-home)/bin/crop.py ???.png
 }
 
 slides-crop(){
@@ -816,6 +856,11 @@ slides-convert-automator(){
 
    cat << EOD
 
+
+Sequoia contextual menu when have multiple PNG selected has standard "Quick Actions > Create PDF"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Using *Make PDF from PNGs* Automator Service
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -849,15 +894,37 @@ copy the new in its place, and sync across to remote server::
 EOD
 
 }
+
+slides-magick-in-path()
+{
+   local magick_bin=/opt/local/lib/ImageMagick7/bin
+   if [ -d "$magick_bin" ]; then 
+       PATH=$magick_bin:$PATH
+       which magick
+   fi 
+}
+
 slides-convert(){
+   : OSX pdf is a lot smaller than the magick ones
    local msg="=== $FUNCNAME "
    local pdf=$(slides-name).pdf   
    slides-cd
    echo $msg converting PNG into $pdf 
 
-   [ "$(which convert)" == "" ] && slides-convert-automator && return 
+   slides-magick-in-path
 
-   convert ??_crop.png $pdf
+   if [ "$(which magick)" != "" ]; then
+        echo $FUNCNAME - using magick
+        magick ???_crop.png $pdf
+        #magick ???_crop.png -compress lossless -density 300 $pdf 
+   elif [ "$(which convert)" != "" ]; then  
+        echo $FUNCNAME - using  convert
+        convert ???_crop.png $pdf
+   else
+        echo $FUNCNAME - using automator
+        slides-convert-automator 
+   fi 
+
 }
 slides-scp(){
    local msg="=== $FUNCNAME "

@@ -66,7 +66,7 @@ class Resize(object):
         from_ = fmt(width, height)
         to_ = fmt(dwidth, dheight)
 
-        log.info( "downsize %s to create %s %s -> %s " % ( path, dpath, from_, to_ ))  
+        log.info( "downsize path[%s] to create dpath[%s] from_[%s] -> to_[%s] " % ( path, dpath, from_, to_ ))  
         imd = im.resize((dwidth, dheight), Image.ANTIALIAS) 
 
         if invert:

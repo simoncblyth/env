@@ -1,4 +1,5 @@
 # === func-gen- : osx/osx fgp osx/osx.bash fgn osx fgh osx
+
 osx_src(){      echo osx/osx.bash ; }
 osx_source(){   echo ${BASH_SOURCE:-$ENV_HOME/$(osx_src)} ; }
 osx_vi(){       vi $(osx_source) ; }
@@ -424,7 +425,10 @@ osx_get(){
 }
 
 osx_ss(){
-   echo $(ls -1t ~/Desktop/Screen\ Shot\ $(date +'%Y-%m-%d')*.png | head -1 )
+   #echo $(ls -1t ~/Desktop/Screen\ Shot\ $(date +'%Y-%m-%d')*.png | head -1 )
+   echo $(ls -1t ~/Desktop/Screenshot\ $(date +'%Y-%m-%d')*.png | head -1 )
+
+
 }
 
 osx_ss_open(){
@@ -439,10 +443,11 @@ osx_mac_address()
 
 
 osx_ss_copy(){
-   local name=$1
+   local name=${1:-default_osx_ss_copy_name}
    cp "$(osx_ss)" $name.png
 
-   ipython $(which downsize.py) $name.png
+   #ipython $(which downsize.py) $name.png
+   python $(env-home)/bin/downsize.py $name.png
 }
 
 osx_ss_copy_invert(){

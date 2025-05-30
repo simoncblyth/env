@@ -255,15 +255,23 @@ def main(**kwa):
     argv0 = os.path.basename(sys.argv[0])
     assert argv0 == cfg['argv0'], ( argv0, cfg, "config argv0 mismatch with script" )
     log.info(cfg) 
-    pz = Parallelize( cfg['source'], cfg['target'] )     
 
-    if opts.PROCEED:
-       log.warn("proceeding")
-       pz()
+    if cfg['source'] == cfg['target']:
+        log.warn("source and target are the same : nothing to do")
+        pz = None 
     else:
-       print(pz)
-       log.warn("run again with --PROCEED to do this commands")
+        pz = Parallelize( cfg['source'], cfg['target'] )     
+    pass
 
+    if not pz is None:
+        if opts.PROCEED:
+           log.warn("proceeding")
+           pz()
+        else:
+           print(pz)
+           log.warn("run again with --PROCEED to do this commands")
+        pass
+    pass
 
 if __name__ == '__main__':
     main()

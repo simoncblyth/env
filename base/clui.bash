@@ -40,7 +40,7 @@ EOU
 
 clui-cd-with-history(){
   ## use "cd --" for history  "cd -5" to jump  
-  . $ENV_HOME/bash/acd_func.sh   
+  . $(env-home)/bash/acd_func.sh   
 }
 
 

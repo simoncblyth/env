@@ -14,8 +14,8 @@ class SphinxExtLinks(dict):
     Uses extlink mappings to resolve RST role refs
     into actual urls.
     """
-    TRAC_LINK = re.compile("^(?P<typ>\w+)\:(?P<arg>\S*)$")   
-    RST_ROLE = re.compile("^\:(?P<typ>\w+)\:\`(?P<arg>\S*)\`$")  
+    TRAC_LINK = re.compile("^(?P<typ>\\w+)\\:(?P<arg>\\S*)$")   
+    RST_ROLE = re.compile("^\\:(?P<typ>\\w+)\\:\\`(?P<arg>\\S*)\\`$")  
     #DEFAULT_TYP = "wiki" 
     DEFAULT_TYP = "w" 
 
@@ -164,6 +164,6 @@ if __name__ == '__main__':
                  ]
     pass
     XLNK = SphinxExtLinks(SPHINX_EXTLINKS)
-    print "\n".join(map(XLNK,args))
+    print("\n".join(map(XLNK,args)))
 
 

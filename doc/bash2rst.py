@@ -40,7 +40,7 @@ def bashtoc( content ):
         if count > 0:
             path = line.strip().rstrip()
             if path.endswith('/'):
-                print "skip %s " % path
+                print("skip %s " % path)
             elif len(path) == 0:
                 pass     
             else:
@@ -82,7 +82,7 @@ class Bash(list):
         assert type == ".bash", (type, path )
 
         if rname.endswith('/'):
-            print "[%s]" % rname
+            print("[%s]" % rname)
 
         content = self._rst_read(apath)
         paths = bashtoc(content)

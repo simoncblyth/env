@@ -12,20 +12,25 @@
 #    make touch ; make open PAGE=6    # if modifying smth not detected by this Makefile
 #
 #
-PYTHON?=/opt/local/bin/python2.7
+#PYTHON?=/opt/local/bin/python2.7
+PYTHON?=/opt/local/bin/python3.13
+
 
 #FOOTNOTE_REFERENCES="superscript"
 FOOTNOTE_REFERENCES="brackets"
 
 PAGE=0
 
-REMOTEHOST=simoncblyth.bitbucket.io
-DOCBASE=$(HOME)/simoncblyth.bitbucket.io
+#REMOTEHOST=simoncblyth.bitbucket.io
+#DOCBASE=$(HOME)/simoncblyth.bitbucket.io
+
+REMOTEHOST=simoncblyth.github.io
+DOCBASE=/usr/local/simoncblyth.github.io
 
 PREPROCESSOR_ARGS=$(PRESENTATION_PREPROCESSOR_ARGS)
 
 REALPWD=$(realpath $(PWD))   # avoids requirement to be at ~/env/wherever rather than symbolically linked ~/e/wherever
-RELDIR=$(subst $(ENV_HOME),,$(REALPWD)) 
+RELDIR=$(subst /Users/blyth/env,,$(REALPWD)) 
 
 PUBDIR=$(addprefix $(DOCBASE)/env,$(RELDIR))
 PUBURL=$(addprefix http://localhost/env,$(RELDIR))
@@ -42,7 +47,7 @@ IJS=ui/my-small-white/slides.js
 
 
 OHTML=$(addprefix $(PUBDIR)/,$(ONAME).html)
-OPDF=$(addprefix $(PUBDIR)/,$(ONAME).pdf))
+OPDF=$(addprefix $(PUBDIR)/,$(ONAME).pdf)
 OTXT=$(addprefix $(PUBDIR)/,$(ONAME).txt)
 ODEF=$(addprefix $(PUBDIR)/,$(IDEF))
 OIMG=$(addprefix $(PUBDIR)/,$(IIMG))
@@ -78,12 +83,12 @@ $(OTXT): $(ITXT)
 	@gcc -E -P -traditional-cpp -x c $(PREPROCESSOR_ARGS) $< > $@
 
 $(OHTML): $(OTXT) $(ODEF) $(OIMG) $(OJS)
-	@echo Makefile.rst2s5
+	@echo Makefile.rst2s5_local
 	@echo ITXT $(ITXT)
 	@echo OTXT $(OTXT)
 	@echo ODEF $(ODEF)
 	@echo OHTML $(OHTML)  --visible-controls
-	mkdir -p $(PUBDIR) && DOCBASE=$(DOCBASE) $(PYTHON) ./rst2s5-2.6.py --traceback --footnote-references=$(FOOTNOTE_REFERENCES) --theme-url ui/my-small-white --current-slide --language=en $< $@
+	mkdir -p $(PUBDIR) && DOCBASE=$(DOCBASE) $(PYTHON) ./rst2s5_local.py --traceback --footnote-references=$(FOOTNOTE_REFERENCES) --theme-url ui/my-small-white --current-slide --language=en $< $@
 
 open: $(OHTML)
 	@echo Makefile.open
@@ -107,7 +112,7 @@ touch:
 	touch $(ITXT)
 
 help:
-	$(PYTHON) ./rst2s5-2.6.py --help
+	$(PYTHON) ./rst2s5_local.py --help
 
 clean:
 	rm -f $(OHTML) $(OPDF)

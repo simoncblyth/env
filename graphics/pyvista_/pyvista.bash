@@ -106,6 +106,34 @@ Plotter Interactive Key Mappings
     epsilon:plotting blyth$ 
 
 
+    A[blyth@localhost plotting]$ pwd
+    /home/blyth/miniconda3/envs/ok/lib/python3.13/site-packages/pyvista/plotting
+
+
+    2184     def reset_key_events(self):
+    2185         """Reset all of the key press events to their defaults."""
+    2186         if not hasattr(self, 'iren'):
+    2187             return
+    2188 
+    2189         self.iren.clear_key_event_callbacks()
+    2190 
+    2191         self.add_key_event('q', self._prep_for_close)  # Add no matter what
+    2192         b_left_down_callback = lambda: self.iren.add_observer(
+    2193             'LeftButtonPressEvent',
+    2194             self.left_button_down,
+    2195         )
+    2196         self.add_key_event('b', b_left_down_callback)
+    2197         self.add_key_event('v', lambda: self.isometric_view_interactive())
+    2198         self.add_key_event('C', lambda: self.enable_cell_picking())
+    2199         self.add_key_event('Up', lambda: self.zoom_camera(1.05))
+    2200         self.add_key_event('Down', lambda: self.zoom_camera(0.95))
+    2201         self.add_key_event('plus', lambda: self.increment_point_size_and_line_width(1))
+    2202         self.add_key_event('minus', lambda: self.increment_point_size_and_line_width(-1))
+    2203 
+
+
+
+
 plotting.iren : vtk.vtkRenderWindowInteractor
 -----------------------------------------------
 

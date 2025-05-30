@@ -20,9 +20,9 @@ log = logging.getLogger(__name__)
 from collections import OrderedDict
 
 
-class InterMapTxt(OrderedDict):
+class InterMapTxt(dict):
      EXCLUDE = ["doc",]
-     PTN = re.compile("^(?P<label>[a-zA-Z0-9_-]+)\s*(?P<tmpl>\S*://\S*)\s*(?P<tail>.*)$")
+     PTN = re.compile("^(?P<label>[a-zA-Z0-9_-]+)\\s*(?P<tmpl>\\S*://\\S*)\\s*(?P<tail>.*)$")
      FMT = "%(idx)2d : %(label)20s : %(tmpl)100s : %(tail).50s " 
      QDC = ["%3A%3Fq%3D", ":?q="]   # urlencoded/decoded  
   
@@ -44,7 +44,7 @@ class InterMapTxt(OrderedDict):
 
              label = label.lower()                          # rst role "keys" must be lowercase 
              label = label.replace("_","u")                 # underscore not allowed 
-             label = re.sub(re.compile("\d"), "x", label)   # no numbers either
+             label = re.sub(re.compile("\\d"), "x", label)   # no numbers either
              d["label"] = label 
 
 
@@ -60,7 +60,7 @@ class InterMapTxt(OrderedDict):
          return imt
 
      def __init__(self, *args, **kwa):
-         OrderedDict.__init__(self, *args, **kwa)
+         dict.__init__(self, *args, **kwa)
 
      def fixup(self):
          for k in self:
@@ -82,7 +82,7 @@ class InterMapTxt(OrderedDict):
          pass
 
      def _get_extlinks(self):
-         return OrderedDict(zip(self.keys(),[(self[k]["tmpl"],"%s:"%k) for k in self.keys()]))
+         return dict(zip(self.keys(),[(self[k]["tmpl"],"%s:%s"%(k,"%s")) for k in self.keys()]))
      extlinks = property(_get_extlinks)
 
      def __str__(self):
@@ -95,10 +95,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     path = sys.argv[1] if len(sys.argv)>1 else None
     imt = InterMapTxt.from_parse(path)
-    print imt 
-    print imt.extlinks
+    print(imt) 
+    print(imt.extlinks)
      
-
-
-
 
