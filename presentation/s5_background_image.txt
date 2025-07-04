@@ -2751,6 +2751,9 @@
     GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama_20250704_215533.png
     GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/Hama/20250704_215533.png 1280px_720px
 
+    GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_SPMT_ipc_20250704_223841.png
+    GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/SPMT_ipc/20250704_223841.png 1280px_720px
+
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored

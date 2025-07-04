@@ -257,6 +257,47 @@
 
 
 
+:small:`100k Input Photons targetting PMT_3inch:0:0 Chi2 History Comparison`
+------------------------------------------------------------------------------
+
+.. comment
+
+    junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 21919 hitCollectionAlt 21893 hcMuon 0 GPU YES
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=SPMT ipc run
+    SABHit  a_nhit : (   21893 +-  147 )  b_nhit:(    21919 +-  148 )  a/b: (  0.999 +-  0.013 )  b/a: (  1.001 +-  0.014)
+    </pre>
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=SPMT ipc chi2
+    AB
+    [sseq_index_ab::desc u_size 286 NUM_MAX 40 num 40 opt BRIEF mode 6sseq_index_ab_chi2::desc sum     2.6529 ndf  6.0000 sum/ndf     0.4422 
+        TO BT BT EX                                  :   77287  77187 :     0.0647 : Y :       0      0 :   
+        TO BT BT EC                                  :   21819  21843 :     0.0132 : Y :       3      2 :   
+        TO AB                                        :     456    486 :     0.9554 : Y :      25     76 :   
+        TO BT BT AB                                  :     119    110 :     0.3537 : Y :    2121    261 :   
+        TO BT AB                                     :      36     41 :     0.3247 : Y :    3833    420 :   
+        TO BT BR BT BT BT AB                         :      30     38 :     0.9412 : Y :    2867   6191 :   
+        TO BT BR BT BT BT SC BT BT BT BT BT BT EC    :      16     14 :     0.0000 : N :    5229   7937 : C2EXC  
+        TO SC BT BT BT BT EC                         :      13     14 :     0.0000 : N :    8966  28955 : C2EXC  
+        TO SC BT BT BT BT SA                         :       8     12 :     0.0000 : N :    6692   9608 : C2EXC  
+        TO BT BR BT BT BT SC BT BT BT BT BT BT SA    :       9     11 :     0.0000 : N :   10946  34936 : C2EXC  
+        TO BT BR BT BT BT BT BT BT BT BT BT EC       :      10     11 :     0.0000 : N :   33607   7618 : C2EXC  
+        TO BT BR BT BT BT BT BT BT BT BT BT SA       :      10     10 :     0.0000 : N :    8104  22053 : C2EXC  
+        TO BT BR BT BT BT SC AB                      :       9      8 :     0.0000 : N :    5616   6787 : C2EXC  
+        TO BT BR BT AB                               :       6      6 :     0.0000 : N :    5173  19516 : C2EXC  
+    </pre>
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_SPMT_ipc_20250704_223841.png` 
+-------------------------------------------------------------------------------------
+
+
+
 
 
 
