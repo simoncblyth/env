@@ -31,7 +31,7 @@
     <!--img style="position:absolute; top:200px; LEFT:100px; WIDTH:200px; " src="juno/JUNO_logo.png"  /-->
     <div class="mycredit">
        <h2 style="background-color:lightgrey">
-          Simon C Blyth, IHEP, CAS &mdash; GPU accelerated HEP applications Symposium, IHEP &mdash; 3 March 2025
+          Simon C Blyth, IHEP, CAS &mdash; Simulation Meeting &mdash; 8 July 2025
        </h2>
     </div>
 
@@ -55,6 +55,13 @@
 ``cxt_min_LowerChimney_overview.png``
 --------------------------------------
 
+
+``SGLFW_SOPTIX_Scene_test_EVT_wp_pmt_ipc_2025-07-01_20-03-28.png``
+-------------------------------------------------------------------
+
+
+``SGLFW_SOPTIX_Scene_test_EVT_wp_pmt_ipc_2025-07-01_20-03-37.png``
+-------------------------------------------------------------------
 
 
 Outline

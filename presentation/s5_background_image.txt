@@ -2715,6 +2715,12 @@
     cxt_min_LowerChimney_overview.png
     cxt_min/Chimney/cxt_min_LowerChimney_overview.png 1280px_720px
 
+    SGLFW_SOPTIX_Scene_test_EVT_wp_pmt_ipc_2025-07-01_20-03-28.png
+    SGLFW_SOPTIX_Scene_test/EVT/wp_pmt_ipc/Screenshot_from_2025-07-01_20-03-28.png 1280px_720px   
+
+    SGLFW_SOPTIX_Scene_test_EVT_wp_pmt_ipc_2025-07-01_20-03-37.png
+    SGLFW_SOPTIX_Scene_test/EVT/wp_pmt_ipc/Screenshot_from_2025-07-01_20-03-37.png 1280px_720px   
+
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
