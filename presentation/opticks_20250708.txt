@@ -91,8 +91,7 @@
 
 .. raw:: html
 
-     <p style="margin-bottom:5cm;" />
-
+     <p style="margin-bottom:45mm;" />
 
 ::
 
@@ -106,7 +105,7 @@
        opticks              ## use GtOpticksTool : Input Photons 
     
 
-.. class:: tiny
+.. class:: small
 
    https://code.ihep.ac.cn/blyth/j/-/blob/main/InputPhotonsCheck/InputPhotonsCheck.sh
 
@@ -163,24 +162,22 @@
 
 
 
-``GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190101.png`` 
----------------------------------------------------------------
 
 
-``GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190059.png`` 
----------------------------------------------------------------
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190057.png` 
+-----------------------------------------------------------------
 
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_1900571.png` 
+------------------------------------------------------------------
 
-``GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190058.png`` 
----------------------------------------------------------------
-
-
-``GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_1900571.png`` 
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190058.png`
 ----------------------------------------------------------------
 
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190059.png` 
+----------------------------------------------------------------
 
-``GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190057.png`` 
----------------------------------------------------------------
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190101.png`
+----------------------------------------------------------------
 
 
 
