@@ -64,6 +64,91 @@
 -------------------------------------------------------------------
 
 
+
+:small:`Input Photon Chi2 Comparison Opticks vs Geant4 (A:B)`
+------------------------------------------------------------------
+
+.. class:: small
+
+   * Same input photons (.npy) fed to both Opticks and Geant4 using ``--opticks-mode 3``
+   * Target various parts of geometry using OPTICKS_INPUT_PHOTON_FRAME envvar
+   * Opticks:Geant4 A:B Chi2 comparison of photon histories
+
+     * simulation diffs elevate Chi2 -> :b:`USEFUL METRIC` 
+
+   https://code.ihep.ac.cn/blyth/j/-/blob/main/InputPhotonsCheck/InputPhotonsCheck.sh
+
+::
+
+    ipc(){ source ~/j/InputPhotonsCheck/InputPhotonsCheck.sh $* ; }
+
+    tut_detsim.py \ 
+       --opticks-mode 3 \    ## both Geant4 and Opticks simulations
+       --opticks-anamgr \    ## record Geant4 photon steps points 
+       --no-anamgr-normal \  ## still needed with opticks-mode 3  
+       ...
+       opticks               ## use GtOpticksTool : Input Photons 
+    
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    </pre>
+
+
+
+:small:`1M Input Photons targetting NNVT:0:1000 Chi2 History Comparison`
+---------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=NNVT ipc run
+    SABHit  a_nhit : (  362580 +-  602 )  b_nhit:(   363183 +-  602 )  a/b: (  0.998 +-  0.003 )  b/a: (  1.002 +-  0.003) 
+    </pre>
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=NNVT ipc chi2
+    [sseq_index_ab::desc u_size 57579 NUM_MAX 40 num 40 opt BRIEF sseq_index_ab_chi2::desc sum  1393.8496 ndf 954.0000 sum/ndf 1.4611 
+    TO BT BT BT BT EC                                         :  312169 312612 :     0.3141 : Y :       1      6 :   
+    TO BT BT BT BT SA                                         :  293808 294880 :     1.9521 : Y :       2      2 :   
+    TO BT BT BT BT BT SR SA                                   :   43995  43757 :     0.6455 : Y :  103587 103712 :   
+    TO BT BT BT BT BT SA                                      :   32244  32300 :     0.0486 : Y :   84121  84359 :   
+    TO BT BT BT BT BR BT BT BT BT BT BT AB                    :   17363  16152 :    43.7572 : Y :    6638  39864 : <span class="r">DEVIANT</span>
+    TO BT BT BT BT BT SR BR SR SA                             :   10870  10812 :     0.1552 : Y :  210140 210140 :   
+    TO BT BT BT BT BR BT BT BT BT BT BT BT BT SA              :    8882   8551 :     6.2847 : Y :   73002  90912 :   
+    TO BT BT BT BT BT SR BR SA                                :    8881   8635 :     3.4549 : Y :  202016 202009 :   
+    TO BT BT AB                                               :    8706   8767 :     0.2130 : Y :      47    147 :   
+    TO BT BT BT BT BR BT BT BT BT BT BT BT BT EC              :    8391   8289 :     0.6237 : Y :   79688  79729 :   
+    TO BT BT BT BT BR BT BT BT BT AB                          :    8320   8001 :     6.2350 : Y :    1072    350 :   
+    TO BT BT BT BT EX                                         :    7447   7330 :     0.9264 : Y :       0     90 :   
+    TO BT BT BT BT BR BT BT BT BT BT BT BT BT BT BT BT BT EC  :    5996   5992 :     0.0013 : Y :  115560 115545 :   
+    TO BT BT BT BT BT SR SR SA                                :    5973   5904 :     0.4009 : Y :  103570 103605 :   
+    ]sseq_index_ab::desc
+    </pre>
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=NNVT ipc pdb
+    In [3]: wa = a.q_startswith("TO BT BT BT BT BR BT BT BT BT BT BT AB") ; wa
+    Out[3]: array([  6638,  35676,  47733,  50848,  52753, ..., 989416, 989443, 989702, 991268, 996708], shape=(17363,))
+
+    In [4]: wb = b.q_startswith("TO BT BT BT BT BR BT BT BT BT BT BT AB") ; wb
+    Out[4]: array([ 39864,  48315,  59319,  61798,  65273, ..., 990204, 990700, 990876, 990933, 992132], shape=(16152,))
+
+    </pre>
+
+.. class:: small
+
+
+
+.. s5_talk::
+
+
+
+
+
+
 Outline
 ---------
 
