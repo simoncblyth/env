@@ -1,3 +1,4 @@
 *_TALK.txt
 bin/realpath
 __pycache__
+*.swp
