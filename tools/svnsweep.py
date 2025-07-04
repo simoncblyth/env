@@ -81,7 +81,7 @@ TODO:
 #. hmm, I now want the working copy to live on G4PB for easy access to notes : need to change names from workflow to wdocs
 #. could base off the ``svn status`` output rather than walking and calling ``svn status`` for each 
 
-   #. ` svn st | grep ^\?`
+   #. ` svn st | grep ^\\?`
 
 
 """
@@ -90,10 +90,11 @@ import os, logging, sys
 from env.tools.ipath import IPath 
 
 try:
-    from ConfigParser import SafeConfigParser
+    from ConfigParser import ConfigParser
 except ImportError:
-    from configparser import SafeConfigParser
+    from configparser import ConfigParser
 pass
+## formerly SafeConfigParser
 
 
 log = logging.getLogger(__name__)
@@ -271,7 +272,8 @@ def read_cnf_( path ):
     path = os.path.expanduser(path)
     assert os.path.exists(path), path
     log.debug("reading %s " % ( path ) )
-    cnf = SafeConfigParser()
+    #cnf = SafeConfigParser()
+    cnf = ConfigParser()
     cnf.read(path)
     return cnf
 

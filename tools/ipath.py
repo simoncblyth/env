@@ -250,7 +250,7 @@ class IPath(object):
             # git uses relative to base paths in status, hg/svn use relative to cwd
             upath = rpath if typ == "git" else cpath
 
-            ptns = "^\s*(\S)(\S?)\s*(%s.*)\s*$" % upath  
+            ptns = "^\\s*(\\S)(\\S?)\\s*(%s.*)\\s*$" % upath  
             log.debug("ptns:[%s]" % ptns )
 
             ptn = re.compile(ptns)

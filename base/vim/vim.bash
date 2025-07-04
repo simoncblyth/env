@@ -12,6 +12,22 @@ VIM Tips
 * http://www.astrohandbook.com/ch20/vi_guide.html
 
 
+goto byte in file
+------------------
+
+::
+
+    UnicodeDecodeError: 'utf-8' codec can't decode bytes in position 964-965: invalid continuation byte
+
+::
+   
+    goto 964
+
+    zeta:home blyth$ xxd -c 32 -d -s 963 -l 1 /usr/local/home/sysadmin/backup/homersync/blyth/homersync-stay-MIGRATION-EPSILON-TO-ZETA.log 
+    00000963: 0a   
+     
+
+
 replace trailing whitespace
 ----------------------------
 

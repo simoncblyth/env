@@ -44,6 +44,37 @@ What I do
 Remove most of the distinction by within the .bash_profile sourcing the .bashrc
 
 
+uppercase : requires newer bash 
+---------------------------------
+
+::
+
+    zeta:~ blyth$ c=a
+    zeta:~ blyth$ echo ${c^}
+    -bash: ${c^}: bad substitution
+
+    zeta:home blyth$ echo $BASH_VERSION
+    3.2.57(1)-release
+
+In macOS Sequoia Terminal.app Settings change::
+
+    Shells open with: Default login shell
+
+To::
+
+    Shells open with: command (complete path) /opt/local/bin/bash
+
+
+Then::
+
+    zeta:h blyth$ c=a
+    zeta:h blyth$ echo ${c^}
+    A
+
+    zeta:h blyth$ echo $BASH_VERSION
+    5.2.37(1)-release
+
+
 
 declare -a arr = (1 2 3)
 -------------------------
