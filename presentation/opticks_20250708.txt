@@ -68,33 +68,47 @@
 :small:`Input Photon Chi2 Comparison Opticks vs Geant4 (A:B)`
 ------------------------------------------------------------------
 
-.. class:: small
+.. sidebar:: :small:`OPTICKS_INPUT_PHOTON_FRAME`
+ 
+   ::
 
-   * Same input photons (.npy) fed to both Opticks and Geant4 using ``--opticks-mode 3``
-   * Target various parts of geometry using OPTICKS_INPUT_PHOTON_FRAME envvar
-   * Opticks:Geant4 A:B Chi2 comparison of photon histories
+       NNVT:0:1000
+       Hama:0:0 
+       PMT_3inch:0:0
+       PMT_20inch_veto:0:1000
+       sTarget:0:-2
+       3345.569,20623.73,21000 ## WP 
 
-     * simulation diffs elevate Chi2 -> :b:`USEFUL METRIC` 
 
-   https://code.ihep.ac.cn/blyth/j/-/blob/main/InputPhotonsCheck/InputPhotonsCheck.sh
+.. class:: normal
+
+   * Same input photons to both Opticks and Geant4
+   * Target various parts of geometry using envvar =>
+   * Opticks:Geant4 Chi2 compare photon histories
+
+     * simulation diffs elevate Chi2
+
+
+.. raw:: html
+
+     <p style="margin-bottom:5cm;" />
+
 
 ::
 
     ipc(){ source ~/j/InputPhotonsCheck/InputPhotonsCheck.sh $* ; }
 
-    tut_detsim.py \ 
-       --opticks-mode 3 \    ## both Geant4 and Opticks simulations
-       --opticks-anamgr \    ## record Geant4 photon steps points 
-       --no-anamgr-normal \  ## still needed with opticks-mode 3  
+    tut_detsim.py  
+       --opticks-mode 3     ## both Geant4 and Opticks simulations
+       --opticks-anamgr     ## record Geant4 photon steps points 
+       --no-anamgr-normal   ## still needed with opticks-mode 3  
        ...
-       opticks               ## use GtOpticksTool : Input Photons 
+       opticks              ## use GtOpticksTool : Input Photons 
     
 
-.. raw:: html
+.. class:: tiny
 
-    <pre class="mypretiny">
-    </pre>
-
+   https://code.ihep.ac.cn/blyth/j/-/blob/main/InputPhotonsCheck/InputPhotonsCheck.sh
 
 
 :small:`1M Input Photons targetting NNVT:0:1000 Chi2 History Comparison`
@@ -127,20 +141,23 @@
     ]sseq_index_ab::desc
     </pre>
 
+
+.. class:: small
+
+   :r:`Consistent Hits, Chi2 OK, some DEVIANT to investigate`
+
 .. raw:: html
 
-    <pre class="mypretiny">TEST=NNVT ipc pdb
-    In [3]: wa = a.q_startswith("TO BT BT BT BT BR BT BT BT BT BT BT AB") ; wa
-    Out[3]: array([  6638,  35676,  47733,  50848,  52753, ..., 989416, 989443, 989702, 991268, 996708], shape=(17363,))
-
-    In [4]: wb = b.q_startswith("TO BT BT BT BT BR BT BT BT BT BT BT AB") ; wb
-    Out[4]: array([ 39864,  48315,  59319,  61798,  65273, ..., 990204, 990700, 990876, 990933, 992132], shape=(16152,))
-
+    <pre class="mypretiny">TEST=NNVT ipc pdb   ## ipython/NumPy investigate DEVIANT 
+    In [3]: wa = a.q_startswith("TO BT BT BT BT BR BT BT BT BT BT BT AB") 
+    In [4]: wb = b.q_startswith("TO BT BT BT BT BR BT BT BT BT BT BT AB")
     </pre>
 
 .. class:: small
 
-
+   TO:Torch BT/BR:BoundaryTransmit/Reflect 
+   EC/EX:EfficiencyCollect/Cull SA:SurfaceAbsorb 
+   AB:BulkAbsorb SR:SpecularReflect
 
 .. s5_talk::
 
