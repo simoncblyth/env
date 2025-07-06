@@ -6,9 +6,18 @@
 .. include:: my_s5defs.txt
 
 .. comment
-  
-   klop
 
+   CD
+
+   WP
+
+   muon
+
+   Chimney
+
+   summary
+
+   usage tutorial
 
 
 
@@ -75,8 +84,8 @@
        NNVT:0:1000
        Hama:0:0 
        PMT_3inch:0:0
-       PMT_20inch_veto:0:1000
        sTarget:0:-2
+       PMT_20inch_veto:0:1000
        3345.569,20623.73,21000 ## WP 
 
 
@@ -199,7 +208,6 @@
 .. raw:: html
 
     <pre class="mypretiny">TEST=Hama ipc chi2
-    AB
     [sseq_index_ab::desc u_size 31913 NUM_MAX 40 num 40 opt BRIEF mode 6sseq_index_ab_chi2::desc sum  1107.2895 ndf 467.0000 sum/ndf     2.3711 
     TO BT BT BT BT SA                         :  336783 336911 :     0.0243 : Y :       2     12 :   
     TO BT BT BT BT EC                         :  317582 317384 :     0.0617 : Y :       5      1 :   
@@ -273,7 +281,6 @@
 .. raw:: html
 
     <pre class="mypretiny">TEST=SPMT ipc chi2
-    AB
     [sseq_index_ab::desc u_size 286 NUM_MAX 40 num 40 opt BRIEF mode 6sseq_index_ab_chi2::desc sum     2.6529 ndf  6.0000 sum/ndf     0.4422 
         TO BT BT EX                                  :   77287  77187 :     0.0647 : Y :       0      0 :   
         TO BT BT EC                                  :   21819  21843 :     0.0132 : Y :       3      2 :   
@@ -297,6 +304,106 @@
 -------------------------------------------------------------------------------------
 
 
+
+
+:small:`1M Input Photons : Random Spherical from CD center sTarget:0:-2 Chi2 History Comparison`
+----------------------------------------------------------------------------------------------------
+
+.. comment
+
+    junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 218082 hitCollectionAlt 217101 hcMuon 0 GPU YES
+    junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 218082 hitCollectionAlt 217101 hcMuon 0 GPU YES
+    SABHit  a_nhit : (  217101 +-  465 )  b_nhit:(   218082 +-  466 )  a/b: (  0.996 +-  0.004 )  b/a: (  1.005 +-  0.004) 
+
+
+    junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 218014 hitCollectionAlt 217072 hcMuon 0 GPU YES
+
+
+
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=CD ipc run
+    SABHit  a_nhit : (  217101 +-  465 )  b_nhit:(   218082 +-  466 )  a/b: (  0.996 +-  0.004 )  b/a: (  1.005 +-  0.004) 
+    </pre>
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=CD ipc chi2
+    [sseq_index_ab::desc                       <span class="r">sseq_index_ab_chi2::desc sum  1838.7167 ndf 1652.0000 sum/ndf     1.1130 </span>
+    TO AB                                                   :  111833 111239 :     1.5817 : Y :       0      9 :   
+    TO BT BT BT BT BT BT EC                                 :   90826  91325 :     1.3670 : Y :      14     25 :   
+    TO BT BT BT BT BT BT SA                                 :   87693  87782 :     0.0451 : Y :      11      2 :   
+    TO SC AB                                                :   41715  41226 :     2.8830 : Y :      16     15 :   
+    TO SC BT BT BT BT BT BT EC                              :   40527  40512 :     0.0028 : Y :       5     29 :   
+    TO SC BT BT BT BT BT BT SA                              :   40240  39939 :     1.1300 : Y :      29     34 :   
+    TO BT BT SA                                             :   23450  23550 :     0.2128 : Y :      56     21 :   
+    TO SC SC BT BT BT BT BT BT EC                           :   15348  15450 :     0.3378 : Y :      37     14 :   
+    TO SC SC BT BT BT BT BT BT SA                           :   15429  15397 :     0.0332 : Y :       3     13 :   
+    TO SC SC AB                                             :   14643  14545 :     0.3290 : Y :      51    219 :   
+    TO BT BT AB                                             :   14182  14359 :     1.0977 : Y :     180    111 :   
+    TO BT BT BT BT BT BT BT SA                              :   13779  13657 :     0.5425 : Y :      82    144 :   
+    TO BT BT BT SA                                          :   13445  13426 :     0.0134 : Y :     104     12 :   
+    TO BT BT BT BT BT BT BT SR SA                           :   13124  12928 :     1.4746 : Y :      46      5 :   
+    TO BT BT DR BT SA                                       :    8208   8227 :     0.0220 : Y :      30     20 :   
+    TO SC BT BT AB                                          :    7473   7334 :     1.3049 : Y :      84    729 :   
+    TO BT BT BT BT EX                                       :    6880   7030 :     1.6175 : Y :     327    154 :   
+    TO SC BT BT BT BT BT BT BT SA                           :    6733   6939 :     3.1039 : Y :       9     71 :   
+    TO SC BT BT SA                                          :    6584   6606 :     0.0367 : Y :     143    119 :   
+    TO BT AB                                                :    5833   6169 :     9.4064 : Y :     382     87 :   
+    TO BT BT BT BT BT BT BT SR SR SA                        :    5885   6017 :     1.4640 : Y :      54     27 :   
+    TO BT BT BT BT BT BT EX                                 :    5578   5360 :     4.3449 : Y :     223    188 :   
+    TO SC SC SC BT BT BT BT BT BT EC                        :    5460   5520 :     0.3279 : Y :     167    145 :   
+    TO BT BT BT BT BT BT BR BT BT BT BT BT BT BT BT SA      :    5490   5420 :     0.4491 : Y :      70     98 :   
+    TO SC SC SC BT BT BT BT BT BT SA                        :    5455   5487 :     0.0936 : Y :     418    403 :   
+    TO BT BT BT BT BT BT BR BT BT BT BT BT BT BT BT EC      :    5331   5392 :     0.3470 : Y :     103    347 :   
+    TO SC BT BT BT BT BT BT BT SR SA                        :    5317   5291 :     0.0637 : Y :     106    155 :   
+    TO SC SC SC AB                                          :    4929   5087 :     2.4924 : Y :     146    452 :   
+    TO RE AB                                                :    4612   4682 :     0.5272 : Y :     729     44 :   
+    TO SC BT BT BT SA                                       :    4306   4471 :     3.1019 : Y :     190     82 :   
+    TO BT BT BT BT BT BT BT EC                              :    4090   4050 :     0.1966 : Y :     675   1471 :   
+    TO SC BT AB                                             :    3147   3440 :    13.0331 : Y :     508    763 : <span class="r">DEVIANT</span>
+    TO BT BT BT BT AB                                       :    3259   3290 :     0.1467 : Y :     267    103 :   
+    TO SC SC BT BT AB                                       :    3082   2941 :     3.3008 : Y :      36     35 :   
+    TO SC BT BT BT BT EX                                    :    2721   2809 :     1.4004 : Y :      87     22 :   
+    TO SC SC BT BT BT BT BT BT BT SA                        :    2679   2766 :     1.3901 : Y :      33    713 :   
+    TO SC BT BT BT BT BT BT EX                              :    2709   2732 :     0.0972 : Y :       7    352 :   
+    TO SC BT BT BT BT SA                                    :    2690   2574 :     2.5562 : Y :     102    230 :   
+    TO SC BT BT BT BT BT BT BT EC                           :    2445   2516 :     1.0161 : Y :     456    261 :   
+    TO BT BT BT BT EC                                       :    2348   2306 :     0.3790 : Y :    1298   1000 :   
+    ]sseq_index_ab::desc
+
+    [sseq_index_ab::desc u_size 129497 NUM_MAX 40 num 129497 opt AZERO mode 1
+    TO BT BT BT BT BR SR SR SR SR SR BT BT BT BT BT BT SA   :      -1     27 :     0.0000 : N :      -1  55880 : AZERO C2EXC  
+    TO BT BT BT BT BR SR SR SR SR SR SR BR BR BR BR EX      :      -1     24 :     0.0000 : N :      -1  11230 : AZERO C2EXC  
+    TO BT BT BT BT BR SR SR SR SR SR BT BT BT BT BT BT EC   :      -1     14 :     0.0000 : N :      -1  17109 : AZERO C2EXC  
+    TO BT BT SC BT BT SC BT AB                              :      -1     12 :     0.0000 : N :      -1  23403 : AZERO C2EXC  
+    TO BT BT BT BT BR SR SR SR SR SR SR BR BT BT BT BT AB   :      -1     11 :     0.0000 : N :      -1  16219 : AZERO C2EXC  
+    TO BT BT BT BT BR SR SR SR SR SR SR BR BR BR BR EC      :      -1     11 :     0.0000 : N :      -1  53909 : AZERO C2EXC  
+    ]sseq_index_ab::desc
+
+    [sseq_index_ab::desc u_size 129497 NUM_MAX 40 num 129497 opt BZERO mode 2
+    TO BT BT BT BT BR SR SA                                 :     183     -1 :     0.0000 : N :    4232     -1 : BZERO C2EXC  
+    TO BT BT BT BT BR SA                                    :      42     -1 :     0.0000 : N :   18984     -1 : BZERO C2EXC  
+    TO SC BT BT BT BT BR SR SA                              :      25     -1 :     0.0000 : N :    7924     -1 : BZERO C2EXC  
+    TO BT BT BT BT BT BT BR BT BT BT BT BT BT BT BT BT EC   :      19     -1 :     0.0000 : N :   20777     -1 : BZERO C2EXC  
+    TO BT BT BT BT BR BR BR BT AB                           :      12     -1 :     0.0000 : N :  301580     -1 : BZERO C2EXC  
+    TO SC SC BT BR BT BT BR BT SC BT AB                     :      12     -1 :     0.0000 : N :  178038     -1 : BZERO C2EXC  
+    TO BT BT BT BT BT BT BR BT BT BT BT BT BT BT BT SR SA   :      12     -1 :     0.0000 : N :   76439     -1 : BZERO C2EXC  
+    TO SC BT BT BT BT BT BT BR BT BT BT BT BT BT BT BT BT EC:      11     -1 :     0.0000 : N :    5351     -1 : BZERO C2EXC  
+    TO BT BT BT BT BT BT BR BT BT BT BT BT BT SR SA         :      11     -1 :     0.0000 : N :   27478     -1 : BZERO C2EXC  
+    ]sseq_index_ab::desc
+    </pre>
+
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_CD_ipc_20250706_113711.png` 
+-------------------------------------------------------------------
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_CD_ipc_20250706_113836.png` 
+-------------------------------------------------------------------
 
 
 
