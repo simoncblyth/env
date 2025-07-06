@@ -11,6 +11,8 @@
 
    WP
 
+   POOLCOVER
+
    muon
 
    Chimney
@@ -460,7 +462,7 @@
 
 .. class:: small
 
-    Speeding photons => WP geometry overlap, NOW FIXED
+    ``Speeding photons => WP geometry overlap, NOW FIXED``
 
 
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_ipc_20250701_200337.png`
@@ -468,7 +470,120 @@
 
 .. class:: small
 
-    Speeding photons => WP geometry overlap, NOW FIXED
+    ``Speeding photons => WP geometry overlap, NOW FIXED``
+
+
+
+
+
+:small:`100k Input Photons CircleXZ from 3345.569,20623.73,21000 WP top : Chi2 History Comparison`
+-----------------------------------------------------------------------------------------------------
+
+.. comment
+
+    junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 124 hitCollectionAlt 140 hcMuon 0 GPU YES
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=POOLCOVER ipc run
+    SABHit  a_nhit : (     140 +-   11 )  b_nhit:(      124 +-   11 )  a/b: (  1.129 +-  0.197 )  b/a: (  0.886 +-  0.154)
+    </pre>
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=POOLCOVER ipc chi2
+    [sseq_index_ab::desc  [CHI2 <span class="r">  sum    49.8171 ndf  9.0000 sum/ndf     5.5352 </span> ]
+    TO SA                                      :   85301  85454 :     0.1371 : Y :       0      0 :   
+    TO AB                                      :   13861  13716 :     0.7624 : Y :       1      1 :   
+    *TO BT BT BT BT SA*                        :     154    224 :    12.9630 : Y :   71432  71433 : <span class="r">DEVIANT</span>   
+    TO BT BT SA                                :      79    131 :    12.8762 : Y :   71342  71342 : <span class="r">DEVIANT</span>   
+    TO BT BT BT BT EC                          :      96    117 :     2.0704 : Y :   71553  71555 :   
+    TO BT BT AB                                :      63    108 :    11.8421 : Y :   71358  71344 : <span class="r">DEVIANT</span>   
+    *TO BT BT BT BT BT SA*                     :      64     -1 :     0.0000 : N :   71455     -1 : BZERO C2EXC  
+    *TO BT BT BT SA*                           :      59     -1 :     0.0000 : N :   71352     -1 : BZERO C2EXC  
+    TO BT BT BT BT AB                          :      40     59 :     3.6465 : Y :   71440  71432 :   
+    TO BT BT BR BT BT SA                       :      30     40 :     1.4286 : Y :   71537  71534 :   
+    ]sseq_index_ab::desc
+    </pre>
+
+
+.. class:: small
+
+   Deviations from intersects 
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_poolcover_ipc_20250706_145250.png` 
+--------------------------------------------------------------------------
+
+.. class:: small
+
+   ``InputPhotons from XZ Circle near top of pool``
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_poolcover_ipc_20250703_211459.png`
+--------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   ``WP_PMT virtual wrapper clippers``
+
+
+
+:small:`100k Input Photons CircleXZ from 3345.569,20623.73,21000 WP top : ipython check "TO BT BT BT BT BT SA"`
+-------------------------------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=POOLCOVER ipc pdb
+    In [1]: wa = a.q_startswith("TO BT BT BT BT BT SA") ; wa.shape
+    Out[1]: (64,)
+
+    In [2]: a.f.record[wa,:7,0]
+    Out[2]: 
+    array([[[  3235.14 ,  20623.73 ,  20512.348,      0.1  ],
+            [ -1203.842,  20623.73 ,    909.854,     92.76 ],
+            [ -1203.863,  20623.73 ,    909.761,     92.76 ],
+            [ -1258.596,  20623.73 ,    668.062,     93.903],
+            [ -1539.135,  20623.73 ,   -570.794,     99.759],
+            [ -1575.413,  20623.73 ,   -731.   ,    100.516],
+            [ -6312.518,  20623.729, -21649.998,    199.399]],
+
+           [[  3235.416,  20623.73 ,  20512.285,      0.1  ],
+            [ -1188.114,  20623.73 ,    926.617,     92.668],
+            [ -1188.152,  20623.73 ,    926.448,     92.669],
+            [ -1251.51 ,  20623.73 ,    645.925,     93.995],
+            [ -1529.189,  20623.73 ,   -583.531,     99.806],
+            [ -1566.985,  20623.73 ,   -750.878,    100.597],
+            [ -6287.166,  20623.73 , -21649.998,    199.373]],
+
+           [[  3236.06 ,  20623.73 ,  20512.14 ,      0.1  ],
+            [ -1153.982,  20623.73 ,    954.694,     92.508],
+            [ -1154.024,  20623.73 ,    954.507,     92.508],
+            [ -1232.423,  20623.73 ,    605.247,     94.159],
+            [ -1507.25 ,  20623.73 ,   -619.099,     99.944],
+            [ -1547.255,  20623.73 ,   -797.317,    100.786],
+            [ -6228.041,  20623.736, -21650.   ,    199.313]],
+
+    In [11]: wb = b.q_startswith("TO BT BT BT BT SA") ; wb.shape
+    Out[11]: (224,)
+
+    In [15]: b.f.record[wb,:6,0]
+    Out[15]: 
+    array([[[  3234.466,  20623.73 ,  20512.5  ,      0.1  ],
+            [ -1251.419,  20623.73 ,    829.237,     93.171],
+            [ -1266.738,  20623.73 ,    762.019,     93.489],
+            [ -1564.458,  20623.73 ,   -544.324,     99.666],
+            [ -1595.966,  20623.73 ,   -682.574,    100.319],
+            [ -6374.517,  20623.73 , -21650.   ,    199.462]],
+
+           [[  3234.527,  20623.73 ,  20512.486,      0.1  ],
+            [ -1245.347,  20623.73 ,    844.189,     93.097],
+            [ -1267.748,  20623.73 ,    745.84 ,     93.562],
+            [ -1562.104,  20623.73 ,   -546.491,     99.673],
+            [ -1594.101,  20623.73 ,   -686.969,    100.337],
+            [ -6368.878,  20623.73 , -21650.   ,    199.456]],
+    </pre>
+
 
 
 
