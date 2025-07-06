@@ -61,18 +61,6 @@
 
 
 
-``cxt_min_LowerChimney_overview.png``
---------------------------------------
-
-
-``SGLFW_SOPTIX_Scene_test_EVT_wp_pmt_ipc_2025-07-01_20-03-28.png``
--------------------------------------------------------------------
-
-
-``SGLFW_SOPTIX_Scene_test_EVT_wp_pmt_ipc_2025-07-01_20-03-37.png``
--------------------------------------------------------------------
-
-
 
 :small:`Input Photon Chi2 Comparison Opticks vs Geant4 (A:B)`
 ------------------------------------------------------------------
@@ -404,6 +392,91 @@
 
 :i:`GEOM_J25_4_0_opticks_Debug_cxr_min_CD_ipc_20250706_113836.png` 
 -------------------------------------------------------------------
+
+
+
+:small:`100k Input Photons targetting WP PMT PMT_20inch_veto:0:1000 Chi2 History Comparison`
+---------------------------------------------------------------------------------------------
+
+
+.. comment
+
+    junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 29735 hitCollectionAlt 29562 hcMuon 0 GPU YES
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=WP_PMT ipc run
+    SABHit  a_nhit : (   29562 +-  171 )  b_nhit:(    29735 +-  172 )  a/b: (  0.994 +-  0.012 )  b/a: (  1.006 +-  0.012) 
+    </pre>
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=WP_PMT ipc chi2
+    [sseq_index_ab::desc                sseq_index_ab_chi2::desc     <span class="r">sum 54.3135 ndf 59.0000 sum/ndf     0.9206  </span>
+    TO BT BT BT BT SA                                            :   30563  30508 :     0.0495 : Y :       2      0 :   
+    TO BT BT BT BT EC                                            :   29246  29398 :     0.3940 : Y :       1      5 :   
+    TO BT BT BT BT BR BT BT BT BT SA                             :    9661   9850 :     1.8308 : Y :       6     45 :   
+    TO BT BT BT BT BT SR SA                                      :    7688   7783 :     0.5833 : Y :   10622  10391 :   
+    TO BT BT BT BT BT SR BT BT BT BT BT SA                       :    6782   6904 :     1.0875 : Y :   10830  10837 :   
+    TO BT BT BT BT BT SA                                         :    2060   1940 :     3.6000 : Y :    8707   8511 :   
+    TO BT BT BT BT EX                                            :    1982   1863 :     3.6830 : Y :       0      2 :   
+    TO BT BT BT BT BT SR BR SR SA                                :    1739   1735 :     0.0046 : Y :   20717  20579 :   
+    TO BT BT BT BT BT SR BR SR BT BT BT BT BT SA                 :    1552   1514 :     0.4710 : Y :   20911  20910 :   
+    TO BT BT BT BT BT SR BR SA                                   :     911    876 :     0.6855 : Y :   10942  10869 :   
+    TO BT BT BR BT BT SA                                         :     677    678 :     0.0007 : Y :      16     23 :   
+    TO BT BT BT BR BT BT BT SA                                   :     594    595 :     0.0008 : Y :       4      4 :   
+    TO BT BR BT SA                                               :     511    496 :     0.2234 : Y :      23     34 :   
+    TO BT BT BT BT BT SR BR SR BR SR SA                          :     507    483 :     0.5818 : Y :   21826  21843 :   
+    ]sseq_index_ab::desc
+
+    [sseq_index_ab::desc u_size 829 NUM_MAX 40 num 829 opt AZERO mode 1
+    ]sseq_index_ab::desc
+
+    [sseq_index_ab::desc u_size 829 NUM_MAX 40 num 829 opt BZERO mode 2
+    TO BT BT BT SA                                              :      28     -1 :     0.0000 : N :   49842     -1 : BZERO C2EXC  
+    TO BT BT BT EC                                              :      21     -1 :     0.0000 : N :   49852     -1 : BZERO C2EXC  
+    TO BT BT BT BT SR SA                                        :      16     -1 :     0.0000 : N :   49855     -1 : BZERO C2EXC  
+    TO BT BT BT BR BT BT BT BT SA                               :      15     -1 :     0.0000 : N :   49848     -1 : BZERO C2EXC  
+    TO BT BT BT BT SR BT BT BT BT BT SA                         :      14     -1 :     0.0000 : N :   49844     -1 : BZERO C2EXC  
+    ]sseq_index_ab::desc
+
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_ipc_20250706_124505.png` 
+---------------------------------------------------------------------------------------
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_ipc_20250706_124506.png` 
+---------------------------------------------------------------------------------------
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_ipc_20250706_124509.png` 
+---------------------------------------------------------------------------------------
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_ipc_20250701_200328.png`
+---------------------------------------------------------------------------------------
+
+.. class:: small
+
+    Speeding photons => WP geometry overlap, NOW FIXED
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_ipc_20250701_200337.png`
+---------------------------------------------------------------------------------------
+
+.. class:: small
+
+    Speeding photons => WP geometry overlap, NOW FIXED
+
+
+
+``cxt_min_LowerChimney_overview.png``
+--------------------------------------
+
+
+
 
 
 
