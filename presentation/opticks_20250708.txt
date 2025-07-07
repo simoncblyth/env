@@ -654,6 +654,78 @@
 
 
 
+:small:`1M Input Photon directed up Chimney : Chi2 Comparison : TOTALLY DEVIANT : DIFF GEOMETRY`
+--------------------------------------------------------------------------------------------------
+
+
+.. comment
+
+   junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 15230 hitCollectionAlt 509 hcMuon 0 GPU YES
+
+   SABHit  a_nhit : (     509 +-   22 )  b_nhit:(    15230 +-  123 )  a/b: (  0.033 +-  0.002 )  b/a: ( 29.921 +-  1.569) 
+
+
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    [sseq_index_ab::desc  [CHI2 <span class="r">  sum 32216.2266 ndf 58.0000 sum/ndf   555.4522 </span> ]
+    TO BT SA                                                                                         :  885432     -1 :     0.0000 : N :       1     -1 : BZERO C2EXC  
+    TO BT BT BT BT SA                                                                                :      -1 493337 :     0.0000 : N :      -1      0 : AZERO C2EXC  
+    TO BT AB                                                                                         :   95945  41370 : 21690.4972 : Y :       0      7 : <span class="r">DEVIANT</span>   
+    TO BT BT BT SC SA                                                                                :      -1  65842 :     0.0000 : N :      -1      2 : AZERO C2EXC  
+    TO BT SC SA                                                                                      :      -1  57241 :     0.0000 : N :      -1      1 : AZERO C2EXC  
+    TO BT BT BT AB                                                                                   :      -1  36192 :     0.0000 : N :      -1      9 : AZERO C2EXC  
+    TO BT BT BR BT SA                                                                                :      -1  28419 :     0.0000 : N :      -1     43 : AZERO C2EXC  
+    TO BT BT BT SC DR SA                                                                             :      -1  23389 :     0.0000 : N :      -1     14 : AZERO C2EXC  
+    TO BT SC DR SA                                                                                   :      -1  19439 :     0.0000 : N :      -1     61 : AZERO C2EXC  
+    TO BT BT BT RE SA                                                                                :      -1  14856 :     0.0000 : N :      -1     76 : AZERO C2EXC  
+    TO BT BT BT BR BT BT BT SA                                                                       :      -1  13635 :     0.0000 : N :      -1    359 : AZERO C2EXC  
+    TO AB                                                                                            :   13250   6045 :  2690.4392 : Y :      25     50 : <span class="r">DEVIANT</span>   
+    TO BT RE SA                                                                                      :      -1  13014 :     0.0000 : N :      -1     15 : AZERO C2EXC  
+    TO BT BT BT SC DR DR SA                                                                          :      -1   8319 :     0.0000 : N :      -1     98 : AZERO C2EXC  
+    TO BT SC DR DR SA                                                                                :      -1   6640 :     0.0000 : N :      -1     21 : AZERO C2EXC  
+    TO BT BT BT RE DR SA                                                                             :      -1   5035 :     0.0000 : N :      -1    275 : AZERO C2EXC  
+    TO BT RE DR SA                                                                                   :      -1   4140 :     0.0000 : N :      -1    135 : AZERO C2EXC  
+    TO BT BT BT SC BT BT SA                                                                          :      -1   3846 :     0.0000 : N :      -1     40 : AZERO C2EXC  
+    </pre>
+
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Chimney_ipc_20250707_135938.png` 
+----------------------------------------------------------------------------------------
+
+``A : Opticks``
+
+``Photons reflected at top of LowerChimney``
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Chimney_ipc_20250707_135922.png` 
+----------------------------------------------------------------------------------------
+
+``B : Geant4``
+
+``Photons escape between Lower and UpperChimney``
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Chimney_ipc_20250707_135924.png` 
+----------------------------------------------------------------------------------------
+
+``B : Geant4``
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Chimney_ipc_20250707_135926.png` 
+----------------------------------------------------------------------------------------
+
+``B : Geant4``
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Chimney_ipc_20250707_135928.png` 
+----------------------------------------------------------------------------------------
+
+``B : Geant4``
 
 
 
