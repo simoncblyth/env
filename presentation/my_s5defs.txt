@@ -41,6 +41,16 @@
 
         &#35;include "JPMT.h"
 
+        vim replace in the next 20 lines
+
+        :.,+20s/^#/\&#35;/gc
+
+        vim replace indented
+
+        :.,+20s/^    #/    \&#35;/gc    
+
+
+
 
 .. include:: <s5defs.txt>
 
