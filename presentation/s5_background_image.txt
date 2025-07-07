@@ -2775,6 +2775,42 @@
     GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_poolcover_ipc_20250703_211459.png
     GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/poolcover_ipc/20250703_211459.png 1280px_720px
 
+    GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105550.png
+    GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/muon_cxs/20250707_105550.png 1280px_720px
+
+    GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105553.png
+    GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/muon_cxs/20250707_105553.png 1280px_720px
+
+    GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105555.png
+    GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/muon_cxs/20250707_105555.png 1280px_720px
+
+    GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105556.png
+    GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/muon_cxs/20250707_105556.png 1280px_720px
+
+    GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105609.png
+    GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/muon_cxs/20250707_105609.png 1280px_720px
+
+    GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105610.png
+    GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/muon_cxs/20250707_105610.png 1280px_720px
+
+    GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105620.png
+    GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/muon_cxs/20250707_105620.png 1280px_720px
+
+    GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105628.png
+    GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/muon_cxs/20250707_105628.png 1280px_720px
+
+    GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105700.png
+    GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/muon_cxs/20250707_105700.png 1280px_720px
+
+    GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105701.png
+    GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/muon_cxs/20250707_105701.png 1280px_720px
+
+    GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105702.png
+    GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/muon_cxs/20250707_105702.png 1280px_720px
+
+    GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105704.png
+    GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/muon_cxs/20250707_105704.png 1280px_720px
+
     ##
     ## git mv SGLFW_SOPTIX_Scene_test/EVT/wp_pmt_ipc/Screenshot_from_2025-07-01_20-03-28.png GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/wp_pmt_ipc/20250701_200328.png
     ## git mv SGLFW_SOPTIX_Scene_test/EVT/wp_pmt_ipc/Screenshot_from_2025-07-01_20-03-37.png GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/wp_pmt_ipc/20250701_200337.png
