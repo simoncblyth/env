@@ -14,6 +14,40 @@ See Also
 * github-
 
 
+Dealing with case degeneracy in repo on macOS
+------------------------------------------------
+
+* created s4.h on Linux and added to opticks git repo (having forgot about S4.h differing only in case)
+* cloning/updating the repo on macOS leads to confused situation::
+
+    zeta:o blyth$ o
+    /Users/blyth/o
+    On branch master
+    Your branch is behind 'origin/master' by 1 commit, and can be fast-forwarded.
+      (use "git pull" to update your local branch)
+
+    Changes not staged for commit:
+      (use "git add <file>..." to update what will be committed)
+      (use "git restore <file>..." to discard changes in working directory)
+        modified:   sysrap/s4.h
+
+    no changes added to commit (use "git add" and/or "git commit -a")
+
+
+Resolve this by renaming to avoid degeneracy on Linux and using
+nuclear operation of deleting and cloning again on macOS::
+
+    zeta:o blyth$ git remote -v
+    origin	git@github.com:simoncblyth/opticks.git (fetch)
+    origin	git@github.com:simoncblyth/opticks.git (push)
+    zeta:o blyth$ cd ..
+    zeta:~ blyth$ rm -rf opticks
+    zeta:~ blyth$ git clone git@github.com:simoncblyth/opticks.git
+
+
+
+
+
 Issue : intermittent git over SSH blockage (attributed to GFW gnomes)
 ----------------------------------------------------------------------
 
