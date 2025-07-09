@@ -1,0 +1,1064 @@
+*Opticks Publications, Presentations, Notes*
+=====================================================
+
+As servers may become inaccessible 
+this content is hosted from three servers. 
+If you find access problems, try another server. 
+
+* https://simoncblyth.bitbucket.io
+* https://simoncblyth.github.io
+* https://juno.ihep.ac.cn/~blyth/
+
+
+Opticks Mailing List And Archive
+-----------------------------------
+
+To subscribe to the low volume mailing list, send an email to opticks+subscribe@groups.io 
+
+.. table::
+    :align: center
+
+    +--------------------------------------------------+-----------------------------------------+
+    | https://groups.io/g/opticks                      | forum/mailing list archive              |    
+    +--------------------------------------------------+-----------------------------------------+
+    | email:opticks+subscribe@groups.io                | subscribe to mailing list               |    
+    +--------------------------------------------------+-----------------------------------------+ 
+
+
+Day to day Opticks development is in bitbucket
+------------------------------------------------
+
+* https://bitbucket.org/simoncblyth
+* https://bitbucket.org/simoncblyth/opticks/commits/all
+
+
+Github Opticks repo is only updated infrequently, for snapshots
+-----------------------------------------------------------------
+
+* https://github.com/simoncblyth
+* https://github.com/simoncblyth/opticks
+
+Images
+-------
+
+* https://simoncblyth.bitbucket.io/images/
+* https://simoncblyth.github.io/images/
+* https://juno.ihep.ac.cn/~blyth/images/
+
+
+Opticks Documentation
+----------------------
+
+* https://simoncblyth.bitbucket.io/opticks/
+* https://simoncblyth.github.io/opticks/
+* https://juno.ihep.ac.cn/~blyth/opticks/
+
+
+Note that the Opticks documentation and examples are lagging behind Opticks developments. 
+So I suggest only a cursory look at the above documentation.
+
+Any examples using G4Opticks.hh are from the old workflow and should not be followed. 
+The G4CX package is the top level package in the new workflow that replaces G4OK.
+
+A scratch document with some notes that are uptodate (as of December 2022) is available at:
+
+* https://bitbucket.org/simoncblyth/opticks/src/master/docs/integration_with_new_opticks_using_G4CXOpticks_and_U4.rst
+
+
+
+
+Opticks Transition to a the all new NVIDIA OptiX 7 API 
+----------------------------------------------------------
+
+I do not recommend the use of NVIDIA OptiX < 7 currently, 
+as all Opticks development effort is currently 
+on using the all new NVIDIA OptiX 7 API. 
+
+Note that the NVIDIA OptiX 6->7 transition is like an 
+entirely different project, practically all Opticks
+code has been changed or needs to change to accomodate 
+this API transition.
+
+The Opticks "reference" NVIDIA OptiX version is currently 7.0.0 
+so I recommend you use the first column of versions in the below. 
+
+The recommended version sets to use are driven by the OptiX version release notes. 
+They specify the development CUDA version used to build each OptiX version 
+and the minimum NVIDIA driver version.:: 
+
+   OptiX          *7.0.0*          7.5.0             7.6.0 
+   NVIDIA Driver   435.21+         515+              520+ 
+   CUDA            10.1            11.7              11.8
+
+Beyond that the CUDA version then constrains the versions 
+of gcc and c++ dialect that can be used::
+
+   CUDA            10.1            11.7              11.8
+   nvcc c++        c++03,11,14     c++03,11,14,17    ? 
+   gcc             8.3.0           11.2              ?
+
+
+
+
+Publications
+---------------
+
+TBD
+
+   **CHEP 2024 (Krakow, Poland)** 
+
+
+
+
+https://www.epj-conferences.org/articles/epjconf/abs/2024/05/epjconf_chep2024_11014/epjconf_chep2024_11014.html
+
+   *Opticks: GPU Optical Photon Simulation via NVIDIA OptiX*
+
+   **CHEP 2023 (Norfolk, USA) Proceedings** : Simon C. Blyth, EPJ Web of Conferences 295, 11014 (2024)
+
+   * https://doi.org/10.1051/epjconf/202429511014 
+
+   * https://www.epj-conferences.org/articles/epjconf/abs/2024/05/epjconf_chep2024_11014/epjconf_chep2024_11014.html
+
+   * https://www.epj-conferences.org/articles/epjconf/pdf/2024/05/epjconf_chep2024_11014.pdf
+
+
+https://www.epj-conferences.org/articles/epjconf/abs/2021/05/epjconf_chep2021_03009/epjconf_chep2021_03009.html
+
+   *Integration of JUNO simulation framework with Opticks: GPU accelerated optical propagation via NVIDIA OptiX*
+
+   **CHEP 2021 (Online, CERN) Proceedings** : Simon Blyth, EPJ Web of Conferences 251, 03009 (2021)
+
+   * https://doi.org/10.1051/epjconf/202125103009
+
+   * https://www.epj-conferences.org/articles/epjconf/abs/2021/05/epjconf_chep2021_03009/epjconf_chep2021_03009.html 
+
+   * https://www.epj-conferences.org/articles/epjconf/pdf/2021/05/epjconf_chep2021_03009.pdf
+
+
+https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11003/epjconf_chep2020_11003.html
+
+    *Meeting the challenge of JUNO simulation with Opticks: GPU optical photon acceleration via NVIDIA OptiX*
+
+    **CHEP 2019 (Adelaide, Australia) Plenary Proceedings** : Simon Blyth, EPJ Web of Conferences 245, 11003 (2020)
+
+    * https://doi.org/10.1051/epjconf/202024511003
+
+    * https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11003/epjconf_chep2020_11003.html
+
+    
+
+
+https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02027/epjconf_chep2018_02027.html
+
+    *Opticks : GPU Optical Photon Simulation for Particle Physics using NVIDIA OptiX*
+
+    **CHEP 2018 (Sofia, Bulgaria) Proceedings** : Simon  Blyth, EPJ Web Conf. 214 02027 (2019)
+
+    * https://doi.org/10.1051/epjconf/201921402027
+
+    * https://www.epj-conferences.org/articles/epjconf/abs/2019/19/contents/contents.html#section_10.1051/epjconf/201921402001 
+
+    * https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02027/epjconf_chep2018_02027.html
+
+    * `env/report/opticks-blyth-chep2018-v1.pdf <env/report/opticks-blyth-chep2018-v1.pdf>`_
+
+
+http://iopscience.iop.org/article/10.1088/1742-6596/898/4/042001
+
+    Blyth, Simon C, 2017 J. Phys.: Conf. Ser. 898 042001
+
+    *Opticks : GPU Optical Photon Simulation for Particle Physics using NVIDIA OptiX*
+
+    **CHEP 2016 (San Francisco, USA) Proceedings** : Published by IOP Science
+
+    * https://iopscience.iop.org/issue/1742-6596/898/4
+
+    * https://iopscience.iop.org/article/10.1088/1742-6596/898/4/042001
+
+
+References to Opticks
+-----------------------
+
+https://geant4-data.web.cern.ch/ReleaseNotes/ReleaseNotes.11.0.html
+
+   Geant 11.0 release notes, new example: 
+
+   **CaTS - New application implementing a flexible and extendable framework for the simulation of calorimeter and tracking detectors. It also demonstrates how to use Opticks for the creation and propagation of optical photons.**
+
+
+
+Spires search for Opticks
+--------------------------
+
+* https://inspirehep.net/literature?sort=mostrecent&size=25&page=1&q=Opticks
+
+
+Other Publications featuring Opticks
+--------------------------------------
+
+https://inspirehep.net/literature/2891204
+
+    *Performance of an Optical TPC Geant4 Simulation with Opticks GPU-Accelerated Photon Propagation*
+   
+    NEXT Collaboration, I.Parmaksiz, Feb 18, 2025
+
+    https://arxiv.org/abs/2502.13215
+
+    https://doi.org/10.48550/arXiv.2502.13215
+
+
+https://inspirehep.net/literature/2785167
+
+    *CaTS: Integration of Geant4 and Opticks*
+
+    Hans Wenzel, Soon Yung Jun, Krzysztof Genser, Felipe De Figueiredo,  6 May 2024 
+    https://www.epj-conferences.org/articles/epjconf/abs/2024/05/epjconf_chep2024_11004/epjconf_chep2024_11004.html
+
+    EPJ Web Conf. 295 (2024) 11004
+
+
+https://inspirehep.net/literature/2725317
+
+    *CP violation in neutral B meson oscillations and fast optical photon simulation on GPUs*
+
+    Yunlong Li, Manchester U. PhD Thesis, Dec 31, 2023
+
+
+https://inspirehep.net/literature/2678743
+
+    *Gpu-based optical photon simulation for the LHCb RICH 1 detector*
+
+    Li, Y., Davis, A., Easo, S. et al. 
+
+    Eur. Phys. J. C 83, 1036 (2023)
+
+    https://doi.org/10.1140/epjc/s10052-023-12158-7     
+
+    https://link.springer.com/article/10.1140/epjc/s10052-023-12158-7
+
+
+https://inspirehep.net/literature/1911755
+
+    *GPU simulation with Opticks: The future of optical simulations for LZ*
+
+    Oisín Creaner, Simon Blyth, Sam Eriksen,  Lisa Gerhardt, Maria Elena Monzani, Quentin Riffard
+
+    EPJ Web Conf. 251 (2021) 03037,   14 November 2023
+
+    https://doi.org/10.1051/epjconf/202125103037
+
+    https://www.epj-conferences.org/articles/epjconf/abs/2021/05/epjconf_chep2021_03037/epjconf_chep2021_03037.html 
+
+
+
+
+
+
+
+
+
+Opticks Videos
+----------------------
+
+.. raw:: html 
+
+   <iframe width="1024" height="576" src="https://www.youtube.com/embed/CBpOha4RzIs?rel=0" frameborder="0" allowfullscreen></iframe>
+
+.. class:: tiny 
+
+   https://www.youtube.com/watch?v=CBpOha4RzIs
+
+   Longer cut: https://www.youtube.com/watch?v=QzH6y0pKXk4 
+
+
+.. raw:: html 
+
+   <iframe height=498 width=510 src="http://player.youku.com/embed/XMTUxNjM3MzA4OA==" frameborder=0 allowfullscreen></iframe>
+
+.. class:: tiny 
+
+   http://v.youku.com/v_show/id_XMTUxNjM3MzA4OA==.html
+
+
+
+Introduction to CUDA
+----------------------
+
+Repository with some examples of CUDA and Thrust, including
+an extended "reconstruction" example integrating a Minuit2 
+controlled fit with NLL evaluated on the GPU using `thrust::transform_reduce`.
+
+* https://bitbucket.org/simoncblyth/intro_to_cuda/ 
+
+
+Introduction to NumPy
+----------------------
+
+Learning NumPy is highly recommended for more efficient 
+data preparation for upload to the GPU and analysis of results. 
+
+* https://bitbucket.org/simoncblyth/intro_to_numpy/ 
+
+
+
+Opticks Presentations 
+----------------------
+
+2025
+~~~~~~
+
+`env/presentation/opticks_20250708.html <env/presentation/opticks_20250708.html>`_
+
+    Status Report, *JUNOSW + Opticks : GPU ray trace accelerated optical photon simulation*
+
+    IHEP, Simulation AFG Meeting, Beijing, 8 July 2025    
+
+
+`env/presentation/opticks_20250303_ihep_gpu_symposium.html <env/presentation/opticks_20250303_ihep_gpu_symposium.html>`_
+
+    *JUNO + Opticks : GPU ray trace accelerated optical photon simulation*
+
+    GPU symposium on parallel and AI acceleration of high energy physics applications
+
+    IHEP, Beijing, 3 March 2025    
+
+
+2024
+~~~~~
+
+
+`env/presentation/opticks_20250115_kaiping_v2.html <env/presentation/opticks_20250115_kaiping_v2.html>`_
+
+   *Opticks : GPU ray trace accelerated optical photon simulation*
+ 
+   JUNO Collaboration Meeting, 15 January 2025, Kaiping, China
+
+
+`env/presentation/opticks_20241025_montreal_nEXO_light_simulations_workshop.html <env/presentation/opticks_20241025_montreal_nEXO_light_simulations_workshop.html>`_
+
+   *nEXO + Opticks ? NVIDIA OptiX accelerated optical photon simulation ?*
+
+   nEXO Light Simulation Framework Workshop, invited talk 
+
+   McGill University, Montreal, Canada, 25 October 2024
+
+`env/presentation/opticks_20241021_krakow_chep2024.html <env/presentation/opticks_20241021_krakow_chep2024.html>`_
+
+   *Opticks : GPU ray trace accelerated optical photon simulation*
+
+   CHEP, Krakow, Poland, 21 October 2024
+
+
+`env/presentation/opticks_20240702_kaiping_status_and_plan.html <env/presentation/opticks_20240702_kaiping_status_and_plan.html>`_
+
+   *JUNOSW+Opticks : Status and Plan*
+
+   JUNO Collaboration Meeting, 2 July 2024, Kaiping, China
+
+
+`env/presentation/opticks_20240418_ihep_epd_seminar_story_of_opticks.html <env/presentation/opticks_20240418_ihep_epd_seminar_story_of_opticks.html>`_
+
+    *The Story of Opticks, applying NVIDIA OptiX GPU ray tracing to Optical Photon Simulation*
+
+    IHEP EPD Seminar, Beijing, April 18, 2024
+
+    The story behind the development of Opticks will be detailed, covering the ups and downs 
+    of cutting edge development and some of the hard learned lessons of experience 
+    that can benefit anyone working on innovative new techniques. 
+
+
+`env/presentation/opticks_20240227_zhejiang_seminar.html <env/presentation/opticks_20240227_zhejiang_seminar.html>`_
+  
+    *Opticks : Optical Photon Simulation via GPU Ray Tracing from NVIDIA® OptiX™*
+
+    Zhejiang University Seminar, Hangzhou, 27 Feb 2024
+
+
+`env/presentation/opticks_20240224_offline_software_review.html <env/presentation/opticks_20240224_offline_software_review.html>`_
+  
+    *JUNOSW + Opticks : Status and Plan*
+
+    JUNO Collaboration Meeting, 24 Feb 2024, Kaiping
+    
+
+`env/presentation/opticks_20240215_geant4_forum.html <env/presentation/opticks_20240215_geant4_forum.html>`_
+
+    Slides describing G4OpBoundaryProcess customizations for the JUNO PMT Optical Model
+    (some of which may be presented by Cécile Jollet at the below meeting)
+
+    Geant4 Technical Forum, 15 Feb 2024
+
+
+
+2023
+~~~~~~~~
+
+
+
+`env/presentation/opticks_20231219_using_junosw_plus_opticks_release.html <env/presentation/opticks_20231219_using_junosw_plus_opticks_release.html>`_
+
+    Advert for first JUNOSW+Opticks relase
+
+    AFG Simulation Meeting, Dec 19, 2023
+
+
+`env/presentation/opticks_20231211_profile.html <env/presentation/opticks_20231211_profile.html>`_
+
+    Profiling + Status
+
+    Simulation Meeting, IHEP, Beijing, China, Dec 11, 2023
+
+
+
+`env/presentation/standalone_20230930_cpp_test_debug_ana_with_numpy.html <env/presentation/standalone_20230930_cpp_test_debug_ana_with_numpy.html>`_
+
+    Standalone C++ software testing, debugging and analysis with python packages: NumPy, matplotlib, pyvista, ...
+
+    Hohhot School, Inner Mongolia, China, Sept 30, 2023
+
+
+`env/presentation/opticks_20230907_release.html <env/presentation/opticks_20230907_release.html>`_
+
+    JUNOSW + Opticks : Release Planning 
+
+    JOC Meeting, IHEP, Beijing, Sept 7, 2023
+
+
+`env/presentation/opticks_20230726_kaiping_software_review.html <env/presentation/opticks_20230726_kaiping_software_review.html>`_
+
+   JUNO+Opticks : Progress Review
+
+   JUNO Summer Meeting, Kaiping, Software Review, July 26, 2023 
+
+
+`env/presentation/opticks_20230611_qingdao_sdu_workshop.html <env/presentation/opticks_20230611_qingdao_sdu_workshop.html>`_
+
+    Opticks : GPU Optical Photon Simulation via NVIDIA® OptiX™ 7, NVIDIA® CUDA™ (11 June 2023)
+
+    Workshop on HEP Computing and Software, SDU, Qingdao Campus, Remote Presentation
+
+
+`env/presentation/opticks_20230525_MR180_timestamp_analysis.html <env/presentation/opticks_20230525_MR180_timestamp_analysis.html>`_
+
+    Opticks + JUNO : MR180 Timestamp Analysis (25 May 2023)
+
+
+
+`env/presentation/opticks_20230508_chep.html <env/presentation/opticks_20230508_chep.html>`_
+
+    Opticks : GPU Optical Photon Simulation via NVIDIA® OptiX™ 7, NVIDIA® CUDA™ (8 May 2023)
+
+    Presented by Dr Tao Lin, IHEP, CAS
+
+
+`env/presentation/opticks_20230428_More_junoPMTOpticalModel_issues_and_Validation_of_CustomG4OpBoundaryProcess_fix.html <env/presentation/opticks_20230428_More_junoPMTOpticalModel_issues_and_Validation_of_CustomG4OpBoundaryProcess_fix.html>`_
+
+    Opticks + JUNO : More junoPMTOpticalModel issues and validation of CustomG4OpBoundaryProcess fix (28 April 2023)
+    
+
+
+`env/presentation/opticks_20230206_JUNO_PMT_Geometry_and_Optical_Model_Progress.html <env/presentation/opticks_20230206_JUNO_PMT_Geometry_and_Optical_Model_Progress.html>`_
+ 
+    Opticks + JUNO : PMT Geometry and Optical Model Progress  (6 February 2023)
+
+    Summary of last 6 months, Abstract:
+
+    PMT Geometry fixes and several bugs found with the FastSim based
+    junoPMTOpticalModel implementation are presented, including incorrect
+    polarization and propagation time.  A proposed fix using standard Geant4
+    together with customized G4OpBoundaryProcess is described. The fix has the
+    advantage of allowing a natural 2-volume PMT geometry which can also be used on
+    GPU. 
+
+
+
+2022
+~~~~~
+
+
+
+`env/presentation/opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix.html <env/presentation/opticks_20221220_junoPMTOpticalModel_FastSim_issues_and_CustomG4OpBoundaryProcess_fix.html>`_
+
+    *junoPMTOpticalModel* FastSim issues, and proposed fix using a *CustomG4OpBoundaryProcess* (20 December 2022)
+
+    * fixes would facilitate bringing the TMM functionality to GPU within Opticks
+
+`env/presentation/opticks_20221117_mask_debug_and_tmm.html  <env/presentation/opticks_20221117_mask_debug_and_tmm.html>`_
+
+    JUNO + Opticks geometry fixes (Mask, MaskTail, MaskVirtual) (17 November 2022)
+
+    * Validations reveals Opticks and JUNO bugs  
+
+      * rare close to ellipsoid "apex" rays missed : fixed with zcut+safety
+      * nmskSolidMaskTail uncoincidence : still spurious intersects
+      * thin cylinder (hz 0.15 mm) "lip" issue : mis-translation + precision loss     
+      * arises from near axial rays onto very thin cylinders
+      * fixed by reimplementing CSG_CYLINDER more simply (less flops)
+      * nmskSolidMaskVirtual : fixed : CSG_CONE quadratic precision loss, close to apex issue 
+      * hama : MaskTail crosses PMT body 
+
+    * junoPMTOpticalModel TMM calc on GPU  
+
+
+`env/presentation/opticks_20220718_towards_production_use_juno_collab_meeting.html <env/presentation/opticks_20220718_towards_production_use_juno_collab_meeting.html>`_
+
+    JUNO Progress Towards Production : Completed OptiX 7 Simulation re-implementation (July 18, 2022)
+
+    * Validation : Opticks-Geant4 A-B testing
+    * Opticks Packages : Many Removed, Many Added
+    * Simulation : Why so much had to be re-implemented ?
+    * Opticks Packages : Many more to be removed
+    * Systematic Approach to Random Alignment of Two Simulations  
+    * NEXT : Update JUNO-Opticks integration to use new Opticks
+  
+
+`env/presentation/opticks_20220329_progress_towards_production.html <env/presentation/opticks_20220329_progress_towards_production.html>`_
+
+    JUNO Progress Towards Production : QSim WIP (March 29, 2022)
+
+    * January : Updating to JUNO trunk geometry
+    * February : Generalize Opticks CSG to handle "list-nodes" : n-ary (not binary) CSG
+    * March : Geometry Optimization + Migrating Sim from Old to New Workflow
+    * Big Picture of Multi Year Transition to new workflow (OptiX 7 compatible) 
+    * Standalone Geant4 Tests : Cerenkov, RayLeigh, Boundary
+    * Boundary matched QSimTest.sh and G4OpBoundaryProcessTest.sh
+    * Dynamic Prim Selection :in memory CSGCopy with selection => construct any combination of Prim
+    
+      * enables per-prim measurement : to locate source of slowdowns 
+
+    * Dynamic Prim Selection Speed Scan : One "G4VSolid" Geometries
+
+
+
+`env/presentation/opticks_20220307_fixed_global_leaf_placement_issue.html <env/presentation/opticks_20220307_fixed_global_leaf_placement_issue.html>`_
+
+    JUNO Geometry Updates and Fixes (March 7, 2022)
+
+    * Investigate XJfixtureConstruction Complex CSG Solid 
+    * Reveals incompatibility of : CSG intersect alg and tree balancing
+    * develop CSG list-nodes as solution for complex CSG without balancing
+    * Algorithm for Ray Intersection onto Shape defined by CSG Tre
+    * Generalized Opticks CSG into three levels : tree < node < leaf (to support list-nodes without recursion)
+    * CSG_CONTIGUOUS Union : n-ary (not bin-ary) CSG intersection 
+    * CSG_OVERLAP Intersection : CSG intersection
+    * More closely suiting intersect algorithm to geometry => better performance
+    * transform bug from incomplete tree/node/leaf split
+    * OTracerTest debug comparing rasterized OpenGL render with raytrace render
+
+
+`env/presentation/opticks_20220227_LHCbRich_UK_GPU_HACKATHON.html <env/presentation/opticks_20220227_LHCbRich_UK_GPU_HACKATHON.html>`_
+
+    LHCb RICH + NVIDIA UK GPU HACKATHON (February 28, 2022)
+
+    * Instructions for RICH Simplified rendering with Opticks/CSGOptiX and NVIDIA OptiX 7 
+
+
+`env/presentation/opticks_20220118_juno_collaboration_meeting.html <env/presentation/opticks_20220118_juno_collaboration_meeting.html>`_
+
+    JUNO+Opticks Photons : Validation and Deployment Plan (January 18, 2022)
+
+    * Geometry/Translation Issues Summary
+    * PMT Mask Modelling Fix
+    * Fastener : interfering subtraction-of-subtraction issue from daughter cavity 
+    * Opticks CSG is surface-centric : more fragile but inherently faster that Geant4 volume-centric implementation
+    * 2D Geant4 Geometry Slicing
+    * Cutdown PMT breaks Opticks translation, ZSolid fix : actually cut the tree
+    * Render Speed Check After Geometry fixes : smallish time range 
+    * History Matching Check
+    * Chi2 points to PE_PA solid discrepant => XJfixtureConstruction
+    * XJfixtureConstruction :  Complex CSG causing coincidence problems 
+    * Investigate XJfixtureConstruction Positions : geometry overlaps, mid-chimney
+    * XJanchorConstruction : spurious line associated wit big sphere subtraction
+    * SJReceiverConstruction : disjoint
+
+`env/presentation/opticks_20220115_innovation_in_hep_workshop_hongkong.html <env/presentation/opticks_20220115_innovation_in_hep_workshop_hongkong.html>`_
+
+    IAS Program on High Energy Physics 2022 : Mini-workshop on Experiment/Detector: Innovation in HEP Detectors and Computing, January 13-14, 2022
+
+    Opticks : Innovation in Optical Photon Simulation via state-of-the-art GPU Ray Tracing from NVIDIA® OptiX™ (January 14, 2022)
+
+    * Movies ≈ monte carlo optical photon simulations 
+    * Fundamental "Rendering Equation" of Computer Graphics (Kajiya 1986), Neumann series solution 
+    * Monte carlo path tracing : limited by ray tracing 
+    * Optical Simulation : Computer Graphics vs Physics
+    * SIGGRAPH 2018 : NVIDIA Quadro RTX : leap in ray tracing performance
+
+
+
+2021
+~~~~~
+
+`env/presentation/opticks_20211223_pre_xmas.html <env/presentation/opticks_20211223_pre_xmas.html>`_
+
+   JUNO Opticks : OptiX 7 Ray Trace times >100x faster following geometry fixes (December 23, 2021) 
+
+   * ZSolid::ApplyZCutTree applied to both NNVT and Hama PMTs
+   * fixed base_steel G4Polycone with multiple R-inner
+   * Opticks-Offline CMake Integration
+   * subtraction of huge acrylic sphere led to huge Fastener bounding box
+     fixed by positivizing CSG tree and not including bbox of complemented
+   * render timings suggests no bad bottlenecks remaining
+   * LHCb RICH SphereWithPhiSegment : CSG_PHICUT unbounded expt
+   * NEXT : mask tail cutting across PMT bulb, integrate CSGOptiX into Opticks
+
+`env/presentation/opticks_20211117.html <env/presentation/opticks_20211117.html>`_
+
+   JUNO Opticks : PMT Z-cut issue : (November 17, 2021)
+ 
+   * Hamamatsu PMT Solid breaking Opticks : CSG tree height 8 : TOO DEEP
+   * SOLUTION ACTUALLY CUT THE CSG TREE : using ZSolid.hh
+   * ZSolid::ApplyZCutTree using "placement new" trick 
+   * MAJOR SIMPLIFICATION tree cut from (node:15, prim:8, height:7) -> (node:7, prim:4, height:3)
+
+
+`env/presentation/opticks_autumn_20211019.html <env/presentation/opticks_autumn_20211019.html>`_
+
+   Opticks Autumn : (October 19, 2021)
+
+   * Cerenkov energy sampling via ICDF lookups ?
+   * Monte Carlo "Rejection Sampling" VS "Inverse Transform Sampling"
+   * Opticks Updates for Geant4 11.beta (1100)
+   * Planar 2d ray tracing to create CSG geometry cross-sections (later known as "simtrace")
+   * AdditionAcrylicConstruction : pointless CSG subtraction of holes 
+   * CSG sub sub bug ? Subtracted subtraction yielding spurious intersects
+   * inherent CSG fragility regarding coincident faces
+   * DO NOT subtract CSG holes for daughters : not necessary, doubles expense, causes bugs
+
+
+`env/presentation/juno_opticks_cerenkov_20210902.html <env/presentation/juno_opticks_cerenkov_20210902.html>`_
+
+   JUNO Opticks : Summer Progress (Sep 2, 2021)
+
+   * "s2" Cerenkov integration (HMM: does s2 impl cope with float better ?)
+   * PMTSimParamSvc::get_pmt_ce bug 
+   * New Opticks Package for NVIDIA OptiX 7.0 API  : CSG, CSGOptiX, QUDARap, (transitional: CSG_GGeo)
+   * CPU/GPU counterpart header pattern eg QSim.hh/qsim.h 
+   * NEXT : Looking for single precision Cerenkov generation solution
+ 
+`env/presentation/lz_opticks_optix7_20210727.html <env/presentation/lz_opticks_optix7_20210727.html>`_
+
+    Notes on OptiX 6->7 migration : "Qudarap" pure CUDA photon generation (July 27, 2021, Virtual, H7)
+
+    * Cerenkov Matching : requires double precision rejection sampling, attempts to understand why 
+    * nascent qudarap : qctx.h(later becomes qsim.h) 
+    * NEXT : gs seeding photons, integrate CSGOptiX with qudarap
+
+`env/presentation/juno_opticks_20210712.html <env/presentation/juno_opticks_20210712.html>`_
+
+    JUNO Opticks/Geant4 Optical Photon Simulation Matching (July 12, 2021)
+
+    * Tools for Optical Photon Simulation Matching
+    * JUNO Offline DsG4Scintillation : Reemission Bookkeeping
+    * Long list of fixed JUNO-Opticks material property/geometry issues
+    * Scintillation Wavelength chi2 Matching : Multi-resolution GPU texture
+    * JUNO Offline trunk G4Cerenkov_modified : BUG FIX 
+    * NEXT : Slow Fasteners CSG, Unify wit OptiX 7 "branch"
+
+`env/presentation/opticks_vchep_2021_may19.html <env/presentation/opticks_vchep_2021_may19.html>`_
+
+    Integration of JUNO simulation framework with *Opticks*  (May 19, 2021) vCHEP 
+
+    * New "Foundry" Model : Shared CPU/GPU Geometry Context
+    * First OptiX 7 Renders : slow geometry found 
+
+`env/presentation/lz_opticks_optix7_20210518.html <env/presentation/lz_opticks_optix7_20210518.html>`_
+
+    Notes on OptiX 6->7 migration, *CSG*, *CSG_GGeo*, *CSGOptiX* (May 18, 2021, Virtual, H6)
+
+    1st full JUNO ray trace with OptiX 7 *CSGOptiX* enabled by *CSGFoundry* model
+
+`env/presentation/lz_opticks_optix7_20210504.html <env/presentation/lz_opticks_optix7_20210504.html>`_
+
+    Notes on OptiX 6->7 migration, *CSG*, *CSGOptiX*, *CSGOptiXGGeo* (May 4, 2021, Virtual, H5)
+ 
+    * https://github.com/simoncblyth/CSG/commits
+    * https://github.com/simoncblyth/CSGOptiX/commits
+    * https://github.com/simoncblyth/CSGOptiXGGeo/commits
+
+`env/presentation/juno_opticks_20210426.html <env/presentation/juno_opticks_20210426.html>`_
+
+    JUNO-Opticks Notes, slow solids identified (April 26, 2021)
+
+`env/presentation/lz_opticks_optix7_20210406.html <env/presentation/lz_opticks_optix7_20210406.html>`_
+
+    Notes on OptiX 6->7 migration, "Foundry" CSG Model (April 4, 2021, Virtual, H4)
+ 
+    * https://github.com/simoncblyth/OptiXTest/commits
+
+`env/presentation/lz_opticks_optix7_20210315.html <env/presentation/lz_opticks_optix7_20210315.html>`_
+
+    Notes on OptiX 6->7 migration, (Mar 15, 2021, Virtual, H3)
+ 
+    * https://github.com/simoncblyth/OptiXTest/commits
+
+`env/presentation/opticks_detector_geometry_caf_mar2021.html <env/presentation/opticks_detector_geometry_caf_mar2021.html>`_
+
+    Compute Accelerator Forum (March 10, 2021, Virtual, 20+10 min)
+
+    * `env/presentation/opticks_detector_geometry_caf_mar2021.pdf <env/presentation/opticks_detector_geometry_caf_mar2021.pdf>`_ (23 MB)
+    * https://indico.cern.ch/event/975008/
+
+`env/presentation/lz_opticks_optix7_20210225.html <env/presentation/lz_opticks_optix7_20210225.html>`_
+
+    Notes on OptiX 6->7 migration, (Feb 25, 2021, Virtual, H2)
+
+    * https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASDyn/README.rst
+
+`env/presentation/lz_opticks_optix7_20210208.html <env/presentation/lz_opticks_optix7_20210208.html>`_
+
+    Notes on OptiX 6->7 migration, (Feb 8, 2021, Virtual, H1)
+
+    * https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASComp/README.rst
+
+`env/presentation/opticks_jan2021_juno_sim_review.html <env/presentation/opticks_jan2021_juno_sim_review.html>`_ (Feb 1, 2021, Virtual)
+
+    Review JUNO + Opticks progress + plans, 20 mins
+    
+
+2020
+~~~~~~~
+
+`env/presentation/opticks_aug2020_sjtu_neutrino_telescope_workshop.html <env/presentation/opticks_aug2020_sjtu_neutrino_telescope_workshop.html>`_ (August 2020, Virtual)
+
+    SJTU Shanghai, Next Generation Neutrino Telescope Workshop 
+
+    *Opticks : GPU photon simulation via NVIDIA® OptiX™ + GPU/Graphics background + Application to neutrino telescope simulations ?*
+
+`env/presentation/opticks_jul2020_juno.html <env/presentation/opticks_jul2020_juno.html>`_ (6 July 2020, IHEP Virtual)
+
+    JUNO Collaboration Meeting, Software Session
+
+    *Integration of JUNO Offline + Opticks : GPU Optical Simulation with NVIDIA® OptiX™*
+
+`env/presentation/opticks_may2020_hsf.html <env/presentation/opticks_may2020_hsf.html>`_ (27 May 2020, CERN Virtual)
+
+    HSF Simulation Working Group Meeting, 20 minutes presentation 
+
+    *Opticks GPU Optical Simulation with NVIDIA® OptiX™ - Development Experience : Problems and Successes*
+
+
+Winter 2019
+~~~~~~~~~~~~~~
+
+`env/presentation/opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar.html <env/presentation/opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar.html>`_  (Dec 2019, Beijing)
+
+    IHEP EPD/PIFI Seminar 
+
+    *Opticks : GPU Optical Simulation via NVIDIA® OptiX™ + A Mental Model for Effective Application of GPUs*
+
+`env/presentation/opticks_gpu_optical_photon_simulation_nov2019_chep.html <env/presentation/opticks_gpu_optical_photon_simulation_nov2019_chep.html>`_ (Nov 2019, Adelaide)
+
+    CHEP 2019 Invited Plenary 
+
+    *Meeting the Challenge of JUNO Simulation with Opticks : GPU Optical Photon Acceleration via NVIDIA® OptiX™*
+
+
+Summer 2019 : Opticks status 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`env/presentation/opticks_gpu_optical_photon_simulation_jul2019_ihep.html <env/presentation/opticks_gpu_optical_photon_simulation_jul2019_ihep.html>`_ (July 2019, Beijing)
+
+    JUNO Collaboration Meeting
+
+    *Progress with JUNO + Opticks : GPU Optical Photon Simulation with NVIDIA OptiX*
+
+
+
+Early 2019 : Opticks status 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`env/presentation/opticks_gpu_optical_photon_simulation_jan2019_sjtu.html <env/presentation/opticks_gpu_optical_photon_simulation_jan2019_sjtu.html>`_ (17 Jan 2019, Shanghai)
+
+    JUNO Collaboration Meeting
+
+    *Status of Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
+
+
+Autumn 2018 : Tools, Techniques and Opticks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`env/presentation/opticks_gpu_optical_photon_simulation_oct2018_ihep.html <env/presentation/opticks_gpu_optical_photon_simulation_oct2018_ihep.html>`_ (31 Oct 2018, Beijing)
+
+    IHEP Seminar  
+
+    *Tools, Techniques and Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
+
+
+Summer 2018 : Opticks Progress : Direct workflow, aligned validation  
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`env/presentation/opticks_gpu_optical_photon_simulation_jul2018_chep.html <env/presentation/opticks_gpu_optical_photon_simulation_jul2018_chep.html>`_ (10 July 2018, Sofia)
+
+    CHEP 2018 Conference
+
+    *Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
+
+
+
+Brief Opticks Introductory presentation, with many backup slides
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`env/presentation/opticks_gpu_optical_photon_simulation_sep2017_wollongong.html <env/presentation/opticks_gpu_optical_photon_simulation_sep2017_wollongong.html>`_ (Sep 2017, Wollongong)
+
+    Geant4 Collaboration Meeting,  University of Wollongong, Australia
+
+    A brief introduction to Opticks, presented in plenary session despite being listed in parallel. 
+
+    *Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
+
+
+
+Autumn 2017 : Opticks Introductory presentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`env/presentation/opticks_gpu_optical_photon_simulation_sep2017_jinan.html <env/presentation/opticks_gpu_optical_photon_simulation_sep2017_jinan.html>`_ (Sep 2017, Jinan)
+
+    Shandong University, Physics Dept, Jinan, China
+
+    *Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
+
+
+
+Summer 2017 : moving to fully analytic geometry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`env/presentation/opticks_gpu_optical_photon_simulation_jul2017_ihep.html <env/presentation/opticks_gpu_optical_photon_simulation_jul2017_ihep.html>`_ (July 2017, Beijing)
+
+    JUNO Collaboration Meeting, IHEP, Beijing, China
+
+    *Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
+
+
+Early 2017 : optical simulation validated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`env/presentation/opticks_gpu_optical_photon_simulation_jan2017_psroc.html <env/presentation/opticks_gpu_optical_photon_simulation_jan2017_psroc.html>`_ (17 Jan 2017, Taipei)
+
+    PSROC Annual Meeting, Tamkang University, TKU, New Taipei City, Taiwan
+
+    *Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
+
+
+Late 2016 : optical simulation validated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+`env/presentation/opticks_gpu_optical_photon_simulation_nov2016_llr.html <env/presentation/opticks_gpu_optical_photon_simulation_nov2016_llr.html>`_ (2 Dec 2016, Paris)
+
+    JUNO Workshop, LLR, Ecole Polytechnique 
+
+    *Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
+
+
+`env/presentation/opticks_gpu_optical_photon_simulation_oct2016_chep.html <env/presentation/opticks_gpu_optical_photon_simulation_oct2016_chep.html>`_ (11 Oct 2016, CHEP Conference, San Francisco)
+
+    CHEP 2016 Conference
+
+    *Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
+
+
+Mid 2016
+~~~~~~~~~~~~
+
+
+`env/presentation/opticks_gpu_optical_photon_simulation_jul2016_weihai.html <env/presentation/opticks_gpu_optical_photon_simulation_jul2016_weihai.html>`_ (19 July 2016, Weihai, China)
+
+    Shandong University Particle Physics Summer School
+
+    *Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
+
+
+
+`env/presentation/opticks_gpu_optical_photon_simulation_may2016_lecospa.html <env/presentation/opticks_gpu_optical_photon_simulation_may2016_lecospa.html>`_ (16 May 2016, NTU, Taipei)
+
+    Seminar, Leung Center for Cosmology and Particle Astrophysics (LeCosPA) of the National Taiwan University (NTU) 
+
+    *Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
+
+
+Early 2016
+~~~~~~~~~~~~
+
+`env/presentation/opticks_gpu_optical_photon_simulation_april2016_gtc.html <env/presentation/opticks_gpu_optical_photon_simulation_april2016_gtc.html>`_ (April 2016, GPU Technology Conference, San Jose)
+
+    *Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
+
+    http://on-demand.gputechconf.com/gtc/2016/video/S6320.html GTC Talk Video (25 mins) 
+
+
+`env/presentation/opticks_gpu_optical_photon_simulation_march2016.html <env/presentation/opticks_gpu_optical_photon_simulation_march2016.html>`_ (March 2016, DYB Meeting, Beijing)
+
+    *Opticks : GPU Optical Photon Simulation*
+
+    Includes single PMT validation
+
+
+`env/presentation/opticks_gpu_optical_photon_simulation.html <env/presentation/opticks_gpu_optical_photon_simulation.html>`_ (Jan 2016, JUNO Meeting, Xiamen)
+
+    *Opticks : GPU Optical Photon Simulation*
+
+`env/presentation/opticks_gpu_optical_photon_simulation_psroc.html <env/presentation/opticks_gpu_optical_photon_simulation_psroc.html>`_ (Jan 2016, PSROC Meeting, Kaoshiung)
+
+    *Opticks : GPU Optical Photon Simulation* 
+
+    Same ground as Xiamen talk, but aiming at more diverse audience
+
+
+Mid 2015
+~~~~~~~~~~~
+
+`env/presentation/optical_photon_simulation_with_nvidia_optix.html <env/presentation/optical_photon_simulation_with_nvidia_optix.html>`_ (July 2015, JUNO Meeting, Beijing)
+
+    *Optical Photon Simulation with NVIDIA OptiX*
+
+    Why not Chroma ? Intro to OptiX. Developments needed to adopt it.
+
+
+Early 2015
+~~~~~~~~~~~
+
+`env/presentation/gpu_optical_photon_simulation.html <env/presentation/gpu_optical_photon_simulation.html>`_ (Jan 2015, JUNO Meeting, Guangzhou)
+
+    *200x Faster Optical Photon Propagation with NuWa + Chroma ?* 
+
+    Getting Chroma operational with Dayabay Geometry, Runtime bridge development
+
+
+`env/presentation/gpu_accelerated_geant4_simulation.html <env/presentation/gpu_accelerated_geant4_simulation.html>`_ (Jan 2015, DYB Meeting, Hong Kong)
+
+    *GPU Accelerated Geant4 Simulation with G4DAE and Chroma*
+
+    Similar to Guangzhou talk, covers GPU generation of DYB Cerenkov and Scintillation photons
+
+
+Late 2014
+~~~~~~~~~~
+
+`env/presentation/g4dae_geometry_exporter.html <env/presentation/g4dae_geometry_exporter.html>`_ (Sept 2014, Geant4 Meeting, Okinawa)
+
+   *G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files*
+     
+
+reports
+--------
+
+May 2017
+~~~~~~~~~~
+
+* `env/report/ntu-simoncblyth-may-2017.docx <env/report/ntu-simoncblyth-may-2017.docx>`_
+* `env/report/ntu-simoncblyth-may-2017.pdf <env/report/ntu-simoncblyth-may-2017.pdf>`_
+* `env/report/ntu-simoncblyth-may-2017.rst <env/report/ntu-simoncblyth-may-2017.rst>`_
+
+Jan 2017
+~~~~~~~~~~
+
+* `env/report/opticks-blyth-chep2016.pdf <env/report/opticks-blyth-chep2016.pdf>`_
+
+Dec 2016
+~~~~~~~~~
+
+* `env/report/ntu-simoncblyth-dec-2016.docx <env/report/ntu-simoncblyth-dec-2016.docx>`_
+* `env/report/ntu-simoncblyth-dec-2016.pdf <env/report/ntu-simoncblyth-dec-2016.pdf>`_
+* `env/report/ntu-simoncblyth-dec-2016.rst <env/report/ntu-simoncblyth-dec-2016.rst>`_
+
+May 2016
+~~~~~~~~~
+
+* `env/report/ntu-simoncblyth-may-2016.docx <env/report/ntu-simoncblyth-may-2016.docx>`_
+* `env/report/ntu-simoncblyth-may-2016.pdf <env/report/ntu-simoncblyth-may-2016.pdf>`_
+* `env/report/ntu-simoncblyth-may-2016.rst <env/report/ntu-simoncblyth-may-2016.rst>`_
+
+May 2015
+~~~~~~~~~~
+
+* `env/report/ntu-simoncblyth-may-2015.docx  <env/report/ntu-simoncblyth-may-2015.docx>`_
+* `env/report/ntu-simoncblyth-may-2015.pdf  <env/report/ntu-simoncblyth-may-2015.pdf>`_
+* `env/report/ntu-simoncblyth-may-2015.rst  <env/report/ntu-simoncblyth-may-2015.rst>`_
+
+
+*g4dae : Geant4 geometry exporter*
+-----------------------------------
+
+* http://bitbucket.io/simoncblyth/g4dae 
+
+
+*Assimp fork : G4DAE extra property handling in C++*
+-------------------------------------------------------
+
+* http://github.com/simoncblyth/assimp
+
+
+*g4daeview : g4dae OpenGL viewer application*
+-----------------------------------------------
+
+* TODO: split code from env into its own repo
+* `env/notes/geant4/geometry/collada/g4daeview/g4daeview_usage/ <env/notes/geant4/geometry/collada/g4daeview/g4daeview_usage/>`_
+
+*chroma fork : GPU optical photon simulation* 
+-----------------------------------------------
+
+* http://bitbucket.io/simoncblyth/chroma
+
+
+*env : Infrastructure bash/python scripts, dev cradle*
+-------------------------------------------------------------
+
+* http://bitbucket.io/simoncblyth/env 
+* https://bitbucket.io/envsys/profile/members  **envsys** team members
+* `env/notes/ <env/notes/>`_  Development notes
+
+*Misc*
+-------
+
+* http://bitbucket.io/simoncblyth/heprez Machinery for the HFAG b2charm group webapp.
+* http://bitbucket.io/simoncblyth/MeshLab fork adding COLLADA loading optimization
+* http://bitbucket.io/simoncblyth/tracdev
+* http://github.com/simoncblyth The other place
+
+*Sources for this index page*
+-------------------------------
+
+* https://bitbucket.io/simoncblyth/env/src/tip/simoncblyth.bitbucket.io/
+* https://bitbucket.io/simoncblyth/simoncblyth.bitbucket.io/src
+
+
+
+.. comment
+
+   <a href="https://www.dropbox.com/s/xkr0hoic8v7ino3/opticks_gpu_optical_photon_simulation_april2016_gtc.pdf?dl=0"> p <a>
+   <a href="https://www.dropbox.com/s/e0icy5lpgsoebwj/Opticks_GTC_001.mp4?dl=0"> m <a>
+
+
+How to Update the io servers
+-----------------------------------------------
+
+* https://simoncblyth.bitbucket.io
+* https://simoncblyth.github.io
+
+::
+
+    cd ~/simoncblyth.bitbucket.io
+    git push
+    git push github 
+
+
+How to update the juno.ihep.ac.cn server
+------------------------------------------
+
+* https://juno.ihep.ac.cn/~blyth/
+
+::  
+
+    tun   # open tunnel 
+    N     # connect to workstation
+    ssh W # connect to web server
+
+    cd simoncblyth.bitbucket.io
+    git pull 
+    
+
+    
+
+    
+

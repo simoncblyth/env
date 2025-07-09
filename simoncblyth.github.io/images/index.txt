@@ -1,0 +1,130 @@
+*Opticks Images*
+===================================
+
+Thumbnail captions link to larger images, mostly (1920,1080) 
+--------------------------------------------------------------
+
+Feel free to use these images in your presentations, where appropriate give attribution by mentioning **Opticks**.
+
+
+.. figure:: ../env/Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005_thumb4.png
+
+    `Geant4 + Opticks + NVIDIA OptiX 7 : Hybrid Workflow  <../env/Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png>`_
+
+
+.. figure:: ../env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001_thumb4.png
+
+    `OLD : Opticks Hybrid Photon Simulation Workflow Compared to Geant4  <../env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png>`_
+
+
+.. figure:: ../env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0_moi_-1_thumb4.jpg
+
+    `JUNO : Opticks NVIDIA OptiX 7 Ray Trace Render </env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0_moi_-1.jpg>`_
+
+
+
+.. figure:: ../env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0,_moi_-1_thumb4.jpg
+
+   `JUNO : Opticks NVIDIA OptiX 7 Ray Trace Render : Showing only instanced geometry </env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0,_moi_-1.jpg>`_ 
+
+
+
+.. figure:: ../env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-BT5-SD_thumb4.png
+
+   `JUNO : Photon Propagation Render, only showing direct to detection photons <../env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-BT5-SD.png>`_
+
+
+
+.. figure:: ../env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-SC-BT5-SD_thumb4.png
+
+   `JUNO : Photon Propagation Render, only showing scatter then direct to detection photons </env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-SC-BT5-SD.png>`_
+
+
+
+.. figure:: ../env/presentation/face_view_PMTs_thumb4.png 
+
+    `JUNO : Face view large and small PMTs <../env/presentation/face_view_PMTs.png>`_ 
+
+
+
+.. figure:: ../env/graphics/ggeoview/jpmt-before-contact_half_thumb4.png
+
+    `JUNO : Optical Photon Simulation Problem ... <../env/graphics/ggeoview/jpmt-before-contact_half.png>`_
+
+
+
+.. figure:: ../env/graphics/ggeoview/jpmt-inside-wide_half_thumb4.png
+
+    `JUNO : Muon Event Photon Propagation  <../env/graphics/ggeoview/jpmt-inside-wide_half.png>`_
+
+
+
+.. figure:: ../env/presentation/geocache_360_thumb4.png
+
+    `JUNO : Equirectangular projection showing all Central Detector PMTs  <../env/presentation/geocache_360.png>`_
+
+
+
+
+.. figure:: ../env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cam_0_t0/cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_0.4_sWaterTube_thumb4.jpg
+
+    `JUNO : Chimney, PMTs and Fasteners  <../env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cam_0_t0/cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_0.4_sWaterTube.jpg>`_
+
+
+
+.. figure:: ../env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/NNVT:0:1000/cam_0_t0/cxr_view___eye_0,2,-4,1__zoom_1__tmin_0.4_NNVT:0:1000_thumb4.jpg
+
+    `JUNO : PMTs and Fasteners <../env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/NNVT:0:1000/cam_0_t0/cxr_view___eye_0,2,-4,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg>`_
+
+
+
+
+
+.. figure:: ../env/presentation/pr/Dr_Simon_C_Blyth_Presenting_Opticks_At_CHEP_2019_To_Plenary_Audience_of_500_0_thumb8.jpg
+
+    `CHEP 2019 Plenary Presentation 0 </env/presentation/pr/Dr_Simon_C_Blyth_Presenting_Opticks_At_CHEP_2019_To_Plenary_Audience_of_500_0.jpg>`_
+
+
+.. figure:: ../env/presentation/pr/Dr_Simon_C_Blyth_Presenting_Opticks_At_CHEP_2019_To_Plenary_Audience_of_500_1_thumb8.jpg
+
+    `CHEP 2019 Plenary Presentation 1 </env/presentation/pr/Dr_Simon_C_Blyth_Presenting_Opticks_At_CHEP_2019_To_Plenary_Audience_of_500_1.jpg>`_
+
+
+How to add image links with thumbnails
+----------------------------------------
+
+::
+
+   presentation-
+   presentation-e     # add meta:thumb annotation string to s5_background_image.txt of images to thumbnail
+
+   cd ~/env/presentation
+
+   ./titles.sh        # creates /tmp/thumb_urls.txt (and several other .txt with urls in them)
+
+   ./thumbnails.sh    # create any new thumbs  
+
+    #cd ~/env/simoncblyth.bitbucket.io/images
+    cd ~/env/simoncblyth.github.io/images
+
+    vi index.txt    # add figures with thumbs and links to originals 
+    make            # update the index
+
+
+    #cd ~/simoncblyth.bitbucket.io
+    cd ~/simoncblyth.github.io
+
+    git s
+    git commit / git push etc..
+
+    #open https://simoncblyth.bitbucket.io/images/index.html
+    open https://simoncblyth.github.io/images/index.html
+
+
+    cd ~/env/presentation
+    ./thumbnails.sh 
+
+
+
+
+
