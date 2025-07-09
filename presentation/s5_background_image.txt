@@ -2841,6 +2841,12 @@
     GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama2_ipc_20250707_165111.png
     GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/Hama2_ipc/20250707_165111.png 1280px_720px
 
+    GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_side_ipc_20250709_173548.png
+    GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/wp_pmt_side_ipc/20250709_173548.png 1280px_720px
+
+    GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_side_ipc_20250709_173549.png
+    GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/wp_pmt_side_ipc/20250709_173549.png 1280px_720px
+
     ##
     ## git mv SGLFW_SOPTIX_Scene_test/EVT/wp_pmt_ipc/Screenshot_from_2025-07-01_20-03-28.png GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/wp_pmt_ipc/20250701_200328.png
     ## git mv SGLFW_SOPTIX_Scene_test/EVT/wp_pmt_ipc/Screenshot_from_2025-07-01_20-03-37.png GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/wp_pmt_ipc/20250701_200337.png
