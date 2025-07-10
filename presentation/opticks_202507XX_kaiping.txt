@@ -203,6 +203,14 @@ SemiCircle WP_PMT
 ``Virtual wrapper volume "touching" PMT at apex and waist : causing Opticks problems``
 
 
+:i:`GEOM_J25_4_0_opticks_Debug_cxt_min_PMT_20inch_veto_0_1000_20250710_170431.png` 
+-----------------------------------------------------------------------------------
+
+``simtrace``
+
+
+
+
 
 
 Outline
