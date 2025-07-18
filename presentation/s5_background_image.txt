@@ -2853,6 +2853,12 @@
     GEOM_J25_4_0_opticks_Debug_cxt_min_PMT_20inch_veto_0_1000_20250710_170431.png
     GEOM/J25_4_0_opticks_Debug/cxt_min/PMT_20inch_veto_0_1000/20250710_170431.png 1280px_720px
 
+    GEOM_BigWaterPool_cxt_precision_simtrace_input_photon_poolcover_and_refine_20250718_211808.png
+    GEOM/BigWaterPool/cxt_precision/simtrace/input_photon_poolcover_and_refine/20250718_211808.png 1280px_720px
+
+    GEOM_BigWaterPool_cxt_precision_simtrace_input_photon_poolcover_and_refine_20250718_212024.png
+    GEOM/BigWaterPool/cxt_precision/simtrace/input_photon_poolcover_and_refine/20250718_212024.png 1280px_720px
+
     ##
     ## git mv SGLFW_SOPTIX_Scene_test/EVT/wp_pmt_ipc/Screenshot_from_2025-07-01_20-03-28.png GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/wp_pmt_ipc/20250701_200328.png
     ## git mv SGLFW_SOPTIX_Scene_test/EVT/wp_pmt_ipc/Screenshot_from_2025-07-01_20-03-37.png GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/wp_pmt_ipc/20250701_200337.png

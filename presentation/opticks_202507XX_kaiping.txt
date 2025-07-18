@@ -64,6 +64,17 @@
 
 
 
+
+:i:`GEOM_BigWaterPool_cxt_precision_simtrace_input_photon_poolcover_and_refine_20250718_211808.png` 
+----------------------------------------------------------------------------------------------------
+
+
+:i:`GEOM_BigWaterPool_cxt_precision_simtrace_input_photon_poolcover_and_refine_20250718_212024.png` 
+----------------------------------------------------------------------------------------------------
+
+
+
+
 WP_PMT side
 ---------------
 
@@ -118,7 +129,11 @@ SemiCircle WP_PMT
 .. comment 
 
     junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 26318 hitCollectionAlt 26172 hcMuon 0 GPU YES
+    junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 26314 hitCollectionAlt 26175 hcMuon 0 GPU YES
+
     SABHit  a_nhit : (   26172 +-  161 )  b_nhit:(    26318 +-  162 )  a/b: (  0.994 +-  0.012 )  b/a: (  1.006 +-  0.012)  [assume uncorr.]
+    SABHit  a_nhit : (   26175 +-  161 )  b_nhit:(    26314 +-  162 )  a/b: (  0.995 +-  0.012 )  b/a: (  1.005 +-  0.012)     
+
 
     InputPhotonsCheck_WP_virtualwrapper_touching.rst
 
@@ -1149,6 +1164,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 .. comment
 
     junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 124 hitCollectionAlt 140 hcMuon 0 GPU YES
+    junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 124 hitCollectionAlt 141 hcMuon 0 GPU YES
 
 
 .. class:: small
