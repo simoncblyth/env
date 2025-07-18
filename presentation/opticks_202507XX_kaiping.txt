@@ -65,6 +65,15 @@
 
 
 
+:i:`GEOM_BigWaterPool_SGLFW_SOPTIX_Scene_test_poolcover_cxs_20250718_214233.png` 
+---------------------------------------------------------------------------------
+
+
+:i:`GEOM_BigWaterPool_SGLFW_SOPTIX_Scene_test_poolcover_cxs_20250718_214551.png` 
+---------------------------------------------------------------------------------
+
+
+
 :i:`GEOM_BigWaterPool_cxt_precision_simtrace_input_photon_poolcover_and_refine_20250718_211808.png` 
 ----------------------------------------------------------------------------------------------------
 
