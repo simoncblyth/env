@@ -1386,8 +1386,10 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 
 
-:small:`OPTICKS_PROPAGATE_REFINE=1 CSGOptiX/CSGOptiX7.cu (from v0.5.1)`
---------------------------------------------------------------------------------
+:small:`optixTrace called twice for "long" rays, refining intersect (from v0.5.1)`
+------------------------------------------------------------------------------------
+
+``CSGOptiX/CSGOptiX7.cu``
 
 .. raw:: html
 
@@ -1412,13 +1414,46 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. class:: small
 
-   Refine intersect with 2nd **optixTrace** call from *closer_ray_origin*, config eg::
+   Refine intersect with 2nd **optixTrace** call from *closer_ray_origin*
+
+   * reduce precision loss by avoiding FLOPS between very different values 
+
+
+::
 
        export OPTICKS_PROPAGATE_REFINE=1 
        export OPTICKS_PROPAGATE_REFINE_DISTANCE=5000 # mm
 
 
 
+
+:small:`RAY TRACING GEMS II, Chapter 34, IMPROVING NUMERICAL PRECISION IN INTERSECTION PROGRAMS (Ingo Wald, NVIDIA)`
+---------------------------------------------------------------------------------------------------------------------
+
+.. class:: normal
+
+   https://link.springer.com/content/pdf/10.1007/978-1-4842-7185-8.pdf
+
+
+::
+
+    fp0 (sign, exponent, mantissa)
+    fp1 (sign, exponent, mantissa)
+
+.. class:: small
+
+    FLOP : 1st shift mantissa bits of smaller value to bring to same exponent as larger
+
+    *extinction/vanishing* : shift looses of mantissa bits of smaller value 
+
+    * :r:`more difference of exponents => more shift => more precision loss`
+    * :b:`reduce precision loss by intersect from closer_ray_origin`
+
+
+.. figure:: /env/presentation/IEEE-754/IEEE-754-ENGLISH.jpg
+   :alt: Logo
+   :align: center
+   :width: 720px
 
 
 :small:`100k Input Photons CircleXZ from WP top : OPTICKS_PROPAGATE_REFINE`
