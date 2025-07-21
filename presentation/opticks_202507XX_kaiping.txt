@@ -65,25 +65,6 @@
 
 
 
-:i:`GEOM_BigWaterPool_SGLFW_SOPTIX_Scene_test_poolcover_cxs_20250718_214233.png` 
----------------------------------------------------------------------------------
-
-
-:i:`GEOM_BigWaterPool_SGLFW_SOPTIX_Scene_test_poolcover_cxs_20250718_214551.png` 
----------------------------------------------------------------------------------
-
-
-
-:i:`GEOM_BigWaterPool_cxt_precision_simtrace_input_photon_poolcover_and_refine_20250718_211808.png` 
-----------------------------------------------------------------------------------------------------
-
-
-:i:`GEOM_BigWaterPool_cxt_precision_simtrace_input_photon_poolcover_and_refine_20250718_212024.png` 
-----------------------------------------------------------------------------------------------------
-
-
-
-
 WP_PMT side
 ---------------
 
@@ -337,30 +318,36 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
    Use *Opticks+JUNOSW* by sourcing ``envset.sh``, eg:
 
+
+.. comment
+
+   source /cvmfs/opticks.ihep.ac.cn/oj/releases/J25.4.0_Opticks-v0.5.0/el9_amd64_gcc11/2025_07_07/envset.sh
+
 .. raw:: html
 
    <pre class="mypre18">
-   source /cvmfs/opticks.ihep.ac.cn/oj/releases/J25.4.0_Opticks-v0.5.0/el9_amd64_gcc11/2025_07_07/envset.sh
+   source /cvmfs/opticks.ihep.ac.cn/oj/releases/J25.4.0_Opticks-v0.5.1/el9_amd64_gcc11/2025_07_17/envset.sh 
    </pre>
 
 .. class:: normal
 
     * Every day + when JUNOSW/Simulation changes => automated OJ build + test + release 
-    * :b:`For reproducibility, use dated reference releases` eg **2025_07_07**
+    * :b:`For reproducibility, use dated reference releases` eg **2025_07_17**
     * ``tut_detsim.py --opticks-mode 1`` is default (optical simulation on GPU)
 
 .. raw:: html
 
     <pre class="mypre25">A[blyth@localhost el9_amd64_gcc11]$ pwd
-    /cvmfs/opticks.ihep.ac.cn/oj/releases/J25.4.0_Opticks-v0.5.0/el9_amd64_gcc11
+    /cvmfs/opticks.ihep.ac.cn/oj/releases/J25.4.0_Opticks-v0.5.1/el9_amd64_gcc11
 
     A[blyth@localhost el9_amd64_gcc11]$ ls -lt
-    lrwxrwxrwx. 1 cvmfs cvmfs  10 Jul  7 14:33 LastRef -> 2025_07_07
-    lrwxrwxrwx. 1 cvmfs cvmfs   3 Jul  7 12:46 Latest -> Mon
-    drwxr-xr-x. 7 cvmfs cvmfs 181 Jul  7 12:40 2025_07_07
-    drwxr-xr-x. 7 cvmfs cvmfs 181 Jul  7 12:40 Mon
-    drwxr-xr-x. 7 cvmfs cvmfs 181 Jul  6 17:32 Sun
-    drwxr-xr-x. 7 cvmfs cvmfs 181 Jul  5 17:36 Sat
+    1 lrwxrwxrwx. 1 cvmfs cvmfs   3 Jul 20 17:42 Latest -> Sun
+    1 drwxr-xr-x. 7 cvmfs cvmfs 181 Jul 20 17:36 Sun
+    1 drwxr-xr-x. 7 cvmfs cvmfs 181 Jul 19 17:33 Sat
+    1 drwxr-xr-x. 7 cvmfs cvmfs 181 Jul 18 17:33 Fri
+    1 drwxr-xr-x. 7 cvmfs cvmfs 181 Jul 17 17:36 Thu
+    1 lrwxrwxrwx. 1 cvmfs cvmfs  10 Jul 17 16:32 LastRef -> 2025_07_17
+    1 drwxr-xr-x. 7 cvmfs cvmfs 181 Jul 17 15:39 2025_07_17
     </pre>
 
 
@@ -1186,6 +1173,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
     SABHit  a_nhit : (     140 +-   11 )  b_nhit:(      124 +-   11 )  a/b: (  1.129 +-  0.197 )  b/a: (  0.886 +-  0.154)
     </pre>
 
+
 .. raw:: html
 
     <pre class="mypre18">TEST=POOLCOVER ipc chi2
@@ -1220,25 +1208,43 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 
 
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_poolcover_ipc_20250703_211459.png`
+--------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   ``WP_PMT virtual wrapper clippers``
+
+   ``Visualize the "TO BT BT BT BT BT SA"``
+
+
+.. s5_talk::
+
+    Viz the problem histories
+
+
 :small:`100k Input Photons CircleXZ from WP top : "TO BT BT BT BT BT SA"`
 -------------------------------------------------------------------------------------------------------------------
 
 .. class:: small
 
-    * ipython/NumPy : :b:`photons with 5/4 BT in A/B, examine step point position/time`
-
+    * Opticks tendency for extra intersect with "long" rays ?  
+    * :b:`select photons with 5 BT in Opticks(OK), 4 BT in Geant4, examine step point position/time:`
+    * HMM: 2nd Opticks(float) intersect looks very close to 1st Geant4(double) intersect ? 
 
 .. raw:: html
 
     <pre class="mypretiny">TEST=POOLCOVER OLDNAME=1 ipc env_sab
     In [1]: w54 = ab.q_and("TO BT BT BT BT BT SA", "TO BT BT BT BT SA") ; w54
-    Out[1]: array([71464, 71485, 71663, 71678, 71690, 71780, 71782, 71798, 71799, 71803, 71810, 71914, 71918, 71919, 71975, 71978, 72019, 72026, 72032, 73149, 73212, 73344, 73372])
+    Out[1]: array([71464, 71485, 71663, 71678, ... ])
 
     In [2]: t54 = np.c_[a.f.record[w54,:7,0],b.f.record[w54,:7,0]] ; t54
     Out[2]:
     array([[[  3235.416,  20623.73 ,  20512.285,      0.1  ,   3235.416,  20623.73 ,  20512.285,      0.1  ],
-            [ -1188.089,  20623.73 ,    926.728,     92.668,  -1188.132,  20623.73 ,    926.537,     92.669],
-            [ -1188.132,  20623.73 ,    926.537,     92.669,  -1251.53 ,  20623.73 ,    645.835,     93.995],
+            [ -1188.089,  20623.73 ,    926.728,     92.668,  <span class="b">-1188.132,  20623.73 ,    926.537,     92.669</span>],
+            [ <span class="b">-1188.132,  20623.73 ,    926.537,     92.669</span>,  -1251.53 ,  20623.73 ,    645.835,     93.995],
             [ -1251.53 ,  20623.73 ,    645.835,     93.995,  -1529.175,  20623.73 ,   -583.467,     99.806],
             [ -1529.175,  20623.73 ,   -583.467,     99.806,  -1567.19 ,  20623.73 ,   -751.785,    100.601],
             [ -1567.193,  20623.73 ,   -751.799,    100.601,  -6287.166,  20623.73 , -21650.   ,    199.373],
@@ -1255,7 +1261,9 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
             ...
     </pre>
 
+.. class:: normal
 
+    :r:`Opticks : 2nd intersect from < 1mm "refining" precision of 1st intersect from ~20,000 mm ?` 
 
 
 :small:`100k Input Photons CircleXZ from WP top : Compare intersect positions between A and B`
@@ -1268,7 +1276,8 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 .. raw:: html
 
     <pre class="mypretiny">TEST=POOLCOVER OLDNAME=1 ipc env_sab
-    In [16]: np.c_[ np.linalg.norm(a.f.record[w54,1,0,:3] - b.f.record[w54,1,0,:3],axis=1), np.linalg.norm(a.f.record[w54,2,0,:3]-b.f.record[w54,1,0,:3], axis=1) ]*1e3
+    In [16]: np.c_[ np.linalg.norm(a.f.record[w54,1,0,:3] - b.f.record[w54,1,0,:3], axis=1), 
+                    np.linalg.norm(a.f.record[w54,2,0,:3] - b.f.record[w54,1,0,:3], axis=1) ]*1e3
     Out[16]: 
     array([[195.158,   0.061],
            [205.677,   0.061],
@@ -1288,10 +1297,8 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
    Looks like:
 
-   * 1st Opticks(float) intersect from 20,000mm is of lesser precision
-   * 2nd Opticks(float) intersect from < 1mm very close to Geant4(double) intersect
-
-
+   * 1st Opticks(float) intersect from 20,000mm is of lesser precision (~0.2 mm)
+   * 2nd Opticks(float) intersect from < 1mm very close to Geant4(double) (~1e-4 mm) intersect
 
 
 
@@ -1338,24 +1345,121 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 
 
-:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_poolcover_ipc_20250703_211459.png`
---------------------------------------------------------------------------------------------
+
+
+:i:`GEOM_BigWaterPool_SGLFW_SOPTIX_Scene_test_poolcover_cxs_20250718_214233.png` 
+---------------------------------------------------------------------------------
+
+``GEOM=BigWaterPool : geometry with JUNO pool dimensions``
+
+
+
+:i:`GEOM_BigWaterPool_SGLFW_SOPTIX_Scene_test_poolcover_cxs_20250718_214551.png` 
+---------------------------------------------------------------------------------
+
+``GEOM=BigWaterPool : compare cylinder intersects from range of distances``
+
+
+
+:i:`GEOM_BigWaterPool_cxt_precision_simtrace_input_photon_poolcover_and_refine_20250718_212024.png` 
+----------------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:153mm;" />
+
+
+``cxt_precision.sh : intersect error max(median) : ~1(0.05)mm at 20,000mm``
+
+
+:i:`GEOM_BigWaterPool_cxt_precision_simtrace_input_photon_poolcover_and_refine_20250718_211808.png` 
+----------------------------------------------------------------------------------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:153mm;" />
+
+
+``cxt_precision.sh : OPTICKS_PROPAGATE_REFINE=1 limits intersect error`` 
+
+
+
+
+:small:`OPTICKS_PROPAGATE_REFINE=1 CSGOptiX/CSGOptiX7.cu (from v0.5.1)`
+--------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    template&lt;bool refine&gt; static __forceinline__ __device__ void trace( OptixTraversableHandle handle, 
+       float3 ray_origin, float3 ray_direction, float tmin, float tmax, quad2* prd, unsigned visibilityMask, float refine_distance)   
+    {
+        ...
+        optixTrace( handle, ray_origin, ray_direction, tmin, tmax, ... );
+
+        float t_approx = 0.99f*prd->distance() ;
+        if( t_approx > refine_distance )
+        {   
+            float3 closer_ray_origin = ray_origin + t_approx*ray_direction ;
+            optixTrace( handle, closer_ray_origin, ray_direction, tmin, tmax, ... );
+            prd->distance_add( t_approx );
+        }   
+        ...
+     }
+     </pre>
+
 
 .. class:: small
 
-   ``WP_PMT virtual wrapper clippers``
+   Refine intersect with 2nd **optixTrace** call from *closer_ray_origin*, config eg::
 
-   ``Visualize the "TO BT BT BT BT BT SA"``
-
-
-.. s5_talk::
-
-    Viz the problem histories
+       export OPTICKS_PROPAGATE_REFINE=1 
+       export OPTICKS_PROPAGATE_REFINE_DISTANCE=5000 # mm
 
 
 
 
 
+:small:`100k Input Photons CircleXZ from WP top : OPTICKS_PROPAGATE_REFINE`
+---------------------------------------------------------------------------------------
+
+.. class:: small
+
+    Refined intersect positions entirely removes history discrepancy.  
+
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=POOLCOVER_REFINE ipc sab
+    SABHit  a_nhit : (     137 +-   11 )  b_nhit:(      124 +-   11 )  a/b: (  1.105 +-  0.194 ) b/a: (  0.905 +-  0.159) 
+    </pre>
+
+.. raw:: html
+
+    <pre class="mypre18">TEST=POOLCOVER_REFINE HISWID=50 NUM_MAX=20 ipc env_chi2
+    [sseq_index_ab::desc  [CHI2 <span class="r">  sum     2.3424 ndf  9.0000 sum/ndf     0.2603 </span> ]
+    TO SA                                              :   85301  85453 :     0.1353 : Y :       0      0 :   
+    TO AB                                              :   13861  13716 :     0.7624 : Y :       1      3 :   
+    TO BT BT BT BT SA                                  :     218    224 :     0.0814 : Y :   71432  71433 :   
+    TO BT BT SA                                        :     128    132 :     0.0615 : Y :   71342  71341 :   
+    TO BT BT BT BT EC                                  :     131    117 :     0.7903 : Y :   71553  71555 :   
+    TO BT BT AB                                        :     101    108 :     0.2344 : Y :   71358  71344 :   
+    TO BT BT BT BT AB                                  :      57     59 :     0.0345 : Y :   71440  71432 :   
+    TO BT BT BR BT BT SA                               :      40     40 :     0.0000 : Y :   71537  71534 :   
+    TO BT BT BT BT BR BT BT BT BT SA                   :      31     35 :     0.2424 : Y :   71583  71580 :   
+    ]sseq_index_ab::desc
+    </pre>
+
+
+.. class:: small
+
+   **FIXED** : Discrepancy between ``3/4/5 x BT`` intersects, for photons travelling from top to bottom of pool and clipping WP_PMT.
+
+
+.. class:: huge
+
+   :b:`WaterPool : Chi2 OK with REFINE` 
 
 
 
@@ -1538,16 +1642,20 @@ TargetLS/LowerChimney/UpperChimney issues
 +----------------------------+----------------------+------------------------+----------------+  
 | PMT_20inch_veto:0:1000     |    0.994 +-  0.012   | :g:`54/59.0000 = 0.92` |                |
 +----------------------------+----------------------+------------------------+----------------+  
-| 3345.569,20623.73,21000    |    1.129 +-  0.197   | :r:`50/9 = 5.55`       | WP top         |  
+| 3345.569,20623.73,21000    |    1.129 +-  0.197   | :r:`50/9 = 5.55`       | no REFINE      |  
++----------------------------+----------------------+------------------------+----------------+  
+| 3345.569,20623.73,21000    |    1.105 +-  0.194   | :g:`2.34/9 = 0.26`     | with REFINE    |  
 +----------------------------+----------------------+------------------------+----------------+  
 | sChimneyLS:0:-2            |    0.033 +-  0.002   | :r:`32216/58 = 555`    | TERRIBLE       |
 +----------------------------+----------------------+------------------------+----------------+  
+
+
 
 .. class:: normal
 
    * **Hit counts consistent**
    * Chi2 OK, other than close to Chimney 
-   * possible issue for photons crossing WP_PMT from side 
+   * long distance intersect precision issue fixed with REFINE
 
 
 .. comment
