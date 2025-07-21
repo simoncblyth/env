@@ -1258,6 +1258,41 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 
 
+:small:`100k Input Photons CircleXZ from WP top : Compare intersect positions between A and B`
+-----------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   Distances A:1st BT -> B:1st BT and A:2nd BT -> B:1st BT  
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=POOLCOVER OLDNAME=1 ipc env_sab
+    In [16]: np.c_[ np.linalg.norm(a.f.record[w54,1,0,:3] - b.f.record[w54,1,0,:3],axis=1), np.linalg.norm(a.f.record[w54,2,0,:3]-b.f.record[w54,1,0,:3], axis=1) ]*1e3
+    Out[16]: 
+    array([[195.158,   0.061],
+           [205.677,   0.061],
+           [ 62.536,   0.061],
+           [ 77.175,   0.   ],
+           [133.497,   0.   ],
+           [ 51.962,   0.   ],
+           [136.316,   0.061],
+           [ 55.134,   0.061],
+           [ 90.386,   0.061],
+           [135.656,   0.061],
+            ...
+    </pre>
+
+
+.. class:: small
+
+   Looks like:
+
+   * 1st Opticks(float) intersect from 20,000mm is of lesser precision
+   * 2nd Opticks(float) intersect from < 1mm very close to Geant4(double) intersect
+
+
+
 
 
 .. comment

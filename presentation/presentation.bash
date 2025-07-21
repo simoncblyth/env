@@ -1330,7 +1330,12 @@ presentation-make(){
    echo $msg running make in PWD $PWD 
    presentation-export
    env | grep PRESENTATION
-   make $*
+
+   case $(uname) in
+     Linux)   make $* PYTHON=$(which python) ;;
+     Darwin)  make $* ;;
+   esac
+     
 }
 
 presentation-make-(){
@@ -1347,7 +1352,17 @@ presentation-writeup(){
 
 
 presentation-url-local(){ echo http://localhost/env/presentation/$(presentation-oname).html?page=${1:-0} ; }
-presentation-open(){
+presentation-furl-local(){ echo file:///usr/local/simoncblyth.github.io/env/presentation/$(presentation-oname).html?page=${1:-0} ; }
+
+presentation-open(){ presentation-open-$(uname) $* ; }
+presentation-open-Linux(){
+   open $(presentation-furl-local)
+}
+
+presentation-open-Darwin(){
+
+
+
    open -a Safari $(presentation-url-local $*)
    sleep 0.3
    slides-

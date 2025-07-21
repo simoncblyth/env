@@ -19,7 +19,7 @@ PYTHON?=/opt/local/bin/python3.13
 #FOOTNOTE_REFERENCES="superscript"
 FOOTNOTE_REFERENCES="brackets"
 
-PAGE=0
+PAGE?=0
 
 #REMOTEHOST=simoncblyth.bitbucket.io
 #DOCBASE=$(HOME)/simoncblyth.bitbucket.io
@@ -30,7 +30,7 @@ DOCBASE=/usr/local/simoncblyth.github.io
 PREPROCESSOR_ARGS=$(PRESENTATION_PREPROCESSOR_ARGS)
 
 REALPWD=$(realpath $(PWD))   # avoids requirement to be at ~/env/wherever rather than symbolically linked ~/e/wherever
-RELDIR=$(subst /Users/blyth/env,,$(REALPWD)) 
+RELDIR=$(subst $(HOME)/env,,$(REALPWD)) 
 
 PUBDIR=$(addprefix $(DOCBASE)/env,$(RELDIR))
 PUBURL=$(addprefix http://localhost/env,$(RELDIR))
@@ -55,15 +55,16 @@ OJS=$(addprefix $(PUBDIR)/,$(IJS))
 
 SLIDES_URL=$(addsuffix ?page=$(PAGE),$(addprefix $(PUBURL)/,$(ONAME).html))
 SLIDES_RURL=$(addsuffix ?page=$(PAGE),$(addprefix $(PUBURLR)/,$(ONAME).html))
-
+SLIDES_PATH=$(addsuffix ?page=$(PAGE),$(DOCBASE)/env/presentation/$(ONAME).html)
 
 .PHONY: clean slides touch info ls open help
 
 slides: $(OHTML) $(OTXT)
 	@echo Makefile.created $^
-	@echo local/remote urls : remote needs hg commit/push to update
 	@echo open $(SLIDES_URL)
-	@echo open $(SLIDES_RURL) 
+	@echo open $(SLIDES_RURL)
+	@echo open $(SLIDES_PATH)
+
 
 $(ODEF): $(IDEF)
 	@echo Makefile.cp definitions into place
