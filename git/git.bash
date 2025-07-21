@@ -14,6 +14,49 @@ See Also
 * github-
 
 
+
+Handling dirty merge
+----------------------
+
+::
+
+    zeta:env blyth$ git pull 
+    Connection to github.com port 22 [tcp/ssh] succeeded!
+    Auto-merging presentation/opticks_202507XX_kaiping.txt
+    CONFLICT (content): Merge conflict in presentation/opticks_202507XX_kaiping.txt
+    error: could not apply e5ff63674... slide positioning
+    hint: Resolve all conflicts manually, mark them as resolved with
+    hint: "git add/rm <conflicted_files>", then run "git rebase --continue".
+    hint: You can instead skip this commit: run "git rebase --skip".
+    hint: To abort and get back to the state before "git rebase", run "git rebase --abort".
+    Could not apply e5ff63674... slide positioning
+    zeta:env blyth$ e
+
+    zeta:env blyth$ git checkout --ours
+    fatal: '--ours/--theirs' cannot be used with switching branches
+    zeta:env blyth$ git checkout --ours .
+    Updated 1 path from the index
+    zeta:env blyth$ git s
+    interactive rebase in progress; onto 61f591e8d
+    Last command done (1 command done):
+       pick e5ff63674 slide positioning
+    No commands remaining.
+    You are currently rebasing branch 'master' on '61f591e8d'.
+      (fix conflicts and then run "git rebase --continue")
+      (use "git rebase --skip" to skip this patch)
+      (use "git rebase --abort" to check out the original branch)
+
+    Unmerged paths:
+      (use "git restore --staged <file>..." to unstage)
+      (use "git add <file>..." to mark resolution)
+        both modified:   presentation/opticks_202507XX_kaiping.txt
+
+    no changes added to commit (use "git add" and/or "git commit -a")
+    zeta:env blyth$ git add . 
+
+
+
+
 Dealing with case degeneracy in repo on macOS
 ------------------------------------------------
 
