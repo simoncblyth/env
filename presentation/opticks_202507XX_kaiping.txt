@@ -151,46 +151,46 @@ SemiCircle WP_PMT
 
     <pre class="mypretiny">
     [sseq_index_ab::desc  [CHI2 <span class="r">  sum    58.2633 ndf 64.0000 sum/ndf     0.9104 </span> ]
-    TO BT BT BT BT SA                                                                                :   26918  26986 :     0.0858 : Y :       2      2 :   
-    TO BT BT BT BT EC                                                                                :   25676  25837 :     0.5032 : Y :      15     27 :   
-    TO BT BT BT BT BT SR SA                                                                          :   10281  10314 :     0.0529 : Y :      57    205 :   
-    TO BT BT BT BT BR BT BT BT BT SA                                                                 :    9972  10021 :     0.1201 : Y :    1668   1665 :   
-    TO BT BT BT BT BT SR BT BT BT BT BT SA                                                           :    8187   8225 :     0.0880 : Y :    7251   7262 :   
-    TO BT BT BT BT BT SA                                                                             :    2686   2623 :     0.7476 : Y :      32     19 :   
-    TO BT BT BT BT BT SR BR SR SA                                                                    :    2418   2400 :     0.0672 : Y :    7328   7099 :   
-    TO BT BT BT BT BT SR BR SR BT BT BT BT BT SA                                                     :    2047   1929 :     3.5020 : Y :    9325   9317 :   
-    TO BT BT BT BT EX                                                                                :    1896   1862 :     0.3076 : Y :       7      3 :   
-    TO BT BT BT BT BT SR BR SA                                                                       :     823    816 :     0.0299 : Y :    3687   3693 :   
-    TO BT BT BT BT BT SR BR SR BR SR SA                                                              :     740    712 :     0.5399 : Y :    8209   8570 :   
-    TO BT BT BT BT BT SR SR SA                                                                       :     632    660 :     0.6068 : Y :      83    116 :   
-    TO BT BT BT BT BT SR BR SR BR SR BT BT BT BT BT SA                                               :     576    632 :     2.5960 : Y :    8515   8566 :   
-    TO AB                                                                                            :     587    592 :     0.0212 : Y :      25     96 :   
-    TO BT BT BT BT BT SR BT BT BT BT BT AB                                                           :     456    419 :     1.5646 : Y :    3695   4870 :   
-    TO BT BT BT BT BR BT BT BT BT AB                                                                 :     355    351 :     0.0227 : Y :     374     23 :   
-    TO BT BT BT BT AB                                                                                :     298    309 :     0.1993 : Y :     199    239 :   
-    TO BT BT BT BT BT SR BT BT BT BT BT BT BT SA                                                     :     297    266 :     1.7069 : Y :    5807   5807 :   
-    TO BT BR BT SA                                                                                   :     270    291 :     0.7861 : Y :    2273   1760 :   
-    TO BT BT BR BT BT SA                                                                             :     279    270 :     0.1475 : Y :    3312   1779 :   
-    TO BT BT BT BR BT BT BT SA                                                                       :     244    234 :     0.2092 : Y :    2006   1988 :   
-    TO BT BT BT BT BT SR BR SR BR SR BR SR SA                                                        :     200    192 :     0.1633 : Y :    8372   9199 :   
-    TO BT BT BT BT BT SR BR SR BR SR BR SR BT BT BT BT BT SA                                         :     178    181 :     0.0251 : Y :    8682   8350 :   
-    TO BT BT BT BT BT SR BR SR BR SA                                                                 :     177    176 :     0.0028 : Y :    7958   7788 :   
-    TO BT BT BT BT BT SR SR BR SR SA                                                                 :     159    163 :     0.0497 : Y :     999    917 :   
-    TO BT BT BT BT BT SR BT BT BT BT BT BT BT BT BT SA                                               :     126    138 :     0.5455 : Y :    3697   3692 :   
-    TO BT BT BT BT BT SR BT BT BT BT BT BT BT BT BT EC                                               :     111    133 :     1.9836 : Y :    3733   3698 :   
-    TO BT BT BT BT BT SR SR BT BT BT BT BT BT BT SA                                                  :     101    121 :     1.8018 : Y :    2557   2542 :   
-    TO BT BT BT BT BT SR SR BR SR BT BT BT BT BT SA                                                  :     102    114 :     0.6667 : Y :    1424   1389 :   
-    TO BT BT BT BT BT SR SR BT BT BT BT BT BT BT BT BT SA                                            :      92    112 :     1.9608 : Y :     781    786 :   
-    TO BT BT BT BT BT SR SR BT BT BT BT BT BT BT BT BT EC                                            :      89     94 :     0.1366 : Y :     815    773 :   
-    TO BT BT AB                                                                                      :      88     74 :     1.2099 : Y :    2589    300 :   
-    TO BT BT BT BT BR BT BT BT BT BT BT SA                                                           :      82     72 :     0.6494 : Y :    1124   1120 :   
-    TO BT BT BT BT BR BT BT BT BT BT BT BT BT SA                                                     :      82     66 :     1.7297 : Y :      27     53 :   
-    TO BT BT BT BT BT SR SR SR SA                                                                    :      68     79 :     0.8231 : Y :      46     69 :   
-    TO BT BT BT BT BR BT BT BT BT BT BT BT BT EC                                                     :      75     73 :     0.0270 : Y :      17      7 :   
-    TO BT BT BT BT BT SR BR SR BT BT BT BT BT AB                                                     :      68     71 :     0.0647 : Y :    9746   8998 :   
-    TO BT AB                                                                                         :      70     64 :     0.2687 : Y :    9600   9585 :   
-    TO BT BT BT BT BT SR BT BT BT BT BT BT BT AB                                                     :      63     69 :     0.2727 : Y :    4724   5907 :   
-    TO BT BT BT BT BT SR BR BR SR SA                                                                 :      45     67 :     4.3214 : Y :    3740   3856 :   
+    TO BT BT BT BT SA                                           :   26918  26986 :     0.0858 : Y :       2      2 :   
+    TO BT BT BT BT EC                                           :   25676  25837 :     0.5032 : Y :      15     27 :   
+    TO BT BT BT BT BT SR SA                                     :   10281  10314 :     0.0529 : Y :      57    205 :   
+    TO BT BT BT BT BR BT BT BT BT SA                            :    9972  10021 :     0.1201 : Y :    1668   1665 :   
+    TO BT BT BT BT BT SR BT BT BT BT BT SA                      :    8187   8225 :     0.0880 : Y :    7251   7262 :   
+    TO BT BT BT BT BT SA                                        :    2686   2623 :     0.7476 : Y :      32     19 :   
+    TO BT BT BT BT BT SR BR SR SA                               :    2418   2400 :     0.0672 : Y :    7328   7099 :   
+    TO BT BT BT BT BT SR BR SR BT BT BT BT BT SA                :    2047   1929 :     3.5020 : Y :    9325   9317 :   
+    TO BT BT BT BT EX                                           :    1896   1862 :     0.3076 : Y :       7      3 :   
+    TO BT BT BT BT BT SR BR SA                                  :     823    816 :     0.0299 : Y :    3687   3693 :   
+    TO BT BT BT BT BT SR BR SR BR SR SA                         :     740    712 :     0.5399 : Y :    8209   8570 :   
+    TO BT BT BT BT BT SR SR SA                                  :     632    660 :     0.6068 : Y :      83    116 :   
+    TO BT BT BT BT BT SR BR SR BR SR BT BT BT BT BT SA          :     576    632 :     2.5960 : Y :    8515   8566 :   
+    TO AB                                                       :     587    592 :     0.0212 : Y :      25     96 :   
+    TO BT BT BT BT BT SR BT BT BT BT BT AB                      :     456    419 :     1.5646 : Y :    3695   4870 :   
+    TO BT BT BT BT BR BT BT BT BT AB                            :     355    351 :     0.0227 : Y :     374     23 :   
+    TO BT BT BT BT AB                                           :     298    309 :     0.1993 : Y :     199    239 :   
+    TO BT BT BT BT BT SR BT BT BT BT BT BT BT SA                :     297    266 :     1.7069 : Y :    5807   5807 :   
+    TO BT BR BT SA                                              :     270    291 :     0.7861 : Y :    2273   1760 :   
+    TO BT BT BR BT BT SA                                        :     279    270 :     0.1475 : Y :    3312   1779 :   
+    TO BT BT BT BR BT BT BT SA                                  :     244    234 :     0.2092 : Y :    2006   1988 :   
+    TO BT BT BT BT BT SR BR SR BR SR BR SR SA                   :     200    192 :     0.1633 : Y :    8372   9199 :   
+    TO BT BT BT BT BT SR BR SR BR SR BR SR BT BT BT BT BT SA    :     178    181 :     0.0251 : Y :    8682   8350 :   
+    TO BT BT BT BT BT SR BR SR BR SA                            :     177    176 :     0.0028 : Y :    7958   7788 :   
+    TO BT BT BT BT BT SR SR BR SR SA                            :     159    163 :     0.0497 : Y :     999    917 :   
+    TO BT BT BT BT BT SR BT BT BT BT BT BT BT BT BT SA          :     126    138 :     0.5455 : Y :    3697   3692 :   
+    TO BT BT BT BT BT SR BT BT BT BT BT BT BT BT BT EC          :     111    133 :     1.9836 : Y :    3733   3698 :   
+    TO BT BT BT BT BT SR SR BT BT BT BT BT BT BT SA             :     101    121 :     1.8018 : Y :    2557   2542 :   
+    TO BT BT BT BT BT SR SR BR SR BT BT BT BT BT SA             :     102    114 :     0.6667 : Y :    1424   1389 :   
+    TO BT BT BT BT BT SR SR BT BT BT BT BT BT BT BT BT SA       :      92    112 :     1.9608 : Y :     781    786 :   
+    TO BT BT BT BT BT SR SR BT BT BT BT BT BT BT BT BT EC       :      89     94 :     0.1366 : Y :     815    773 :   
+    TO BT BT AB                                                 :      88     74 :     1.2099 : Y :    2589    300 :   
+    TO BT BT BT BT BR BT BT BT BT BT BT SA                      :      82     72 :     0.6494 : Y :    1124   1120 :   
+    TO BT BT BT BT BR BT BT BT BT BT BT BT BT SA                :      82     66 :     1.7297 : Y :      27     53 :   
+    TO BT BT BT BT BT SR SR SR SA                               :      68     79 :     0.8231 : Y :      46     69 :   
+    TO BT BT BT BT BR BT BT BT BT BT BT BT BT EC                :      75     73 :     0.0270 : Y :      17      7 :   
+    TO BT BT BT BT BT SR BR SR BT BT BT BT BT AB                :      68     71 :     0.0647 : Y :    9746   8998 :   
+    TO BT AB                                                    :      70     64 :     0.2687 : Y :    9600   9585 :   
+    TO BT BT BT BT BT SR BT BT BT BT BT BT BT AB                :      63     69 :     0.2727 : Y :    4724   5907 :   
+    TO BT BT BT BT BT SR BR BR SR SA                            :      45     67 :     4.3214 : Y :    3740   3856 :   
     ]sseq_index_ab::desc
     </pre>
 
@@ -207,12 +207,12 @@ SemiCircle WP_PMT
 
     <pre class="mypretiny">
     [sseq_index_ab::desc BZERO 
-    TO BT BT BT SA                                                                                   :      45     -1 :     0.0000 : N :       3     -1 : BZERO C2EXC  
-    TO BT BT BT EC                                                                                   :      38     -1 :     0.0000 : N :   49757     -1 : BZERO C2EXC  
-    TO BT BT BT BT SR SA                                                                             :      17     -1 :     0.0000 : N :   49855     -1 : BZERO C2EXC  
-    TO BT BT BT BT BT SR SR SR AB                                                                    :      17     -1 :     0.0000 : N :     706     -1 : BZERO C2EXC  
-    TO BT BT BT BT SR BT BT BT BT BT SA                                                              :      15     -1 :     0.0000 : N :   49881     -1 : BZERO C2EXC  
-    TO BT BT BT BR BT BT BT BT SA                                                                    :      11     -1 :     0.0000 : N :   49853     -1 : BZERO C2EXC  
+    TO BT BT BT SA                                              :      45     -1 :     0.0000 : N :       3     -1 : BZERO C2EXC  
+    TO BT BT BT EC                                              :      38     -1 :     0.0000 : N :   49757     -1 : BZERO C2EXC  
+    TO BT BT BT BT SR SA                                        :      17     -1 :     0.0000 : N :   49855     -1 : BZERO C2EXC  
+    TO BT BT BT BT BT SR SR SR AB                               :      17     -1 :     0.0000 : N :     706     -1 : BZERO C2EXC  
+    TO BT BT BT BT SR BT BT BT BT BT SA                         :      15     -1 :     0.0000 : N :   49881     -1 : BZERO C2EXC  
+    TO BT BT BT BR BT BT BT BT SA                               :      11     -1 :     0.0000 : N :   49853     -1 : BZERO C2EXC  
     ]sseq_index_ab::desc
     </pre>
 
@@ -1219,45 +1219,81 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
    BT difference 
 
 
+
 :small:`100k Input Photons CircleXZ from WP top : "TO BT BT BT BT BT SA"`
 -------------------------------------------------------------------------------------------------------------------
 
 .. class:: small
 
-    * ipython/NumPy : :b:`select photons with discrepant history, examine step point position/time`
+    * ipython/NumPy : :b:`photons with 5/4 BT in A/B, examine step point position/time`
+
 
 .. raw:: html
 
-    <pre class="mypretiny">TEST=POOLCOVER ipc pdb
-    In [1]: wa = a.q_startswith("TO BT BT BT BT BT SA") ; wa.shape   In [11]: wb = b.q_startswith("TO BT BT BT BT SA") ; wb.shape
-    Out[1]: (64,)                                                    Out[11]: (224,)
-                                                                   
-    In [2]: a.f.record[wa,:7,0]                                      In [15]: b.f.record[wb,:6,0]
-    Out[2]:                                                          Out[15]: 
-    array([[[  3235.14 ,  20623.73 ,  20512.348,      0.1  ],        array([[[  3234.466,  20623.73 ,  20512.5  ,      0.1  ],
-            [ -1203.842,  20623.73 ,    909.854,     92.76 ],                [ -1251.419,  20623.73 ,    829.237,     93.171],
-            [ -1203.863,  20623.73 ,    909.761,     92.76 ],                [ -1266.738,  20623.73 ,    762.019,     93.489],
-            [ -1258.596,  20623.73 ,    668.062,     93.903],                [ -1564.458,  20623.73 ,   -544.324,     99.666],
-            [ -1539.135,  20623.73 ,   -570.794,     99.759],                [ -1595.966,  20623.73 ,   -682.574,    100.319],
-            [ -1575.413,  20623.73 ,   -731.   ,    100.516],                [ -6374.517,  20623.73 , -21650.   ,    199.462]],
-            [ -6312.518,  20623.729, -21649.998,    199.399]],     
-                                                                            [[  3234.527,  20623.73 ,  20512.486,      0.1  ],
-           [[  3235.416,  20623.73 ,  20512.285,      0.1  ],                [ -1245.347,  20623.73 ,    844.189,     93.097],
-            [ -1188.114,  20623.73 ,    926.617,     92.668],                [ -1267.748,  20623.73 ,    745.84 ,     93.562],
-            [ -1188.152,  20623.73 ,    926.448,     92.669],                [ -1562.104,  20623.73 ,   -546.491,     99.673],
-            [ -1251.51 ,  20623.73 ,    645.925,     93.995],                [ -1594.101,  20623.73 ,   -686.969,    100.337],
-            [ -1529.189,  20623.73 ,   -583.531,     99.806],                [ -6368.878,  20623.73 , -21650.   ,    199.456]],
-            [ -1566.985,  20623.73 ,   -750.878,    100.597],
-            [ -6287.166,  20623.73 , -21649.998,    199.373]],
+    <pre class="mypretiny">TEST=POOLCOVER OLDNAME=1 ipc env_sab
+    In [1]: w54 = ab.q_and("TO BT BT BT BT BT SA", "TO BT BT BT BT SA") ; w54
+    Out[1]: array([71464, 71485, 71663, 71678, 71690, 71780, 71782, 71798, 71799, 71803, 71810, 71914, 71918, 71919, 71975, 71978, 72019, 72026, 72032, 73149, 73212, 73344, 73372])
 
-           [[  3236.06 ,  20623.73 ,  20512.14 ,      0.1  ],         ## <span class="b">FROM TOP TO BOTTOM OF POOL, CLIPPING WP_PMT IN MIDDLE</span>
-            [ -1153.982,  20623.73 ,    954.694,     92.508],
-            [ -1154.024,  20623.73 ,    954.507,     92.508],
-            [ -1232.423,  20623.73 ,    605.247,     94.159],
-            [ -1507.25 ,  20623.73 ,   -619.099,     99.944],
-            [ -1547.255,  20623.73 ,   -797.317,    100.786],
-            [ -6228.041,  20623.736, -21650.   ,    199.313]],
+    In [2]: t54 = np.c_[a.f.record[w54,:7,0],b.f.record[w54,:7,0]] ; t54
+    Out[2]:
+    array([[[  3235.416,  20623.73 ,  20512.285,      0.1  ,   3235.416,  20623.73 ,  20512.285,      0.1  ],
+            [ -1188.089,  20623.73 ,    926.728,     92.668,  -1188.132,  20623.73 ,    926.537,     92.669],
+            [ -1188.132,  20623.73 ,    926.537,     92.669,  -1251.53 ,  20623.73 ,    645.835,     93.995],
+            [ -1251.53 ,  20623.73 ,    645.835,     93.995,  -1529.175,  20623.73 ,   -583.467,     99.806],
+            [ -1529.175,  20623.73 ,   -583.467,     99.806,  -1567.19 ,  20623.73 ,   -751.785,    100.601],
+            [ -1567.193,  20623.73 ,   -751.799,    100.601,  -6287.166,  20623.73 , -21650.   ,    199.373],
+            [ -6287.166,  20623.73 , -21649.998,    199.373,      0.   ,      0.   ,      0.   ,      0.   ]],
+
+           [[  3236.06 ,  20623.73 ,  20512.14 ,      0.1  ,   3236.06 ,  20623.73 ,  20512.14 ,      0.1  ],
+            [ -1153.963,  20623.73 ,    954.78 ,     92.507,  -1154.008,  20623.73 ,    954.579,     92.508],
+            [ -1154.008,  20623.73 ,    954.579,     92.508,  -1232.439,  20623.73 ,    605.175,     94.159],
+            [ -1232.439,  20623.73 ,    605.175,     94.159,  -1507.233,  20623.73 ,   -619.022,     99.943],
+            [ -1507.233,  20623.73 ,   -619.022,     99.943,  -1547.467,  20623.73 ,   -798.263,    100.79 ],
+            [ -1547.467,  20623.73 ,   -798.263,    100.79 ,  -6228.037,  20623.73 , -21650.   ,    199.313],
+            [ -6228.038,  20623.736, -21650.002,    199.313,      0.   ,      0.   ,      0.   ,      0.   ]],
+
+            ...
     </pre>
+
+
+
+
+
+
+.. comment
+
+    .. raw:: html
+
+        <pre class="mypretiny">TEST=POOLCOVER ipc pdb
+        In [1]: wa = a.q_startswith("TO BT BT BT BT BT SA") ; wa.shape   In [11]: wb = b.q_startswith("TO BT BT BT BT SA") ; wb.shape
+        Out[1]: (64,)                                                    Out[11]: (224,)
+                                                                       
+        In [2]: a.f.record[wa,:7,0]                                      In [15]: b.f.record[wb,:6,0]
+        Out[2]:                                                          Out[15]: 
+        array([[[  3235.14 ,  20623.73 ,  20512.348,      0.1  ],        array([[[  3234.466,  20623.73 ,  20512.5  ,      0.1  ],
+                [ -1203.842,  20623.73 ,    909.854,     92.76 ],                [ -1251.419,  20623.73 ,    829.237,     93.171],
+                [ -1203.863,  20623.73 ,    909.761,     92.76 ],                [ -1266.738,  20623.73 ,    762.019,     93.489],
+                [ -1258.596,  20623.73 ,    668.062,     93.903],                [ -1564.458,  20623.73 ,   -544.324,     99.666],
+                [ -1539.135,  20623.73 ,   -570.794,     99.759],                [ -1595.966,  20623.73 ,   -682.574,    100.319],
+                [ -1575.413,  20623.73 ,   -731.   ,    100.516],                [ -6374.517,  20623.73 , -21650.   ,    199.462]],
+                [ -6312.518,  20623.729, -21649.998,    199.399]],     
+                                                                                [[  3234.527,  20623.73 ,  20512.486,      0.1  ],
+               [[  3235.416,  20623.73 ,  20512.285,      0.1  ],                [ -1245.347,  20623.73 ,    844.189,     93.097],
+                [ -1188.114,  20623.73 ,    926.617,     92.668],                [ -1267.748,  20623.73 ,    745.84 ,     93.562],
+                [ -1188.152,  20623.73 ,    926.448,     92.669],                [ -1562.104,  20623.73 ,   -546.491,     99.673],
+                [ -1251.51 ,  20623.73 ,    645.925,     93.995],                [ -1594.101,  20623.73 ,   -686.969,    100.337],
+                [ -1529.189,  20623.73 ,   -583.531,     99.806],                [ -6368.878,  20623.73 , -21650.   ,    199.456]],
+                [ -1566.985,  20623.73 ,   -750.878,    100.597],
+                [ -6287.166,  20623.73 , -21649.998,    199.373]],
+
+               [[  3236.06 ,  20623.73 ,  20512.14 ,      0.1  ],         ## <span class="b">FROM TOP TO BOTTOM OF POOL, CLIPPING WP_PMT IN MIDDLE</span>
+                [ -1153.982,  20623.73 ,    954.694,     92.508],
+                [ -1154.024,  20623.73 ,    954.507,     92.508],
+                [ -1232.423,  20623.73 ,    605.247,     94.159],
+                [ -1507.25 ,  20623.73 ,   -619.099,     99.944],
+                [ -1547.255,  20623.73 ,   -797.317,    100.786],
+                [ -6228.041,  20623.736, -21650.   ,    199.313]],
+        </pre>
 
 
 
@@ -1280,6 +1316,15 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 .. s5_talk::
 
     Viz the problem histories
+
+
+
+
+
+
+
+
+
 
 
 
