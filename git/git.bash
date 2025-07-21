@@ -54,6 +54,16 @@ Handling dirty merge
     no changes added to commit (use "git add" and/or "git commit -a")
     zeta:env blyth$ git add . 
 
+    zeta:env blyth$ git rebase --continue
+    Successfully rebased and updated refs/heads/master.
+    zeta:env blyth$ 
+    zeta:env blyth$ git s
+    On branch master
+    Your branch is ahead of 'origin/master' by 1 commit.
+      (use "git push" to publish your local commits)
+
+    nothing to commit, working tree clean
+    zeta:env blyth$ 
 
 
 
