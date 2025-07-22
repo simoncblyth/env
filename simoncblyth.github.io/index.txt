@@ -309,13 +309,13 @@ Opticks Presentations
 ~~~~~~
 
 
-`env/presentation/opticks_202507XX_kaiping.html  <env/presentation/opticks_202507XX_kaiping.html>`_
+`env/presentation/opticks_20250727_kaiping.html  <env/presentation/opticks_20250727_kaiping.html>`_
     
     Status of *JUNOSW + Opticks : GPU ray trace accelerated optical photon simulation*
 
     **WIP : PRESENTATION IN PREPARATION**
 
-    JUNO Collaboration Meeting, Kaiping, 2025 July 
+    JUNO Collaboration Meeting, Kaiping, Simulation AFG Meeting, 27 July 2025 
 
 
 `env/presentation/opticks_20250708.html <env/presentation/opticks_20250708.html>`_
