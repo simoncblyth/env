@@ -1040,32 +1040,24 @@ May 2015
    <a href="https://www.dropbox.com/s/e0icy5lpgsoebwj/Opticks_GTC_001.mp4?dl=0"> m <a>
 
 
-How to Update the io servers
------------------------------------------------
+
+How to Update the web servers from workstation A
+----------------------------------------------------
 
 * https://simoncblyth.bitbucket.io
 * https://simoncblyth.github.io
-
-::
-
-    cd ~/simoncblyth.bitbucket.io
-    git push
-    git push github 
-
-
-How to update the juno.ihep.ac.cn server
-------------------------------------------
-
 * https://juno.ihep.ac.cn/~blyth/
 
-::  
+A::
 
-    tun   # open tunnel 
-    N     # connect to workstation
-    ssh W # connect to web server
+    cd /usr/local/simoncblyth.github.io   # OR "s"
+    git remote -v
 
-    cd simoncblyth.bitbucket.io
-    git pull 
+    git push
+    git push bitbucket
+
+    ./rsync_put_to_W.sh
+
     
 
     
