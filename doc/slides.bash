@@ -553,7 +553,12 @@ PDF CREATION FUNCTIONS
 EOU
 }
 
-slides-env(){      elocal- ; bitbucketstatic- ; presentation- ;  }
+slides-env(){     
+    : bitbucketstatic- looks not needed 
+    elocal- ; 
+    #bitbucketstatic- ; 
+    presentation- ;  
+}
 slides-fold(){  echo $(slides-branch)/$(slides-name) ; }
 
 #slides-dir(){   apache- ; echo $(apache-htdocs)/env/$(slides-fold) ; }

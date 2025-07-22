@@ -1392,7 +1392,9 @@ presentation--(){
 
 p--(){
   : ~/env/presentation/presentation.bash
-  presentation--  
+  local p=${1:-0}
+  P=${P:-$p} presentation--  
+  : argument is default page, but envvar P has precedence
 }
 p-vi(){
   : ~/env/presentation/presentation.bash

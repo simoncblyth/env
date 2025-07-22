@@ -4,6 +4,8 @@
    :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?sessionid=3597
    :description: (2025 July) JUNO, OptiX, Opticks
 
+   27th July 2025 10:40	
+
 .. include:: my_s5defs.txt
 
 .. comment
@@ -101,7 +103,7 @@ Outline
       * TargetLS/LowerChimney/UpperChimney issues
       * Summary of Input Photon Checks : Hit Count and Chi2
 
-    * Recently Fixed Issues : Many Thanks to Dingyong and Haosen
+    * Recently Fixed Issues : Many Thanks to Dingyong, Haosen, Zhenning
     * Missing Features and Known Issues
     * OJ : Minimal Muon Script : ~/j/muon/muon_min.sh
     * muon_min.sh log : 121M photon kernel launch ~18 sec
@@ -1490,6 +1492,14 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 ``GEOM=BigWaterPool EVT=poolcover_cxs ssst.sh # JUNO pool dimensions``
      ``compare cylinder intersects from range of distances : 20,000 -> 100 mm``
 
+
+.. raw:: html
+
+    <p style="margin-bottom:133mm;" />
+
+.. class:: normal
+ 
+    ``TODO: auto-test intersect precision of all prim. + some CSG combinations``
 
 
 :i:`GEOM_BigWaterPool_cxt_precision_simtrace_input_photon_poolcover_and_refine_20250718_212024.png` 
