@@ -1,7 +1,7 @@
 .. meta::
    :name: opticks_202507XX_kaiping.txt
    :title: Opticks : GPU ray trace accelerated optical photon simulation
-   :description: (2025 June) JUNO, OptiX, Opticks
+   :description: (2025 July) JUNO, OptiX, Opticks
 
 .. include:: my_s5defs.txt
 
@@ -21,8 +21,6 @@
    summary
 
    usage tutorial
-
-
 
 
 
@@ -456,42 +454,57 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 
 
-:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190057.png` 
------------------------------------------------------------------
+.. comment
 
-``NNVT:0:1000``
+    :i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190057.png` 
+    -----------------------------------------------------------------
 
-``Snapshot from photon record animation``
-
-
-.. s5_talk::
-
-    Klop
-
-:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_1900571.png` 
-------------------------------------------------------------------
-
-``NNVT:0:1000``
-
-.. s5_talk::
-
-    Klop
+    ``NNVT:0:1000``
 
 
-:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190058.png`
-----------------------------------------------------------------
 
-``NNVT:0:1000``
+    .. s5_talk::
 
-.. s5_talk::
+        Klop
 
-    Klop
+    :i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_1900571.png` 
+    ------------------------------------------------------------------
+
+    ``NNVT:0:1000``
+
+    .. s5_talk::
+
+        Klop
+
+
+    :i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190058.png`
+    ----------------------------------------------------------------
+
+    ``NNVT:0:1000``
+
+    .. s5_talk::
+
+        Klop
+
 
 
 :i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190059.png` 
 ----------------------------------------------------------------
 
-``NNVT:0:1000``
+
+.. raw:: html
+
+   <p style="margin-bottom:13cm;" />
+
+
+.. class:: normal
+
+    ``EVT=NNVT cxr_min.sh # geometry OFF, NNVT:0:1000``
+
+.. class:: normal
+
+   ``Snapshot from OpenGL photon record animation``
+
 
 .. s5_talk::
 
@@ -501,7 +514,20 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 :i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190101.png`
 ----------------------------------------------------------------
 
-``NNVT:0:1000``
+
+.. raw:: html
+
+   <p style="margin-bottom:13cm;" />
+
+.. class:: normal
+
+   ``EVT=NNVT cxr_min.sh # geometry OFF, NNVT:0:1000``
+
+.. class:: normal
+
+   ``Snapshot from OpenGL photon record animation, little later``
+
+
 
 .. s5_talk::
 
@@ -552,7 +578,13 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama2_ipc_20250707_165110.png` 
 --------------------------------------------------------------------------------------
 
-``Hama:0:1000``
+.. class:: normal
+
+    ``EVT=Hama2 cxr_min.sh # geometry OFF, Hama:0:1000``
+
+.. class:: normal
+
+   ``Snapshot from OpenGL photon record animation, wider view``
 
 
 .. s5_talk::
@@ -565,7 +597,14 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama2_ipc_20250707_165111.png` 
 --------------------------------------------------------------------------------------
 
-``Hama:0:1000``
+.. class:: normal
+
+    ``EVT=Hama2 cxr_min.sh # geometry OFF, Hama:0:1000``
+
+.. class:: normal
+
+   ``Snapshot from OpenGL photon record animation, wider view``
+
 
 
 
@@ -626,21 +665,27 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 
 
-:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama_20250704_215523.png` 
----------------------------------------------------------------------------------
+.. comment
 
-``Hama:0:0 (LowerChimney to right)``
-
-.. s5_talk::
-
-    Reflection 
+    :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama_20250704_215523.png` 
+    ---------------------------------------------------------------------------------
 
 
 
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama_20250704_215525.png` 
 ---------------------------------------------------------------------------------
 
-``Hama:0:0 (LowerChimney to right)``
+``EVT=Hama ssst.sh # Hama:0:0 (LowerChimney to right)``
+
+.. raw:: html
+
+   <p style="margin-bottom:13cm;" />
+
+.. class:: small
+
+    ``ssst.sh # aka SGLFW_SOPTIX_Scene_test.sh``
+        ``OpenGL photon record animation and triangulated wireframe geometry``
+
 
 .. s5_talk::
 
@@ -648,10 +693,23 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 
 
+
+
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama_20250704_215528.png` 
 ---------------------------------------------------------------------------------
 
-``Hama:0:0 (LowerChimney to right)``
+``EVT=Hama ssst.sh # geometry OFF, Hama:0:0 (LowerChimney to right)``
+
+.. raw:: html
+
+   <p style="margin-bottom:13cm;" />
+
+.. class:: small
+
+    ``ssst.sh # aka SGLFW_SOPTIX_Scene_test.sh``
+        ``OpenGL photon record animation snapshot``
+
+
 
 .. s5_talk::
 
@@ -663,7 +721,16 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama_20250704_215530.png` 
 ---------------------------------------------------------------------------------
 
-``Hama:0:0 (LowerChimney to right)``
+``EVT=Hama ssst.sh # geometry OFF, Hama:0:0 (LowerChimney to right)``
+
+.. raw:: html
+
+   <p style="margin-bottom:13cm;" />
+
+.. class:: small
+
+   ``PMT bathed in photons reflected from Chimney``
+       ``likely source of discrepancy``
 
 
 .. s5_talk::
@@ -674,15 +741,17 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 
 
-:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama_20250704_215533.png` 
----------------------------------------------------------------------------------
+.. comment
 
-``Hama:0:0 (LowerChimney to right)``
+    :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama_20250704_215533.png` 
+    ---------------------------------------------------------------------------------
+
+    ``Hama:0:0 (LowerChimney to right)``
 
 
-.. s5_talk::
+    .. s5_talk::
 
-    Reflection 
+        Reflection 
 
 
 
@@ -733,15 +802,39 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
     Klop
 
 
-:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_SPMT_ipc_20250704_223841.png` 
--------------------------------------------------------------------------------------
 
-``PMT_3inch:0:0``
+.. comment
+
+    :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_SPMT_ipc_20250704_223841.png` 
+    -------------------------------------------------------------------------------------
+
+    ``EVT=SPMT_cxs MOI=PMT_3inch:0:0 T0=0 T1=10 TN=1000 cxr_min.sh # geometry OFF``
+
+
+    .. s5_talk::
+
+        Klop
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_SPMT_cxs_20250722_155442.png` 
+---------------------------------------------------------------------
+
+``EVT=SPMT_cxs MOI=PMT_3inch:0:0 T0=0 T1=10 TN=1000 cxr_min.sh # geometry OFF``
+    ``EVT select event``
+
+    ``MOI select viewpoint`` 
+
+    ``T0, T1 animation time range (ns)``
+
+    ``TN animation steps``  
 
 
 .. s5_talk::
 
     Klop
+
+
 
 
 
@@ -849,9 +942,12 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 -------------------------------------------------------------------
 
 
-``1M RandomSpherical photons from CD center``
+``EVT=CD_ipc MOI=sTarget:0:-2 cxr_min.sh``
+   ``ray trace render and OpenGL photon record animation``
 
-``sTarget:0:-2``
+   ``1M RandomSpherical photons from CD center``
+
+
 
 .. s5_talk::
 
@@ -863,7 +959,8 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 :i:`GEOM_J25_4_0_opticks_Debug_cxr_min_CD_ipc_20250706_113836.png` 
 -------------------------------------------------------------------
 
-``sTarget:0:-2``
+``EVT=CD_ipc MOI=Hama:0:0 SDR=rec_line_strip cxr_min.sh``
+   ``SDR : config record animation OpenGL shader``
 
 .. s5_talk::
 
@@ -934,7 +1031,8 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_ipc_20250706_124505.png` 
 ---------------------------------------------------------------------------------------
 
-``PMT_20inch_veto:0:1000``
+``EVT=wp_pmt_ipc MOI=PMT_20inch_veto:0:1000 ssst.sh``
+    ``line of 100k input photons incident on WP_PMT``    
 
 .. s5_talk::
 
@@ -945,7 +1043,8 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_ipc_20250706_124506.png` 
 ---------------------------------------------------------------------------------------
 
-``PMT_20inch_veto:0:1000``
+``EVT=wp_pmt_ipc MOI=PMT_20inch_veto:0:1000 ssst.sh``
+    ``line of 100k input photons incident on WP_PMT``    
 
 .. s5_talk::
 
@@ -957,7 +1056,8 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_ipc_20250706_124509.png` 
 ---------------------------------------------------------------------------------------
 
-``TEST=WP_PMT ; PMT_20inch_veto:0:1000``
+``EVT=wp_pmt_ipc MOI=PMT_20inch_veto:0:1000 ssst.sh``
+    ``line of 100k input photons incident on WP_PMT``    
 
 .. s5_talk::
 
@@ -1016,7 +1116,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. class:: normal
 
-    :b:`Hits Consistent, Chi2 OK` :r:`BUT: Opticks misses BT intersects near apex and equator`
+    :b:`Hits Consistent, Chi2 OK,` :r:`BUT: Opticks misses BT intersects near apex and equator`
 
 
 
@@ -1073,30 +1173,38 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_semi_ipc_20250721_111242.png` 
 --------------------------------------------------------------------------------------------
 
-``TEST=WP_PMT_SEMI ; semi-circle of input photons targetting WP_PMT``
-
+``EVT=wp_pmt_semi_ipc MOI=PMT_20inch_veto:0:1000 cxr_min.sh``
+     ``semi-circle of 100k input photons targetting WP_PMT``
 
 
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_semi_ipc_20250721_111433.png` 
 --------------------------------------------------------------------------------------------
 
-``TEST=WP_PMT_SEMI ; semi-circle of input photons targetting WP_PMT``
-
-
-
+``EVT=wp_pmt_semi_ipc MOI=PMT_20inch_veto:0:1000 ssst.sh``
+     ``semi-circle of 100k input photons targetting WP_PMT``
 
 
 
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_semi_ipc_20250709_212248.png` 
 --------------------------------------------------------------------------------------------
 
+
 .. class:: small
 
-    ``export AFOLD_RECORD_SLICE="TO BT BT BT BT SA"``
+   ``EVT=wp_pmt_semi_ipc MOI=PMT_20inch_veto:0:1000 ssst.sh # geometry OFF``
+        ``export AFOLD_RECORD_SLICE="TO BT BT BT BT SA"  # select one simple history``
+
+        ``snapshot from photon record animation``
+
+.. raw:: html
+
+   <p style="margin-bottom:8cm;" />
+
+.. class:: center
 
     ``virtual wrapper "touches" PMT at apex and equator``
 
-     ``increase clearance from 0.05 => 0.10 mm avoids missed intersects`` 
+    ``increase clearance 0.05 => 0.10 mm avoids missed intersects`` 
 
 
 
@@ -1115,9 +1223,21 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_ipc_20250701_200328.png`
 ---------------------------------------------------------------------------------------
 
+.. class:: normal
+
+    ``EVT=wp_pmt_ipc MOI=PMT_20inch_veto:0:1000 ssst.sh``
+        ``Speeding photons => investigation => fix of WP geometry overlap``
+
+
+.. raw:: html
+
+   <p style="margin-bottom:11cm;" />
+
 .. class:: small
 
-    ``Speeding photons => WP geometry overlap, NOW FIXED``
+    ``far clipping used to remove other PMTs``
+
+
 
 
 .. s5_talk::
@@ -1128,9 +1248,11 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_ipc_20250701_200337.png`
 ---------------------------------------------------------------------------------------
 
-.. class:: small
 
-    ``Speeding photons => WP geometry overlap, NOW FIXED``
+.. class:: normal
+
+    ``EVT=wp_pmt_ipc MOI=PMT_20inch_veto:0:1000 ssst.sh``
+        ``Speeding photons => investigation => fix of WP geometry overlap``
 
 
 .. s5_talk::
@@ -1142,11 +1264,17 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 :i:`GEOM_J25_4_0_opticks_Debug_cxr_min_poolcover_ipc_20250706_145250.png` 
 --------------------------------------------------------------------------
 
-.. class:: small
+.. class:: normal
 
-   ``InputPhotons from XZ Circle near top of pool``
+   ``EVT=poolcover_ipc cxr_min.sh # InputPhotons from XZ Circle near top of pool``
 
-    ``* motivated by the speeding photons``
+    "poolcover" test motivated by the speeding photons, reveals:
+
+    1. overlap in hierarchical WP geometry (cause of speeding) - :b:`FIXED`
+
+    2. loss of precision for long distance intersects onto WP_PMT - :b:`FIXED`
+
+       * causing history Chi2 deviation from double-intersect
 
 
 .. s5_talk::
@@ -1217,10 +1345,11 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. class:: small
 
-   ``WP_PMT virtual wrapper clippers``
+    ``EVT=poolcover_ipc MOI=PMT_20inch_veto:0:$(( 51006 - 50000 )) ssst.sh``
 
-   ``Visualize the "TO BT BT BT BT BT SA"``
+    ``export AFOLD_RECORD_SLICE="TO BT BT BT BT BT SA"``
 
+    ``Snapshot of record animation for virtual wrapper clippers with 5xBT (1 extra)``
 
 .. s5_talk::
 
@@ -1232,9 +1361,9 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. class:: small
 
-    * Opticks tendency for extra intersect with "long" rays ?  
+    * :r:`Opticks tendency for extra intersect with "long" rays ?`  
     * :b:`select photons with 5 BT in Opticks(OK), 4 BT in Geant4, examine step point position/time:`
-    * HMM: 2nd Opticks(float) intersect looks very close to 1st Geant4(double) intersect ? 
+    * HMM: 2nd Opticks(float) intersect is very close to 1st Geant4(double) intersect ? 
 
 .. raw:: html
 
@@ -1242,7 +1371,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
     In [1]: w54 = ab.q_and("TO BT BT BT BT BT SA", "TO BT BT BT BT SA") ; w54
     Out[1]: array([71464, 71485, 71663, 71678, ... ])
 
-    In [2]: t54 = np.c_[a.f.record[w54,:7,0],b.f.record[w54,:7,0]] ; t54
+    In [2]: t54 = np.c_[a.f.record[w54,:7,0],b.f.record[w54,:7,0]] ; t54   ## <span class="b">compare positions and times between A and B</span>
     Out[2]:
     array([[[  3235.416,  20623.73 ,  20512.285,      0.1  ,   3235.416,  20623.73 ,  20512.285,      0.1  ],
             [ -1188.089,  20623.73 ,    926.728,     92.668,  <span class="b">-1188.132,  20623.73 ,    926.537,     92.669</span>],
@@ -1268,16 +1397,16 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
     :r:`Opticks : 2nd intersect from < 1mm "refining" precision of 1st intersect from ~20,000 mm ?` 
 
 
-:small:`100k Input Photons CircleXZ from WP top : Compare intersect positions between A and B`
------------------------------------------------------------------------------------------------
+:small:`100k Input Photons CircleXZ from WP top : distances between intersects`
+---------------------------------------------------------------------------------
 
-.. class:: small
+.. class:: normal
 
-   Distances A:1st BT -> B:1st BT and A:2nd BT -> B:1st BT  
+   Distances between BT (BOUNDARY_TRANSMIT positions) : A[1] -> B[1] and A[2] -> B[1]   
 
 .. raw:: html
 
-    <pre class="mypretiny">TEST=POOLCOVER OLDNAME=1 ipc env_sab
+    <pre class="mypre18">TEST=POOLCOVER OLDNAME=1 ipc env_sab
     In [16]: np.c_[ np.linalg.norm(a.f.record[w54,1,0,:3] - b.f.record[w54,1,0,:3], axis=1), 
                     np.linalg.norm(a.f.record[w54,2,0,:3] - b.f.record[w54,1,0,:3], axis=1) ]*1e3
     Out[16]: 
@@ -1295,9 +1424,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
     </pre>
 
 
-.. class:: small
-
-   Looks like:
+.. class:: normal
 
    * 1st Opticks(float) intersect from 20,000mm is of lesser precision (~0.2 mm)
    * 2nd Opticks(float) intersect from < 1mm very close to Geant4(double) (~1e-4 mm) intersect
@@ -1352,14 +1479,15 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 :i:`GEOM_BigWaterPool_SGLFW_SOPTIX_Scene_test_poolcover_cxs_20250718_214233.png` 
 ---------------------------------------------------------------------------------
 
-``GEOM=BigWaterPool : geometry with JUNO pool dimensions``
+``GEOM=BigWaterPool EVT=poolcover_cxs ssst.sh # JUNO pool dimensions``
 
 
 
 :i:`GEOM_BigWaterPool_SGLFW_SOPTIX_Scene_test_poolcover_cxs_20250718_214551.png` 
 ---------------------------------------------------------------------------------
 
-``GEOM=BigWaterPool : compare cylinder intersects from range of distances``
+``GEOM=BigWaterPool EVT=poolcover_cxs ssst.sh # JUNO pool dimensions``
+     ``compare cylinder intersects from range of distances : 20,000 -> 100 mm``
 
 
 
@@ -1380,46 +1508,58 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. raw:: html
 
-    <p style="margin-bottom:153mm;" />
+    <p style="margin-bottom:28mm;" />
 
+::
 
-``cxt_precision.sh : OPTICKS_PROPAGATE_REFINE=1 limits intersect error`` 
-
-
-
-
-:small:`optixTrace called twice for "long" rays, refining intersect (from v0.5.1)`
-------------------------------------------------------------------------------------
-
-``CSGOptiX/CSGOptiX7.cu``
+       export OPTICKS_PROPAGATE_REFINE=1 
+       export OPTICKS_PROPAGATE_REFINE_DISTANCE=5000 # mm
 
 .. raw:: html
 
-    <pre class="mypretiny">
-    template&lt;bool refine&gt; static __forceinline__ __device__ void trace( OptixTraversableHandle handle, 
-       float3 ray_origin, float3 ray_direction, float tmin, float tmax, quad2* prd, unsigned visibilityMask, float refine_distance)   
+    <p style="margin-bottom:30mm;" />
+
+.. class:: center
+
+   ``How precise ? What cost ?`` 
+
+.. raw:: html
+
+    <p style="margin-bottom:60mm;" />
+
+
+
+
+:small:`REFINE : call optixTrace twice for "long" rays, improving precision`
+-------------------------------------------------------------------------------
+
+``CSGOptiX/CSGOptiX7.cu (added REFINE in Opticks-v0.5.1)``
+
+.. raw:: html
+
+    <pre class="mypre18">
+    template&lt;bool refine&gt; static __forceinline__ __device__ 
+    void trace( OptixTraversableHandle handle, 
+       float3 ray_origin, float3 ray_direction, float tmin, float tmax, 
+       quad2* prd, unsigned visibilityMask, float refine_distance)   
     {
         ...
         optixTrace( handle, ray_origin, ray_direction, tmin, tmax, ... );
 
         float t_approx = 0.99f*prd->distance() ;
-        if( t_approx > refine_distance )
+        if( t_approx > refine_distance )   // <span class="b"> For long rays take a second closer shot</span>
         {   
-            float3 closer_ray_origin = ray_origin + t_approx*ray_direction ;
-            optixTrace( handle, closer_ray_origin, ray_direction, tmin, tmax, ... );
+            <span class="r">float3 closer_ray_origin = ray_origin + t_approx*ray_direction ;</span>
+            optixTrace( handle, <span class="r">closer_ray_origin</span>, ray_direction, tmin, tmax, ... );
             prd->distance_add( t_approx );
         }   
-        ...
      }
      </pre>
 
 
-.. class:: small
+.. class:: normal
 
-   Refine intersect with 2nd **optixTrace** call from *closer_ray_origin*
-
-   * reduce precision loss by avoiding FLOPS between very different values 
-
+   2nd **optixTrace** : :b:`less precision loss by avoiding FLOPS between very different values` 
 
 ::
 
@@ -1434,7 +1574,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. class:: normal
 
-   https://link.springer.com/content/pdf/10.1007/978-1-4842-7185-8.pdf
+   https://link.springer.com/content/pdf/10.1007/978-1-4842-7185-8.pdf  (~860 page PDF)
 
 
 ::
@@ -1446,7 +1586,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
     FLOP : 1st shift mantissa bits of smaller value to bring to same exponent as larger
 
-    *extinction/vanishing* : shift looses of mantissa bits of smaller value 
+    *extinction/vanishing* : shift looses mantissa bits of smaller value 
 
     * :r:`more difference of exponents => more shift => more precision loss`
     * :b:`reduce precision loss by intersect from closer_ray_origin`
@@ -1554,6 +1694,8 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Chimney_ipc_20250707_135938.png` 
 ----------------------------------------------------------------------------------------
 
+``EVT=Chimney_ipc MOI=sChimneyLS:0:-2 ssst.sh``
+
 ``A : Opticks``
 
 ``Photons reflected at top of LowerChimney``
@@ -1578,6 +1720,8 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Chimney_ipc_20250707_135924.png` 
 ----------------------------------------------------------------------------------------
 
+``EVT=Chimney_ipc MOI=sChimneyLS:0:-2 ssst.sh``
+
 ``B : Geant4``
 
 ``Photons escape between Lower and UpperChimney``
@@ -1592,7 +1736,12 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Chimney_ipc_20250707_135926.png` 
 ----------------------------------------------------------------------------------------
 
+``EVT=Chimney_ipc MOI=sChimneyLS:0:-2 ssst.sh``
+
 ``B : Geant4``
+
+``Photons escape between Lower and UpperChimney``
+
 
 .. s5_talk::
 
@@ -1604,7 +1753,11 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Chimney_ipc_20250707_135928.png` 
 ----------------------------------------------------------------------------------------
 
+``EVT=Chimney_ipc MOI=sChimneyLS:0:-2 ssst.sh``
+
 ``B : Geant4``
+
+``Photons escape between Lower and UpperChimney``
 
 .. s5_talk::
 
@@ -1615,8 +1768,11 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 
 
-``cxt_min_LowerChimney_overview.png``
---------------------------------------
+:i:`cxt_min_LowerChimney_overview.png`
+------------------------------------------
+
+``MOI=sWaterTube:0:-2 cxt_min.sh  ## simtrace 2D slice view of LowerChimney``
+
 
 ``fake boundaries apparent``
 
@@ -1692,7 +1848,7 @@ TargetLS/LowerChimney/UpperChimney issues
 
    * **Hit counts consistent**
    * Chi2 OK, other than close to Chimney 
-   * long distance intersect precision issue fixed with REFINE
+   * :b:`long distance intersect precision issue fixed with REFINE`
 
 
 .. comment
@@ -1727,6 +1883,7 @@ TargetLS/LowerChimney/UpperChimney issues
 
     **Water Pool Related**
 
+    * long distance intersect precision loss caused history Chi2 deviation 
     * speed discrepancy for some photons reflected from WP PMT
 
       * caused by overlapping vetoWater-Tyvek-DeadWater 
@@ -1750,12 +1907,8 @@ TargetLS/LowerChimney/UpperChimney issues
     * different compute capability on cluster and workstation required 
       CMake rejig for CUDA kernels to work across both  
 
-    * SIGINT from unwritable HOME (eg /afs)
+    * SIGINT from unwritable HOME eg: ``/afs/ihep.ac.cn/users/${USER:0:1}/$USER``
 
-
-.. class:: huge
-
-    :b:`Many issues fixed recently thanks to Dingyong+Haosen`
 
 
 .. s5_talk::
@@ -1923,7 +2076,9 @@ Missing Features and Known Issues
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105550.png` 
 -------------------------------------------------------------------------------------
 
-``muon record animation``
+``EVT=muon_cxs ssst.sh #0``
+
+``export AFOLD_RECORD_SLICE="[:1000000]"   ## 1M from 69G record.npy``   
 
 
 .. s5_talk::
@@ -1932,26 +2087,34 @@ Missing Features and Known Issues
 
 
 
-:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105553.png` 
--------------------------------------------------------------------------------------
+.. comment
+
+    :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105553.png` 
+    -------------------------------------------------------------------------------------
+
+    ``EVT=muon_cxs ssst.sh #1``
 
 
-.. s5_talk::
+    .. s5_talk::
 
-    Klop
+        Klop
 
 
+    :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105555.png` 
+    -------------------------------------------------------------------------------------
 
-:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105555.png` 
--------------------------------------------------------------------------------------
+    ``EVT=muon_cxs ssst.sh #2``
 
-.. s5_talk::
+    .. s5_talk::
 
-    Klop
+        Klop
 
 
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105556.png` 
 -------------------------------------------------------------------------------------
+
+``EVT=muon_cxs ssst.sh #3``
+
 
 .. s5_talk::
 
@@ -1961,6 +2124,9 @@ Missing Features and Known Issues
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105609.png` 
 -------------------------------------------------------------------------------------
 
+``EVT=muon_cxs ssst.sh #4``
+
+
 .. s5_talk::
 
     Klop
@@ -1968,6 +2134,9 @@ Missing Features and Known Issues
 
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105610.png` 
 -------------------------------------------------------------------------------------
+
+``EVT=muon_cxs ssst.sh #5``
+
 
 .. s5_talk::
 
@@ -1977,49 +2146,26 @@ Missing Features and Known Issues
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105620.png` 
 -------------------------------------------------------------------------------------
 
-.. s5_talk::
+``EVT=muon_cxs ssst.sh #6``
 
-    Klop
-
-
-:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105628.png` 
--------------------------------------------------------------------------------------
-
-.. s5_talk::
-
-    Klop
-
-
-:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105700.png` 
--------------------------------------------------------------------------------------
 
 .. s5_talk::
 
     Klop
 
 
-:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105701.png` 
--------------------------------------------------------------------------------------
-
-.. s5_talk::
-
-    Klop
+.. comment
 
 
-:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105702.png` 
--------------------------------------------------------------------------------------
+    :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105628.png` 
+    -------------------------------------------------------------------------------------
 
-.. s5_talk::
-
-    Klop
+    ``EVT=muon_cxs ssst.sh #7``
 
 
-:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105704.png` 
--------------------------------------------------------------------------------------
+    .. s5_talk::
 
-.. s5_talk::
-
-    Klop
+        Klop
 
 
 
@@ -2027,6 +2173,10 @@ Missing Features and Known Issues
 
 :i:`GEOM_J25_4_0_opticks_Debug_cxr_min_muon_cxs_20250707_112242.png` 
 ---------------------------------------------------------------------
+
+``EVT=muon_cxs cxr_min.sh #12``
+
+
 
 .. s5_talk::
 
@@ -2036,6 +2186,9 @@ Missing Features and Known Issues
 :i:`GEOM_J25_4_0_opticks_Debug_cxr_min_muon_cxs_20250707_112243.png` 
 ---------------------------------------------------------------------
 
+``EVT=muon_cxs cxr_min.sh #13``
+
+
 .. s5_talk::
 
     Klop
@@ -2044,9 +2197,61 @@ Missing Features and Known Issues
 :i:`GEOM_J25_4_0_opticks_Debug_cxr_min_muon_cxs_20250707_112244.png` 
 ---------------------------------------------------------------------
 
+``EVT=muon_cxs cxr_min.sh #14``
+
+
 .. s5_talk::
 
     Klop
+
+
+
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105700.png` 
+-------------------------------------------------------------------------------------
+
+``EVT=muon_cxs ssst.sh #8``
+
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105701.png` 
+-------------------------------------------------------------------------------------
+
+``EVT=muon_cxs ssst.sh #9``
+
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105702.png` 
+-------------------------------------------------------------------------------------
+
+``EVT=muon_cxs ssst.sh #10``
+
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105704.png` 
+-------------------------------------------------------------------------------------
+
+``EVT=muon_cxs ssst.sh #11``
+
+
+.. s5_talk::
+
+    Klop
+
 
 
 

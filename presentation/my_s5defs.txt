@@ -5,7 +5,6 @@
 
     https://docutils.sourceforge.io/docutils/parsers/rst/include/isogrk1.txt
 
-
     .. raw::html
 
          <p style="margin-bottom:13cm;" /> 

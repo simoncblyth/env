@@ -1411,6 +1411,37 @@ p-index(){
   presentation-index 
 }
 
+p-pull(){ sed 's/:/#/' << EOC
+: ~/env/presentation/presentation.bash
+:
+: The below files are generated in two situations:
+:
+: 0) on workstation A when adding snapshot references and other text content to slides
+: 1) on laptop Z when doing later slide editing 
+:
+: Due to this double generation there is strong potential for tedious merge problems 
+: resulting from "git pull". To avoid that this bash function emits commands 
+: that discard local changes prior to pulling.
+: 
+: REMEMBER TO PIPE TO SHELL TO DO THEM
+:
+: NB these are not sources from the point of view of env repo
+: they are derived or simply copied from ~/env/presentation
+: into the /usr/local/simoncblyth.github.io repo.
+
+cd /usr/local/simoncblyth.github.io
+git checkout env/presentation/$(presentation-iname).html
+git checkout env/presentation/$(presentation-iname).txt
+git checkout env/presentation/s5_background_image.txt
+git checkout env/presentation/my_s5defs.txt
+
+git pull 
+
+EOC
+
+}
+
+
 
 
 

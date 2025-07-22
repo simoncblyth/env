@@ -2871,10 +2871,9 @@
     GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_semi_ipc_20250721_111433.png
     GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/wp_pmt_semi_ipc/20250721_111433.png 1280px_720px
 
-    ##
-    ## git mv SGLFW_SOPTIX_Scene_test/EVT/wp_pmt_ipc/Screenshot_from_2025-07-01_20-03-28.png GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/wp_pmt_ipc/20250701_200328.png
-    ## git mv SGLFW_SOPTIX_Scene_test/EVT/wp_pmt_ipc/Screenshot_from_2025-07-01_20-03-37.png GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/wp_pmt_ipc/20250701_200337.png
-    ##
+    GEOM_J25_4_0_opticks_Debug_cxr_min_SPMT_cxs_20250722_155442.png
+    GEOM/J25_4_0_opticks_Debug/cxr_min/SPMT_cxs/20250722_155442.png 1280px_720px
+
     ##
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
@@ -2909,4 +2908,5 @@
     https://www.techpowerup.com/gpu-specs/titan-v.c3051
     https://www.techpowerup.com/gpu-specs/titan-rtx.c3311 
     https://www.techpowerup.com/gpu-specs/quadro-rtx-8000.c3306
+
 
