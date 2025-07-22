@@ -33,8 +33,11 @@ EOU
 
 cd $(dirname $(realpath $BASH_SOURCE))
 
-#RST2HTML=rst2html-3.13
-RST2HTML=rst2html
+
+case $(uname) in
+  Darwin) RST2HTML=rst2html-3.13 ; OPEN=open ;;
+  Linux)  RST2HTML=rst2html      ; OPEN="gio open" ;;
+esac
 GITHUB_HTDOCS=/usr/local/simoncblyth.github.io
 
 
@@ -47,5 +50,8 @@ cp custom.css $GITHUB_HTDOCS/custom.css
 
 $RST2HTML --stylesheet=$GITHUB_HTDOCS/custom.css index.txt $GITHUB_HTDOCS/index.html
 
-gio open $GITHUB_HTDOCS/index.html
+
+$OPEN $GITHUB_HTDOCS/index.html
+
+
 

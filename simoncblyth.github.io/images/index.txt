@@ -19,13 +19,13 @@ Feel free to use these images in your presentations, where appropriate give attr
 
 .. figure:: ../env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0_moi_-1_thumb4.jpg
 
-    `JUNO : Opticks NVIDIA OptiX 7 Ray Trace Render </env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0_moi_-1.jpg>`_
+    `JUNO : Opticks NVIDIA OptiX 7 Ray Trace Render <../env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0_moi_-1.jpg>`_
 
 
 
 .. figure:: ../env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0,_moi_-1_thumb4.jpg
 
-   `JUNO : Opticks NVIDIA OptiX 7 Ray Trace Render : Showing only instanced geometry </env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0,_moi_-1.jpg>`_ 
+   `JUNO : Opticks NVIDIA OptiX 7 Ray Trace Render : Showing only instanced geometry <../env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0,_moi_-1.jpg>`_ 
 
 
 
@@ -37,7 +37,7 @@ Feel free to use these images in your presentations, where appropriate give attr
 
 .. figure:: ../env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-SC-BT5-SD_thumb4.png
 
-   `JUNO : Photon Propagation Render, only showing scatter then direct to detection photons </env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-SC-BT5-SD.png>`_
+   `JUNO : Photon Propagation Render, only showing scatter then direct to detection photons <../env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-SC-BT5-SD.png>`_
 
 
 
@@ -82,12 +82,12 @@ Feel free to use these images in your presentations, where appropriate give attr
 
 .. figure:: ../env/presentation/pr/Dr_Simon_C_Blyth_Presenting_Opticks_At_CHEP_2019_To_Plenary_Audience_of_500_0_thumb8.jpg
 
-    `CHEP 2019 Plenary Presentation 0 </env/presentation/pr/Dr_Simon_C_Blyth_Presenting_Opticks_At_CHEP_2019_To_Plenary_Audience_of_500_0.jpg>`_
+    `CHEP 2019 Plenary Presentation 0 <../env/presentation/pr/Dr_Simon_C_Blyth_Presenting_Opticks_At_CHEP_2019_To_Plenary_Audience_of_500_0.jpg>`_
 
 
 .. figure:: ../env/presentation/pr/Dr_Simon_C_Blyth_Presenting_Opticks_At_CHEP_2019_To_Plenary_Audience_of_500_1_thumb8.jpg
 
-    `CHEP 2019 Plenary Presentation 1 </env/presentation/pr/Dr_Simon_C_Blyth_Presenting_Opticks_At_CHEP_2019_To_Plenary_Audience_of_500_1.jpg>`_
+    `CHEP 2019 Plenary Presentation 1 <../env/presentation/pr/Dr_Simon_C_Blyth_Presenting_Opticks_At_CHEP_2019_To_Plenary_Audience_of_500_1.jpg>`_
 
 
 How to add image links with thumbnails
