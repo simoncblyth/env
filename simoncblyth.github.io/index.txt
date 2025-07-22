@@ -1059,8 +1059,12 @@ A::
     ./rsync_put_to_W.sh
 
     
+github check page updating
+----------------------------
 
+* https://github.com/simoncblyth/simoncblyth.github.io/actions
     
 
     
+
 
