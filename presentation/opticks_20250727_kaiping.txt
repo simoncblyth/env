@@ -1,10 +1,13 @@
 .. meta::
    :name: opticks_20250727_kaiping.txt
    :title: Opticks : GPU ray trace accelerated optical photon simulation
-   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?sessionid=3597
    :description: (2025 July) JUNO, OptiX, Opticks
+   :doc: JUNO-doc-14291, version 1
+   :url: https://juno.ihep.ac.cn/Dev_DocDB/0142/014291/001/opticks_20250727_kaiping.pdf
+   :q: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?sessionid=3597
+   :d: 27th July 2025 10:40, 30 min
 
-   27th July 2025 10:40	
+
 
 .. include:: my_s5defs.txt
 
@@ -68,10 +71,6 @@
 
 
 
-
-
-
-
 Outline
 ---------
 
@@ -117,8 +116,11 @@ Outline
 
 .. s5_talk::
 
-   Opticks is an open source software package that uses GPU ray tracing 
-   to solve the problem of optical photon simulation faced by many experiments. 
+   This talk focusses on validation of Opticks by comparison with Geant4
+   using a photon history Chi2 approach where input photons are injected
+   into the Opticks and Geant4 simulations in various places and the resulting photon
+   histories are compared.
+
 
 
 
@@ -147,22 +149,12 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-    How to use GPU ray tracing in simulation ? That is what Opticks does. 
+    Opticks offloads the optical simulation to the GPU,
+    using state-of-the-art GPU ray tracing from NVIDIA OptiX.
+    The principal difficulty is that the entire geometry has to
+    be translated into a GPU appropriate form.
 
-    Opticks acts as a bridge between Geant4 on the CPU and NVIDIA OptiX GPU ray tracing 
 
-    * at initialization Opticks translates the Geant4 model of 
-      detector geometry into a suitable form and uploads that to the GPU
-
-    * the Geant4 Cerenkov and Scintillation processes are modified 
-      to prevent the normal CPU optical photon generation loop
-      Instead the generation parameters or gensteps are collected  
-      and then uploaded to the GPU for propagation at the end of each event
-
-    * this means the optical photon simulation is entirely offloaded to the GPU, 
-      with only the hits that are not culled by collection efficiency 
-      requiring allocation of memory on the CPU
- 
 
 OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 -----------------------------------------------------
@@ -206,6 +198,9 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 
 .. s5_talk::
+
+   A very useful recent change development is integration of Opticks+JUNOSW Build, Test and Release
+   into the GitLab CI/CD : continuous-integration/continuous-deployment. 
 
    Build + Test + Release onto /cvmfs every day, currently only CPU side testing of geometry conversion
 
@@ -268,7 +263,10 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. s5_talk::
 
-   Essentially label every photon, in both simulations
+   The validation approach is to represent photon histories with a label 
+   and then to compare the frequencies of those labels between the simulations.
+   This approach is sensitive to anything that changes photon histories. 
+   When things go wrong the histories with large Chi2 contributions point to the bugs.   
 
 
 
@@ -321,7 +319,8 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. s5_talk::
 
-   Common input photons for both simulations, ideal debug approach 
+   For simplicity of debugging it is most useful to start from
+   the exact same photons in both simulations.
 
 
 
@@ -349,7 +348,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. s5_talk::
 
-    Now I go through the results for input photons onto different parts of geometry, 
+    Now I go through the results for input photons targetting different parts of geometry, 
     with some asides for investigations of issues
 
 
@@ -400,10 +399,12 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
     In [4]: wb = b.q_startswith("TO BT BT BT BT BR BT BT BT BT BT BT AB")
     </pre>
 
+    Q: Why no high stats EX ? 
 
 .. s5_talk::
 
-    Q: Why no high stats EX ? 
+    This Chi2 table shows the history label., the counts in A and B and the Chi2 contribution.
+    Inclusion into the Chi2 and the first index of such a history.
 
 
 :small:`Opticks+Geant4 SEvt saved as A000 B000 folders of NumPy arrays`
@@ -453,7 +454,10 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. s5_talk::
 
-    Animate photon record
+    The record array, records photon parameters at up to 32 step points. 
+    Interpolation between step point positions gives you the position of every photon at any time.
+    I do that interpolation within an OpenGL geometry shader creating an animation
+    of the optical simulation for both Opticks and Geant4.
 
 
 
@@ -511,7 +515,9 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. s5_talk::
 
-    Klop
+    Here is a snapshot from that animation for the testing of an NNVT PMT.
+    There is no geometry rendering. 
+    The interpolated position and prior step points are shown. 
 
 
 :i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190101.png`
@@ -534,7 +540,9 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. s5_talk::
 
-    Klop
+    This is a little later.
+
+
 
 
 :small:`1M Input Photons targetting Hama:0:1000 Chi2 History Comparison`
@@ -576,6 +584,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
     Klop
 
+    For the 1000th Hamamatsu PMT the hits and Chi2 look OK.
 
 
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama2_ipc_20250707_165110.png` 
@@ -592,8 +601,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. s5_talk::
 
-    Klop
-
+    A little later
 
 
 
@@ -613,8 +621,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. s5_talk::
 
-    Klop
-
+    A little later 2
 
 
 
@@ -663,7 +670,9 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. s5_talk::
 
-   Klop
+   For the zeroth Hamamatsu PMT has Poor Chi2. That most likely
+   is due to it being next to the Chimney, but that needs confirmation
+   after fixing Chimney issues. 
 
 
 
@@ -692,7 +701,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. s5_talk::
 
-    Reflection 
+    This is with OpenGL rendering of a triangulated wireframe geometry
 
 
 
@@ -938,7 +947,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
     RandomSpherical
 
-
+    May be history migrations, eg extra/missed BT due to precision loss for long rays. 
 
 
 :i:`GEOM_J25_4_0_opticks_Debug_cxr_min_CD_ipc_20250706_113711.png` 
@@ -954,7 +963,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. s5_talk::
 
-   cx render
+   this is the OptiX ray traced geometry composited with OpenGL representation of the photons
 
 
 
@@ -967,7 +976,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. s5_talk::
 
-   up near chimney
+   up near chimney, using a different record shader using line strips to represent the photons
 
 
 
@@ -1122,6 +1131,11 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
     :b:`Hits Consistent, Chi2 OK,` :r:`BUT: Opticks misses BT intersects near apex and equator`
 
 
+.. s5_talk::
+
+    BZERO are Opticks only histories. They happen at the apex and equator of the PMT so its clear
+    whats happening ... there is not sufficient clearance between the virtual wrapper and the PMT. 
+
 
 :small:`XZ Semi-Circle of input photons targetting WP_PMT (clearance 0.10 mm)`
 --------------------------------------------------------------------------------
@@ -1170,6 +1184,9 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
     export R12860OnlyFrontMaskManager__MAGIC_virtual_thickness_MM=0.10 # 0.05 def. 
 
 
+.. s5_talk::
+
+    Increasing the clearance from 0.05 to 0.10 mm avoids most of these Opticks only histories.
 
 
 
@@ -1179,6 +1196,10 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 ``EVT=wp_pmt_semi_ipc MOI=PMT_20inch_veto:0:1000 cxr_min.sh``
      ``semi-circle of 100k input photons targetting WP_PMT``
 
+.. s5_talk::
+
+    Long view showing the reflections with ray traced geometry
+
 
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_semi_ipc_20250721_111433.png` 
 --------------------------------------------------------------------------------------------
@@ -1186,6 +1207,10 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 ``EVT=wp_pmt_semi_ipc MOI=PMT_20inch_veto:0:1000 ssst.sh``
      ``semi-circle of 100k input photons targetting WP_PMT``
 
+
+.. s5_talk::
+
+    Wireframe view
 
 
 :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_semi_ipc_20250709_212248.png` 
@@ -1209,6 +1234,11 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
     ``increase clearance 0.05 => 0.10 mm avoids missed intersects`` 
 
+
+.. s5_talk::
+
+    This is also a snapshot from the animation, but but restricting to look
+    at only photons with a single history it makes things simple.
 
 
 .. comment
@@ -1337,7 +1367,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. s5_talk::
 
-   BT difference 
+   Comparing histories suggests Opticks has extra or missing BT : BOUNDARY_TRANSMIT
 
 
 
@@ -1356,7 +1386,9 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. s5_talk::
 
-    Viz the problem histories
+    Viz the problem histories, the commandline selects the events to load
+    and positions the viewpoint to look at the WP_PMT being passed by.
+    The envvar selects the problem history with unexpected 5xBT
 
 
 :small:`100k Input Photons CircleXZ from WP top : "TO BT BT BT BT BT SA"`
@@ -1400,6 +1432,14 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
     :r:`Opticks : 2nd intersect from < 1mm "refining" precision of 1st intersect from ~20,000 mm ?` 
 
 
+.. s5_talk::
+
+    Selecting photons with 5BT in Opticks and 4BT in Geant4 reveals whats happening. 
+    The 2nd Opticks BT is very close to the 1st Geant4 BT. So whats going on is that the 
+    first Opticks intersect is an imprecise one which gets refined by the 2nd intersect
+    from closeup. 
+
+
 :small:`100k Input Photons CircleXZ from WP top : distances between intersects`
 ---------------------------------------------------------------------------------
 
@@ -1432,6 +1472,11 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
    * 1st Opticks(float) intersect from 20,000mm is of lesser precision (~0.2 mm)
    * 2nd Opticks(float) intersect from < 1mm very close to Geant4(double) (~1e-4 mm) intersect
 
+
+.. s5_talk::
+
+   This comparing distances between the step points showing what I just suggested to be the case.
+   Look at step point positions/times for discrepant histories
 
 
 .. comment
@@ -1471,11 +1516,6 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 
 
-.. s5_talk::
-
-   Look at step point positions/times for discrepant histories
-
-
 
 
 
@@ -1483,6 +1523,12 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 ---------------------------------------------------------------------------------
 
 ``GEOM=BigWaterPool EVT=poolcover_cxs ssst.sh # JUNO pool dimensions``
+
+
+.. s5_talk::
+
+    So clearly I need to look at intersect precision for long rays.
+    This simple geometry is used to do that.
 
 
 
@@ -1502,6 +1548,12 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
     ``TODO: auto-test intersect precision of all prim. + some CSG combinations``
 
 
+.. s5_talk::
+  
+    Comparing intersect positions from a large number of start points along the
+    rays allows to check precision as a function of distance.
+
+
 :i:`GEOM_BigWaterPool_cxt_precision_simtrace_input_photon_poolcover_and_refine_20250718_212024.png` 
 ----------------------------------------------------------------------------------------------------
 
@@ -1511,6 +1563,12 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 
 ``cxt_precision.sh : intersect error max(median) : ~1(0.05)mm at 20,000mm``
+
+
+.. s5_talk::
+
+     This shows how the precision degrades up to a maximum of 1mm at 20,000 mm 
+     The steps are likely the loss of mantissa bits
 
 
 :i:`GEOM_BigWaterPool_cxt_precision_simtrace_input_photon_poolcover_and_refine_20250718_211808.png` 
@@ -1538,6 +1596,13 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
     <p style="margin-bottom:60mm;" />
 
+
+.. s5_talk::
+
+   The problem of extra BT I showed previously conveniently also showed
+   how to solve itself with a 2nd refining intersect from closeup.
+   Doing that avoids degrading precision, at the cost of more ray tracing
+   for long rays.
 
 
 
@@ -1579,6 +1644,11 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 
 
+.. s5_talk::
+
+    The fix is to re-trace from closer for rays exceeding a distance cut.
+
+
 
 :small:`RAY TRACING GEMS II, Chapter 34, IMPROVING NUMERICAL PRECISION IN INTERSECTION PROGRAMS (Ingo Wald, NVIDIA)`
 ---------------------------------------------------------------------------------------------------------------------
@@ -1607,6 +1677,16 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
    :alt: Logo
    :align: center
    :width: 720px
+
+
+.. s5_talk::
+
+    Looking into why this is happening, I found a useful reference in "RAY TRACING GEMS II, Chapter 32"
+    from an NVIDIA engineer.
+
+    A FLOP is a floating point operation. When it involves values with different magnitude
+    precision gets lost.
+
 
 
 :small:`100k Input Photons CircleXZ from WP top : OPTICKS_PROPAGATE_REFINE`
@@ -1650,7 +1730,9 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
    :b:`WaterPool : Chi2 OK with REFINE` 
 
 
+.. s5_talk::
 
+   The Waterpool Chi2 deviation is fixed by using intersect precision refinement.
 
 
 
@@ -1699,6 +1781,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
 
 .. s5_talk::
 
+    Shooting 1M photons up Chimney. Get terrible Chi2.
     Problem in geometry translation
 
 

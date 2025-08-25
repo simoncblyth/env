@@ -2874,6 +2874,11 @@
     GEOM_J25_4_0_opticks_Debug_cxr_min_SPMT_cxs_20250722_155442.png
     GEOM/J25_4_0_opticks_Debug/cxr_min/SPMT_cxs/20250722_155442.png 1280px_720px
 
+    ## HUH : NOT APPEARING IN SLIDE BACKGROUND : BUT URL OK
+    ##
+    ##  http://localhost/env/presentation/GEOM/J25_4_0_opticks_Debug/cxr_min/SPMT_cxs/20250722_155442.png
+    ##  http://localhost/env/presentation/GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/wp_pmt_semi_ipc/20250721_111242.png
+    ##  http://localhost/env/presentation/GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/wp_pmt_semi_ipc/20250721_111433.png
     ##
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
