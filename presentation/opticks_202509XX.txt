@@ -1,0 +1,1874 @@
+.. meta::
+   :name: opticks_202506XX.txt
+   :title: Opticks : GPU ray trace accelerated optical photon simulation
+   :description: (2025 June) JUNO, OptiX, Opticks
+
+.. include:: my_s5defs.txt
+
+.. comment
+
+   CD
+
+   WP
+
+   POOLCOVER
+
+   muon
+
+   Chimney
+
+
+   summary
+
+   usage tutorial
+
+
+
+
+:i:`Status Report, JUNOSW + Opticks : GPU ray trace accelerated optical photon simulation`
+=============================================================================================
+
+.. raw:: html
+
+    <div class="mytitle">
+    <header>
+    <h1 style="background-color:lightgrey;text-align:center;"> 
+        Status Report, <i>JUNOSW + Opticks</i> :<br/> GPU ray trace accelerated optical photon simulation 
+        <h2 style="background-color:lightgrey;text-align:center">
+            Open source, github.com:simoncblyth/opticks
+        </h2>
+    </h1>
+    </header>
+    </div>
+    <!--img style="position:absolute; top:200px; LEFT:100px; WIDTH:200px; " src="juno/JUNO_logo.png"  /-->
+    <div class="mycredit">
+       <h2 style="background-color:lightgrey">
+          Simon C Blyth, IHEP, CAS &mdash; Simulation Meeting &mdash; 8 July 2025
+       </h2>
+    </div>
+
+.. s5_talk:: 
+
+    This render shows the photons resulting from a muon crossing the JUNO scintillator, 
+    each line represents a single photon.
+
+.. comment
+
+    Opticks is an open source project that applies GPU ray tracing to optical photon simulation 
+    and integrates this with Geant4. This can give drastic speedups of more than a factor of 1000.
+    This approach removes memory and processing bottlenecks that can prevent the 
+    optical photons from limiting simulations.  
+
+    The actual speedup depends on your geometry and your effort in avoiding 
+    geometry issues. 
+
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_wp_atm_lpmt_20250822_162218.png` 
+------------------------------------------------------------------------
+
+Before fix, the 348 are pointing outwards
+
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_wp_atm_lpmt_20250825_104122.png` 
+------------------------------------------------------------------------
+
+After fix, inwards
+
+
+WP_ATM_LPMT
+-------------
+
+* https://code.ihep.ac.cn/JUNO/offline/junosw/-/merge_requests/981
+* direct the cylinder of 29*12=348 WP_ATM_LPMT inwards not outwards by adding 180 to phi 
+
+
+
+
+Outline
+---------
+
+.. image:: newtons-opticks.png 
+   :width: 299px
+   :height: 547px 
+   :align: right
+
+.. class:: small
+
+    .. raw:: html
+
+       <span>&nbsp;</span>
+
+    * Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
+    * OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
+    * Chi2 Comparison of photon histories between A:Opticks and B:Geant4
+    * Common Input Photons in Opticks and Geant4 simulations
+    * Input Photon Check Results
+
+      * 1M Input Photons targetting NNVT:0:1000 Chi2 History Comparison
+      * 1M Input Photons targetting Hama:0:1000 Chi2 History Comparison
+      * 1M Input Photons targetting Hama:0:0 Chi2 History Comparison
+      * 100k Input Photons targetting PMT_3inch:0:0 Chi2 History Comparison
+      * 1M Random Spherical Photons from CD center : History Chi2
+      * 100k Input Photons targetting PMT_20inch_veto:0:1000 History Chi2
+      * 100k Input Photons CircleXZ from WP top : Chi2 History Comparison
+      * 1M Input Photons shot up Chimney : TOTALLY DEVIANT : DIFF GEOMETRY
+      * TargetLS/LowerChimney/UpperChimney issues
+      * Summary of Input Photon Checks : Hit Count and Chi2
+
+    * Recently Fixed Issues : Many Thanks to Dingyong and Haosen
+    * Missing Features and Known Issues
+    * OJ : Minimal Muon Script : ~/j/muon/muon_min.sh
+    * muon_min.sh log : 121M photon kernel launch ~18 sec
+    * Summary and Links, NEXT Development Steps, User Steps
+    * Extra : Geometry Model Translation : Geant4 => CSGFoundry => NVIDIA OptiX 7/8
+
+.. raw:: html
+
+   <hr/>
+
+
+.. s5_talk::
+
+   Opticks is an open source software package that uses GPU ray tracing 
+   to solve the problem of optical photon simulation faced by many experiments. 
+
+
+
+
+Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
+-------------------------------------------------------------
+
+.. class:: small
+
+    .. table::
+        :align: center
+
+        +--------------------------------------------------+
+        | :b:`https://github.com/simoncblyth/opticks`      |
+        +--------------------------------------------------+
+
+
+.. raw:: html
+
+    <p style="margin-bottom:13cm;" />
+
+.. class:: small
+
+    Opticks API : split according to dependency -- Optical photons are GPU "resident", only hits need to be copied to CPU memory 
+
+
+.. s5_talk::
+
+    How to use GPU ray tracing in simulation ? That is what Opticks does. 
+
+    Opticks acts as a bridge between Geant4 on the CPU and NVIDIA OptiX GPU ray tracing 
+
+    * at initialization Opticks translates the Geant4 model of 
+      detector geometry into a suitable form and uploads that to the GPU
+
+    * the Geant4 Cerenkov and Scintillation processes are modified 
+      to prevent the normal CPU optical photon generation loop
+      Instead the generation parameters or gensteps are collected  
+      and then uploaded to the GPU for propagation at the end of each event
+
+    * this means the optical photon simulation is entirely offloaded to the GPU, 
+      with only the hits that are not culled by collection efficiency 
+      requiring allocation of memory on the CPU
+ 
+
+OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
+-----------------------------------------------------
+
+
+.. class:: normal
+
+   Use *Opticks+JUNOSW* by sourcing ``envset.sh``, eg:
+
+.. raw:: html
+
+   <pre class="mypre18">
+   source /cvmfs/opticks.ihep.ac.cn/oj/releases/J25.4.0_Opticks-v0.5.0/el9_amd64_gcc11/2025_07_07/envset.sh
+   </pre>
+
+.. class:: normal
+
+    * Every day + when JUNOSW/Simulation changes => automated OJ build + test + release 
+    * :b:`For reproducibility, use dated reference releases` eg **2025_07_07**
+    * ``tut_detsim.py --opticks-mode 1`` is default (optical simulation on GPU)
+
+.. raw:: html
+
+    <pre class="mypre25">A[blyth@localhost el9_amd64_gcc11]$ pwd
+    /cvmfs/opticks.ihep.ac.cn/oj/releases/J25.4.0_Opticks-v0.5.0/el9_amd64_gcc11
+
+    A[blyth@localhost el9_amd64_gcc11]$ ls -lt
+    lrwxrwxrwx. 1 cvmfs cvmfs  10 Jul  7 14:33 LastRef -> 2025_07_07
+    lrwxrwxrwx. 1 cvmfs cvmfs   3 Jul  7 12:46 Latest -> Mon
+    drwxr-xr-x. 7 cvmfs cvmfs 181 Jul  7 12:40 2025_07_07
+    drwxr-xr-x. 7 cvmfs cvmfs 181 Jul  7 12:40 Mon
+    drwxr-xr-x. 7 cvmfs cvmfs 181 Jul  6 17:32 Sun
+    drwxr-xr-x. 7 cvmfs cvmfs 181 Jul  5 17:36 Sat
+    </pre>
+
+
+.. s5_talk::
+
+   Build + Test + Release onto /cvmfs every day, currently only CPU side testing of geometry conversion
+
+
+:small:`Chi2 Comparison of photon histories between A:Opticks and B:Geant4`
+-----------------------------------------------------------------------------
+
+.. sidebar:: :small:`sysrap/OpticksPhoton.h`
+
+    .. raw:: html
+
+        <pre class="mypre15">
+        enum
+        {
+            CERENKOV           = 0x1 <<  0,    // CK   
+            SCINTILLATION      = 0x1 <<  1,    // SI
+            TORCH              = 0x1 <<  2,    // TO 
+            BULK_ABSORB        = 0x1 <<  3,    // AB
+            BULK_REEMIT        = 0x1 <<  4,    // RE
+            BULK_SCATTER       = 0x1 <<  5,    // SC
+            SURFACE_DETECT     = 0x1 <<  6,    // SD
+            SURFACE_ABSORB     = 0x1 <<  7,    // SA
+            SURFACE_DREFLECT   = 0x1 <<  8,    // DR
+            SURFACE_SREFLECT   = 0x1 <<  9,    // SR 
+            BOUNDARY_REFLECT   = 0x1 << 10,    // BR
+            BOUNDARY_TRANSMIT  = 0x1 << 11,    // BT
+            NAN_ABORT          = 0x1 << 12,    // NA
+            EFFICIENCY_COLLECT = 0x1 << 13,    // EC
+            EFFICIENCY_CULL    = 0x1 << 14,    // EX
+            ...
+        };
+        </pre>
+
+
+.. class:: small
+
+   :b:`Label every photon in both simulations, compare labels`
+
+   * Photon step point classified, 4 bits (16) => ``sseq.h``
+   * 32*4 bits per photon => ``seq.npy`` array
+   * Each photon has history string eg "SI BT BT BT BT EC"
+
+   ``sysrap/tests/sseq_index_test.sh`` 
+
+   * index histories with counts from A and B
+   * form Chi2 comparing counts
+   * large Chi2 contrib histories point to bugs
+
+   :r:`Chi2 sensitive to anything that changes photon histories` 
+
+   **Opticks uses Gensteps collected from Geant4**
+
+   * => both simulations have exact same photon counts
+   * :b:`BULK_REEMIT is NOT considered to form new photon`  
+ 
+   More of one history implies less of other(s), A/BZERO points to bugs
+
+   **JUNOSW/U4RecorderAnaMgr** : passes G4Step to opticks/u4/U4Recorder recording into Opticks SEvt 
+
+
+.. s5_talk::
+
+   Essentially label every photon, in both simulations
+
+
+
+:small:`Common Input Photons in Opticks and Geant4 simulations`
+--------------------------------------------------------------------
+
+.. sidebar:: :small:`OPTICKS_INPUT_PHOTON_FRAME`
+ 
+   .. raw:: html
+
+       <pre class="mypre20">NNVT:0:1000
+       Hama:0:0, Hama:0:1000
+       PMT_3inch:0:0
+       sTarget:0:-2
+       PMT_20inch_veto:0:1000
+       3345.569,20623.73,21000 ## WP 
+       sChimneyLS:0:-2</pre>
+
+.. class:: small
+
+   :b:`Common input photons, two optical simulations`
+
+   * Control frame of input photons with envvar ====>
+
+     * target different geometry
+     * ``sysrap/stree.h stree::get_frame``
+
+
+.. raw:: html
+
+     <p style="margin-bottom:47mm;" />
+
+::
+
+    ipc(){ source ~/j/InputPhotonsCheck/InputPhotonsCheck.sh $* ; }
+
+    tut_detsim.py  
+       --opticks-mode 3     ## both Geant4 and Opticks simulations
+       --opticks-anamgr     ## record Geant4 photon steps points 
+       --no-anamgr-normal   ## still needed with opticks-mode 3  
+       ...
+       opticks              ## use GtOpticksTool : Input Photons 
+    
+
+.. class:: small
+
+   https://code.ihep.ac.cn/blyth/j/-/blob/main/InputPhotonsCheck/InputPhotonsCheck.sh
+
+
+
+.. s5_talk::
+
+   Common input photons for both simulations, ideal debug approach 
+
+
+
+:small:`Input Photon Check Results`
+------------------------------------
+
+.. class:: normal
+
+   Following pages cover:
+   
+   * 1M Input Photons targetting NNVT:0:1000 Chi2 History Comparison
+   * 1M Input Photons targetting Hama:0:1000 Chi2 History Comparison
+   * 1M Input Photons targetting Hama:0:0 Chi2 History Comparison
+   * 100k Input Photons targetting PMT_3inch:0:0 Chi2 History Comparison
+   * 1M Random Spherical Photons from CD center : History Chi2
+   * 100k Input Photons targetting PMT_20inch_veto:0:1000 History Chi2
+   * 100k Input Photons CircleXZ from WP top : Chi2 History Comparison
+   * 1M Input Photons shot up Chimney : TOTALLY DEVIANT : DIFF GEOMETRY
+   * TargetLS/LowerChimney/UpperChimney issues
+   * Summary of Input Photon Checks : Hit Count and Chi2
+
+
+.. s5_talk::
+
+    Now I go through the results for input photons onto different parts of geometry, 
+    with some asides for investigations of issues
+
+
+:small:`1M Input Photons targetting NNVT:0:1000 Chi2 History Comparison`
+---------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=NNVT ipc run
+    SABHit  a_nhit : (  362580 +-  602 )  b_nhit:(   363183 +-  602 )  a/b: (  0.998 +-  0.003 )  b/a: (  1.002 +-  0.003) 
+    </pre>
+
+.. raw:: html
+
+    <pre class="mypre18">TEST=NNVT ipc chi2
+    [sseq_index_ab::desc                           <span class="b">CHI2 sum  1393.8496 ndf 954.0000 sum/ndf 1.4611 </span>
+    TO BT BT BT BT EC                                         :  312169 312612 :     0.3141 : Y :       1      6 :   
+    TO BT BT BT BT SA                                         :  293808 294880 :     1.9521 : Y :       2      2 :   
+    TO BT BT BT BT BT SR SA                                   :   43995  43757 :     0.6455 : Y :  103587 103712 :   
+    TO BT BT BT BT BT SA                                      :   32244  32300 :     0.0486 : Y :   84121  84359 :   
+    TO BT BT BT BT BR BT BT BT BT BT BT AB                    :   17363  16152 : <span class="r">   43.7572</span> : Y :    6638  39864 : <span class="r">DEVIANT</span>
+    TO BT BT BT BT BT SR BR SR SA                             :   10870  10812 :     0.1552 : Y :  210140 210140 :   
+    TO BT BT BT BT BR BT BT BT BT BT BT BT BT SA              :    8882   8551 :     6.2847 : Y :   73002  90912 :   
+    TO BT BT BT BT BT SR BR SA                                :    8881   8635 :     3.4549 : Y :  202016 202009 :   
+    TO BT BT AB                                               :    8706   8767 :     0.2130 : Y :      47    147 :   
+    TO BT BT BT BT BR BT BT BT BT BT BT BT BT EC              :    8391   8289 :     0.6237 : Y :   79688  79729 :   
+    TO BT BT BT BT BR BT BT BT BT AB                          :    8320   8001 :     6.2350 : Y :    1072    350 :   
+    TO BT BT BT BT EX                                         :    7447   7330 :     0.9264 : Y :       0     90 :   
+    TO BT BT BT BT BR BT BT BT BT BT BT BT BT BT BT BT BT EC  :    5996   5992 :     0.0013 : Y :  115560 115545 :   
+    TO BT BT BT BT BT SR SR SA                                :    5973   5904 :     0.4009 : Y :  103570 103605 :   
+    ]sseq_index_ab::desc
+    </pre>
+
+.. class:: small
+
+   :b:`Chi2 table : "seqhis" label, counts in A and B, Chi2 contrib, Y/N Chi2 inclusion, First index in A and B`
+
+
+.. class:: huge
+
+   **NNVT:0:1000** : :r:`Consistent Hits, Chi2 OK, some deviants`
+
+
+.. comment
+
+    <pre class="mypretiny">TEST=NNVT ipc pdb   ## ipython/NumPy investigate DEVIANT 
+    In [3]: wa = a.q_startswith("TO BT BT BT BT BR BT BT BT BT BT BT AB") 
+    In [4]: wb = b.q_startswith("TO BT BT BT BT BR BT BT BT BT BT BT AB")
+    </pre>
+
+
+.. s5_talk::
+
+    Q: Why no high stats EX ? 
+
+
+:small:`Opticks+Geant4 SEvt saved as A000 B000 folders of NumPy arrays`
+------------------------------------------------------------------------
+
+::
+
+    TEST=NNVT ipc env_pdb  ## load SEvt AFOLD and BFOLD into ipython
+
+.. raw:: html
+
+    <pre class="mypre12">
+    In [1]: a
+    Out[1]: SEvt symbol a pid -1 opt  off [0. 0. 0.] a.f.base 
+    /tmp/blyth/opticks/GEOM/J25_4_0_opticks_Debug/InputPhotonsCheck/ALL1_DebugPhilox_3_NNVT:0:1000_RainXZ_Z230_1M_f8/A000 
+
+    In [2]: b
+    Out[2]: SEvt symbol b pid -1 opt  off [0. 0. 0.] b.f.base 
+    /tmp/blyth/opticks/GEOM/J25_4_0_opticks_Debug/InputPhotonsCheck/ALL1_DebugPhilox_3_NNVT:0:1000_RainXZ_Z230_1M_f8/B000 
+
+    In [3]: a.f                                                               In [4]: b.f
+    Out[3]:                                                                   Out[4]: 
+    CMDLINE:/home/blyth/j/InputPhotonsCheck/InputPhotonsCheck.py              CMDLINE:/home/blyth/j/InputPhotonsCheck/InputPhotonsCheck.py
+    a.base:/tmp/blyth/opticks/GEOM/J25_4_0_opticks_Debug/InputPhotonsCheck    b.base:/tmp/blyth/opticks/GEOM/J25_4_0_opticks_Debug/InputPhotonsCheck
+              /ALL1_DebugPhilox_3_NNVT:0:1000_RainXZ_Z230_1M_f8/A000                   /ALL1_DebugPhilox_3_NNVT:0:1000_RainXZ_Z230_1M_f8/B000
+                                                                              
+      : a.genstep       :            (1, 6, 4) : 3 days, 18:30:54.268232        : b.genstep           :            (1, 6, 4) : 3 days, 18:31:02.710375 
+      : a.photon        :      (1000000, 4, 4) : 3 days, 18:30:54.266232        : b.photon            :      (1000000, 4, 4) : 3 days, 18:31:02.708375 
+      : a.record        :  (1000000, 32, 4, 4) : 3 days, 18:30:54.130232        : b.record            :  (1000000, 32, 4, 4) : 3 days, 18:31:02.598375 
+      : a.seq           :      (1000000, 2, 2) : 3 days, 18:30:53.183233        : b.seq               :      (1000000, 2, 2) : 3 days, 18:31:01.623376 
+      : a.hit           :       (362580, 4, 4) : 3 days, 18:30:53.169233        : b.hit               :       (363183, 4, 4) : 3 days, 18:31:01.610377 
+      : a.inphoton      :      (1000000, 4, 4) : 3 days, 18:30:53.160233        : b.inphoton          :      (1000000, 4, 4) : 3 days, 18:31:01.599376 
+      : a.seqnib        :           (1000000,) : 3 days, 18:30:53.139233        : b.seqnib            :           (1000000,) : 3 days, 18:31:01.579376 
+      : a.seqnib_table  :              (33, 1) : 3 days, 18:30:53.137233        : b.seqnib_table      :              (33, 1) : 3 days, 18:31:01.578377 
+      : a.NPFold_index  :                 (9,) : 3 days, 18:30:53.137233        : b.NPFold_index      :                (11,) : 3 days, 18:31:01.578377 
+      : a.sframe        :            (4, 4, 4) : 3 days, 18:30:53.137233        : b.sframe            :            (4, 4, 4) : 3 days, 18:31:01.578377 
+                                                                             
+   </pre>
+
+.. class:: normal
+
+    Record (1000000, 32, 4, 4) : 1M photons, 32 step points of (4,4) param (pos,time,dir,wl,pol,id,...)
+
+    * interpolation between step point positions gives position at any time
+    * OpenGL geometry shader : :b:`animate photon positions with time as input`
+
+
+.. s5_talk::
+
+    Animate photon record
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190057.png` 
+-----------------------------------------------------------------
+
+``NNVT:0:1000``
+
+``Snapshot from photon record animation``
+
+
+.. s5_talk::
+
+    Klop
+
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_1900571.png` 
+------------------------------------------------------------------
+
+``NNVT:0:1000``
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190058.png`
+----------------------------------------------------------------
+
+``NNVT:0:1000``
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190059.png` 
+----------------------------------------------------------------
+
+``NNVT:0:1000``
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_NNVT_20250704_190101.png`
+----------------------------------------------------------------
+
+``NNVT:0:1000``
+
+.. s5_talk::
+
+    Klop
+
+
+:small:`1M Input Photons targetting Hama:0:1000 Chi2 History Comparison`
+---------------------------------------------------------------------------
+
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=Hama2 ipc run
+    SABHit  a_nhit : (  300462 +-  548 )  b_nhit:(   300163 +-  547 )  a/b: (  1.001 +-  0.004 )  b/a: (  0.999 +-  0.004)
+    </pre>
+
+.. raw:: html
+
+    <pre class="mypre18">TEST=Hama2 ipc run
+    [sseq_index_ab::desc                              <span class="b">[CHI2 sum   431.3700 ndf 439.0000 sum/ndf     0.9826 ] </span>
+    TO BT BT BT BT SA                                 :  375291 375423 :     0.0232 : Y :       2      2 :   
+    TO BT BT BT BT EC                                 :  282246 281762 :     0.4153 : Y :       5      0 :   
+    TO BT BT BT BT BT SA                              :  124915 125119 :     0.1664 : Y :   88947  88854 :   
+    TO BT BT BT BT BT SR SA                           :   38523  38484 :     0.0198 : Y :  108919 108784 :   
+    TO BT BT BT BT EX                                 :   24764  24932 :     0.5679 : Y :       0      5 :   
+    TO BT BT BT BT BT SR SR SA                        :   20225  20052 :     0.7431 : Y :  108778 108774 :   
+    TO BT BT AB                                       :    8758   8740 :     0.0185 : Y :      47     31 :   
+    TO BT BT BT BT BT SR SR SR SA                     :    6015   5935 :     0.5356 : Y :  147290 147252 :   
+    TO BT BT BT BT BR BT BT BT BT BT BT AB            :    4491   4337 :     2.6865 : Y :   38993  64544 :   
+    TO BT BT BT BT AB                                 :    3410   3393 :     0.0425 : Y :     199     26 :   
+    TO BT BT BT BT BT SR BR SA                        :    3137   3065 :     0.8359 : Y :  335672 335676 :   
+    TO BT BT BT BT BR BT BT BT BT BT SA               :    3074   3099 :     0.1012 : Y :   10173  10179 :   
+    TO BT BT BT BT BR BT BT BT BT AB                  :    2954   2841 :     2.2035 : Y :    2399   1014 :   
+    TO BT BT BT BT BR BT BT BT BT BT BT BT BT EC      :    2618   2558 :     0.6955 : Y :   81470  81407 :   
+    </pre>
+
+.. class:: huge
+
+   **Hama:0:1000** : :r:`Consistent Hits, Chi2 OK`
+
+
+.. s5_talk::
+
+    Klop
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama2_ipc_20250707_165110.png` 
+--------------------------------------------------------------------------------------
+
+``Hama:0:1000``
+
+
+.. s5_talk::
+
+    Klop
+
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama2_ipc_20250707_165111.png` 
+--------------------------------------------------------------------------------------
+
+``Hama:0:1000``
+
+
+
+.. s5_talk::
+
+    Klop
+
+
+
+
+
+:small:`1M Input Photons targetting Hama:0:0 Chi2 History Comparison`
+---------------------------------------------------------------------------
+
+.. comment
+
+    junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 331701 hitCollectionAlt 331799 hcMuon 0 GPU YES
+
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=Hama ipc run
+    SABHit  a_nhit : (  331799 +-  576 )  b_nhit:(   331701 +-  575 )  a/b: (  1.000 +-  0.003 )  b/a: (  1.000 +-  0.003) 
+    </pre>
+
+.. raw:: html
+
+    <pre class="mypre18">TEST=Hama ipc chi2
+    [sseq_index_ab::desc                             <span class="r">[CHI2 sum  1107.2895 ndf 467.0000 sum/ndf     2.3711 ]</span> 
+    TO BT BT BT BT SA                         :  336783 336911 :     0.0243 : Y :       2     12 :   
+    TO BT BT BT BT EC                         :  317582 317384 :     0.0617 : Y :       5      1 :   
+    TO BT BT BT BT BT SA                      :  124915 125038 :     0.0605 : Y :   88947  88032 :   
+    TO BT BT BT BT BT SR SA                   :   38523  38437 :     0.0961 : Y :  108919 108963 :   
+    TO BT BT BT BT EX                         :   27933  28065 :     0.3112 : Y :       0      9 :   
+    TO BT BT BT BT BT SR SR SA                :   20226  20230 :     0.0004 : Y :  108778 108786 :   
+    TO BT BT BT BT BR BT BT BT BT BT SA       :   10668  10851 :     1.5563 : Y :   49243  49230 :   
+    TO BT BT AB                               :    8758   8756 :     0.0002 : Y :      47      4 :   
+    TO BT BT BT BT BT SR SR SR SA             :    6015   5933 :     0.5628 : Y :  147290 147241 :   
+    TO BT BT BT BT AB                         :    3410   3293 :     2.0422 : Y :     199      6 :   
+    TO BT BT BT BT BT SR BR SA                :    3136   3084 :     0.4347 : Y :  335672 335683 :   
+    TO BT BT BT BT BR BT BT BT BT BT BT AB    :    2958   2465 :    44.8182 : Y :   64577  64662 : <span class="r">DEVIANT</span>  
+    TO BT BT BT BT BT SR SR SR BR SA          :    2391   2319 :     1.1006 : Y :  147741 147420 :   
+    TO BT BT BR BT BT BT SA                   :    1961   2028 :     1.1253 : Y :   27950  38276 :   
+    TO BT BT BT BT BR BT BT BT BT AB          :    1844   1832 :     0.0392 : Y :    2209   3824 :   
+    TO BT BT BT BT BR BT BT BT BT SA          :    1778   1799 :     0.1233 : Y :      31      8 :   
+    TO BT BT BT BR BT BT BT BT SA             :    1690   1635 :     0.9098 : Y :   42010  42229 :   
+    </pre>
+
+.. class:: huge
+
+   **Hama:0:0** : :b:`Consistent Hits`, :r:`Poor Chi2 (Chimney?)`
+
+
+.. s5_talk::
+
+   Klop
+
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama_20250704_215523.png` 
+---------------------------------------------------------------------------------
+
+``Hama:0:0 (LowerChimney to right)``
+
+.. s5_talk::
+
+    Reflection 
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama_20250704_215525.png` 
+---------------------------------------------------------------------------------
+
+``Hama:0:0 (LowerChimney to right)``
+
+.. s5_talk::
+
+    Reflection 
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama_20250704_215528.png` 
+---------------------------------------------------------------------------------
+
+``Hama:0:0 (LowerChimney to right)``
+
+.. s5_talk::
+
+    Reflection 
+
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama_20250704_215530.png` 
+---------------------------------------------------------------------------------
+
+``Hama:0:0 (LowerChimney to right)``
+
+
+.. s5_talk::
+
+    Reflection 
+
+
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Hama_20250704_215533.png` 
+---------------------------------------------------------------------------------
+
+``Hama:0:0 (LowerChimney to right)``
+
+
+.. s5_talk::
+
+    Reflection 
+
+
+
+
+
+:small:`100k Input Photons targetting PMT_3inch:0:0 Chi2 History Comparison`
+------------------------------------------------------------------------------
+
+.. comment
+
+    junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 21919 hitCollectionAlt 21893 hcMuon 0 GPU YES
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=SPMT ipc run
+    SABHit  a_nhit : (   21893 +-  147 )  b_nhit:(    21919 +-  148 )  a/b: (  0.999 +-  0.013 )  b/a: (  1.001 +-  0.014)
+    </pre>
+
+.. raw:: html
+
+    <pre class="mypre18">TEST=SPMT ipc chi2
+    [sseq_index_ab::desc                                <span class="b">[CHI2 sum  2.6529 ndf  6.0000 sum/ndf  0.4422 ]</span> 
+        TO BT BT EX                                  :   77287  77187 :     0.0647 : Y :       0      0 :   
+        TO BT BT EC                                  :   21819  21843 :     0.0132 : Y :       3      2 :   
+        TO AB                                        :     456    486 :     0.9554 : Y :      25     76 :   
+        TO BT BT AB                                  :     119    110 :     0.3537 : Y :    2121    261 :   
+        TO BT AB                                     :      36     41 :     0.3247 : Y :    3833    420 :   
+        TO BT BR BT BT BT AB                         :      30     38 :     0.9412 : Y :    2867   6191 :   
+        TO BT BR BT BT BT SC BT BT BT BT BT BT EC    :      16     14 :     0.0000 : N :    5229   7937 : C2EXC  
+        TO SC BT BT BT BT EC                         :      13     14 :     0.0000 : N :    8966  28955 : C2EXC  
+        TO SC BT BT BT BT SA                         :       8     12 :     0.0000 : N :    6692   9608 : C2EXC  
+        TO BT BR BT BT BT SC BT BT BT BT BT BT SA    :       9     11 :     0.0000 : N :   10946  34936 : C2EXC  
+        TO BT BR BT BT BT BT BT BT BT BT BT EC       :      10     11 :     0.0000 : N :   33607   7618 : C2EXC  
+        TO BT BR BT BT BT BT BT BT BT BT BT SA       :      10     10 :     0.0000 : N :    8104  22053 : C2EXC  
+        TO BT BR BT BT BT SC AB                      :       9      8 :     0.0000 : N :    5616   6787 : C2EXC  
+        TO BT BR BT AB                               :       6      6 :     0.0000 : N :    5173  19516 : C2EXC  
+    </pre>
+
+
+.. class:: huge
+
+    **PMT_3inch:0:0** : :b:`Consistent Hits, Chi2 OK`
+
+
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_SPMT_ipc_20250704_223841.png` 
+-------------------------------------------------------------------------------------
+
+``PMT_3inch:0:0``
+
+
+.. s5_talk::
+
+    Klop
+
+
+
+:small:`1M Random Spherical Photons from CD center : History Chi2`
+------------------------------------------------------------------------------------
+
+
+.. comment
+
+    junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 218082 hitCollectionAlt 217101 hcMuon 0 GPU YES
+    junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 218082 hitCollectionAlt 217101 hcMuon 0 GPU YES
+    SABHit  a_nhit : (  217101 +-  465 )  b_nhit:(   218082 +-  466 )  a/b: (  0.996 +-  0.004 )  b/a: (  1.005 +-  0.004) 
+
+
+    junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 218014 hitCollectionAlt 217072 hcMuon 0 GPU YES
+
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=CD ipc run
+    SABHit  a_nhit : (  217101 +-  465 )  b_nhit:(   218082 +-  466 )  a/b: (  0.996 +-  0.004 )  b/a: (  1.005 +-  0.004) 
+    </pre>
+
+.. raw:: html
+
+    <pre class="mypre18">TEST=CD ipc chi2
+    [sseq_index_ab::desc                       <span class="b">[ CHI2  sum  1838.7167 ndf 1652.0000 sum/ndf 1.1130 ]</span>
+    TO AB                                                   :  111833 111239 :     1.5817 : Y :       0      9 :   
+    TO BT BT BT BT BT BT EC                                 :   90826  91325 :     1.3670 : Y :      14     25 :   
+    TO BT BT BT BT BT BT SA                                 :   87693  87782 :     0.0451 : Y :      11      2 :   
+    TO SC AB                                                :   41715  41226 :     2.8830 : Y :      16     15 :   
+    TO SC BT BT BT BT BT BT EC                              :   40527  40512 :     0.0028 : Y :       5     29 :   
+    TO SC BT BT BT BT BT BT SA                              :   40240  39939 :     1.1300 : Y :      29     34 :   
+    TO BT BT SA                                             :   23450  23550 :     0.2128 : Y :      56     21 :   
+    TO SC SC BT BT BT BT BT BT EC                           :   15348  15450 :     0.3378 : Y :      37     14 :   
+    TO SC SC BT BT BT BT BT BT SA                           :   15429  15397 :     0.0332 : Y :       3     13 :   
+    TO SC SC AB                                             :   14643  14545 :     0.3290 : Y :      51    219 :   
+    ...
+    TO SC BT BT BT SA                                       :    4306   4471 :     3.1019 : Y :     190     82 :   
+    TO BT BT BT BT BT BT BT EC                              :    4090   4050 :     0.1966 : Y :     675   1471 :   
+    TO SC BT AB                                             :    3147   3440 :    13.0331 : Y :     508    763 : <span class="r">DEVIANT</span>
+    TO BT BT BT BT AB                                       :    3259   3290 :     0.1467 : Y :     267    103 :   
+    TO SC SC BT BT AB                                       :    3082   2941 :     3.3008 : Y :      36     35 :   
+    </pre>
+
+
+
+.. class:: huge
+
+    **sTarget:0:-2** : :b:`Consistent Hits, Chi2 OK`
+
+
+.. s5_talk::
+
+    RandomSpherical
+
+
+
+:small:`1M Random Spherical Photons from CD center : History Chi2 (continued)`
+------------------------------------------------------------------------------------
+
+
+.. class:: small
+
+    AZERO
+        histories only present in simulation B (Geant4)
+
+    BZERO
+        histories only present in simulation A (Opticks)
+    
+    :r:`Can be sign of geometry bugs : but low stats sprinkle expected` 
+
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=CD ipc chi2
+    [sseq_index_ab::desc u_size 129497 NUM_MAX 40 num 129497 opt AZERO mode 1
+    TO BT BT BT BT BR SR SR SR SR SR BT BT BT BT BT BT SA   :      -1     27 :     0.0000 : N :      -1  55880 : AZERO C2EXC  
+    TO BT BT BT BT BR SR SR SR SR SR SR BR BR BR BR EX      :      -1     24 :     0.0000 : N :      -1  11230 : AZERO C2EXC  
+    TO BT BT BT BT BR SR SR SR SR SR BT BT BT BT BT BT EC   :      -1     14 :     0.0000 : N :      -1  17109 : AZERO C2EXC  
+    TO BT BT SC BT BT SC BT AB                              :      -1     12 :     0.0000 : N :      -1  23403 : AZERO C2EXC  
+    TO BT BT BT BT BR SR SR SR SR SR SR BR BT BT BT BT AB   :      -1     11 :     0.0000 : N :      -1  16219 : AZERO C2EXC  
+    TO BT BT BT BT BR SR SR SR SR SR SR BR BR BR BR EC      :      -1     11 :     0.0000 : N :      -1  53909 : AZERO C2EXC  
+    ]sseq_index_ab::desc
+
+    [sseq_index_ab::desc u_size 129497 NUM_MAX 40 num 129497 opt BZERO mode 2
+    TO BT BT BT BT BR SR SA                                 :     183     -1 :     0.0000 : N :    4232     -1 : BZERO C2EXC  
+    TO BT BT BT BT BR SA                                    :      42     -1 :     0.0000 : N :   18984     -1 : BZERO C2EXC  
+    TO SC BT BT BT BT BR SR SA                              :      25     -1 :     0.0000 : N :    7924     -1 : BZERO C2EXC  
+    TO BT BT BT BT BT BT BR BT BT BT BT BT BT BT BT BT EC   :      19     -1 :     0.0000 : N :   20777     -1 : BZERO C2EXC  
+    TO BT BT BT BT BR BR BR BT AB                           :      12     -1 :     0.0000 : N :  301580     -1 : BZERO C2EXC  
+    ...
+    ]sseq_index_ab::desc
+    </pre>
+
+
+.. s5_talk::
+
+    RandomSpherical
+
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_CD_ipc_20250706_113711.png` 
+-------------------------------------------------------------------
+
+
+``1M RandomSpherical photons from CD center``
+
+``sTarget:0:-2``
+
+.. s5_talk::
+
+   cx render
+
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_CD_ipc_20250706_113836.png` 
+-------------------------------------------------------------------
+
+``sTarget:0:-2``
+
+.. s5_talk::
+
+   up near chimney
+
+
+
+
+:small:`100k Input Photons targetting PMT_20inch_veto:0:1000 History Chi2`
+-----------------------------------------------------------------------------
+
+
+.. comment
+
+    junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 29735 hitCollectionAlt 29562 hcMuon 0 GPU YES
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=WP_PMT ipc run
+    SABHit  a_nhit : (   29562 +-  171 )  b_nhit:(    29735 +-  172 )  a/b: (  0.994 +-  0.012 )  b/a: (  1.006 +-  0.012) 
+    </pre>
+
+.. raw:: html
+
+    <pre class="mypre18">TEST=WP_PMT ipc chi2
+    [sseq_index_ab::desc                                  <span class="b">[CHI2 sum 54.3135 ndf 59.0000 sum/ndf     0.9206 ]</span>
+    TO BT BT BT BT SA                                            :   30563  30508 :     0.0495 : Y :       2      0 :   
+    TO BT BT BT BT EC                                            :   29246  29398 :     0.3940 : Y :       1      5 :   
+    TO BT BT BT BT BR BT BT BT BT SA                             :    9661   9850 :     1.8308 : Y :       6     45 :   
+    TO BT BT BT BT BT SR SA                                      :    7688   7783 :     0.5833 : Y :   10622  10391 :   
+    TO BT BT BT BT BT SR BT BT BT BT BT SA                       :    6782   6904 :     1.0875 : Y :   10830  10837 :   
+    TO BT BT BT BT BT SA                                         :    2060   1940 :     3.6000 : Y :    8707   8511 :   
+    TO BT BT BT BT EX                                            :    1982   1863 :     3.6830 : Y :       0      2 :   
+    TO BT BT BT BT BT SR BR SR SA                                :    1739   1735 :     0.0046 : Y :   20717  20579 :   
+    TO BT BT BT BT BT SR BR SR BT BT BT BT BT SA                 :    1552   1514 :     0.4710 : Y :   20911  20910 :   
+    TO BT BT BT BT BT SR BR SA                                   :     911    876 :     0.6855 : Y :   10942  10869 :   
+    TO BT BT BR BT BT SA                                         :     677    678 :     0.0007 : Y :      16     23 :   
+    TO BT BT BT BR BT BT BT SA                                   :     594    595 :     0.0008 : Y :       4      4 :   
+    TO BT BR BT SA                                               :     511    496 :     0.2234 : Y :      23     34 :   
+    TO BT BT BT BT BT SR BR SR BR SR SA                          :     507    483 :     0.5818 : Y :   21826  21843 :   
+    ]sseq_index_ab::desc
+    </pre>
+
+.. comment
+
+    [sseq_index_ab::desc u_size 829 NUM_MAX 40 num 829 opt AZERO mode 1
+    ]sseq_index_ab::desc
+
+    [sseq_index_ab::desc u_size 829 NUM_MAX 40 num 829 opt BZERO mode 2
+    TO BT BT BT SA                                              :      28     -1 :     0.0000 : N :   49842     -1 : BZERO C2EXC  
+    TO BT BT BT EC                                              :      21     -1 :     0.0000 : N :   49852     -1 : BZERO C2EXC  
+    TO BT BT BT BT SR SA                                        :      16     -1 :     0.0000 : N :   49855     -1 : BZERO C2EXC  
+    TO BT BT BT BR BT BT BT BT SA                               :      15     -1 :     0.0000 : N :   49848     -1 : BZERO C2EXC  
+    TO BT BT BT BT SR BT BT BT BT BT SA                         :      14     -1 :     0.0000 : N :   49844     -1 : BZERO C2EXC  
+    ]sseq_index_ab::desc
+
+
+.. class:: huge
+
+    **PMT_20inch_veto:0:1000** : :b:`Hits Consistent, Chi2 OK`
+
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_ipc_20250706_124505.png` 
+---------------------------------------------------------------------------------------
+
+``PMT_20inch_veto:0:1000``
+
+.. s5_talk::
+
+    Reflections off WP PMT
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_ipc_20250706_124506.png` 
+---------------------------------------------------------------------------------------
+
+``PMT_20inch_veto:0:1000``
+
+.. s5_talk::
+
+    Klop
+
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_ipc_20250706_124509.png` 
+---------------------------------------------------------------------------------------
+
+``PMT_20inch_veto:0:1000``
+
+.. s5_talk::
+
+    Klop
+
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_ipc_20250701_200328.png`
+---------------------------------------------------------------------------------------
+
+.. class:: small
+
+    ``Speeding photons => WP geometry overlap, NOW FIXED``
+
+
+.. s5_talk::
+
+    Previously, observed speeding photons
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_wp_pmt_ipc_20250701_200337.png`
+---------------------------------------------------------------------------------------
+
+.. class:: small
+
+    ``Speeding photons => WP geometry overlap, NOW FIXED``
+
+
+.. s5_talk::
+
+    Previously, observed speeding photons
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_poolcover_ipc_20250706_145250.png` 
+--------------------------------------------------------------------------
+
+.. class:: small
+
+   ``InputPhotons from XZ Circle near top of pool``
+
+    ``* motivated by the speeding photons``
+
+
+.. s5_talk::
+
+    Investigate pool
+
+
+
+
+:small:`100k Input Photons CircleXZ from WP top : Chi2 History Comparison`
+-------------------------------------------------------------------------------------
+
+.. comment
+
+    junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 124 hitCollectionAlt 140 hcMuon 0 GPU YES
+
+
+.. class:: small
+
+    * 500 mm radius Circle in XZ plane, center 3345.569,20623.73,21000 : near top of WaterPool 
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=POOLCOVER ipc run
+    SABHit  a_nhit : (     140 +-   11 )  b_nhit:(      124 +-   11 )  a/b: (  1.129 +-  0.197 )  b/a: (  0.886 +-  0.154)
+    </pre>
+
+.. raw:: html
+
+    <pre class="mypre18">TEST=POOLCOVER ipc chi2
+    [sseq_index_ab::desc  [CHI2 <span class="r">  sum    49.8171 ndf  9.0000 sum/ndf     5.5352 </span> ]
+    TO SA                                      :   85301  85454 :     0.1371 : Y :       0      0 :   
+    TO AB                                      :   13861  13716 :     0.7624 : Y :       1      1 :   
+    <span class="b">TO BT BT BT BT SA</span>                          :     154    224 :    12.9630 : Y :   71432  71433 : <span class="r">DEVIANT</span>   
+    TO BT BT SA                                :      79    131 :    12.8762 : Y :   71342  71342 : <span class="r">DEVIANT</span>   
+    TO BT BT BT BT EC                          :      96    117 :     2.0704 : Y :   71553  71555 :   
+    TO BT BT AB                                :      63    108 :    11.8421 : Y :   71358  71344 : <span class="r">DEVIANT</span>   
+    <span class="b">TO BT BT BT BT BT SA</span>                       :      64     -1 :     0.0000 : N :   71455     -1 : BZERO C2EXC  
+    <span class="b">TO BT BT BT SA</span>                             :      59     -1 :     0.0000 : N :   71352     -1 : BZERO C2EXC  
+    TO BT BT BT BT AB                          :      40     59 :     3.6465 : Y :   71440  71432 :   
+    TO BT BT BR BT BT SA                       :      30     40 :     1.4286 : Y :   71537  71534 :   
+    ]sseq_index_ab::desc
+    </pre>
+
+
+.. class:: small
+
+   Discrepancy between ``3/4/5 x BT`` intersects, for photons travelling from top to bottom of pool and clipping WP_PMT.
+
+
+.. class:: huge
+
+   :r:`WaterPool : Bad Chi2, low stat hits` 
+
+
+.. s5_talk::
+
+   BT difference 
+
+
+:small:`100k Input Photons CircleXZ from WP top : "TO BT BT BT BT BT SA"`
+-------------------------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+    * ipython/NumPy : :b:`select photons with discrepant history, examine step point position/time`
+
+.. raw:: html
+
+    <pre class="mypretiny">TEST=POOLCOVER ipc pdb
+    In [1]: wa = a.q_startswith("TO BT BT BT BT BT SA") ; wa.shape   In [11]: wb = b.q_startswith("TO BT BT BT BT SA") ; wb.shape
+    Out[1]: (64,)                                                    Out[11]: (224,)
+                                                                   
+    In [2]: a.f.record[wa,:7,0]                                      In [15]: b.f.record[wb,:6,0]
+    Out[2]:                                                          Out[15]: 
+    array([[[  3235.14 ,  20623.73 ,  20512.348,      0.1  ],        array([[[  3234.466,  20623.73 ,  20512.5  ,      0.1  ],
+            [ -1203.842,  20623.73 ,    909.854,     92.76 ],                [ -1251.419,  20623.73 ,    829.237,     93.171],
+            [ -1203.863,  20623.73 ,    909.761,     92.76 ],                [ -1266.738,  20623.73 ,    762.019,     93.489],
+            [ -1258.596,  20623.73 ,    668.062,     93.903],                [ -1564.458,  20623.73 ,   -544.324,     99.666],
+            [ -1539.135,  20623.73 ,   -570.794,     99.759],                [ -1595.966,  20623.73 ,   -682.574,    100.319],
+            [ -1575.413,  20623.73 ,   -731.   ,    100.516],                [ -6374.517,  20623.73 , -21650.   ,    199.462]],
+            [ -6312.518,  20623.729, -21649.998,    199.399]],     
+                                                                            [[  3234.527,  20623.73 ,  20512.486,      0.1  ],
+           [[  3235.416,  20623.73 ,  20512.285,      0.1  ],                [ -1245.347,  20623.73 ,    844.189,     93.097],
+            [ -1188.114,  20623.73 ,    926.617,     92.668],                [ -1267.748,  20623.73 ,    745.84 ,     93.562],
+            [ -1188.152,  20623.73 ,    926.448,     92.669],                [ -1562.104,  20623.73 ,   -546.491,     99.673],
+            [ -1251.51 ,  20623.73 ,    645.925,     93.995],                [ -1594.101,  20623.73 ,   -686.969,    100.337],
+            [ -1529.189,  20623.73 ,   -583.531,     99.806],                [ -6368.878,  20623.73 , -21650.   ,    199.456]],
+            [ -1566.985,  20623.73 ,   -750.878,    100.597],
+            [ -6287.166,  20623.73 , -21649.998,    199.373]],
+
+           [[  3236.06 ,  20623.73 ,  20512.14 ,      0.1  ],         ## <span class="b">FROM TOP TO BOTTOM OF POOL, CLIPPING WP_PMT IN MIDDLE</span>
+            [ -1153.982,  20623.73 ,    954.694,     92.508],
+            [ -1154.024,  20623.73 ,    954.507,     92.508],
+            [ -1232.423,  20623.73 ,    605.247,     94.159],
+            [ -1507.25 ,  20623.73 ,   -619.099,     99.944],
+            [ -1547.255,  20623.73 ,   -797.317,    100.786],
+            [ -6228.041,  20623.736, -21650.   ,    199.313]],
+    </pre>
+
+
+
+.. s5_talk::
+
+   Look at step point positions/times for discrepant histories
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_poolcover_ipc_20250703_211459.png`
+--------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   ``WP_PMT virtual wrapper clippers``
+
+   ``Visualize the "TO BT BT BT BT BT SA"``
+
+
+.. s5_talk::
+
+    Viz the problem histories
+
+
+
+:small:`1M Input Photons shot up Chimney : TOTALLY DEVIANT : DIFF GEOMETRY`
+-----------------------------------------------------------------------------
+
+
+.. comment
+
+   junoSD_PMT_v2::EndOfEvent eventID 0 opticksMode 3 hitCollection 15230 hitCollectionAlt 509 hcMuon 0 GPU YES
+
+   SABHit  a_nhit : (     509 +-   22 )  b_nhit:(    15230 +-  123 )  a/b: (  0.033 +-  0.002 )  b/a: ( 29.921 +-  1.569) 
+
+
+
+.. raw:: html
+
+    <pre class="mypre18">
+    [sseq_index_ab::desc  [CHI2 <span class="r">  sum 32216.2266 ndf 58.0000 sum/ndf   555.4522 </span> ]
+    TO BT SA                      :  885432     -1 :     0.0000 : N :       1     -1 : BZERO C2EXC  
+    TO BT BT BT BT SA             :      -1 493337 :     0.0000 : N :      -1      0 : AZERO C2EXC  
+    TO BT AB                      :   95945  41370 : 21690.4972 : Y :       0      7 : <span class="r">DEVIANT</span>   
+    TO BT BT BT SC SA             :      -1  65842 :     0.0000 : N :      -1      2 : AZERO C2EXC  
+    TO BT SC SA                   :      -1  57241 :     0.0000 : N :      -1      1 : AZERO C2EXC  
+    TO BT BT BT AB                :      -1  36192 :     0.0000 : N :      -1      9 : AZERO C2EXC  
+    TO BT BT BR BT SA             :      -1  28419 :     0.0000 : N :      -1     43 : AZERO C2EXC  
+    TO BT BT BT SC DR SA          :      -1  23389 :     0.0000 : N :      -1     14 : AZERO C2EXC  
+    TO BT SC DR SA                :      -1  19439 :     0.0000 : N :      -1     61 : AZERO C2EXC  
+    TO BT BT BT RE SA             :      -1  14856 :     0.0000 : N :      -1     76 : AZERO C2EXC  
+    TO BT BT BT BR BT BT BT SA    :      -1  13635 :     0.0000 : N :      -1    359 : AZERO C2EXC  
+    TO AB                         :   13250   6045 :  2690.4392 : Y :      25     50 : <span class="r">DEVIANT</span>   
+    TO BT RE SA                   :      -1  13014 :     0.0000 : N :      -1     15 : AZERO C2EXC  
+    TO BT BT BT SC DR DR SA       :      -1   8319 :     0.0000 : N :      -1     98 : AZERO C2EXC  
+    TO BT SC DR DR SA             :      -1   6640 :     0.0000 : N :      -1     21 : AZERO C2EXC  
+    TO BT BT BT RE DR SA          :      -1   5035 :     0.0000 : N :      -1    275 : AZERO C2EXC  
+    TO BT RE DR SA                :      -1   4140 :     0.0000 : N :      -1    135 : AZERO C2EXC  
+    TO BT BT BT SC BT BT SA       :      -1   3846 :     0.0000 : N :      -1     40 : AZERO C2EXC  
+    </pre>
+
+
+.. class:: huge
+
+   sChimneyLS:0:-2 :  :r:`Terrible Chi2 : different geometry ?` 
+
+
+.. s5_talk::
+
+    Problem in geometry translation
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Chimney_ipc_20250707_135938.png` 
+----------------------------------------------------------------------------------------
+
+``A : Opticks``
+
+``Photons reflected at top of LowerChimney``
+
+
+.. comment
+
+
+    :i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Chimney_ipc_20250707_135922.png` 
+    ----------------------------------------------------------------------------------------
+
+    ``B : Geant4``
+
+
+
+.. s5_talk::
+
+    Problem in geometry translation
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Chimney_ipc_20250707_135924.png` 
+----------------------------------------------------------------------------------------
+
+``B : Geant4``
+
+``Photons escape between Lower and UpperChimney``
+
+
+.. s5_talk::
+
+    Problem in geometry translation
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Chimney_ipc_20250707_135926.png` 
+----------------------------------------------------------------------------------------
+
+``B : Geant4``
+
+.. s5_talk::
+
+    Problem in geometry translation
+
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_Chimney_ipc_20250707_135928.png` 
+----------------------------------------------------------------------------------------
+
+``B : Geant4``
+
+.. s5_talk::
+
+    Problem in geometry translation
+
+
+
+
+
+
+``cxt_min_LowerChimney_overview.png``
+--------------------------------------
+
+``fake boundaries apparent``
+
+
+.. s5_talk::
+
+    Simtrace 2D slice through geometry with intersects identified 
+
+
+
+
+TargetLS/LowerChimney/UpperChimney issues
+------------------------------------------
+
+
+.. class:: normal
+
+   * LowerChimney and UpperChimney not joined : problem for Geant4 and Opticks
+   * implemented as three separate volumes : fake coincident boundaries between them 
+   * many coincident surfaces : :r:`problem for Opticks translated geometry`  
+  
+   **Fakes and coincident boundaries**
+
+   * Geant4 volume-based geometry model gets away with many sins
+   * Opticks surface-based geometry model cannot handle 
+
+   **MAJOR GEOMETRY RE-IMPLEMENTATION NEEDED**
+
+   * Unified geometry : TargetLS LowerChimney UpperChimney 
+   * within heirarchical WaterPool geometry
+
+.. class:: huge
+
+   :r:`Major geometry issue : BUT little impact on hits`
+
+
+.. s5_talk::
+
+   Problem in translation
+
+
+
+
+
+:small:`Summary of Input Photon Checks : Hit Count and Chi2`
+--------------------------------------------------------------
+
++----------------------------+----------------------+------------------------+----------------+  
+| Target                     |   Hit Count A/B      | Chi2/ndf               | Note           |   
++============================+======================+========================+================+ 
+| NNVT:0:1000                |    0.998 +-  0.003   | :g:`1394/954 = 1.46`   |                |
++----------------------------+----------------------+------------------------+----------------+  
+| Hama:0:1000                |    1.001 +-  0.004   | :g:`431/439 = 0.98`    |                |
++----------------------------+----------------------+------------------------+----------------+  
+| Hama:0:0                   |    1.000 +-  0.003   | :b:`1107/467 = 2.37`   | near Chimney   |
++----------------------------+----------------------+------------------------+----------------+  
+| PMT_3inch:0:0              |    0.999 +-  0.013   | :g:`2.65/6 = 0.44`     |                |
++----------------------------+----------------------+------------------------+----------------+  
+| sTarget:0:-2               |    0.996 +-  0.004   | :g:`1839/1652 = 1.11`  | RandomSph      |
++----------------------------+----------------------+------------------------+----------------+  
+| PMT_20inch_veto:0:1000     |    0.994 +-  0.012   | :g:`54/59.0000 = 0.92` |                |
++----------------------------+----------------------+------------------------+----------------+  
+| 3345.569,20623.73,21000    |    1.129 +-  0.197   | :r:`50/9 = 5.55`       | WP top         |  
++----------------------------+----------------------+------------------------+----------------+  
+| sChimneyLS:0:-2            |    0.033 +-  0.002   | :r:`32216/58 = 555`    | TERRIBLE       |
++----------------------------+----------------------+------------------------+----------------+  
+
+.. class:: normal
+
+   * **Hit counts consistent**
+   * Chi2 OK, other than close to Chimney 
+   * possible issue for photons crossing WP_PMT from side 
+
+
+.. comment
+
+    =========================
+    b/a: (  1.002 +-  0.003) 
+    -------------------------
+    b/a: (  0.999 +-  0.004) 
+    -------------------------
+    b/a: (  1.000 +-  0.003) 
+    -------------------------
+    b/a: (  1.001 +-  0.014) 
+    --------------------------
+    b/a: (  1.005 +-  0.004) 
+    -------------------------
+    b/a: (  1.006 +-  0.012) 
+
+
+
+.. s5_talk::
+
+    Looking OK, apart from Chimney geometry and perhaps WP_PMT virtual wrapper 
+
+
+
+:small:`Recently Fixed Issues : Many Thanks to Dingyong and Haosen` 
+---------------------------------------------------------------------
+
+
+.. class:: small
+
+
+    **Water Pool Related**
+
+    * speed discrepancy for some photons reflected from WP PMT
+
+      * caused by overlapping vetoWater-Tyvek-DeadWater 
+
+    * WP : no Geant4 intersects due to theLV WaterPool injection bug
+    * WP PMT : ~10% more Opticks hits than Geant4 due to qeScale bug in opticks/sysrap/SPMT.h
+    * WP PMT : no Opticks hits 
+
+    **Muon Related**
+
+    * assert on first muon with no photons
+    * crash on 5th muon : non-optical particles ProcessHits corrupted Geant4 Track Info
+  
+    **CD**
+
+    * excess Opticks hits due to lack of theta dependent collection efficiency
+    * excess SPMT hits due to qeScale bug  
+ 
+    **GPU Cluster Related**
+
+    * different compute capability on cluster and workstation required 
+      CMake rejig for CUDA kernels to work across both  
+
+
+.. class:: huge
+
+    :b:`Many issues fixed recently thanks to Dingyong+Haosen`
+
+
+.. s5_talk::
+
+    Many issues fixed recently thanks to 
+
+
+
+
+ 
+Missing Features and Known Issues
+--------------------------------------
+
+.. sidebar:: :small:`opticks-mode 3 : NO OTHER AnaMgr`
+
+    .. raw:: html
+
+        <pre class="mypretiny">tut_detsim.py
+           --opticks-mode 3
+           --opticks-anamgr  
+           --no-anamgr-normal 
+           --no-anamgr-genevt 
+           --no-anamgr-edm-v2 
+           --no-anamgr-grdm 
+           --no-anamgr-deposit 
+           --no-anamgr-deposit-tt
+           --no-anamgr-interesting-process
+           --no-anamgr-optical-parameter
+           --no-anamgr-timer
+           --evtmax $EVTMAX
+           --seed 42
+           opticks
+        </pre>
+
+
+.. class:: small
+
+
+   **Missing Features**
+
+   * Not supported ``--pmt-hit-type 2``
+   * ``--opticks-mode 3`` cannot be used with other anamgr  =>   
+
+     * mode 3 does both Opticks and Geant4 simulations 
+      
+   * GPU node gitlab runner for automated validation
+
+   **To Investigate**
+
+   * validity and performance implications of truncation eg::
+
+         export OPTICKS_MAX_BOUNCE=63
+         export OPTICKS_MAX_TIME=1000 # (ns) 
+
+   **Known Issues**
+
+   * WP_PMT intersects from side
+   * LowerChimney/UpperChimney very discrepant : major re-implementation needed 
+
+     * :b:`Expt. needed to find translatable Geant4 geometry`
+
+
+.. s5_talk::
+
+    Klop
+
+
+:small:`OJ : Minimal Muon Script : ~/j/muon/muon_min.sh`
+----------------------------------------------------------
+
+.. class:: small
+
+   https://code.ihep.ac.cn/blyth/j/-/blob/main/muon/muon_min.sh
+
+
+.. raw:: html
+
+    <pre class="mypre18">
+    &#35;!/bin/bash
+    &#35;SBATCH --partition=gpu
+    &#35;SBATCH --qos=normal
+    &#35;SBATCH --account=junogpu
+    &#35;SBATCH --ntasks=1
+    &#35;SBATCH --mem-per-cpu=16000
+    &#35;SBATCH --gpus=v100:1
+
+    source /cvmfs/opticks.ihep.ac.cn/oj/releases/J25.4.0_Opticks-v0.5.0/el9_amd64_gcc11/2025_07_07/envset.sh
+
+    export CUDA_VISIBLE_DEVICES=0      # pick GPU 
+    export OPTICKS_MAX_BOUNCE=63       # configure truncation
+    &#35;export OPTICKS_MAX_TIME=1000      # (ns) another way to truncate 
+
+    tut_detsim.py
+        --no-gdml --pmtsd-merge-twindow 1.0
+        --event-split
+        --output oj_edm.root --user-output oj_user.root
+        --evtmax 10 --seed 42
+        hepevt
+        --exe Muon
+    </pre>
+
+.. class:: huge
+
+    :b:`Use OJ like J, (slurm sub to GPU cluster/workstation)`
+
+
+.. s5_talk::
+
+    Klop
+
+
+
+
+:small:`muon_min.sh log : 121M photon kernel launch ~18 sec`
+-------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    Welcome to SNiPER v2.1.0
+    Running @ localhost.localdomain on Mon Jul  7 20:52:04 2025
+    ...
+
+    2025-07-07 20:58:15.036 INFO  [2212188] [QSim::simulate@432]  eventID      6 igs (491517, 6, 4, ) MaxSlot 262000000 MaxSlot/M 262 sslice::Desc(igs_slice)
+    sslice::Desc num_slice 1 TotalPhoton  121298919 TotalPhoton/M 121.298919
+
+    2025-07-07 20:58:15.036 INFO  [2212188] [QSim::simulate@450]    0 : sslice {       0,  491517,         0, 121298919}  121.298919
+    2025-07-07 20:58:33.266 INFO  [2212188] [QSim::simulate@516] 
+    SEvt__MINTIME
+     (TAIL - HEAD)/M  18.280804 (head to tail of QSim::simulate method) 
+     (LEND - LBEG)/M  18.229832 (multilaunch loop begin to end) 
+     (PCAT - LEND)/M   0.000018 (topfold concat and clear subfold) 
+     (TAIL - BRES)/M   0.000006 (QSim::reset which saves hits) 
+     tot_idt/M        17.171942 (sum of kernel execution int64_t stamp differences in microseconds)
+     tot_dt           17.171923 int(tot_dt*M)     17171922 (sum of kernel execution double chrono stamp differences in seconds, and scaled to ms) 
+     tot_gdt/M         1.038782 (sum of SEvt::gather int64_t stamp differences in microseconds)
+
+    ...
+    ############################## SniperProfiling ##############################
+    Name                     Count       Total(ms)      Mean(ms)     RMS(ms)      
+    GenTools                 10          2.06400        0.20640      0.38575      
+    DetSimAlg                10          435848.58088   43584.85809  87427.73331  
+    Sum of junotoptask       10          435850.66813   43585.06681  87427.66931  
+    #############################################################################
+    Terminating @ localhost.localdomain on Mon Jul  7 21:00:42 2025
+    </pre>
+
+
+
+.. class:: huge
+
+    :b:`~8 min running time, ~18 s kernel time for 121M photons`
+
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105550.png` 
+-------------------------------------------------------------------------------------
+
+``muon record animation``
+
+
+.. s5_talk::
+
+    Klop
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105553.png` 
+-------------------------------------------------------------------------------------
+
+
+.. s5_talk::
+
+    Klop
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105555.png` 
+-------------------------------------------------------------------------------------
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105556.png` 
+-------------------------------------------------------------------------------------
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105609.png` 
+-------------------------------------------------------------------------------------
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105610.png` 
+-------------------------------------------------------------------------------------
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105620.png` 
+-------------------------------------------------------------------------------------
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105628.png` 
+-------------------------------------------------------------------------------------
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105700.png` 
+-------------------------------------------------------------------------------------
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105701.png` 
+-------------------------------------------------------------------------------------
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105702.png` 
+-------------------------------------------------------------------------------------
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_SGLFW_SOPTIX_Scene_test_muon_cxs_20250707_105704.png` 
+-------------------------------------------------------------------------------------
+
+.. s5_talk::
+
+    Klop
+
+
+
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_muon_cxs_20250707_112242.png` 
+---------------------------------------------------------------------
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_muon_cxs_20250707_112243.png` 
+---------------------------------------------------------------------
+
+.. s5_talk::
+
+    Klop
+
+
+:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_muon_cxs_20250707_112244.png` 
+---------------------------------------------------------------------
+
+.. s5_talk::
+
+    Klop
+
+
+
+
+:small:`Summary and Links`
+-------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Extra Benefits of Adopting Opticks`
+
+   .. class:: small
+
+      * :b:`high performance novel visualization`
+      * detailed photon instrumentation, validation 
+      * comparisons find issues with both simulations:
+       
+        * complex geometry, overlaps, bugs... 
+
+      :r:`=> using Opticks improves CPU simulation too !!`
+
+.. raw:: html
+
+     <p style="margin-bottom:5mm;" />
+
+..
+
+  *Opticks* : state-of-the-art GPU ray traced optical simulation integrated with *Geant4*, 
+  with automated geometry translation into GPU optimized form.   
+
+..
+
+  *Opticks+JUNOSW* : :b:`ready for testing`, despite Chimney issue.
+
+  :r:`Please report issues/findings/performance` 
+
+
+.. raw:: html
+
+     <p style="margin-bottom:11mm;" />
+
+
+.. table::
+    :align: center
+
+    +--------------------------------------------------+-----------------------------------------+
+    | https://github.com:simoncblyth/opticks.git       | day-to-day code repository              |
+    +--------------------------------------------------+-----------------------------------------+
+    | https://simoncblyth.github.io                    | presentations and videos                |
+    +--------------------------------------------------+-----------------------------------------+
+    | https://groups.io/g/opticks                      | forum/mailing list archive              |
+    +--------------------------------------------------+-----------------------------------------+
+    | email: ``opticks+subscribe@groups.io``           | subscribe to mailing list               |
+    +--------------------------------------------------+-----------------------------------------+ 
+    | ``simon.c.blyth@gmail.com``                      | any questions                           |   
+    +--------------------------------------------------+-----------------------------------------+ 
+
+
+.. comment 
+
+    | https://github.com/simoncblyth/opticks           | releases                                |                   
+    +--------------------------------------------------+-----------------------------------------+
+
+.. s5_talk::
+
+    Summary is that : Opticks provides state-of-the-art GPU ray tracing integrated with Geant4 and that 
+    there has been substantial progress with the migration to OptiX 7, 
+    which is essential to keep up with the state-of-the-art.
+ 
+    Links to get you started with using Opticks are listed here.
+
+    Opticks brings state-of-the-art GPU ray tracing performance to optical photon 
+    simulations. 
+
+    The detailed validations needed when adopting a new simulation has a 
+    hidden benefit in that detailed comparisons reveal problems with both 
+    simulations. Adopting Opticks means you will 
+    improve your CPU simulation whilst also giving you a GPU simulation.  
+ 
+
+
+
+
+NEXT Development Steps, User Steps
+-----------------------------------
+
+.. class:: normal
+
+   * investigate WP_PMT side intersect difference
+   * remove ``--no-"other"-anamgr`` requirement for ``--opticks-mode 3``
+   * re-implement TargetLS/LowerChimney/UpperChimney
+   * setup GPU Gitlab runner to automate (SEvt/NumPy based): 
+
+     * history Chi2 + hit consistency testing   
+     * low stats histogram comparison : time, position, ... 
+
+   * production experience, is development needed to decide CPU/GPU ?
+
+.. raw:: html
+
+   <hr/>
+
+.. class:: normal
+
+   * muon running, validity + performance comparison
+   * higher stats hit histogram comparison between OJ and J (root based)
+
+     * script to automate comparison, for gitlab CI inclusion  
+
+
+.. class:: huge
+
+   :b:`Opticks+JUNOSW NEEDS BRAVE USER(S)` 
+      :r:`Experience Cutting Edge of Optical Photon Simulation` 
+
+
+.. s5_talk::
+
+   Half of this requires a User :  Haosen and Dingyong not around currently  
+
+
+
+
+
+
+
+
+
+Extra Slide for Context
+-------------------------
+
+.. class:: normal
+
+    * Geometry Model Translation : Geant4 => CSGFoundry => NVIDIA OptiX 7/8
+
+
+.. s5_talk::
+
+    Klop
+
+
+:small:`Geometry Model Translation : Geant4 => CSGFoundry => NVIDIA OptiX 7/8`
+-------------------------------------------------------------------------------
+
+.. sidebar:: :small:`CSGFoundry Model`
+
+    .. class:: small
+
+        * :b:`array-based -> simple serialization + upload`
+        * entire geometry in 4 GPU allocations 
+        * factorized using subtree digests 
+
+.. class:: small
+
+    **Geant4 Geometry Model (JUNO: 400k PV, deep hierarchy)**
+
+    +----+---------------------------+---------------------------------------------+ 
+    | PV | *G4VPhysicalVolume*       | placed, refs LV                             |
+    +----+---------------------------+---------------------------------------------+ 
+    | LV | *G4LogicalVolume*         | unplaced, refs SO                           |
+    +----+---------------------------+---------------------------------------------+ 
+    | SO | *G4VSolid,G4BooleanSolid* | binary tree of SO "nodes"                   |
+    +----+---------------------------+---------------------------------------------+ 
+
+    **Opticks CSGFoundry Geometry Model** (index references)
+
+    +---------------+----------------------------------------------------------------------------+----------------------------+
+    | struct        | Notes                                                                      |  Geant4 Equivalent         |
+    +===============+============================================================================+============================+
+    | *CSGFoundry*  | vectors of the below, easily serialized + uploaded + :r:`used on GPU`      | None                       |
+    +---------------+----------------------------------------------------------------------------+----------------------------+
+    | *qat4*        | 4x4 transform refs *CSGSolid* using "spare" 4th column (:b:`becomes IAS`)  | Transforms ref from PV     |
+    +---------------+----------------------------------------------------------------------------+----------------------------+
+    | *CSGSolid*    | refs sequence of *CSGPrim*                                                 | Grouped Vols + Remainder   | 
+    +---------------+----------------------------------------------------------------------------+----------------------------+
+    | *CSGPrim*     | bbox, refs sequence of *CSGNode*, root of CSG Tree of nodes                | root *G4VSolid*            |
+    +---------------+----------------------------------------------------------------------------+----------------------------+
+    | *CSGNode*     | CSG node parameters (JUNO: ~23k *CSGNode*)                                 | node *G4VSolid*            |
+    +---------------+----------------------------------------------------------------------------+----------------------------+
+
+    **NVIDIA OptiX 7/8 Geometry Acceleration Structures (JUNO: 1 IAS + 10 GAS, 2-level hierarchy)**
+
+    +-----+----------------------------------+-------------------------------------------------------------------------+ 
+    | IAS | Instance Acceleration Structures | JUNO: 1 IAS created from vector of ~50k *qat4* (JUNO)                   |
+    +-----+----------------------------------+-------------------------------------------------------------------------+ 
+    | GAS | Geometry Acceleration Structures | JUNO: 10 GAS created from 10 *CSGSolid* (which refs *CSGPrim,CSGNode* ) |
+    +-----+----------------------------------+-------------------------------------------------------------------------+ 
+
+.. class:: small
+
+    :r:`JUNO : Geant4 ~400k volumes "factorized" into 1 OptiX IAS referencing ~10 GAS`
+
+
+.. s5_talk::
+
+   The translation of the Geant4 detector geometry into a GPU optimized form
+   is the most important step for high performance ray geometry intersection. 
+
+   The tables illustrates the three geometry models.
+   
+   * the Geant4 model of JUNO is a deep hierarchy of almost 400k volumes
+   * for fast intersection on GPU a much flatter 2-level structure is used
+    
+   CSGFoundry model in the middle is designed to:
+
+   1. enable the translation
+   2. be usable on both CPU and GPU
+   3. be simple and easy to serialize 
+     
+   The CSG prefix refers to : Constructive Solid Geometry which is the basis for finding intersects 
+
+

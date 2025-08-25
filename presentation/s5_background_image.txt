@@ -2874,6 +2874,16 @@
     GEOM_J25_4_0_opticks_Debug_cxr_min_SPMT_cxs_20250722_155442.png
     GEOM/J25_4_0_opticks_Debug/cxr_min/SPMT_cxs/20250722_155442.png 1280px_720px
 
+    GEOM_J25_4_0_opticks_Debug_cxr_min_wp_atm_lpmt_20250822_162218.png
+    GEOM/J25_4_0_opticks_Debug/cxr_min/wp_atm_lpmt/20250822_162218.png 1280px_720px
+
+    GEOM_J25_4_0_opticks_Debug_cxr_min_wp_atm_lpmt_20250825_104122.png
+    GEOM/J25_4_0_opticks_Debug/cxr_min/wp_atm_lpmt/20250825_104122.png 1280px_720px
+
+    WP_ATM_LPMT
+    GEOM/J25_4_0_opticks_Debug/cxr_min/wp_atm_lpmt/20250822_162218.png 640px_360px 0px_360px
+    GEOM/J25_4_0_opticks_Debug/cxr_min/wp_atm_lpmt/20250825_104122.png 640px_360px 640px_360px
+    
     ## HUH : NOT APPEARING IN SLIDE BACKGROUND : BUT URL OK
     ##
     ##  http://localhost/env/presentation/GEOM/J25_4_0_opticks_Debug/cxr_min/SPMT_cxs/20250722_155442.png
