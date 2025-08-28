@@ -1626,5 +1626,5 @@ presentation-rst2talk-(){
 #presentation-iname(){ echo ${INAME:-opticks_20250303_ihep_gpu_symposium} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20250708} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20250727_kaiping} ; }
-presentation-iname(){ echo ${INAME:-opticks_202509XX} ; }
+presentation-iname(){ echo ${INAME:-opticks_202509YY} ; }
 
