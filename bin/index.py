@@ -35,9 +35,9 @@ from dateutil.parser import parse
 log = logging.getLogger(__name__)
 
 
-moyrptn = re.compile("(?P<month>[a-z]*)(?P<year>\d{4})")
+moyrptn = re.compile(r"(?P<month>[a-z]*)(?P<year>\d{4})")
 
-ymdptn = re.compile("(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})")
+ymdptn = re.compile(r"(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})")
 
 
 def dt_to_epo(dt):
@@ -68,7 +68,7 @@ def extract_date_from_name(name):
     return dt 
 
 
-bptn = re.compile("\((?P<inbrk>.*)\)")
+bptn = re.compile(r"\((?P<inbrk>.*)\)")
 def extract_date_from_desc(desc):
     bm = bptn.search(desc)
     if not bm: return 0
@@ -86,7 +86,7 @@ def extract_date(name, desc):
     if dt is None:
        dt = extract_date_from_desc(desc) 
     pass
-    if dt is None or dt is 0:
+    if dt is None or dt == 0:
        dt = dict(dt=datetime.datetime.now(), src="extract_date_default")
     pass
     return dt 
@@ -132,7 +132,7 @@ class Rst(Doc):
         :return d:
         """
         lines = list(map(str.strip,open(path).readlines()))
-        ptn = re.compile(":(?P<key>\S*): (?P<val>.*)$")
+        ptn = re.compile(r":(?P<key>\S*): (?P<val>.*)$")
         d = {}
         META = ".. meta::"
         if not META in lines:
@@ -284,7 +284,8 @@ def parse_args(doc):
 
     d = {}
     d["level"] = "INFO" 
-    d["base"] = "~/simoncblyth.bitbucket.io/env/presentation" 
+    #d["base"] = "~/simoncblyth.bitbucket.io/env/presentation" 
+    d["base"] = "~/simoncblyth.github.io/env/presentation" 
     d["srcbase"] = "~/env/presentation" 
     d["format"] = "%(asctime)-15s %(levelname)-7s %(name)-20s:%(lineno)-3d %(message)s"
 
