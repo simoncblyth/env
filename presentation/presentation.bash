@@ -1385,6 +1385,8 @@ presentation--(){
    presentation-
    presentation-info
    presentation-make
+   [ $? -ne 0 ] && echo $BASH_SOURCE $FUNCNAME ERROR FROM presentation-make CHECK PYTHON ENVIRONMENT - NEED docutils && return
+
    local p=${P:-0}
    presentation-open ${PAGE:-$p}
    presentation-rst2talk
