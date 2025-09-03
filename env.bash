@@ -2143,3 +2143,5 @@ base64-(){     . $(env-home)/tools/base64.bash && base64-env $* ; }
 
 
 
+uv-(){      . $(env-home)/tools/uv.bash && uv-env $* ; }
+llm-(){      . $(env-home)/tools/llm.bash && llm-env $* ; }

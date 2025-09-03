@@ -37,7 +37,7 @@
     <div class="mytitle">
     <header>
     <h1 style="background-color:lightgrey;text-align:center;"> 
-        <i>Opticks + JUNO </i> : Deploy GPU accelerated simulation ?<br/> Issues, Ideas, ... Can DIRAC/DiracX help ? 
+        <i>Opticks + JUNO </i> : Deploy GPU accelerated simulation ?<br/> Can DIRAC/DiracX help with production running ? 
         <h2 style="background-color:lightgrey;text-align:center">
             Open source, https://github.com/simoncblyth/opticks 
         </h2>
