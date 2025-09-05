@@ -29,6 +29,19 @@ Download zip using socks5 proxy
   
    echo "proxy=socks5://127.0.0.1:8080" > ~/.curlrc 
 
+   echo "proxy=socks5h://127.0.0.1:8080" > ~/.curlrc    ## better
+
+
+socks5 OR socks5h
+-------------------
+
+The difference between SOCKS5 and SOCKS5H is where the Domain Name System (DNS)
+resolution occurs. With SOCKS5, DNS resolution happens on the client's device
+(client-side) before connecting to the proxy. With SOCKS5H, DNS resolution is
+handled by the SOCKS server itself, passing the domain name directly to the
+server. 
+
+
 
 NB in addition to the above command need to first start the proxy
 -------------------------------------------------------------------
