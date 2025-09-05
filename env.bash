@@ -2145,3 +2145,6 @@ base64-(){     . $(env-home)/tools/base64.bash && base64-env $* ; }
 
 uv-(){      . $(env-home)/tools/uv.bash && uv-env $* ; }
 llm-(){      . $(env-home)/tools/llm.bash && llm-env $* ; }
+llama-cpp-python-(){      . $(env-home)/tools/llama-cpp-python.bash && llama-cpp-python-env $* ; }
+hf-(){      . $(env-home)/tools/hf.bash && hf-env $* ; }
+pybind11-(){      . $(env-home)/tools/pybind11.bash && pybind11-env $* ; }
