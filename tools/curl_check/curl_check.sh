@@ -16,7 +16,8 @@ cd $(dirname $(realpath $BASH_SOURCE))
 
 #check=0
 #check=1
-check=2
+#check=2
+check=3
 
 export CHECK=${CHECK:-$check}
 
@@ -30,12 +31,13 @@ for v in $vv ; do printf "%30s : %s\n" "$v" "${!v}" ; done
 
 
 gcc $name.cc -o $bin \
-    -Wall -std=c++17 -lstdc++ \
+    -Wall -std=c++17 -lstdc++ -g \
     $(curl-config --cflags) \
     $(curl-config --libs) 
 [ $? -ne 0 ] && echo $BASH_SOURCE - build error && exit 1 
 
 
+#lldb $bin
 $bin
 [ $? -ne 0 ] && echo $BASH_SOURCE - run error && exit 2
 
