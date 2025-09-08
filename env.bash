@@ -2148,3 +2148,4 @@ llm-(){      . $(env-home)/tools/llm.bash && llm-env $* ; }
 llama-cpp-python-(){      . $(env-home)/tools/llama-cpp-python.bash && llama-cpp-python-env $* ; }
 hf-(){      . $(env-home)/tools/hf.bash && hf-env $* ; }
 pybind11-(){      . $(env-home)/tools/pybind11.bash && pybind11-env $* ; }
+fastapi-(){      . $(env-home)/tools/fastapi.bash && fastapi-env $* ; }

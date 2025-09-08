@@ -14,12 +14,13 @@ EOU
 cd $(dirname $(realpath $BASH_SOURCE))
 
 
-#check=curl_check_0
-check=curl_check_1
+#check=0
+#check=1
+check=2
 
 export CHECK=${CHECK:-$check}
 
-name=$CHECK
+name=curl_check_$CHECK
 bin=/tmp/$USER/env/tools/$name
 mkdir -p $(dirname $bin)
 
