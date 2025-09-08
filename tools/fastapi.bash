@@ -15,6 +15,9 @@ Setup::
     mkdir fastapi_check
     cd fastapi_check
 
+    cp ~/env/fastapi_check/main.py .
+    cp ~/env/fastapi_check/dev.sh .
+
     uv venv
     uv pip install "fastapi[standard]"
     uv pip install numpy
