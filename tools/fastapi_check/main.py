@@ -1,50 +1,9 @@
-from typing import Union
 import numpy as np
-
-from fastapi import FastAPI, Request, Response, Depends
+from typing import Annotated
 from pydantic import BaseModel
+from fastapi import FastAPI, Request, Response, Header, Depends, HTTPException
 
 app = FastAPI()
-
-
-class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: Union[bool, None] = None
-
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
-
-
-@app.put("/items/{item_id}")
-def update_item(item_id: int, item: Item):
-    return {"item_name": item.name, "item_id": item_id}
-
-
-async def parse_body(request: Request):
-    data: bytes = await request.body()
-    return data
-
-
-@app.post("/foo")
-async def parse_input(data: bytes = Depends(parse_body)):
-    # Do something with data
-    pass
-
-
-
-def create_arr():
-    w, h = 512, 512
-    arr = np.zeros((h, w, 3), dtype=np.uint8)
-    arr[0:256, 0:256] = [255, 0, 0] # red patch in upper left
-    return arr
 
 
 def read_arr_from_rawfile(path="$HOME/Downloads/arr", dtype_="uint8", shape_="512,512,3" ):
@@ -65,32 +24,20 @@ def read_arr_from_rawfile(path="$HOME/Downloads/arr", dtype_="uint8", shape_="51
 
 
 
-@app.get('/arr', response_class=Response)
-def get_arr():
-    """
+def array_create_():
+    a = np.zeros((512, 512, 3), dtype=np.uint8)
+    a[0:256, 0:256] = [255, 0, 0] # red patch in upper left
+    return a
 
-    zeta:Downloads blyth$ curl -s -D /dev/stdout http://127.0.0.1:8000/arr  --output arr2
-    HTTP/1.1 200 OK
-    date: Mon, 08 Sep 2025 08:07:32 GMT
-    server: uvicorn
-    x-numpy-dtype: uint8
-    x-numpy-shape: 512,512,3
-    content-length: 786432
-    content-type: application/octet-stream
 
-    zeta:Downloads blyth$ echo $(( 512*512*3 ))
-    786432
 
-    """
-
-    x = create_arr()
-    x_bytes = x.tobytes('C')
-
+def make_array_response( a: np.array, level : int = 0, media_type : str = "application/octet-stream" ):
     headers = {} 
-    headers["x-numpy-dtype"] = x.dtype.name
-    headers["x-numpy-shape"] = str(x.shape).replace(" ","")[1:-1]
+    headers["x-numpy-level"] = str(level)
+    headers["x-numpy-dtype"] = a.dtype.name
+    headers["x-numpy-shape"] = str(a.shape).replace(" ","")[1:-1]  # maybe just str(a.shape)
+    return Response(a.tobytes('C'), headers=headers, media_type=media_type )
 
-    return Response(x_bytes, headers=headers, media_type='application/octet-stream')
 
 
 async def parse_request_as_array(request: Request):
@@ -99,9 +46,28 @@ async def parse_request_as_array(request: Request):
     :return arr: NumPy array 
 
     Uses request body and headers with array dtype and shape to reconstruct the uploaded NumPy array
-    """
-    data: bytes = await request.body()
 
+    DONE: check token in headers and return not auth when its missing/wrong 
+
+    TODO: get level from query parameter, not header https://fastapi.tiangolo.com/tutorial/query-params/#optional-parameters
+
+    https://fastapi.tiangolo.com/tutorial/header-params/#automatic-conversion
+
+    https://fastapi.tiangolo.com/tutorial/header-param-models/
+
+
+
+    https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status
+
+    Although the HTTP standard specifies "unauthorized", semantically this response 401
+    means "unauthenticated". That is, the client must authenticate itself to get
+    the requested response.
+
+    """
+    token_ = request.headers.get('x-numpy-token')
+    if token_ != "secret":
+        raise HTTPException(status_code=401, detail="x-numpy-token invalid")
+    pass
 
     level_ = request.headers.get('x-numpy-level','0')
     dtype_ = request.headers.get('x-numpy-dtype')
@@ -110,66 +76,72 @@ async def parse_request_as_array(request: Request):
     level = int(level_)
     dtype = getattr(np, dtype_, None)
     shape = tuple(map(int,shape_.split(","))) 
-    arr = np.frombuffer(data, dtype=dtype ).reshape(*shape)
+
+    data: bytes = await request.body()
+    a = np.frombuffer(data, dtype=dtype ).reshape(*shape)
 
     if level > 0:
         print("[parse_request_as_array")
+        #print(" x_numpy_token[%s]" % x_numpy_token )
+        print(" token_[%s]" % token_ )
         print(" level[%d]" % level )
         print(request.headers) 
         #print("data[%s]" % data )
         print("dtype_[%s]" % str(dtype) )
         print("shape_[%s]" % str(shape) )
-        print("arr[%s]" % arr )
+        print("a[%s]" % a )
         print("]parse_request_as_array")
     pass
-
-    return arr
-
-
-
-def make_array_response( arr: np.array, media_type : str, level : int = 0 ):
-    headers = {} 
-    headers["x-numpy-level"] = str(level)
-    headers["x-numpy-dtype"] = arr.dtype.name
-    headers["x-numpy-shape"] = str(arr.shape).replace(" ","")[1:-1]
-    return Response(arr.tobytes('C'), headers=headers, media_type=media_type )
+    return a
 
 
 
 
-@app.post('/upload_array', response_class=Response)
-def upload_array(arr0: np.array = Depends(parse_request_as_array)):
+#async def verify_token(x_numpy_token: Annotated[str | None, Header()]):
+#    print("verify_token x_numpy_token[%s]" % x_numpy_token) 
+#    if x_numpy_token != "secret":
+#        raise HTTPException(status_code=400, detail="x-numpy-token invalid")
+#
+#@app.post('/array_transform', response_class=Response, dependencies=[Depends(verify_token),])
+
+@app.post('/array_transform', response_class=Response)
+async def array_transform(a: np.array = Depends(parse_request_as_array)):
     """
-    :param arr0:
+    :param a:
     :return response: Response
 
-    1. parse_request_as_array providing the uploaded NumPy arr0
-    2. operate on the uploaded array
-    3. return the operated array as a FastAPI Response
+    1. parse_request_as_array providing the uploaded NumPy *a*
+    2. operate on *a* giving *b*
+    3. return *b* as FastAPI Response
     """
 
-    arr = arr0 * 10.   # do some operation on the input array  
+    #b = a * 10.   # do some operation on the input array  
 
-    response =  make_array_response(arr, "application/octet-stream" )
+    b = np.repeat(a * 10,2)
 
-    return response 
+    return make_array_response(b)
 
 
-@app.get("/legacy/")
-def get_legacy_data():
-    data = """<?xml version="1.0"?>
-    <shampoo>
-    <Header>
-        Apply shampoo here.
-    </Header>
-    <Body>
-        You'll have to use soap here.
-    </Body>
-    </shampoo>
+@app.get('/array_create', response_class=Response)
+def array_create():
     """
-    return Response(content=data, media_type="application/xml")
+    zeta:Downloads blyth$ curl -s -D /dev/stdout http://127.0.0.1:8000/array_create  --output arr
+    HTTP/1.1 200 OK
+    date: Tue, 09 Sep 2025 03:08:11 GMT
+    server: uvicorn
+    x-numpy-level: 0
+    x-numpy-dtype: uint8
+    x-numpy-shape: 512,512,3
+    content-length: 786432
+    content-type: application/octet-stream
 
+    zeta:Downloads blyth$ l arr
+    1536 -rw-r--r--  1 blyth  staff  786432 Sep  9 11:08 arr
 
-
+    zeta:Downloads blyth$ echo $(( 512*512*3 ))
+    786432
+    """
+    a = array_create_()
+    return make_array_response( a )
 
 

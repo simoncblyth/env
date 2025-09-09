@@ -4,8 +4,10 @@ usage(){ cat << EOU
 
 
 ~/e/tools/curl_check/curl_check.sh
-CHECK=curl_check_0 ~/e/tools/curl_check/curl_check.sh
-CHECK=curl_check_1 ~/e/tools/curl_check/curl_check.sh
+CHECK=0 ~/e/tools/curl_check/curl_check.sh
+CHECK=1 ~/e/tools/curl_check/curl_check.sh
+CHECK=2 ~/e/tools/curl_check/curl_check.sh
+CHECK=3 ~/e/tools/curl_check/curl_check.sh
 
 EOU
 }

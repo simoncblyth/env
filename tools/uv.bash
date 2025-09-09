@@ -20,6 +20,46 @@ https://www.datacamp.com/tutorial/python-uv
 
 https://medium.com/@datagumshoe/using-uv-and-conda-together-effectively-a-fast-flexible-workflow-d046aff622f0
 
+https://realpython.com/python-uv/
+
+
+
+uv pip API vs uv-native pyproject.toml API
+---------------------------------------------
+
+* https://github.com/astral-sh/uv/issues/9219
+
+The uv pip APIs are meant to resemble the pip CLI. You can think of this as a
+slightly "lower-level" API: you tell uv pip to install a specific package, or
+remove a specific package, and so on. The uv pip API came first, and it's
+partly motivated by a desire to make it easy for folks to adopt uv without
+changing their existing projects or workflows dramatically.
+
+uv add, uv run, uv sync, and uv lock are what we call the "project APIs". These
+are "higher-level": you define your dependencies in pyproject.toml, and uv
+ensures that your environment is always in-sync with those dependencies.
+
+The project APIs are more opinionated (you must use pyproject.toml, since
+they're designed around "projects"), while the uv pip APIs are more flexible
+(you can manipulate a virtual environment however you want -- there aren't
+really any "rules"). The project APIs are more recent, and they tend to reflect
+the "uv-native" workflow.
+
+If you're starting a new project, we recommend using the project APIs. If
+you're working with existing projects, it's often easier to use the uv pip
+APIs, if those projects already have established workflows based on pip (since
+you can just replace pip install with uv pip install, etc.).
+
+
+how to use uv projects with git repo ?
+-------------------------------------------
+
+https://medium.com/@florian-trautweiler/how-i-setup-my-python-projects-with-uv-and-github-896bb8e2b184
+
+Seems "uv init" automatically creates git repo and .venv/.gitignore contains "*"
+to avoid adding dependencies to the repo. 
+
+
 
 zeta/lch installed UV into conda home env
 -------------------------------------------
