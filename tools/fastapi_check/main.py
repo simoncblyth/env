@@ -35,7 +35,7 @@ def make_array_response( a: np.array, level : int = 0, media_type : str = "appli
     headers = {} 
     headers["x-numpy-level"] = str(level)
     headers["x-numpy-dtype"] = a.dtype.name
-    headers["x-numpy-shape"] = str(a.shape).replace(" ","")[1:-1]  # maybe just str(a.shape)
+    headers["x-numpy-shape"] = str(a.shape)
     return Response(a.tobytes('C'), headers=headers, media_type=media_type )
 
 
@@ -75,7 +75,7 @@ async def parse_request_as_array(request: Request):
 
     level = int(level_)
     dtype = getattr(np, dtype_, None)
-    shape = tuple(map(int,shape_.split(","))) 
+    shape = tuple(map(int,filter(None,map(str.strip,shape_.replace("(","").replace(")","").split(",")))))
 
     data: bytes = await request.body()
     a = np.frombuffer(data, dtype=dtype ).reshape(*shape)
@@ -88,7 +88,8 @@ async def parse_request_as_array(request: Request):
         print(request.headers) 
         #print("data[%s]" % data )
         print("dtype_[%s]" % str(dtype) )
-        print("shape_[%s]" % str(shape) )
+        print("shape_[%s]" % str(shape_) )
+        print("shape[%s]"  % str(shape) )
         print("a[%s]" % a )
         print("]parse_request_as_array")
     pass
@@ -117,7 +118,9 @@ async def array_transform(a: np.array = Depends(parse_request_as_array)):
 
     #b = a * 10.   # do some operation on the input array  
 
-    b = np.repeat(a * 10,2)
+    #b = np.repeat(a * 10,2)
+
+    b = a + 1
 
     return make_array_response(b)
 

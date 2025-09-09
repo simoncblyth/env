@@ -27,6 +27,17 @@
 
 .. comment 
 
+    The topic and discussions about Analysis facilities are arranged in the
+    afternoon of Sep 19 (Friday 15:00 and 15:40). The talks can focus on "how
+    technically JUNO analysis and optick simulation will be done, and what kind of
+    analysis tools that DiracX will need to interact with".  A short talk about
+    10-15 minutes for JUNO analysis workflow and 5 minutes for Optick should be
+    fine.
+
+    If any questions, please let me know.
+
+
+
 
 
 :i:`Opticks + JUNO : Deploy GPU accelerated simulation ?`
