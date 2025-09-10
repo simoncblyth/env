@@ -2151,3 +2151,6 @@ pybind11-(){      . $(env-home)/tools/pybind11.bash && pybind11-env $* ; }
 fastapi-(){      . $(env-home)/tools/fastapi.bash && fastapi-env $* ; }
 cpr-(){      . $(env-home)/tools/cpr.bash && cpr-env $* ; }
 libcpr-(){      . $(env-home)/tools/libcpr.bash && libcpr-env $* ; }
+nanobind-(){      . $(env-home)/tools/nanobind.bash && nanobind-env $* ; }
+civetweb-(){      . $(env-home)/tools/civetweb.bash && civetweb-env $* ; }
+oatpp-(){      . $(env-home)/tools/oatpp.bash && oatpp-env $* ; }

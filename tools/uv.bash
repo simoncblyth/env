@@ -24,6 +24,22 @@ https://realpython.com/python-uv/
 
 
 
+uv workspaces ?
+-----------------
+
+* https://docs.astral.sh/uv/concepts/projects/workspaces/
+
+Inspired by the Cargo concept of the same name, a workspace is "a collection of
+one or more packages, called workspace members, that are managed together."
+
+Workspaces organize large codebases by splitting them into multiple packages
+with common dependencies. Think: a FastAPI-based web application, alongside a
+series of libraries that are versioned and maintained as separate Python
+packages, all in the same Git repository.
+
+* https://github.com/jurihock/nanobind_uv_workspace_example/blob/main/pyproject.toml
+
+
 uv pip API vs uv-native pyproject.toml API
 ---------------------------------------------
 
