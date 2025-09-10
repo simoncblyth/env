@@ -12,6 +12,25 @@ VIM Tips
 * http://www.astrohandbook.com/ch20/vi_guide.html
 
 
+
+
+"vim redraw time exceeded syntax highlighting disabled"
+---------------------------------------------------------
+
+
+~/.vimrc::
+
+
+    "set rdt=0
+    " on Darwin the below fixed lags and eventual : redrawtime exceeded syntax highlighting disabled
+    " as suggested by https://github.com/prabirshrestha/vim-lsp/issues/786
+
+    syntax on
+    set re=0
+
+
+
+
 goto byte in file
 ------------------
 
