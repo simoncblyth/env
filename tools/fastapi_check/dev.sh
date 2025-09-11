@@ -4,6 +4,17 @@ usage(){ cat << EOU
 dev.sh
 ======
 
+This uses the *uv* python package+venv tool::
+
+    https://github.com/astral-sh/uv
+
+Initial setup, create dir for uv .venv and plant symbolic link::
+
+    mkdir /usr/local/env/fastapi_check
+    cd /usr/local/env/fastapi_check
+    ln -s ~/env/tools/fastapi_check/dev.sh
+    /usr/local/env/fastapi_check/dev.sh info_venv
+
 Start the endpoint::
 
     /usr/local/env/fastapi_check/dev.sh

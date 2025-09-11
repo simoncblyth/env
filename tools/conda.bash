@@ -5,8 +5,41 @@ conda-vi(){       vi $(conda-source) ; }
 conda-env(){      elocal- ; }
 conda-usage(){ cat << EOU
 
-Conda 
+Conda
 ========
+
+
+customize env vars set by activating an environment
+-----------------------------------------------------
+
+* https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#macos-and-linux
+
+
+Create dirs with empty env_vars.sh for the conda venv::
+
+    (ok) A[blyth@localhost np]$ cd $CONDA_PREFIX && pwd
+    /home/blyth/miniconda3/envs/ok
+    (ok) A[blyth@localhost ok]$ mkdir -p ./etc/conda/activate.d
+    (ok) A[blyth@localhost ok]$ mkdir -p ./etc/conda/deactivate.d
+    (ok) A[blyth@localhost ok]$ touch ./etc/conda/activate.d/env_vars.sh
+    (ok) A[blyth@localhost ok]$ touch ./etc/conda/deactivate.d/env_vars.sh
+
+Customize to allow curl-config to users to find libs::
+
+    (ok) A[blyth@localhost ok]$ cat ./etc/conda/activate.d/env_vars.sh
+    #!/bin/sh
+    export PRIOR_LD_LIBRARY_PATH=$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/home/blyth/miniconda3/envs/ok/lib:$LD_LIBRARY_PATH
+
+    (ok) A[blyth@localhost ok]$ cat ./etc/conda/deactivate.d/env_vars.sh
+    #!/bin/sh
+
+    export LD_LIBRARY_PATH=$PRIOR_LD_LIBRARY_PATH
+    unset PRIOR_LD_LIBRARY_PATH
+
+
+
+
 
 So slow
 ----------
@@ -97,14 +130,14 @@ conda search
 
     (base) epsilon:10 blyth$ conda search mayavi
     Loading channels: done
-    # Name                       Version           Build  Channel             
-    mayavi                         4.6.2  py27h18b3941_1  conda-forge         
+    # Name                       Version           Build  Channel
+    mayavi                         4.6.2  py27h18b3941_1  conda-forge
     ...
 
 
 
 
-conda 
+conda
 -----------------
 
 * https://conda.io/docs/index.html
@@ -119,7 +152,7 @@ conda
     #
     base                  *  /usr/local/env/tools/conda/miniconda3
 
-    epsilon:~ blyth$ 
+    epsilon:~ blyth$
 
     epsilon:~ blyth$ conda create --name snowflakes
     Solving environment: done
@@ -129,7 +162,7 @@ conda
       environment location: /usr/local/env/tools/conda/miniconda3/envs/snowflakes
 
 
-    Proceed ([y]/n)? 
+    Proceed ([y]/n)?
 
     Preparing transaction: done
     Verifying transaction: done
@@ -148,17 +181,17 @@ conda
 
     epsilon:~ blyth$ source activate
     (base) epsilon:~ blyth$ source deactivate
-    epsilon:~ blyth$ 
+    epsilon:~ blyth$
 
 
 
 
 Travis Oliphant (NumPy originator) on conda
------------------------------------------------ 
+-----------------------------------------------
 
 * http://technicaldiscovery.blogspot.tw/2013/12/why-i-promote-conda.html
 
-Conda is an open-source, general, cross-platform package manager.  
+Conda is an open-source, general, cross-platform package manager.
 One could accurately describe it as a
 cross-platform hombrew written in Python.  Anyone can use the tool and
 related infrastructure to build and distribute whatever packages they
@@ -185,7 +218,7 @@ Darwin Install Sep 2018
       - Press CTRL-C to abort the installation
       - Or specify a different location below
 
-    [/usr/local/env/tools/conda/miniconda3] >>> 
+    [/usr/local/env/tools/conda/miniconda3] >>>
     PREFIX=/usr/local/env/tools/conda/miniconda3
     installing: python-3.7.0-hc167b69_0 ...
     Python 3.7.0
@@ -211,7 +244,7 @@ Darwin Install Sep 2018
     For this change to become active, you have to open a new terminal.
 
     Thank you for installing Miniconda3!
-    epsilon:conda blyth$ 
+    epsilon:conda blyth$
 
 ::
 
@@ -240,19 +273,19 @@ Linux Install Sep 2020
     You have chosen to not have conda modify your shell scripts at all.
     To activate conda's base environment in your current shell session:
 
-    eval "$(/home/blyth/local/env/tools/conda/miniconda3/bin/conda shell.YOUR_SHELL_NAME hook)" 
+    eval "$(/home/blyth/local/env/tools/conda/miniconda3/bin/conda shell.YOUR_SHELL_NAME hook)"
 
     To install conda's shell functions for easier access, first activate, then:
 
     conda init
 
-    If you'd prefer that conda's base environment not be activated on startup, 
-       set the auto_activate_base parameter to false: 
+    If you'd prefer that conda's base environment not be activated on startup,
+       set the auto_activate_base parameter to false:
 
     conda config --set auto_activate_base false
 
     Thank you for installing Miniconda3!
-    [blyth@localhost conda]$ 
+    [blyth@localhost conda]$
 
 
     [blyth@localhost conda]$ /home/blyth/local/env/tools/conda/miniconda3/bin/conda init bash
@@ -281,7 +314,7 @@ conda basics
     conda install numpy
     conda install scipy
     conda install ipython
-    conda install sympy 
+    conda install sympy
     conda install matplotlib
 
 
@@ -323,7 +356,7 @@ problem with installing ipython into 2
     SyntaxError: invalid syntax
 
 
-    compile stderr: 
+    compile stderr:
 
 
     done
@@ -385,14 +418,14 @@ conda-ver(){ echo py$(conda-pymajor)7_4.8.3 ; }
 conda-dists(){ open https://repo.anaconda.com/miniconda/ ; }
 conda-url()
 {
-   case $(uname) in 
+   case $(uname) in
       Darwin) echo https://repo.anaconda.com/miniconda/Miniconda$(conda-pymajor)-$(conda-ver)-MacOSX-x86_64.sh ;;
        Linux) echo https://repo.anaconda.com/miniconda/Miniconda$(conda-pymajor)-$(conda-ver)-Linux-x86_64.sh ;;
    esac
 }
 
 conda-info(){ cat << EOI
- 
+
    conda-pymajor : $(conda-pymajor)
 
    conda-dir : $(conda-dir)
@@ -407,14 +440,14 @@ EOI
 conda-md5(){
    local dst=$(conda-dst)
    [ ! -f "$dst" ] && echo $msg no dst $dst && return 1
-   case $(uname) in 
-      Darwin) md5 $dst 2>/dev/null ;; 
-      Linux) md5sum $dst 2>/dev/null ;; 
+   case $(uname) in
+      Darwin) md5 $dst 2>/dev/null ;;
+      Linux) md5sum $dst 2>/dev/null ;;
    esac
 }
 
 conda-dst(){
-   local dir=$(dirname $(conda-dir)) 
+   local dir=$(dirname $(conda-dir))
    local url=$(conda-url)
    local nam=$(basename $url)
    echo $dir/$nam
@@ -442,7 +475,7 @@ conda-install(){
 }
 
 conda--(){
-  conda-get  
+  conda-get
   conda-install
 }
 

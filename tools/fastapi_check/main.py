@@ -69,7 +69,6 @@ async def parse_request_as_array(request: Request):
     https://github.com/Kludex/starlette/discussions/1745
 
     """
-    print(request)
 
     token_ = request.headers.get('x-numpy-token')
     if token_ != "secret":
