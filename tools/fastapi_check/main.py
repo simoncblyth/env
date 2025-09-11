@@ -8,13 +8,13 @@ app = FastAPI()
 
 def read_arr_from_rawfile(path="$HOME/Downloads/arr", dtype_="uint8", shape_="512,512,3" ):
     """
-    this suceeded to recover the numpy array from octet-stream of bytes download from /arr endpoint, 
-    but it is cheating regards the metadata 
+    this suceeded to recover the numpy array from octet-stream of bytes download from /arr endpoint,
+    but it is cheating regards the metadata
     """
     x = None
 
     dtype = getattr(np, dtype_, None)
-    shape = tuple(map(int,shape_.split(","))) 
+    shape = tuple(map(int,shape_.split(",")))
 
     with open(os.path.expandvars(path), "rb") as fp:
         xb = fp.read()
@@ -32,7 +32,7 @@ def array_create_():
 
 
 def make_array_response( a: np.array, level : int = 0, media_type : str = "application/octet-stream" ):
-    headers = {} 
+    headers = {}
     headers["x-numpy-level"] = str(level)
     headers["x-numpy-dtype"] = a.dtype.name
     headers["x-numpy-shape"] = str(a.shape)
@@ -43,11 +43,11 @@ def make_array_response( a: np.array, level : int = 0, media_type : str = "appli
 async def parse_request_as_array(request: Request):
     """
     :param request: FastAPI Request
-    :return arr: NumPy array 
+    :return arr: NumPy array
 
     Uses request body and headers with array dtype and shape to reconstruct the uploaded NumPy array
 
-    DONE: check token in headers and return not auth when its missing/wrong 
+    DONE: check token in headers and return not auth when its missing/wrong
 
     TODO: get level from query parameter, not header https://fastapi.tiangolo.com/tutorial/query-params/#optional-parameters
 
@@ -63,7 +63,14 @@ async def parse_request_as_array(request: Request):
     means "unauthenticated". That is, the client must authenticate itself to get
     the requested response.
 
+
+    https://www.starlette.io/requests/#body
+
+    https://github.com/Kludex/starlette/discussions/1745
+
     """
+    print(request)
+
     token_ = request.headers.get('x-numpy-token')
     if token_ != "secret":
         raise HTTPException(status_code=401, detail="x-numpy-token invalid")
@@ -72,21 +79,32 @@ async def parse_request_as_array(request: Request):
     level_ = request.headers.get('x-numpy-level','0')
     dtype_ = request.headers.get('x-numpy-dtype')
     shape_ = request.headers.get('x-numpy-shape')
+    content_type = request.headers.get('content-type')
 
     level = int(level_)
     dtype = getattr(np, dtype_, None)
     shape = tuple(map(int,filter(None,map(str.strip,shape_.replace("(","").replace(")","").split(",")))))
 
-    data: bytes = await request.body()
-    a = np.frombuffer(data, dtype=dtype ).reshape(*shape)
+    field = "upload"  # needs to match field name from client
+
+    if content_type.startswith("multipart/form-data"):
+        form = await request.form()
+        filename = form[field].filename
+        contents = await form[field].read()
+        a = np.frombuffer(contents, dtype=dtype ).reshape(*shape)
+    else:
+        filename = None
+        data: bytes = await request.body()
+        a = np.frombuffer(data, dtype=dtype ).reshape(*shape)
+    pass
 
     if level > 0:
         print("[parse_request_as_array")
-        #print(" x_numpy_token[%s]" % x_numpy_token )
+        print("content-type:%s" % content_type )
+        print("filename:%s" % filename )
         print(" token_[%s]" % token_ )
         print(" level[%d]" % level )
-        print(request.headers) 
-        #print("data[%s]" % data )
+        print(request.headers)
         print("dtype_[%s]" % str(dtype) )
         print("shape_[%s]" % str(shape_) )
         print("shape[%s]"  % str(shape) )
@@ -97,13 +115,7 @@ async def parse_request_as_array(request: Request):
 
 
 
-
-#async def verify_token(x_numpy_token: Annotated[str | None, Header()]):
-#    print("verify_token x_numpy_token[%s]" % x_numpy_token) 
-#    if x_numpy_token != "secret":
-#        raise HTTPException(status_code=400, detail="x-numpy-token invalid")
-#
-#@app.post('/array_transform', response_class=Response, dependencies=[Depends(verify_token),])
+# HMM should that have a trailing slash ?
 
 @app.post('/array_transform', response_class=Response)
 async def array_transform(a: np.array = Depends(parse_request_as_array)):
@@ -114,11 +126,26 @@ async def array_transform(a: np.array = Depends(parse_request_as_array)):
     1. parse_request_as_array providing the uploaded NumPy *a*
     2. operate on *a* giving *b*
     3. return *b* as FastAPI Response
+
+    Test this with ~/np/tests/np_curl_test/call.sh::
+
+        #!/usr/bin/env bash 
+        DIR=/Users/blyth/Downloads
+        curl \
+            -X POST http://127.0.0.1:8000/array_transform  \
+            -H "Content-Type: multipart/form-data" \
+            -H "x-numpy-token: secret" \
+            -H "x-numpy-dtype: uint8" \
+            -H "x-numpy-shape: (512,512,3)" \
+            -H "x-numpy-level: 1" \
+            -F upload=@$DIR/arr \
+            --output $DIR/out
+
+        ls -alst $DIR/arr
+        ls -alst $DIR/out
+        diff -b $DIR/arr $DIR/out
+
     """
-
-    #b = a * 10.   # do some operation on the input array  
-
-    #b = np.repeat(a * 10,2)
 
     b = a + 1
 

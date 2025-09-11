@@ -1,41 +1,61 @@
 #!/usr/bin/env bash
 
 usage(){ cat << EOU
+dev.sh
+======
 
-Setup, create "fastapi_check" directory for the .venv to live in::
+Start the endpoint::
 
-    cd /usr/local/env
-    mkdir fastapi_check
-    cd fastapi_check
+    /usr/local/env/fastapi_check/dev.sh
+
+Make requests::
+
+     ~/np/tests/np_curl_test/np_curl_test.sh
+     LEVEL=1 MULTIPART=0  ~/np/tests/np_curl_test/np_curl_test.sh
+     LEVEL=1 MULTIPART=1  ~/np/tests/np_curl_test/np_curl_test.sh
 
 
-Activate the venv and invoke "fastapi dev" with the main.py::
+VDIR
+    unresolved symbolic link, giving directory containing uv .venv eg:  /usr/local/env/fastapi_check
 
-    ~/env/tools/fastapi_check/dev.sh
-
+SDIR
+    resolved symbolic link, giving source directory eg: ~/env/tools/fastapi_check
 
 EOU
 }
 
+
+VDIR=$(dirname $BASH_SOURCE)
 SDIR=$(dirname $(realpath $BASH_SOURCE))
+cd $VDIR
 
-vv="BASH_SOURCE SDIR PWD"
-for v in $vv ; do printf "%30s : %s\n" "$v" "${!v}" ; done
-
-
-if [ ! -d ".venv" ]; then
-    echo $BASH_SOURCE - installing dependencies 
-    uv venv
-    uv pip install "fastapi[standard]" numpy
-else
-    echo $BASH_SOURCE - using existing .venv
-fi 
-
-source .venv/bin/activate
-
-which fastapi
-
-fastapi dev $SDIR/main.py
+defarg="info_venv_run"
+arg=${1:-$defarg}
 
 
+if [ "${arg/info}" != "$arg" ]; then
+    vv="BASH_SOURCE PWD VDIR SDIR"
+    for v in $vv ; do printf "%30s : %s\n" "$v" "${!v}" ; done
+fi
 
+if [ "${arg/venv}" != "$arg" ]; then
+    if [ ! -d ".venv" ]; then
+        echo $BASH_SOURCE - installing dependencies
+        uv venv
+        uv pip install "fastapi[standard]" numpy
+    else
+        echo $BASH_SOURCE - using existing .venv
+    fi
+fi
+
+if [ "${arg/run}" != "$arg" ]; then
+
+    source .venv/bin/activate
+    [ $? -ne 0 ] && echo $BASH_SOURCE - failed to activate venv && exit 1
+
+    which fastapi
+    fastapi dev $SDIR/main.py
+    [ $? -ne 0 ] && echo $BASH_SOURCE - failed to fastapi dev && exit 2
+fi
+
+exit 0
