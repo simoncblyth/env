@@ -2154,3 +2154,5 @@ libcpr-(){      . $(env-home)/tools/libcpr.bash && libcpr-env $* ; }
 nanobind-(){      . $(env-home)/tools/nanobind.bash && nanobind-env $* ; }
 civetweb-(){      . $(env-home)/tools/civetweb.bash && civetweb-env $* ; }
 oatpp-(){      . $(env-home)/tools/oatpp.bash && oatpp-env $* ; }
+poco-(){      . $(env-home)/tools/poco.bash && poco-env $* ; }
+libmicrohttpd-(){      . $(env-home)/tools/libmicrohttpd.bash && libmicrohttpd-env $* ; }

@@ -14,9 +14,21 @@ oatpp-usage(){ cat << EOU
 * https://news.ycombinator.com/item?id=18210397
 * https://github.com/oatpp/example-crud
 
+alt
+----
+
+* https://github.com/Stiffstream/restinio
+* https://stiffstream.com/en/docs/restinio/0.7/
 
 
+RESTinio oatpp civetweb
 
+* https://www.reddit.com/r/cpp/comments/cjj9t5/what_c_web_server_library_one_should_use_nowadays/
+* https://www.reddit.com/r/cpp/comments/12653pg/rest_apis_using_c_is_this_even_done_much/
+* https://www.reddit.com/r/cpp/comments/17nt8uc/experience_using_crow_as_web_server/
+
+
+* https://github.com/uNetworking/uWebSockets
 
 EOU
 }
