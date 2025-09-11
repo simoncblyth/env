@@ -2148,6 +2148,7 @@ llm-(){      . $(env-home)/tools/llm.bash && llm-env $* ; }
 llama-cpp-python-(){      . $(env-home)/tools/llama-cpp-python.bash && llama-cpp-python-env $* ; }
 hf-(){      . $(env-home)/tools/hf.bash && hf-env $* ; }
 pybind11-(){      . $(env-home)/tools/pybind11.bash && pybind11-env $* ; }
+libcurl-(){      . $(env-home)/tools/libcurl.bash && libcurl-env $* ; }
 fastapi-(){      . $(env-home)/tools/fastapi.bash && fastapi-env $* ; }
 cpr-(){      . $(env-home)/tools/cpr.bash && cpr-env $* ; }
 libcpr-(){      . $(env-home)/tools/libcpr.bash && libcpr-env $* ; }
