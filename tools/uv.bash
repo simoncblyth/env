@@ -23,6 +23,20 @@ https://medium.com/@datagumshoe/using-uv-and-conda-together-effectively-a-fast-f
 https://realpython.com/python-uv/
 
 
+experiment with uv without "uv pip"
+--------------------------------------
+
+::
+
+    cd ~/env/tools/nanobind_check
+    uv init          ## auto  created .venv pyproject.toml
+    uv add nanobind   ## adds dependency to pyproject.toml
+    uv add numpy
+    uv add ipython
+
+
+
+
 
 uv workspaces ?
 -----------------

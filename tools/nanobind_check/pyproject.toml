@@ -1,0 +1,11 @@
+[project]
+name = "nanobind-check"
+version = "0.1.0"
+description = "Experiment with nanobind and uv for creating python API over C++"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "ipython>=8.18.1",
+    "nanobind>=2.9.2",
+    "numpy>=2.0.2",
+]

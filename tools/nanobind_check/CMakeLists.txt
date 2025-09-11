@@ -26,7 +26,7 @@ message( STATUS "nanobind_ROOT : ${nanobind_ROOT} ")
 
 find_package(nanobind CONFIG REQUIRED)
 
-nanobind_add_module(my_ext 
+nanobind_add_module(my_ext
    my_ext.cpp
    add.cpp
    dog.cpp
