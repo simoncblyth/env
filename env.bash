@@ -2156,3 +2156,6 @@ civetweb-(){      . $(env-home)/tools/civetweb.bash && civetweb-env $* ; }
 oatpp-(){      . $(env-home)/tools/oatpp.bash && oatpp-env $* ; }
 poco-(){      . $(env-home)/tools/poco.bash && poco-env $* ; }
 libmicrohttpd-(){      . $(env-home)/tools/libmicrohttpd.bash && libmicrohttpd-env $* ; }
+cppweb-(){      . $(env-home)/tools/cppweb.bash && cppweb-env $* ; }
+drogon-(){      . $(env-home)/tools/drogon.bash && drogon-env $* ; }
+crow-(){      . $(env-home)/tools/crow.bash && crow-env $* ; }
