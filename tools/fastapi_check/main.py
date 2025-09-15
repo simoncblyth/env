@@ -69,6 +69,9 @@ async def parse_request_as_array(request: Request):
     https://github.com/Kludex/starlette/discussions/1745
 
     """
+    print(".parse_request_as_array")
+    print(request)
+    print(request.url)
 
     token_ = request.headers.get('x-numpy-token')
     if token_ != "secret":
@@ -128,7 +131,7 @@ async def array_transform(a: np.array = Depends(parse_request_as_array)):
 
     Test this with ~/np/tests/np_curl_test/call.sh::
 
-        #!/usr/bin/env bash 
+        #!/usr/bin/env bash
         DIR=/Users/blyth/Downloads
         curl \
             -X POST http://127.0.0.1:8000/array_transform  \

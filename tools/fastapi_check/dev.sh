@@ -2,56 +2,42 @@
 
 usage(){ cat << EOU
 dev.sh
-======
+========
 
 This uses the *uv* python package+venv tool::
 
     https://github.com/astral-sh/uv
 
-Initial setup, create dir for uv .venv and plant symbolic link::
+Build and start the endpoint::
 
-    mkdir /usr/local/env/fastapi_check
-    cd /usr/local/env/fastapi_check
-    ln -s ~/env/tools/fastapi_check/dev.sh
-    /usr/local/env/fastapi_check/dev.sh info_venv
+    ~/env/tools/fastapi_check/dev.sh
 
-Start the endpoint::
-
-    /usr/local/env/fastapi_check/dev.sh
-
-Make requests::
+Make HTTP POST requests to the endpoint::
 
      ~/np/tests/np_curl_test/np_curl_test.sh
      LEVEL=1 MULTIPART=0  ~/np/tests/np_curl_test/np_curl_test.sh
      LEVEL=1 MULTIPART=1  ~/np/tests/np_curl_test/np_curl_test.sh
 
-
-VDIR
-    unresolved symbolic link, giving directory containing uv .venv eg:  /usr/local/env/fastapi_check
-
-SDIR
-    resolved symbolic link, giving source directory eg: ~/env/tools/fastapi_check
-
 EOU
 }
 
 
-VDIR=$(dirname $BASH_SOURCE)
-SDIR=$(dirname $(realpath $BASH_SOURCE))
-cd $VDIR
+cd $(dirname $(realpath $BASH_SOURCE))
 
 defarg="info_venv_run"
 arg=${1:-$defarg}
 
 
 if [ "${arg/info}" != "$arg" ]; then
-    vv="BASH_SOURCE PWD VDIR SDIR"
+    vv="BASH_SOURCE PWD defarg arg"
     for v in $vv ; do printf "%30s : %s\n" "$v" "${!v}" ; done
 fi
 
 if [ "${arg/venv}" != "$arg" ]; then
     if [ ! -d ".venv" ]; then
         echo $BASH_SOURCE - installing dependencies
+        echo .venv > .gitignore
+        echo __pycache__ >> .gitignore
         uv venv
         uv pip install "fastapi[standard]" numpy
     else
@@ -65,7 +51,7 @@ if [ "${arg/run}" != "$arg" ]; then
     [ $? -ne 0 ] && echo $BASH_SOURCE - failed to activate venv && exit 1
 
     which fastapi
-    fastapi dev $SDIR/main.py
+    fastapi dev main.py
     [ $? -ne 0 ] && echo $BASH_SOURCE - failed to fastapi dev && exit 2
 fi
 
