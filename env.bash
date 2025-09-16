@@ -2160,3 +2160,4 @@ libmicrohttpd-(){      . $(env-home)/tools/libmicrohttpd.bash && libmicrohttpd-e
 cppweb-(){      . $(env-home)/tools/cppweb.bash && cppweb-env $* ; }
 drogon-(){      . $(env-home)/tools/drogon.bash && drogon-env $* ; }
 crow-(){      . $(env-home)/tools/crow.bash && crow-env $* ; }
+flexflow-(){      . $(env-home)/tools/flexflow.bash && flexflow-env $* ; }
