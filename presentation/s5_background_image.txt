@@ -65,6 +65,7 @@
     ## then exported from Keynote as Images selecting PNG creates
     ## a PNG of size 1280x720
     ##   cp ~/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png ~/simoncblyth.bitbucket.io/env/Documents/Geant4OpticksWorkflow/
+    ##   cp ~/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow_Clients_and_Service_001.png ~/simoncblyth.github.io/env/Documents/Geant4OpticksWorkflow7/
     ##
     Geant4OpticksWorkflow
     ../Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png 1280px_720px 0px_0px meta:thumb
@@ -77,6 +78,108 @@
 
     Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
     ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 1280px_720px 0px_0px meta:thumb
+
+    Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow 2x2
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 640px_360px 0px_0px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 640px_360px 640px_0px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 640px_360px 0px_360px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 640px_360px 640px_360px
+
+    Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow 4x4
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 320px_180px 0px_0px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 320px_180px 320px_0px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 320px_180px 640px_0px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 320px_180px 960px_0px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 320px_180px 0px_180px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 320px_180px 320px_180px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 320px_180px 640px_180px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 320px_180px 960px_180px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 320px_180px 0px_360px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 320px_180px 320px_360px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 320px_180px 640px_360px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 320px_180px 960px_360px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 320px_180px 0px_540px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 320px_180px 320px_540px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 320px_180px 640px_540px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 320px_180px 960px_540px
+
+    OpticksClients + OpticksService: Share GPUs
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow_Clients_and_Service_001.png 1280px_720px 0px_50px meta:thumb 
+
+    Client.png
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 320px_180px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 320px_270px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 320px_360px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 320px_450px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 800px_180px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 800px_270px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 800px_360px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 800px_450px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Service.png 512px_288px 375px_165px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 0px_0px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 0px_90px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 0px_180px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 0px_270px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 0px_360px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 0px_450px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 0px_540px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 0px_630px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 160px_0px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 160px_90px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 160px_180px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 160px_270px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 160px_360px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 160px_450px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 160px_540px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 160px_630px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 320px_0px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 320px_90px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 320px_540px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 320px_630px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 480px_0px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 480px_90px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 480px_180px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 480px_270px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 480px_360px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 480px_450px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 480px_540px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 480px_630px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 640px_0px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 640px_90px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 640px_180px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 640px_270px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 640px_360px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 640px_450px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 640px_540px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 640px_630px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 800px_0px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 800px_90px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 800px_540px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 800px_630px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 960px_0px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 960px_90px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 960px_180px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 960px_270px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 960px_360px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 960px_450px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 960px_540px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 960px_630px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 1120px_0px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 1120px_90px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 1120px_180px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 1120px_270px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 1120px_360px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 1120px_450px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 1120px_540px
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Client.png 160px_90px 1120px_630px
+
+    Service.png
+    ../Documents/Geant4OpticksWorkflow_ClientsAndService/Geant4OpticksWorkflow_ClientsAndService_Service.png 1280px_720px
+
+    Split Workflow : Share GPUs between OpticksClients
+    FastAPI/logo-teal.png 640px_260px 640px_100px
+    nanobind/logo.jpg 427px_240px 773px_380px
+    drogon/drogon_logo_screenshot.png 213px_100px 440px_580px
 
     Opticks Progress Summary 
     ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 640px_360px 640px_0px
