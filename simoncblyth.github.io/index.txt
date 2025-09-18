@@ -309,11 +309,20 @@ Opticks Presentations
 ~~~~~~
 
 
+`env/presentation/opticks_20250917_dirac_workshop_ihep.html <env/presentation/opticks_20250917_dirac_workshop_ihep.html>`_
+
+    Opticks + JUNO : Deploy GPU accelerated MC production ? Can Dirac(X) help ?
+
+    Includes details of GPU-less OpticksClient using libcurl to HTTP POST genstep requests 
+    to an OpticksService FastAPI+nanobind endpoint which responds with hits. 
+
+    11th DIRAC Users Workshop, IHEP, 19 September 2025
+
+
 `env/presentation/opticks_20250727_kaiping.html  <env/presentation/opticks_20250727_kaiping.html>`_
     
     Status of *JUNOSW + Opticks : GPU ray trace accelerated optical photon simulation*
 
-    **WIP : PRESENTATION IN PREPARATION**
 
     JUNO Collaboration Meeting, Kaiping, Simulation AFG Meeting, 27 July 2025 
 

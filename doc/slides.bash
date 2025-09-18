@@ -920,8 +920,10 @@ slides-convert(){
 
    if [ "$(which magick)" != "" ]; then
         echo $FUNCNAME - using magick
-        magick ???_crop.png $pdf
+        #magick ???_crop.png $pdf
         #magick ???_crop.png -compress lossless -density 300 $pdf 
+        magick ???_crop.png -strip -compress JPEG -quality 75 $pdf   
+        : observed these settings strip-JPEG-75 to reduce from 40MB to 11MB with unnoticeable degradation
    elif [ "$(which convert)" != "" ]; then  
         echo $FUNCNAME - using  convert
         convert ???_crop.png $pdf
