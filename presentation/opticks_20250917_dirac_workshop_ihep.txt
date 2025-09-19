@@ -64,8 +64,11 @@
 
 .. s5_talk:: 
 
+    Opticks is an open source project that applies GPU ray tracing to optical photon simulation 
+    and integrates that with Geant4. GPU parallelism gives drastic speedups of more than a factor of 1000.
     This render shows the photons resulting from a muon crossing the JUNO scintillator, 
     each line represents a single photon.
+
 
 .. comment
 
@@ -215,8 +218,7 @@ Outline
 
 .. s5_talk::
 
-   I will briefly describe Opticks, focussing on how to scale and deploy it.
-
+   This talk will focus on how to scale Opticks for large monte carlo production
 
 
 
@@ -244,10 +246,9 @@ Outline
 
 .. s5_talk::
 
-   A muon travelling across the JUNO scintillator yields tens of millions 
+   A muon crossing the JUNO scintillator gives tens of millions 
    of optical photons, causing big problems for simulation.
-
-   Opticks solves this problem by offloading the compute and the 
+   Opticks solves these problems by offloading the compute and  
    memory for the photons to the GPU. 
 
 
@@ -303,12 +304,10 @@ Outline
 
 .. s5_talk::
 
-    Solution is to use highly optimized GPU ray tracing 
-    for optical photon simulation.
-
+    GPU ray tracing has been so extremely highly optimized 
+    it makes it very attractive to implement optical photon
+    simulation using it.
     
-
-
 
 
 :small:`NVIDIA RTX Generations 1=>4`
@@ -333,10 +332,8 @@ Outline
 
 .. s5_talk::
 
-    Ray tracing continues to be optimized rapidly by NVIDIA, with 
-    each RTX generation giving a doubling in ray trace performance.
-
-
+    Optimizations in both hardware and software are continuing
+    Each of the four RTX GPU generations have doubled ray tracing performance. 
 
 
 
@@ -390,10 +387,15 @@ Outline
 
 .. s5_talk::
 
-    The ray tracing performance translates directly into optical photon simulation performance.
+    Opticks directly benefits from improved ray tracing with simulation
+    performance measured to be factor of four faster with the 3rd generation compared
+    to the 1st.
+
     The plot shows kernel time vs number of photons in millions and the two lines
     shows the difference between 1st and 3rd generaton RTX GPUs.
 
+    So with 4th generation RTX 100M photons can be simulated in 5s. 
+    That constrasts with single-threaded Geant4 where doing the same would take hours. 
 
 
 
@@ -449,7 +451,11 @@ Outline
 
 .. s5_talk::
 
-   GPU accelerated ray tracing is accessed via the NVIDIA OptiX package.
+   NVIDIA OptiX gives access to the accelerated ray tracing.
+   The implementation is within the NVIDIA Driver, so 
+   Opticks releases come with strict Driver version requirements.
+
+   HMM: also compute capability
 
 
 .. comment
@@ -468,12 +474,12 @@ Outline
 ``EVT=muon_cxs cxr_min.sh #12 : photons from muon crossing JUNO Scintillator``
 
 
-
 .. s5_talk::
 
-    This shows the photons from a muon crossing the JUNO Scintillator.
-    Having the geometry on the GPU of course enables high performance 
-    visualization as a side benefit. 
+    This render shows the photons from a muon crossing the JUNO Scintillator.
+    Having the geometry translated to the GPU enables high performance visualization
+    as well as simulation. The geometry is mostly analytic, not triangulated, just
+    like Geant4 : so it is possible for the two optical simulations to match very closely.
 
 
 :i:`GEOM_J25_4_0_opticks_Debug_cxr_min_muon_cxs_20250707_112243.png` 
@@ -576,6 +582,14 @@ Outline
 
 .. s5_talk::
 
+   This shows the overall speedup vs the parallelized speedup
+   for different parallel fractions. The red one is for 99%.
+   Overall speedup is limited by the non-parallelized parts of the 
+   simulation. Thats everything other than the optical photons.
+
+
+.. comment
+
    The speedup of the optical photon simulation can be more than 
    1000x Geant4, but the non-optical part of the event is not parallelized.
    Performance depends on the fraction of the compute that can be
@@ -622,22 +636,22 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-    How to use GPU ray tracing in simulation ? That is what Opticks does. 
+    This is the current workflow of Opticks simulation.
 
-    Opticks acts as a bridge between Geant4 on the CPU and NVIDIA OptiX GPU ray tracing 
+    * at initialization Opticks translates the Geant4 geometry and uploads it to the GPU
 
-    * at initialization Opticks translates the Geant4 model of 
-      detector geometry into a suitable form and uploads that to the GPU
+    * Geant4 processes that normally generate optical photons are modified
+      to instead give gensteps which parameterize how to generate photons
+      and those gensteps are uploaded to the GPU at the end of each event 
 
-    * the Geant4 Cerenkov and Scintillation processes are modified 
-      to prevent the normal CPU optical photon generation loop
-      Instead the generation parameters or gensteps are collected  
-      and then uploaded to the GPU for propagation at the end of each event
+    * optical simulation is entirely offloaded to the GPU, 
+      only non-culled hits require CPU memory allocation
 
-    * this means the optical photon simulation is entirely offloaded to the GPU, 
-      with only the hits that are not culled by collection efficiency 
-      requiring allocation of memory on the CPU
+
+
+..  comment
  
+    Opticks bridges between Geant4 on the CPU and NVIDIA OptiX GPU ray tracing 
 
 
 
@@ -655,7 +669,7 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-    A little bit of scaling for small MC productions could be done in a monolithic way. 
+    Small MC productions could be done by scaling trivially. 
 
 
 :i:`Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow 4x4 ?`
@@ -680,8 +694,9 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-    But moving to large MC productions, that is horribly inefficient use of GPU resources.
-
+    For large MC productions, scaling this way is not practical because
+    its an extremely inefficient use the GPUs. They would be idle most
+    of the time with a few seconds of compute every few minutes.
 
 
 
@@ -693,9 +708,7 @@ OpticksClients + OpticksService : Share GPUs
 
 .. s5_talk::
 
-    So perhaps can split the monolith into a service wirth many clients POSTing HTTP requests
-    of gensteps and getting hits in response. 
-
+    GPU-less clients sharing a service via HTTP POST allows increasing GPU utilization.
 
 
 :i:`Client.png`
@@ -704,7 +717,15 @@ OpticksClients + OpticksService : Share GPUs
 
 .. s5_talk::
 
-    Want to scale to a large number of clients, of a MC production.
+    The aim is for large numbers of clients to share the service. 
+    Actually the more idle the GPUs are in the monolithic approach the 
+    greater the share factor can be.  
+
+    I think that even before developing an asynchronous compute service 
+    it should be possible to reach useful share factors. 
+
+    And those can be improved by putting in the effort of getting async compute to work, 
+    and also using multiple GPUs in the server.
 
 
 
@@ -742,14 +763,16 @@ Split Workflow : Share GPUs between OpticksClients
 
 .. s5_talk::
 
-    ASGI (Asynchronous Server Gateway Interface) server
+    The service/client are in prototyping stage. 
+    The GPU-less clients just need a few headers
+    for collecting gensteps and POSTing with libcurl
 
-    Prototyping with FastAPI python web server as 
-    thats popular for scaling LLM inference services.
-    
-    BUT that adds need to bind python and C++ with nanobind
+    The service currently uses FastAPI, a  python web framework 
+    as thats simple to start with.
 
-    Alternative would be to use a C++ web framework like Drogon
+    I will also try C++ web frameworks like Drogon,
+    as getting async compute to work might be easier 
+    without the complication of language barriers and binding.
 
 
 
@@ -780,8 +803,12 @@ Split Workflow : Share GPUs between OpticksClients
 
 .. s5_talk::
 
-    Monolithic approach for smaller MC produtions requires matching of jobs with GPU resources
-
+    The old monolithic approach requires matching jobs with GPU resources.
+    As far as I understand that is done in Dirac by matching string tags ?  
+    While I expect you could do what is needed, it would probably require lots of 
+    string tags.  Supporting version and integer comparison would make that
+    much easier.  Is there already possible, or is there any hope of that. 
+    Perhaps Dirac is limited by what slurm and HTCondor provide ?
 
 
 :small:`Opticks MC production Server/Client deployment with Dirac(X) ?`
@@ -812,8 +839,9 @@ Split Workflow : Share GPUs between OpticksClients
 
 .. s5_talk::
 
-    Service/client approach for larger MC produtions requires clients to make HTTP post requests to from the jobs
-
+    GPU-less Opticks clients avoids GPU matching, but it means that
+    jobs would be using network for genstep uploads and hit downloads. 
+    I wonder are there restrictions or quotas for doing that  ?
 
 
 
@@ -883,10 +911,12 @@ Split Workflow : Share GPUs between OpticksClients
 
 .. s5_talk::
 
-    Summary is that : Opticks provides state-of-the-art GPU ray tracing integrated with Geant4.
+   
+    In summary, I hope that Opticks accelerated monte carlo productions can be
+    made to work with Dirac, and this will mean that optical photons 
+    will no longer limit monte carlo productions and hence our understanding 
+    of neutrino detectors.
 
-    Scaling Opticks to large and GPU economical MC productions can benefit from a Client/Service approach. 
-    That I hope can be made to work with Dirac. 
 
  
 
