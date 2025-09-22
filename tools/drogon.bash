@@ -144,15 +144,12 @@ Try adding controller
 
 
 
+On ZETA see /usr/local/env/drogon_check/build/run.sh::
 
-
-EOU
-}
-
-PATH=/usr/local/e/bin:$PATH
-DYLD_LIBRARY_PATH=/usr/local/e/lib:$DYLD_LIBRARY_PATH
-
-./drogon_check 
+    cd $(dirname $(realpath $BASH_SOURCE))
+    PATH=/usr/local/e/bin:$PATH
+    DYLD_LIBRARY_PATH=/usr/local/e/lib:$DYLD_LIBRARY_PATH
+    ./drogon_check
 
 
 
