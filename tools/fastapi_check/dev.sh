@@ -12,6 +12,12 @@ Build and start the endpoint::
 
     ~/env/tools/fastapi_check/dev.sh
 
+
+NOTE YOU SHOULD PROBABLY USING THE BELOW, NOT THIS::
+
+    ~/opticks/CSGOptiX/tests/CSGOptiXService_FastAPI_test/CSGOptiXService_FastAPI_test.sh
+
+
 Make HTTP POST requests to the endpoint::
 
      ~/np/tests/np_curl_test/np_curl_test.sh
