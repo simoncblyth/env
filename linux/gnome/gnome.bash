@@ -9,6 +9,45 @@ GNOME : Linux Desktop
 =======================
 
 
+
+
+
+
+
+
+Copy/Paste Issue
+------------------
+
+Q: In the default AlmaLinux GNOME Terminal app, when I highlight some text with 
+   the mouse the text is not selected until I explicitly "Copy". I am using Wayland.
+   How to configure mouse selected text to auto copy ?
+
+
+GROK: GNOME on Wayland can support primary selection — but it's disabled by default. Here's how to enable auto-copy on highlight:
+
+
+::
+
+    gsettings set org.gnome.desktop.interface gtk-enable-primary-paste true
+       ## This enables primary selection support in all GTK apps (including GNOME Terminal).
+
+    gsettings set org.gnome.Terminal.Legacy.Settings auto-copy true
+       ## Highlight text → automatically copied to clipboard (Ctrl+Shift+V works)
+       ## Also goes to primary selection → middle-click or Shift+Insert works  
+
+       ## THIS DOES NOT WORK ON MODERN GNOME
+
+
+sudo dnf install tilix
+
+
+
+
+
+
+
+
+
 Open terminal windows on workstation from ssh session
 ------------------------------------------------------
 
