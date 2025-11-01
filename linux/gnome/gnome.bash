@@ -38,12 +38,15 @@ GROK: GNOME on Wayland can support primary selection — but it's disabled by de
        ## THIS DOES NOT WORK ON MODERN GNOME
 
 
-sudo dnf install tilix
+With tilix
+~~~~~~~~~~~
 
+::
 
+    sudo dnf install tilix
 
-
-
+* Open → Preferences → Profiles → Command → Check "Copy on selection".
+* https://gnunn1.github.io/tilix-web/manual/vteconfig/
 
 
 
