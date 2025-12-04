@@ -1629,6 +1629,8 @@ presentation-rst2talk-(){
 #presentation-iname(){ echo ${INAME:-opticks_20250708} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20250727_kaiping} ; }
 #presentation-iname(){ echo ${INAME:-opticks_202509YY} ; }
-presentation-iname(){ echo ${INAME:-opticks_20250917_dirac_workshop_ihep} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20250917_dirac_workshop_ihep} ; }
+
+presentation-iname(){ echo ${INAME:-opticks_20251208_ihep_assessment_5min} ; }
 
 

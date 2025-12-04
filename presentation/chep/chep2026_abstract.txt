@@ -1,0 +1,43 @@
+
+https://indico.cern.ch/event/1471803/abstracts/
+
+Please draft a CHEP 2026 conference abstract for a presentation of 
+progress with Opticks and its usage together with the JUNO simulation
+software. The recommended length of an abstract is 100-250 words.
+The abstracts should clearly highlight new methods/results developed
+in addition to introducing Opticks. 
+
+The new developments listed below were motivated by mainly from 
+feedback from JUNO users doing simulation production.
+
+
+* new measurements of JUNOSW+Opticks performance in production
+
+* integration of Opticks build, test and release with JUNOSW gitlab based CI/CD system
+
+* stress testing Opticks simulation with 8.25 billion photon events in order to 
+  cleanly handle the largest of double and multiple muon events
+
+* addition of 16 byte photon rather than the normal 64 byte photon giving option 
+  for reduced resource simulation when summary information is required, 
+  eg for very large photon count events
+
+* implementation of CUDA Thrust based hit merging, using thrust::sort_by_key
+  and thrust::reduce_by_key giving  
+
+
+The below developments are not as well developed as the above. So they should
+be mentioned as being experimental in nature.
+
+* implementation of server/client Opticks, using FastAPI python server integrated with Opticks via 
+  nanobind. This enables non-GPU nodes to benefit from Opticks GPU acceleration via libcurl based 
+  communication to Opticks server, increases GPU utilization. 
+
+
+Just an idea, so far:
+
+* progressive async CUDA launches doing GPU optical photon simulation that overlaps 
+  with the Geant4 simulation of all other particles 
+
+
+

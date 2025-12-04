@@ -7,6 +7,69 @@ chep-notes(){ cat << EON
 
 
 
+
+
+CHEP 2026
+============
+
+* https://indico.cern.ch/event/1471803/abstracts/
+
+
+Dear All,
+
+The next Conference on Computing in High Energy and Nuclear Physics (CHEP) will take place at
+Chulalongkorn University in Bangkok, Thailand, from 25-29 May 2026.
+
+As you know, CHEP is the forum for discussing computing, networking, and software challenges of large-scale,
+data-intensive scientific experiments in high-energy and nuclear physics, experiments that process and analyze
+exabytes of data using globally distributed resources. Beyond HEP, the conference welcomes contributions from
+a wide range of data-intensive and large-scale data processing fields. It offers an excellent opportunity for
+interdisciplinary exchange, including (but not limited to) applications in astronomy, biology, medicine, and quantum computing.
+
+Further details are available on the conference Indico page:
+https://indico.cern.ch/e/chep2026
+The first bulletin and poster are attached with this email and highlights the key dates [1].
+Please note that registration and abstract submission will open on 1 October 2025.
+
+We would be grateful if you could share this announcement with your community.
+
+We look forward to welcoming you to Bangkok in 2026!
+
+Best,
+Phat S. (on behalf of the Local Organization Committee)
+
+[1]
+Key dates:
+1 October 2025: Abstract submission opens
+1 October 2025: Conference registration opens
+1 November 2025: Payment opens (Credit card or transfer are accepted)
+19 December 2025: Abstract submission deadline
+16 February 2026: Notification of abstract acceptance
+16 March 2026: Early registration deadline
+27 April 2026: Final registration deadline
+25-29 May 2026: CHEP 2026 Conference. See you in Bangkok, THAILAND!
+
+----------------------------------------------
+SRIMANOBHAS Phat
++++++++++++++++++++++
+Department of Physics,
+Faculty of Science,
+Chulalongkorn University,
+Pathum Wan, Bangkok, Thailand 10330
+Tel: +66-(0)2-218-7693
+Email: norraphat.s@chula.ac.th
++++++++++++++++++++++
+CERN
+1211 Geneva 23, Switzerland
+CMS Collaboration
+Office: 40-5-A27
+Tel: +41-(0)75-411-2121
+Email: phat.s@cern.ch
+----------------------------------------------
+
+
+
+
 CHEP Proceedings 2024
 ======================
 
