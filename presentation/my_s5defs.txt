@@ -63,7 +63,27 @@
 
 .. |CK| unicode:: U+0010C  .. https://en.wikipedia.org/wiki/Č
 
-.. |emsp| unicode:: U+2003   .. whitespace
+.. |emsp| unicode:: U+2003 .. em space
+
+.. |ensp| unicode:: U+2002 .. en space 0.5em
+
+.. |trsp| unicode:: U+2004 .. three-per-em space
+
+.. |fosp| unicode:: U+2005 .. four-per-em space
+
+.. |fgsp| unicode:: U+2007 .. figure space
+
+.. |thsp| unicode:: U+2009 .. thin space
+
+.. |hisp| unicode:: U+200A .. hair space
+
+.. |mbsp| unicode:: U+00A0 .. non-breaking space  0.25em
+
+.. |idsp| unicode:: U+3000 .. ideographic space 2em
+
+
+
+
 
 .. |nbsp10| unicode:: U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 .. 10 nbsp fail to add up  
 

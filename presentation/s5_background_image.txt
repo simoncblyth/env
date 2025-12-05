@@ -2995,6 +2995,10 @@
     WaterDistributor Overlap
     GEOM/J25_4_0_opticks_Debug/cxr_min_cxt_min/WaterDistributor/20251009_150312.png 
 
+    2025 : Progress from EIC-Opticks Fork  (Electron-Ion Collider)
+    eic-opticks/Gabor_Galgoczi_BNL_Geant4_technical_forum_EIC_Opticks_p1.png 640px_360px 0px_360px
+    eic-opticks/Gabor_Galgoczi_BNL_Geant4_technical_forum_EIC_Opticks_p2.png 640px_360px 640px_360px
+
     ## HUH : NOT APPEARING IN SLIDE BACKGROUND : BUT URL OK
     ##
     ##  http://localhost/env/presentation/GEOM/J25_4_0_opticks_Debug/cxr_min/SPMT_cxs/20250722_155442.png
