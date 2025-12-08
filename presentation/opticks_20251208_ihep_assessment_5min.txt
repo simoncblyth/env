@@ -4,6 +4,7 @@
    :note0: 5+2 min 
    :url: https://indico.ihep.ac.cn/event/24089/timetable/
    :note1: December 8th, 1 PM, Main Building B410 Conference Room
+   :note2: https://indico.ihep.ac.cn/event/28043/contributions/208356/attachments/98153/130211/opticks_20251208_ihep_assessment_5min.pdf
 
 
 .. include:: my_s5defs.txt
@@ -19,7 +20,7 @@
     <h1 style="background-color:lightgrey;text-align:center;"> 
         <i>Simon C. Blyth</i> : IHEP Assessment Report 2025 
         <h2 style="background-color:lightgrey;text-align:center">
-            Open source, https://bitbucket.org/simoncblyth/opticks 
+            Open source, https://github.com/simoncblyth/opticks  
         </h2>
     </h1>
     </header>
@@ -32,6 +33,11 @@
     </div>
 
 .. s5_talk:: 
+
+   Opticks applies GPU ray tracing to optical photon simulation.
+
+
+.. comment
 
    Opticks is an open source package that applies GPU ray tracing to optical photon simulation.
 
@@ -138,7 +144,7 @@ Standard Outline
 
 .. s5_talk::
 
-   * My primary aim is to maximize Opticks benefits to JUNO and other experiments. 
+   * My task is to maximize Opticks benefits to JUNO and other experiments. 
 
 
 
@@ -172,7 +178,7 @@ Standard Outline
 
 .. s5_talk::
 
-   Opticks solves the problem of optical photon simulation by offloading to the GPU
+   Opticks solves the optical photon simulation problem by offloading to the GPU
 
 .. comment
 
@@ -200,13 +206,24 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 .. class:: tiny
 
     [1] Actual performance depends on geometry and its modelling, JUNO optical simulation speedups > 1000x Geant4 have been measured  
+
+
+
  
 .. s5_talk::
 
-    Opticks enables the ray tracing performance of NVIDIA OptiX to be applied to Optical photon simulation, 
-    by integrating GPU ray tracing with Geant4
+   Opticks integrates GPU ray tracing with Geant4 simulation. 
+
 
 .. comment    
+
+   Thus crucially requires translation of the geometry into a GPU appropriate form.
+
+
+.. comment    
+
+    Opticks enables the ray tracing performance of NVIDIA OptiX to be applied to Optical photon simulation, 
+    by integrating GPU ray tracing with Geant4
 
     * This shows how Opticks integrates Geant4 simulations with NVIDIA OptiX GPU ray tracing.  
     * The most crucial part is the translation of geometry into the form needed on the GPU 
@@ -244,7 +261,12 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-   Progress this year has been directed by the experience of using Opticks in simulation production
+   My work has been directed by production experience in three areas:
+  
+   * supporting summary hits
+   * removing limits
+   * hit merging on GPU
+ 
 
 
 :i:`GEOM_J25_4_0_opticks_Debug_cxr_min_muon_cxs_20250707_112242.png` 
@@ -255,8 +277,7 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-   The extreme numbers of hits resulting from muons crossing the JUNO scintillator, 
-   mean that merging hits together is usually done for data reduction.   
+   Klop
 
 
 .. comment
@@ -295,7 +316,8 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-    Large counts ...
+   The extreme numbers of hits resulting from muons crossing the JUNO scintillator, 
+   mean that merging hits together is typically used for data reduction.
 
 
 
@@ -340,7 +362,7 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-   This illustrates how the merging is implemented using CUDA Thrust 
+   The key to GPU hit merging is this bitwise OR of pmtid and timebucket.
 
 
 
@@ -404,16 +426,19 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
     These tables compare the timings for simulation of one double muon event with 150M photons.
 
-    It takes several minutes to merge 28M hits down to 6M on the CPU. 
+    Taking a few minutes to merge:
 
-    * Thats not a problem when compared to several hours of simulation time
-    * But its devastating when compared to 20-30 seconds of GPU simulation time      
+    * is no problem compared to several hours
+    * BUT it swamps 23 seconds of kernel simulation time     
 
-    This slow CPU merge was previously hiding Opticks performance.  I have avoided this
-    problem by implementing hit merging on the GPU.  The time to do the GPU merge is a 
-    fraction of a second which is more than made up for by the reduced download.
+    This was previously hiding Opticks performance.  
+    I avoided this by implementing GPU hit merging.  
 
-    The result is that overall speedup is more than a factor of 200.  
+    GPU merge time of a fraction of a second is more than made up for by 
+    reduced download time and drastically faster hit collection.
+
+    Overall simulation speedup is more than a factor of 200.  
+
     Simulations ordinarily taking 2 hours, can be completed in 30 s with Opticks.
 
 
@@ -461,8 +486,11 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-   Other work includes finding and fixing geometry issues, and development of Opticks-as-a-service.
+   Other work includes:
 
+   * finding and fixing geometry issues
+   * automated releases onto /cvmfs
+   * development of Opticks-as-a-service.
 
 
 :small:`2025 : JUNO+Opticks Geom Fixes`
@@ -512,6 +540,8 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
    
     Geometry bugs this year include, mis-oriented PMTs, broken Chimney and overlapped Water Distruibutor
 
+.. comment
+
     * to help with overlap checking, I developed a way to find overlaps between pairs of ray traced point clouds
       using KDTree to accelerate finding nearest neighbors in the other point cloud.
 
@@ -542,7 +572,7 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. s5_talk::
 
-    How to scale Opticks when GPU resources are constrained is an important question. 
+    How best to scale Opticks is an open question ? Monolithic scaling is the obvious way. 
 
 .. comment
 
@@ -557,13 +587,16 @@ OpticksClients + OpticksService : Share GPUs
 ------------------------------------------------------
 
 
-
 .. s5_talk::
+
+    Potentially adding flexibility with GPU-less clients communicating
+    with a server over network may increase throughput for some event sizes.  
+
+.. comment
 
     Splitting Opticks into into GPU-less clients and server may be able more
     efficient usage of GPUs.
 
-.. comment
 
     GPU-less clients sharing a service via HTTP POST allows increasing GPU utilization.
 
@@ -633,7 +666,7 @@ Split Workflow : Share GPUs between OpticksClients
 
 .. s5_talk::
 
-   This development is at proto-typing stage
+   This server-client development is at proto-typing stage
 
 
 .. comment
@@ -648,11 +681,6 @@ Split Workflow : Share GPUs between OpticksClients
     I will also try C++ web frameworks like Drogon,
     as getting async compute to work might be easier 
     without the complication of language barriers and binding.
-
-
-
-
-
 
 
 
@@ -694,12 +722,15 @@ Split Workflow : Share GPUs between OpticksClients
 
 .. s5_talk::
 
-   * Almost all Opticks development is innovative,  
-   * for example interactive ray traced vizualizations enabled me to confirm issues just by visual inspection
-   * possible as vizualization and simulation use the same intersect code
+   * Most Opticks development is innovative, such as GPU hit merging and server/client simulation
 
 
 .. comment
+
+   * for example interactive ray traced vizualizaddtions enabled me to confirm issues just by visual inspection
+   * possible as vizualization and simulation use the same intersect code
+
+
 
     * shared analytic CPU/GPU geometry model
 
@@ -750,7 +781,7 @@ Split Workflow : Share GPUs between OpticksClients
 
 .. s5_talk::
 
-   * my last Opticks proceedings paper has been getting attention
+   * my CHEP proceedings paper has been getting attention
 
 
 
@@ -821,7 +852,7 @@ Split Workflow : Share GPUs between OpticksClients
 
 .. s5_talk::
 
-    2025 saw a PhD Thesis using Opticks and a publication 
+    This year a PhD Thesis and EPJ paper based on Opticks were published
 
 
 :small:`2025 : Progress from EIC-Opticks Fork  (Electron-Ion Collider)`
@@ -845,7 +876,7 @@ Split Workflow : Share GPUs between OpticksClients
 
 .. s5_talk::
 
-   Progress of EIC-Opticks fork
+   Also there has been progress with an EIC-Opticks fork
 
 
 Funding Supporting my work on Opticks
@@ -883,8 +914,8 @@ Funding Supporting my work on Opticks
 
 .. s5_talk::
 
-   * Opticks has strong funding potential, because its innovative and has immediate benefits
-   * but, I need lots of help to find and apply for grants
+   * This table lists funding supporting my work
+
 
 
 :small:`Academic Exchanges : GPU symposium + DIRAC Workshop + JUNO mtg.`
@@ -993,10 +1024,8 @@ Funding Supporting my work on Opticks
 
 .. s5_talk::
 
-   Support activities included 
+   Service work : assisting with JUNO geometry and supporting Opticks usage
 
-   * re-implementing parts of the JUNO geometry 
-   * working with students and Opticks users 
 
 
 
@@ -1031,7 +1060,12 @@ III. Existing problems
 
 .. s5_talk::
 
-   * Primary problem is too much work that only I can do.  
+   * Primary problem is lack of people working on Opticks, in an environment 
+     where JUNO continues to change
+
+
+.. comment
+
    * Its difficult to make progress while JUNO keeps changing and providing more issues. 
    * Have to swim against the stream of issues just to stay in the same place. 
 
@@ -1193,6 +1227,13 @@ III. Existing problems
 
 
 .. s5_talk::
+
+    Addition of GPU hit merging avoids obscuring Opticks performance, and prevents
+    optical photons from limiting simulation with more than 200x overall speedup
+    going from hours to seconds. 
+
+
+.. comment
 
     I end with some links : Opticks can make simulation unlimited by optical photons
 
