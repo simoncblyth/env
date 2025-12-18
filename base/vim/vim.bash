@@ -13,6 +13,15 @@ VIM Tips
 
 
 
+insert name of current file into the buffer while editing in vim
+-------------------------------------------------------------------
+
+1. enter insert mode, "i"
+2. type ctrl-R (a funny blue character appears at cursor position)
+3. enter % (the funny blue character us replaced by current file name)
+
+   * eg "base/vim/vim.bash"
+
 
 "vim redraw time exceeded syntax highlighting disabled"
 ---------------------------------------------------------
@@ -39,12 +48,12 @@ goto byte in file
     UnicodeDecodeError: 'utf-8' codec can't decode bytes in position 964-965: invalid continuation byte
 
 ::
-   
+
     goto 964
 
-    zeta:home blyth$ xxd -c 32 -d -s 963 -l 1 /usr/local/home/sysadmin/backup/homersync/blyth/homersync-stay-MIGRATION-EPSILON-TO-ZETA.log 
-    00000963: 0a   
-     
+    zeta:home blyth$ xxd -c 32 -d -s 963 -l 1 /usr/local/home/sysadmin/backup/homersync/blyth/homersync-stay-MIGRATION-EPSILON-TO-ZETA.log
+    00000963: 0a
+
 
 
 replace trailing whitespace
@@ -97,8 +106,8 @@ as "os," use the abbreviate command like this:
 
 Abbrev work when disable everything::
 
-   vim -u NONE yeto.txt 
-   vim --clean  te.txt  
+   vim -u NONE yeto.txt
+   vim --clean  te.txt
 
 
 
@@ -148,15 +157,15 @@ delete multiple lines
 ------------------------
 
 ::
- 
-    4dd   # delete four lines starting from current one 
+
+    4dd   # delete four lines starting from current one
 
 
 
 replace spaces on line with newlines
 ----------------------------------------
 
-This is very handy for making VERBOSE=1 make commands understandable:: 
+This is very handy for making VERBOSE=1 make commands understandable::
 
     :s/ /^M/g        ## enter the ^M with  ctrl-V return
 
@@ -179,7 +188,7 @@ Change default in ~/.vimrc with diffopt::
 Toggle between them with:
 
 1. ctrl-w J    (NB need to press shift to get the capital J)
-2. ctrl-w H or ctrl-w L 
+2. ctrl-w H or ctrl-w L
 
 
 delete a range of lines by line number
@@ -187,14 +196,14 @@ delete a range of lines by line number
 
 ::
 
-   1,10357d 
+   1,10357d
 
 
 count words
 -------------
 
-* to count all words in buffer, press: g ctrl-g 
-* to count all words in selected block, make the selection and then press: g ctrl-g 
+* to count all words in buffer, press: g ctrl-g
+* to count all words in selected block, make the selection and then press: g ctrl-g
 
 
 replace a wildcarded string with spaces : eg name with a reference
@@ -202,7 +211,7 @@ replace a wildcarded string with spaces : eg name with a reference
 
 ::
 
-   :.,688s/0x\S*/         /gc 
+   :.,688s/0x\S*/         /gc
 
 
 viminfo error
@@ -216,8 +225,8 @@ Get error at exit::
 Can avoid by updating the token with kklog::
 
     L7[blyth@lxslc710 ~]$ t kklog
-    kklog () 
-    { 
+    kklog ()
+    {
         type $FUNCNAME && kinit blyth && aklog -d
     }
 
@@ -251,10 +260,10 @@ moving around the line shortcuts
 ---------------------------------
 
 0 : start of line
-$ : end of line 
-^ : first non blanck character on line 
-g_ : last non blank character on line 
- 
+$ : end of line
+^ : first non blanck character on line
+g_ : last non blank character on line
+
 
 trim trailing whitespace
 ---------------------------
@@ -263,7 +272,7 @@ trim trailing whitespace
 
    :%s/\s\+$//e
 
-   #e: avoids giving error when no match 
+   #e: avoids giving error when no match
 
 * https://vi.stackexchange.com/questions/454/whats-the-simplest-way-to-strip-trailing-whitespace-from-all-lines-in-a-file
 
@@ -272,15 +281,15 @@ trim trailing whitespace
 vimdiff high level tips
 --------------------------
 
-0. open all folds with (zR) 
+0. open all folds with (zR)
 1. have one of the files a temporay and push to it as you go to reduce differnces
-2. when pulling in a new block from the other with "do" it doent work from the top, 
-   position cursor at the bottom of the blue missing diff region 
+2. when pulling in a new block from the other with "do" it doent work from the top,
+   position cursor at the bottom of the blue missing diff region
 
-3. feel free to add spaces to make the diffs line up more simply, use :diffupdate 
+3. feel free to add spaces to make the diffs line up more simply, use :diffupdate
 
 
-4. "dp" diffput  
+4. "dp" diffput
 5. "do" diffobtain
 
 
@@ -291,7 +300,7 @@ merging files with vimdiff : worked example
 ::
 
     epsilon:~ blyth$ jps
-    epsilon:PMTSim blyth$  
+    epsilon:PMTSim blyth$
     epsilon:PMTSim blyth$ jdiff NNVTMaskManager
     diff /Users/blyth/junotop/offline/./Simulation/DetSimV2/PMTSim/include/NNVTMaskManager.hh /Users/blyth/j/PMTSim/NNVTMaskManager.hh
     diff /Users/blyth/junotop/offline/./Simulation/DetSimV2/PMTSim/src/NNVTMaskManager.cc /Users/blyth/j/PMTSim/NNVTMaskManager.cc
@@ -300,11 +309,11 @@ merging files with vimdiff : worked example
 
 
 1. not folding makes diffs and merges clearer as it avoids the code jumping around
-2. decide which file you are going to change and focus on grabbing what is useful from the 
-   other file entering "do" (diff-obtain) with cursor placed on line below the cyan missing block  
+2. decide which file you are going to change and focus on grabbing what is useful from the
+   other file entering "do" (diff-obtain) with cursor placed on line below the cyan missing block
 3. many diffs without overlaps between changes will be simply done with "do" from the target buffer
 4. dont be shy about having duplication between macro blocks if it makes the diffs simpler
-5. use ":diffupdate" to update the coloring after making edits with "do" or "dp" 
+5. use ":diffupdate" to update the coloring after making edits with "do" or "dp"
 
 
 
@@ -328,14 +337,14 @@ vd(){ vimdiff -c "windo set nofoldenable" $* ; }
 
    ctrl-WW  : jump between files   : need to do this to "u" undo a "dp" change into the other file
 
-   zR       (directly not :zR)   opens all the folds  : this helps because it prevents jumping around when moving changes  
+   zR       (directly not :zR)   opens all the folds  : this helps because it prevents jumping around when moving changes
 
    ]c    next diff
    [c    prev diff
 
    :diffget        do   (diff-obtain)     when obtaining from other buffer must place cursor one line beneath the cyan block of missing lines
    :diffput        dp   (diff-put)        when putting to the other buffer can put cursor on the cyan block
-   :diffupdate        
+   :diffupdate
 
 
    vimdiff -c "windo set nofoldenable"
@@ -351,10 +360,10 @@ Remove Trailing Whitespace
    :%s/\s\+$//g
    :%s/\s\+$//ge    # dont give error when not found
 
-   :%s/\s\+$//g     # its necessary to escape the + 
+   :%s/\s\+$//g     # its necessary to escape the +
 
 
-Remote Editing 
+Remote Editing
 ----------------
 
 * https://medium.com/usevim/vim-101-editing-remote-files-a6d2f9c8d9fb
@@ -371,7 +380,7 @@ Deleting a range of lines without using visual selection
 ::
 
    :.,+10d        # delete the next 10 lines
-   :1,1000d       # delete first 1000 lines 
+   :1,1000d       # delete first 1000 lines
 
 
 Remember last edit location in file and return there on opening
@@ -402,7 +411,7 @@ Enable spell checking with::
 Navigate:
 
    ]s   ## move to next "mispelled" word
-   zg   ## add current selected mispelling to ok list 
+   zg   ## add current selected mispelling to ok list
 
 
 
@@ -432,9 +441,9 @@ Vim ways to do this either need plugins or look too involved, so do on command l
         DBNS_HALL5_TEMP DBNS_H5_Temp_PT1            Low!!!             -1.00   2016-05-06 20:05:26
         DBNS_HALL5_TEMP        DBNS_H5_Temp_PT4            Low!!!             -1.00   2016-05-06 20:05:26
         DBNS_HALL5_TEMP        DBNS_H5_Temp_PT2            Low!!!             -1.00   2016-05-06 20:05:26
-        DBNS_HALL5_TEMP        DBNS_H5_Temp_PT3            Low!!!             -1.00   2016-05-06 20:05:26 
+        DBNS_HALL5_TEMP        DBNS_H5_Temp_PT3            Low!!!             -1.00   2016-05-06 20:05:26
 
-    delta:~ blyth$ pbpaste | column -t 
+    delta:~ blyth$ pbpaste | column -t
     DBNS_HALL5_TEMP  DBNS_H5_Temp_PT1  Low!!!  -1.00  2016-05-06  20:05:26
     DBNS_HALL5_TEMP  DBNS_H5_Temp_PT4  Low!!!  -1.00  2016-05-06  20:05:26
     DBNS_HALL5_TEMP  DBNS_H5_Temp_PT2  Low!!!  -1.00  2016-05-06  20:05:26
@@ -448,7 +457,7 @@ Key remapping now that w key is playing up, to move between splits
 * https://stackoverflow.com/questions/3776117/what-is-the-difference-between-the-remap-noremap-nnoremap-and-vnoremap-mapping
 
 nnoremap
-   is a normal mode non-recursive mapping 
+   is a normal mode non-recursive mapping
 
 Add to .vimrc::
 
@@ -475,7 +484,7 @@ Perl Tricks
 
 String replacement in all files containing the string::
 
-    simon:opticks blyth$ opticks-lfind NGLMStream 
+    simon:opticks blyth$ opticks-lfind NGLMStream
     ./opticksnpy/tests/NBBoxTest.cc
     ./opticksnpy/tests/NBoxTest.cc
     ./opticksnpy/tests/NFieldGrid3Test.cc
@@ -499,7 +508,7 @@ String replacement in all files containing the string::
 
 
 
-How to paste a column in blockwise (rather than tedious linewise fashion) using VISUAL BLOCK 
+How to paste a column in blockwise (rather than tedious linewise fashion) using VISUAL BLOCK
 ---------------------------------------------------------------------------------------------
 
 * https://stackoverflow.com/questions/9120552/how-do-i-paste-a-column-of-text-after-a-different-column-of-text-in-vim
@@ -507,15 +516,15 @@ How to paste a column in blockwise (rather than tedious linewise fashion) using 
 
 TIPS:
 
-* make sure there are spaces on the last line of the block to be cut and pasted 
-  that cover the entire maximum width of the block 
+* make sure there are spaces on the last line of the block to be cut and pasted
+  that cover the entire maximum width of the block
 
 * VISUAL-BLOCK (ctrl-v) is not the same as the usual VISUAL (v) mode
 
 
 ::
 
-    Names                
+    Names
     Donald Knuth
     Sebastian Thrun
     Peter Norvig
@@ -528,7 +537,7 @@ TIPS:
     45
 
 
-    Names                    Age 
+    Names                    Age
     Donald Knuth             100
     Sebastian Thrun          50
     Peter Norvig             60
@@ -539,17 +548,17 @@ TIPS:
 1. Yank it in visual mode:
 
    * Move cursor to the beginning of Age
-   * Press Ctrl + v to enter *VISUAL BLOCK* mode 
-     (a rectangular block should highlight, that you adjust via cursor positioning)  
+   * Press Ctrl + v to enter *VISUAL BLOCK* mode
+     (a rectangular block should highlight, that you adjust via cursor positioning)
    * Move cursor to 5 in 45
    * Press y to yank (or d to delete), you have now yanked in visual mode.
 
 2. Paste (in normal mode)
 
-   * Move to the end of the first line and add more spaces because it's shorter than the second line for example. 
+   * Move to the end of the first line and add more spaces because it's shorter than the second line for example.
      If you paste a "block" without adding extra spaces, it will overwrite the "run" in Sebastian Thrun.
 
-   * Now you're on the first line, insert a few spaces after the last character. 
+   * Now you're on the first line, insert a few spaces after the last character.
      Make sure you're not in insert mode and hit p to paste the block. (If you want to paste in insert mode, use ctrl+r ")
 
 
@@ -575,35 +584,35 @@ TEST else if replace
     355 int spath_test::ALL()
     356 {
     357     int rc = 0 ;
-    358     
+    358
     359     rc += Resolve_defaultOutputPath() ;
     360     rc += Resolve_with_undefined_token();
     361     rc += Resolve_with_undefined_TMP();
     362     rc += Resolve_inline();
-    363     rc += ResolveToken(); 
-    364     rc += Resolve(); 
-    365     rc += Exists(); 
-    366     rc += Exists2(); 
-    367     rc += Basename(); 
-    368     rc += Name(); 
-    369     rc += Remove(); 
-    370     rc += IsTokenWithFallback(); 
-    371     rc += ResolveTokenWithFallback(); 
-    372     rc += _ResolveToken(); 
-    373     rc += Resolve(); 
-    374     rc += ResolveToken1(); 
-    375     rc += Resolve1(); 
-    376     rc += _Check(); 
-    377     rc += Write(); 
-    378     
+    363     rc += ResolveToken();
+    364     rc += Resolve();
+    365     rc += Exists();
+    366     rc += Exists2();
+    367     rc += Basename();
+    368     rc += Name();
+    369     rc += Remove();
+    370     rc += IsTokenWithFallback();
+    371     rc += ResolveTokenWithFallback();
+    372     rc += _ResolveToken();
+    373     rc += Resolve();
+    374     rc += ResolveToken1();
+    375     rc += Resolve1();
+    376     rc += _Check();
+    377     rc += Write();
+    378
     379     return rc ;
-    380 }   
-    381 
-    382 
+    380 }
+    381
+    382
     383 int spath_test::Main()
     384 {
     385     const char* TEST = ssys::getenvvar("TEST", "Resolve_defaultOutputPath" );
-    386     
+    386
     387     int rc = 0 ;
     388     if(     strcmp(TEST, "Resolve_defaultOutputPath")==0 )   rc = Resolve_defaultOutputPath();
     389     else if(strcmp(TEST, "Resolve_with_undefined_token")==0) rc = Resolve_with_undefined_token();
@@ -624,13 +633,13 @@ TEST else if replace
     404     else if(strcmp(TEST, "Resolve1")==0) Resolve1();
     405     else if(strcmp(TEST, "_Check")==0) _Check();
     406     else if(strcmp(TEST, "Write")==0) Write();
-    407     
-    408     
-    409 
+    407
+    408
+    409
     :392,408s/^\(\s*\)rc = \(\w*\)();.*$/\1else if(strcmp(TEST, "\2")==0) \2();/gc
 
 
-    ## \1 : leading whitespace 
+    ## \1 : leading whitespace
     ## \2 : method name with brackets excluded
 
     ## actually not quite : missed the "rc = " fixed that with below
@@ -643,10 +652,10 @@ add std::setw after first stream chevron on the line
 
 ::
 
-     263     std::cout 
+     263     std::cout
      264         << " wavelength " << wavelength << std::endl
 
-     263     std::cout 
+     263     std::cout
      264         << std::setw(w) << " wavelength " << wavelength << std::endl
 
 ::
@@ -658,7 +667,7 @@ add std::setw after first stream chevron on the line
 
 
 
-    # NB: must escape the capturing bracket 
+    # NB: must escape the capturing bracket
 
 
 add a parameter to a method call
@@ -678,12 +687,12 @@ vim substitute this line only
    :s/cls/self/g
 
 
-switch case into else if 
+switch case into else if
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-   :.,+20s/\s*case \(\S*\):\s*$/else if(node->type == \1)/gc 
+   :.,+20s/\s*case \(\S*\):\s*$/else if(node->type == \1)/gc
 
 
 enum into switch
@@ -704,9 +713,9 @@ Replace enum codes starting ERROR in the next 10 lines with string consts::
 For example replacing::
 
      enum {
-         ERROR_LHS_POP_EMPTY         = 0x1 << 0,  
-         ERROR_RHS_POP_EMPTY         = 0x1 << 1,  
-         ERROR_LHS_END_NONEMPTY      = 0x1 << 2,  
+         ERROR_LHS_POP_EMPTY         = 0x1 << 0,
+         ERROR_RHS_POP_EMPTY         = 0x1 << 1,
+         ERROR_LHS_END_NONEMPTY      = 0x1 << 2,
          ERROR_RHS_END_EMPTY         = 0x1 << 3,
          ERROR_BAD_CTRL              = 0x1 << 4,
          ERROR_LHS_OVERFLOW          = 0x1 << 5,
@@ -737,7 +746,7 @@ Similarly replace enum with stringstream-ing the consts::
 
     .,+10s/\s*\(ERROR\w*\).*$/if(err \& \1 ) ss << \1_ << " " ;/gc
 
-    enum { 
+    enum {
     if(err & ERROR_LHS_POP_EMPTY ) ss << ERROR_LHS_POP_EMPTY_ << " " ;
     if(err & ERROR_RHS_POP_EMPTY ) ss << ERROR_RHS_POP_EMPTY_ << " " ;
     if(err & ERROR_LHS_END_NONEMPTY ) ss << ERROR_LHS_END_NONEMPTY_ << " " ;
@@ -756,10 +765,10 @@ Similarly replace enum with stringstream-ing the consts::
 Switch text to lower/upper case
 --------------------------------
 
-Visually select, then  
+Visually select, then
 
-* U to convert to uppercase 
-* u to convert to lowecase 
+* U to convert to uppercase
+* u to convert to lowecase
 
 
 
@@ -783,21 +792,21 @@ Copying Lines Around
       3 #else
       4 NMeta* getParam();
       5 #endif
-      6 
-      7 
-      8 
-      9 // <---- the line after which to insert in 9  
+      6
+      7
+      8
+      9 // <---- the line after which to insert in 9
      10 BParameters* getParamA();
-     11 
-     12 
-     13 
-     14 
+     11
+     12
+     13
+     14
      15 BParameters* getParamB();
-     16 
-     17 
-     18 
-     19 
-        
+     16
+     17
+     18
+     19
+
 
 Then 1t9 copying line 1 to be inserted after line 9 (and before line 10)::
 
@@ -806,24 +815,24 @@ Then 1t9 copying line 1 to be inserted after line 9 (and before line 10)::
       3 #else
       4 NMeta* getParam();
       5 #endif
-      6 
-      7 
-      8 
-      9 
+      6
+      7
+      8
+      9
      10 #ifdef OLD_PARAMETERS
      11 BParameters* getParamA();
-     12 
-     13 
-     14 
-     15 // <--- the line after which to insert is 15 
+     12
+     13
+     14
+     15 // <--- the line after which to insert is 15
      16 BParameters* getParamB();
-     17 
-     18 
-     19 
-     20 
-     21 
-     22 
-      
+     17
+     18
+     19
+     20
+     21
+     22
+
 Then 1t15 copying line 1 to the line after 15 in the above::
 
       1 #ifdef OLD_PARAMETERS
@@ -831,24 +840,24 @@ Then 1t15 copying line 1 to the line after 15 in the above::
       3 #else
       4 NMeta* getParam();
       5 #endif
-      6 
-      7 
-      8 
-      9 
+      6
+      7
+      8
+      9
      10 #ifdef OLD_PARAMETERS
      11 BParameters* getParamA();
-     12 
-     13 
-     14 
-     15 
+     12
+     13
+     14
+     15
      16 #ifdef OLD_PARAMETERS
      17 BParameters* getParamB();
-     18 
-     19 
-     20 
-     21 
-     22 
-     23 
+     18
+     19
+     20
+     21
+     22
+     23
 
 Now copy an inclusive range of lines :3,5t11 to the line after 11 and before 12::
 
@@ -857,26 +866,26 @@ Now copy an inclusive range of lines :3,5t11 to the line after 11 and before 12:
       3 #else
       4 NMeta* getParam();
       5 #endif
-      6 
-      7 
-      8 
-      9 
+      6
+      7
+      8
+      9
      10 #ifdef OLD_PARAMETERS
      11 BParameters* getParamA();
      12 #else
      13 NMeta* getParam();
      14 #endif
-     15 
-     16 
-     17 
-     18 
+     15
+     16
+     17
+     18
      19 #ifdef OLD_PARAMETERS
      20 BParameters* getParamB();
-     21 
-     22 
-     23 
-     24 
-     25 
+     21
+     22
+     23
+     24
+     25
 
 
 
