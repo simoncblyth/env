@@ -21,6 +21,40 @@ PDF documents at
 
 
 
+Dec 2025 : on new laptop : fail to resolve
+--------------------------------------------
+
+::
+
+    zeta:~ blyth$ find /usr/local/simoncblyth.github.io/ -name jpmt-before-contact_half.png
+    /usr/local/simoncblyth.github.io/env/graphics/ggeoview/jpmt-before-contact_half.png
+
+::
+
+    zeta:chep2024 blyth$ grep includegraphics opticks-blyth-chep2024-v2.tex
+    \includegraphics[width=\textwidth,clip]{env/graphics/ggeoview/jpmt-before-contact_half.png}
+    \includegraphics[width=\textwidth,trim={0 4cm 0 4cm},clip]{env/Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png}
+    \includegraphics[width=\textwidth,clip]{/env/presentation/GEOM/J_2024aug27/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0p5__sSurftube_0V1_0:0:-100000.jpg}
+    \includegraphics[width=\textwidth,clip]{/env/presentation/GEOM/J_2025jan08/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0p5__NNVT:0:000000.jpg}
+    \includegraphics[width=\textwidth,trim={0 0 0 4cm},clip]{env/presentation/GEOM/J_2024aug27/CSGOptiXSMTest/ALL1_sreport/figs/sreport_ab/mpcap/AB_Substamp_ALL_Etime_vs_Photon_rtx_gen1_gen3.png}
+    zeta:chep2024 blyth$ 
+
+Changed to make all use "env" relative form, and updated epjconf-figdir::
+
+    zeta:chep2024 blyth$ grep includegraphics opticks-blyth-chep2024-v2.tex
+    \includegraphics[width=\textwidth,clip]{env/graphics/ggeoview/jpmt-before-contact_half.png}
+    \includegraphics[width=\textwidth,trim={0 4cm 0 4cm},clip]{env/Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png}
+    \includegraphics[width=\textwidth,clip]{env/presentation/GEOM/J_2024aug27/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0p5__sSurftube_0V1_0:0:-100000.jpg}
+    \includegraphics[width=\textwidth,clip]{env/presentation/GEOM/J_2025jan08/CSGOptiXRenderInteractiveTest/cxr_min__eye_1,0,0__zoom_1__tmin_0p5__NNVT:0:000000.jpg}
+    \includegraphics[width=\textwidth,trim={0 0 0 4cm},clip]{env/presentation/GEOM/J_2024aug27/CSGOptiXSMTest/ALL1_sreport/figs/sreport_ab/mpcap/AB_Substamp_ALL_Etime_vs_Photon_rtx_gen1_gen3.png}
+    zeta:chep2024 blyth$ 
+
+    #epjconf-figdir(){ echo $HOME/simoncblyth.bitbucket.io ; }
+    epjconf-figdir(){ echo /usr/local/simoncblyth.github.io ; }
+
+
+
+
 Aug 2023 : Check no changes to the template or styles 
 ---------------------------------------------------------
 
@@ -326,15 +360,16 @@ epjconf-opdf(){ echo $(epjconf-odir)/$(epjconf-filename).pdf ; }
 epjconf-open(){ open $(epjconf-opdf) ; }
 
 
-#epjconf-vers(){ echo v0 ; }
-epjconf-vers(){ echo v1 ; }
+epjconf-vers(){ echo v0 ; }
+#epjconf-vers(){ echo v1 ; }
 #epjconf-vers(){ echo v2 ; }
 
 #epjconf-confname(){ echo chep2018 ; }
 #epjconf-confname(){ echo chep2019 ; }
 #epjconf-confname(){ echo chep2021 ; }
 #epjconf-confname(){ echo chep2023 ; }
-epjconf-confname(){ echo chep2024 ; }
+#epjconf-confname(){ echo chep2024 ; }
+epjconf-confname(){ echo chep2026 ; }
 
 epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-$(epjconf-vers) ; }
 epjconf-absname(){ echo $(epjconf-filename)-abstract ; }
@@ -343,6 +378,63 @@ epjconf-absname(){ echo $(epjconf-filename)-abstract ; }
 #epjconf-filename(){ echo opticks-snowmass21-loi-v1 ; }
 
 
+epjconf-webofc-cls-get(){
+    : link from https://www.epj-conferences.org/for-authors
+    local url=https://www.epj-conferences.org/doc_journal/instructions/macro/web-conf/macro-latex-web-conf.zip
+
+    local tgt=webofc.cls
+    local tgtpath=$(epjconf-dir)/$tgt
+    
+    if [ -f "$tgtpath" ]; then
+        printf "$FUNCNAME - tgtpath $tgtpath already present - nothing to do\n"
+
+        ls -alst $(epjconf-dir)/
+
+        return 0
+    fi
+
+    local dir=/tmp/$FUNCNAME
+    mkdir -p $dir
+    pushd $dir
+
+    local name=$(basename $url)
+    local stem=${name/.zip}
+    if [ ! -f "$name" ]; then
+        curl -L -O $url
+    else
+        printf "$FUNCNAME - name $name exists already \n"
+    fi
+
+    if [ ! -d "$stem" ]; then
+        unzip $name
+    else
+        printf "$FUNCNAME - name $name is already unzipped \n"
+    fi
+
+    if [ -d "$stem" ]; then
+        cd $stem
+        pwd
+        ls -1 $PWD/*.* 
+
+        if [ -f "$tgt" ]; then
+
+            #local cmd="cp $tgt $tgtpath" 
+            #echo $cmd
+            #eval $cmd
+
+            find . \( -name '*.sty' -o -name '*.bst' -o -name '*.cls' \) -exec cp {} $(epjconf-dir)/ \;
+
+
+        else
+            printf "$FUNCNAME - failed to locate tgt $tgt\n"
+        fi
+
+    else
+        printf "$FUNCNAME - failed to unzip \n"
+    fi
+    popd
+
+}
 
 
 
@@ -445,7 +537,9 @@ epjconf-init()
 }
 
 
-epjconf-figdir(){ echo $HOME/simoncblyth.bitbucket.io ; }
+#epjconf-figdir(){ echo $HOME/simoncblyth.bitbucket.io ; }
+epjconf-figdir(){ echo /usr/local/simoncblyth.github.io ; }
+
 epjconf-texinputs(){ echo .:$(epjconf-tdir):$(epjconf-figdir): ; }
 epjconf-local-texinputs(){ echo .:$(epjconf-figdir): ; }
 
@@ -494,7 +588,7 @@ epjconf--()
     fi 
     [ $? -ne 0 ] && return 1 
     epjconf-pdflatex
-    #epjconf-open  # somehow Preview.app launced this way exits on changing window size
+    epjconf-open  # somehow Preview.app launced this way exits on changing window size
     epjconf-info
     ls -l $(epjconf-odir)    
 }

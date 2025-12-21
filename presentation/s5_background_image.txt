@@ -22,8 +22,8 @@
     ## would be more convenient if this switch was in presentation metadata
     ## avoiding the need for users to set it 
     ##
-    ##slide0_D
-    slide0
+    ##slide0
+    slide0_D
     ../graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -2998,6 +2998,84 @@
     2025 : Progress from EIC-Opticks Fork  (Electron-Ion Collider)
     eic-opticks/Gabor_Galgoczi_BNL_Geant4_technical_forum_EIC_Opticks_p1.png 640px_360px 0px_360px
     eic-opticks/Gabor_Galgoczi_BNL_Geant4_technical_forum_EIC_Opticks_p2.png 640px_360px 640px_360px
+
+    LOROS : simtrace wide bottom view 20251218_100415
+    GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251218_100415.png 1280px_720px 
+
+    LOROS : simtrace LocalOuterReflectorOrbSubtraction : default with the spurious
+    GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251217_160831.png 1280px_720px
+
+    LOROS : simtrace LocalOuterReflectorOrbSubtraction : uncoincide fixed
+    GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251217_160638.png 1280px_720px
+
+    LOROS : simtrace outer reflector with subtracted cut tubes, with spurious boundary
+    GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251217_105737.png 1280px_720px
+
+    LOROS : simtrace boundary wide view at top 
+    GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251216_215053.png 1280px_720px
+
+    LOROS : simtrace boundary wider view at bottom
+    GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251216_215017.png 1280px_720px
+
+    LOROS : simtrace primtab : snake thru the dead zone with normals
+    GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251216_154533.png 1280px_720px
+
+    LOROS : simtrace boundary : snake thru the dead zone with normals
+    GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251216_154346.png 1280px_720px
+
+    LWDS : orthographic ray trace : pipe cuts need to be a few mm higher in Z 
+    GEOM/LowerWaterDistributorSeg/cxr_min/20251218_145651.png 1280px_720px
+
+    LWDS : orthographic ray trace : both pipe cuts need to be higher
+    GEOM/LowerWaterDistributorSeg/cxr_min/20251218_145833.png 1280px_720px
+
+    LWDS : orthographic ray trace : both pipe cuts need to be higher : midview 
+    GEOM/LowerWaterDistributorSeg/cxr_min/20251218_150003.png 1280px_720px
+
+    LWDS : perspective ray trace : midview : upper pipe segments are sticking thru the tyvek
+    GEOM/LowerWaterDistributorSeg/cxr_min/20251218_150501.png 1280px_720px
+
+    LWDS : perspective ray trace : lowervier : again upper pipe segments are sticking thru the tyvek  
+    GEOM/LowerWaterDistributorSeg/cxr_min/20251218_150521.png 1280px_720px
+
+    LWDS : xy simtrace with point at pipe center
+    GEOM/LowerWaterDistributorSeg/cxt_min/20251218_165241.png 1280px_720px
+
+    LWDS : xz simtrace showing the mis-placed gap
+    GEOM/LowerWaterDistributorSeg/cxt_min/20251218_164017.png 1280px_720px 
+
+    LWDS : After shift : 0
+    GEOM/LowerWaterDistributorSeg/AfterShiftDec21/20251221_103240.png 1280px_720px
+
+    LWDS : After shift : 1
+    GEOM/LowerWaterDistributorSeg/AfterShiftDec21/20251221_103252.png 1280px_720px
+
+    LWDS : After shift : 2
+    GEOM/LowerWaterDistributorSeg/AfterShiftDec21/20251221_103526.png 1280px_720px
+
+    LWDS : After shift : 3
+    GEOM/LowerWaterDistributorSeg/AfterShiftDec21/20251221_103535.png 1280px_720px
+
+    EMF 0 
+    GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251218_211103.png 1280px_720px
+
+    EMF 1
+    GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251218_211150.png 1280px_720px
+
+    EMF 2 
+    GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251218_211257.png 1280px_720px
+
+    EMF 3 
+    GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251218_211411.png 1280px_720px
+
+    EMF 4 
+    GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251218_211544.png 1280px_720px
+
+    EMF 5
+    GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251220_194457.png 1280px_720px
+
+    EMF 6
+    GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251220_195707.png 1280px_720px
 
     ## HUH : NOT APPEARING IN SLIDE BACKGROUND : BUT URL OK
     ##

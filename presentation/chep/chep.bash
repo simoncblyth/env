@@ -12,6 +12,22 @@ chep-notes(){ cat << EON
 CHEP 2026
 ============
 
+
+Dear simon blyth,
+
+We've received your abstract "Opticks: GPU Accelerated Optical Photon Simulation for JUNO and Other Experiments" to which we have assigned id #229.
+
+Kind regards,
+The organizers of 28th Conference on Computing in High Energy and Nuclear Physics (CHEP 2026)
+
+--
+Indico :: Call for Abstracts
+https://indico.cern.ch/event/1471803/
+
+
+
+
+
 * https://indico.cern.ch/event/1471803/abstracts/
 
 

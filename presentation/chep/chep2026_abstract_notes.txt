@@ -1,0 +1,265 @@
+
+
+Dear JUNO colleagues,
+
+The Conference on Computing in High Energy and Nuclear Physics (CHEP) is a
+long-standing conference series that addresses computing, networking, and
+software challenges for the world’s leading data-intensive scientific
+experiments, which currently analyze hundreds of petabytes of data using
+globally distributed resources. CHEP offers a unique platform for computing
+experts in particle and nuclear physics to come together, share experiences,
+and learn from one another. In 2026, CHEP will take place during the final week
+of Run 3 operations at the LHC. As the community prepares for the
+High-Luminosity LHC (HL-LHC), the conference will cover a wide range of
+emerging topics in both infrastructure and software. Reflecting broader trends,
+CHEP 2026 will also include sessions on sustainable computing, such as green
+data centers, energy consumption, and the role of AI/ML in operations.
+
+If you wish to contribute with a parallel talk or poster please apply through
+our Conference Management System https://cfms.ihep.ac.cn/ by selecting this
+event and the appropriate category (plenary or contributed talk or poster).
+
+When applying, you will be asked to include information about yourself, your
+work in JUNO, and any previous contributions to conferences on behalf of JUNO.
+Please complete the relevant fields accordingly.
+
+The application deadline is December 13.
+
+Best regards
+Monica, for the speakers committee
+
+
+
+
+
+
+
+
+* https://indico.cern.ch/event/1471803/abstracts/
+
+
+
+
+
+
+https://indico.cern.ch/event/1471803/abstracts/
+
+Plof ease draft a CHEP 2026 conference abstract for a presentation of 
+progress with Opticks and its usage together with the JUNO simulation
+software. The recommended length of an abstract is 100-250 words.
+The abstracts should clearly highlight new methods/results developed
+in addition to introducing Opticks. 
+
+The new developments listed below were motivated by mainly from 
+feedback from JUNO users doing simulation production.
+
+
+* new measurements of JUNOSW+Opticks performance in production
+
+* integration of Opticks build, test and release with JUNOSW gitlab based CI/CD system
+
+* stress testing Opticks simulation with 8.25 billion photon events in order to 
+  cleanly handle the largest of double and multiple muon events
+
+* addition of 16 byte photon rather than the normal 64 byte photon giving option 
+  for reduced resource simulation when summary information is required, 
+  eg for very large photon count events
+
+* implementation of CUDA Thrust based hit merging, using thrust::sort_by_key
+  and thrust::reduce_by_key giving  
+
+
+The below developments are not as well developed as the above. So they should
+be mentioned as being experimental in nature.
+
+* implementation of server/client Opticks, using FastAPI python server integrated with Opticks via 
+  nanobind. This enables non-GPU nodes to benefit from Opticks GPU acceleration via libcurl based 
+  communication to Opticks server, increases GPU utilization. 
+
+
+Just an idea, so far:
+
+* progressive async CUDA launches doing GPU optical photon simulation that overlaps 
+  with the Geant4 simulation of all other particles 
+
+
+
+
+
+
+Original
+---------
+
+Opticks : GPU ray traced optical photon simulation for JUNO and other experiments
+
+Opticks is an open source project that accelerates optical photon simulation
+by integrating GPU ray tracing from NVIDIA OptiX and GPU computation from NVIDIA CUDA
+together with Geant4 toolkit based simulations. Geant4 detector geometries are 
+auto-translated into mostly analytic CSG forms with some torus and other 
+computationally demanding shapes converted into triangulated forms.
+In this work we describe developments motivated by the experience of using Opticks to
+accelerate JUNO simulation productions. Improvements include removal of limits to support
+optical photon events with more than 4.29 billion photons that can occur with simulation 
+of events with multiple muons. Also a reduced resource simulation option that persists 16 bytes per photon, 
+rather than the full 64 bytes is described. 
+In addition a CUDA Thrust based implementation of PMT hit merging using a bitwise OR of 
+sensor identifier and arrival time bucket is described. Merging hits on device is 
+found to be highly beneficial, reducing download overheads and avoiding slow CPU hit merging 
+that allow the overall Opticks speedup to be clearly apparent. Measurements 
+comparing overall simulation performance using the various reduced resource and 
+GPU hit merging modes are presented. Also explorations of a server-client 
+implementation of Opticks are described.
+
+
+Gemini
+-------
+
+Opticks: GPU Accelerated Optical Photon Simulation for JUNO and Other Experiments
+
+Opticks is an open source framework that accelerates Geant4 toolkit based detector simulations 
+by offloading the optical photon simulation to the GPU using NVIDIA OptiX ray tracing and 
+NVIDIA CUDA computation. Geant4 detector geometries are auto-translated into mostly analytic 
+Constructive Solid Geometry forms, with only computationally demanding shapes like tori 
+converted into triangulated meshes.
+
+Recent developments, driven by production experience with JUNO, focus on
+enabling efficient simulation of highly energetic multi muon events
+that can yield several billions of photons. We introduce a reduced resource 
+simulation mode that cuts persistent storage per photon from 64 bytes down to 16 bytes, 
+significantly lowering I/O overheads and data footprint.
+
+To maximize throughput, we implemented on-device PMT hit merging using CUDA Thrust. 
+The hit merging uses sort and reduction steps with merged hit identity constructed from a bitwise OR 
+of the sensor identifier and arrival time bucket.
+This novel method reduces download overheads and avoids slow CPU-side processing, 
+allowing the full GPU-acceleration benefits of Opticks to be realized.
+
+Performance measurements are presented, demonstrating the overall speedup
+achieved using the various reduced resource and GPU hit merging modes. Finally,
+we describe explorations of a server-client architecture for Opticks, aiming to
+enable distributed deployment and resource sharing.
+
+
+
+Gemini 2
+-----------
+
+
+Opticks: GPU Accelerated Optical Photon Simulation for JUNO and Other Experiments
+
+Opticks is an open source framework that accelerates Geant4 toolkit based
+detector simulations by offloading the optical photon simulation to the GPU
+using NVIDIA OptiX ray tracing and NVIDIA CUDA computation. Geant4 detector
+geometries are auto-translated into mostly analytic Constructive Solid Geometry
+forms, with only computationally demanding shapes like tori converted into
+triangulated meshes.
+
+Recent developments, driven by production experience with JUNO, focus on
+enabling efficient simulation of highly energetic multi-muon events by removing
+the 4.29 billion photon per event limit. We also introduce a reduced resource
+simulation mode that cuts persistent storage per photon from 64 bytes down to
+16 bytes, significantly lowering I/O overheads and data footprint.
+
+To maximize throughput, we implemented on-device PMT hit merging using CUDA
+Thrust. This process involves sort and reduction steps, where the merged hit
+identity is constructed from a bitwise OR of the sensor identifier and arrival
+time bucket. This novel method reduces download overheads and avoids slow
+CPU-side processing, allowing the full GPU-acceleration benefits of Opticks to
+be realized.
+
+Performance measurements are presented, demonstrating the overall speedup
+achieved using the various reduced resource and GPU hit merging modes. Finally,
+we describe explorations of a server-client architecture for Opticks, aiming to
+enable distributed deployment and resource sharing.
+
+
+
+
+
+
+Grok
+------
+
+
+Title: Opticks: GPU Ray-Tracing for Exascale Optical Photon Simulation in JUNO and Beyond**
+
+Optical photon simulation remains a computational bottleneck in large-scale
+high-energy physics experiments like JUNO, where Geant4-based tracking of
+billions of photons per event demands exascale resources. Opticks, an
+open-source framework, addresses this by harnessing NVIDIA OptiX for
+GPU-accelerated ray tracing and CUDA for parallel computation, seamlessly
+integrating with Geant4 simulations.
+Detector geometries from Geant4 are automatically converted to efficient
+analytic Constructive Solid Geometry (CSG) representations, with complex shapes
+(e.g., tori) discretized as triangulated meshes only when necessary. Informed
+by JUNO production runs, recent enhancements enable unprecedented scale: we
+eliminated the prior 4.29 billion photon limit, unlocking full-fidelity
+simulations of rare, high-energy multi-muon events.
+
+To optimize resource use, a low-memory mode reduces per-photon storage from 64
+to 16 bytes, slashing I/O overheads and data volumes by up to 75%. For hit
+processing, we developed an on-GPU photomultiplier tube (PMT) merging scheme
+via CUDA Thrust, performing bitwise OR operations on sensor IDs and time
+buckets directly on-device. This innovation cuts data transfer bottlenecks,
+bypassing CPU bottlenecks and yielding 2-5x throughput gains in end-to-end
+workflows.
+
+Benchmark results on A100 GPUs demonstrate 10-20x speedups over CPU baselines
+for JUNO-like geometries, with the new modes enabling 100M+ photons/sec rates.
+Looking ahead, we explore a server-client architecture for Opticks,
+facilitating distributed, multi-experiment deployments and elastic resource
+sharing—paving the way for collaborative HEP computing ecosystems.
+
+ChatGPT
+--------
+
+
+
+Opticks is an open-source framework that accelerates optical photon simulation
+in large-scale high-energy physics experiments, including JUNO, by harnessing
+GPU-accelerated ray tracing. It integrates NVIDIA OptiX for high-throughput ray
+tracing and CUDA for device-side computation, while maintaining compatibility
+with Geant4-based workflows. Detector geometries defined in Geant4 are
+automatically translated into optimized, predominantly analytic Constructive
+Solid Geometry representations, with only the most complex shapes—such as
+tori—converted to triangulated meshes.
+
+
+
+*Recent developments, motivated by large-scale JUNO production, target both
+extreme simulation scale and improved efficiency. We have removed the
+longstanding 4.29-billion-photon limit, enabling full simulation of
+high-energy, multi-muon–induced events. A new reduced-resource simulation mode
+decreases persistent per-photon storage from 64 bytes to 16 bytes,
+substantially lowering memory and I/O demands.*
+
+
+*To further maximize throughput, we introduce an on-device PMT hit-merging
+strategy implemented with CUDA Thrust. This method performs bitwise OR–based
+merging of sensor identifiers and time buckets entirely on the GPU, greatly
+reducing data transfer requirements and eliminating costly CPU-side
+post-processing. This allows Opticks to fully capitalize on GPU acceleration
+even in high-occupancy scenarios.*
+
+
+*We present performance benchmarks illustrating the speedups enabled by the
+reduced-resource workflow and GPU-resident hit merging. Finally, we outline
+early explorations of a server–client architecture intended to support
+distributed deployment and shared compute resources across heterogeneous
+environments.*
+
+---
+
+### Optional Suggestions & Notes
+
+* **Title:** You may consider “Opticks: Scaling Optical Photon Simulation for JUNO and Next-Generation Experiments with GPU Ray Tracing” if you want more emphasis on scalability.
+* **Emphasis on impact:** If there are concrete speedup factors (e.g., ×10, ×100), consider adding one sentence with a headline number.
+* **Clarity for readers not familiar with your previous work:** A one-sentence summary about what problems optical photon simulation presents (e.g., computational intensity, many-billion-photon events) can help contextualize the advances.
+
+If you’d like, I can tune the abstract for a stricter word limit, more technical detail, or a more narrative/impact-driven style.
+
+
+
+
+
+

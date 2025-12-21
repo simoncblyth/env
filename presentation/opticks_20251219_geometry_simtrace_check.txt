@@ -1,0 +1,296 @@
+.. meta::
+   :title: opticks_20251219_geometry_simtrace_check
+   :description: (2025 December 8) JUNO, OptiX, Opticks
+   :note0: 5+2 min 
+   :url:
+   :note1: 
+   :note2:
+
+
+.. include:: my_s5defs.txt
+
+
+:i:`Opticks Simtrace Geometry Checks`
+==========================================================================================
+
+.. raw:: html
+
+    <div class="mytitle">
+    <header>
+    <h1 style="background-color:lightgrey;text-align:center;"> 
+        Opticks Simtrace Geometry Checks 
+        <h2 style="background-color:lightgrey;text-align:center">
+            Open source, https://github.com/simoncblyth/opticks  
+        </h2>
+    </h1>
+    </header>
+    </div>
+    <!--img style="position:absolute; top:200px; LEFT:100px; WIDTH:200px; " src="juno/JUNO_logo.png"  /-->
+    <div class="mycredit">
+       <h2 style="background-color:lightgrey">
+          Simon C Blyth, 19 December 2025
+       </h2>
+    </div>
+
+.. s5_talk:: 
+
+   Opticks applies GPU ray tracing to optical photon simulation.
+
+
+.. comment
+
+    Klop
+
+
+
+
+:i:`LOROS : simtrace wide bottom view 20251218_100415`
+-------------------------------------------------------
+
+.. class:: small
+
+   ``simtrace wide bottom view 20251218_100415``
+
+
+
+:i:`LOROS : simtrace LocalOuterReflectorOrbSubtraction : default with the spurious`
+-------------------------------------------------------------------------------------
+
+.. class:: small
+
+    ``simtrace LocalOuterReflectorOrbSubtraction : default with the spurious``
+
+
+:i:`LOROS : simtrace LocalOuterReflectorOrbSubtraction : uncoincide fixed`
+----------------------------------------------------------------------------
+
+.. class:: small
+
+   ``simtrace LocalOuterReflectorOrbSubtraction : uncoincide fixed``
+
+
+:i:`LOROS : simtrace outer reflector with subtracted cut tubes, with spurious boundary`
+------------------------------------------------------------------------------------------
+
+.. class:: small
+
+    ``simtrace outer reflector with subtracted cut tubes, with spurious boundary``
+
+
+
+:i:`LOROS : simtrace boundary wide view at top`
+-------------------------------------------------
+
+.. class:: small
+
+   ``simtrace boundary wide view at top``
+
+
+
+
+:i:`LOROS : simtrace boundary wider view at bottom`
+-----------------------------------------------------
+
+.. class:: small
+
+   ``simtrace boundary wider view at bottom``
+
+
+
+:i:`LOROS : simtrace primtab : snake thru the dead zone with normals`
+----------------------------------------------------------------------
+
+.. class:: small
+
+    ``simtrace primtab : snake thru the dead zone with normals``
+
+
+
+:i:`LOROS : simtrace boundary : snake thru the dead zone with normals`
+------------------------------------------------------------------------
+
+.. class:: small
+
+    ``simtrace boundary : snake thru the dead zone with normals``
+
+
+
+
+.. comment
+
+
+    :i:`LWDS : orthographic ray trace : pipe cuts need to be a few mm higher in Z`
+    -------------------------------------------------------------------------------
+
+    .. class:: small
+
+       ``orthographic ray trace : pipe cuts need to be a few mm higher in Z``
+     
+
+
+
+    :i:`LWDS : orthographic ray trace : both pipe cuts need to be higher`
+    ----------------------------------------------------------------------
+
+    .. class:: small
+
+       ``orthographic ray trace : both pipe cuts need to be higher``
+
+
+
+:i:`LWDS : orthographic ray trace : both pipe cuts need to be higher : midview` 
+---------------------------------------------------------------------------------
+
+
+.. class:: small
+
+    ``orthographic ray trace : both pipe cuts need to be higher : midview``
+
+
+
+:i:`LWDS : perspective ray trace : midview : upper pipe segments are sticking thru the tyvek`
+-----------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   ``perspective ray trace : midview : upper pipe segments are sticking thru the tyvek``
+
+
+
+
+:i:`LWDS : perspective ray trace : lowervier : again upper pipe segments are sticking thru the tyvek`
+-----------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+    ``perspective ray trace : lowerview : again upper pipe segments are sticking thru the tyvek``
+
+
+
+
+:i:`LWDS : xy simtrace with point at pipe center`
+----------------------------------------------------
+
+
+.. class:: small
+
+    ``xy simtrace with point at pipe center``
+
+    ``MOI=0.000,0.000,-20052.5,1500  # Z=-20052.5 middle of water between Tyvek``
+     
+     ``OPTICKS_EVENT_NAME=2dxy POINT=264.136,-566.442,0 cxt_min.sh pdb  ## red point at pipe center in XY`` 
+
+
+:i:`LWDS : xz simtrace showing the mis-placed gap`
+----------------------------------------------------
+
+
+.. class:: small
+
+    ``xz simtrace showing the mis-placed gap``
+
+    ``MOI=264.136,-566.442,-20475,1500        # XY:middle-of-pipe Z:middle-of-outer-tyvek``
+
+
+
+:i:`LWDS : After shift : 0`
+------------------------------
+
+.. class:: small
+
+    ``cxr_min.sh : Raytrace After shift : no overlap visible at middle``
+
+
+
+:i:`LWDS : After shift : 1`
+------------------------------
+
+.. class:: small
+
+    ``cxr_min.sh : Raytrace After shift : no overlap visible at lower``
+
+
+
+:i:`LWDS : After shift : 2`
+------------------------------
+
+
+.. class:: small
+
+    ``cxt_min.sh : Simtrace After shift : no overlap visible``
+
+
+
+
+:i:`LWDS : After shift : 3`
+------------------------------
+
+
+.. class:: small
+
+    ``cxt_min.sh : Simtrace After shift : no overlap visible : closeup``
+
+
+
+
+
+
+
+:i:`EMF 1`
+-----------
+
+
+.. class:: small
+
+    * 325 solids (almost doubling total to 667)
+
+    * 3928 volumes 
+
+
+:i:`EMF 0` 
+--------------
+
+.. class:: small
+
+    * lots of small bits (too many?)
+
+
+:i:`EMF 2` 
+------------
+
+
+:i:`EMF 3` 
+-----------
+
+
+:i:`EMF 4` 
+-----------
+
+
+
+:i:`EMF 5` 
+-----------
+
+.. class:: small
+
+   * algorithm that decides on the length of solids and hence where cuts have to be
+     is resulting in some very small pieces
+
+   * you can see that by looking closely at this ray trace view upwards along the EMF axis
+   
+
+
+
+
+:i:`EMF 6` 
+-----------
+
+.. class:: small
+
+   * example of one of the small pieces, and cuts for no reason ?
+
+
+
+
+
+

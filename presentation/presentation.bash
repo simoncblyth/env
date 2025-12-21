@@ -1631,6 +1631,7 @@ presentation-rst2talk-(){
 #presentation-iname(){ echo ${INAME:-opticks_202509YY} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20250917_dirac_workshop_ihep} ; }
 
-presentation-iname(){ echo ${INAME:-opticks_20251208_ihep_assessment_5min} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20251208_ihep_assessment_5min} ; }
+presentation-iname(){ echo ${INAME:-opticks_20251219_geometry_simtrace_check} ; }
 
 
