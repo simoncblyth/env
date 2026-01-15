@@ -22,8 +22,8 @@
     ## would be more convenient if this switch was in presentation metadata
     ## avoiding the need for users to set it 
     ##
-    ##slide0
-    slide0_D
+    ##slide0_D
+    slide0
     ../graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -3056,8 +3056,90 @@
     LWDS : After shift : 3
     GEOM/LowerWaterDistributorSeg/AfterShiftDec21/20251221_103535.png 1280px_720px
 
+    LWDS : Simtrace Split Snake
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/AfterSplitJan8/20260108_141748.png 1280px_720px
+
+    LWDS : Legs still not segmented at bottom
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/AfterSplitJan8/20260108_151513.png 1280px_720px
+
+    MPMT : torus neck 0
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260108_170710.png 1280px_720px
+
+    MPMT : torus neck 1
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260108_171740.png 1280px_720px
+
+    MPMT : torus neck 2
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260108_172444.png 1280px_720px
+
+    MPMT : torus neck 3
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260108_193309.png 1280px_720px
+
+    MPMT : torus neck 4
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260108_193455.png 1280px_720px
+
+    MPMT : torus neck 5
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260108_210301.png 1280px_720px
+
+    MPMT : torus neck 6
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260108_212552.png 1280px_720px
+
+    MPMT : torus neck 7
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260108_222349.png 1280px_720px
+
+    MPMT : torus neck 8
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260108_222512.png 1280px_720px
+
+    MPMT : torus neck 9
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260108_224515.png 1280px_720px
+
+    MPMT : torus neck 10
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260108_230228.png 1280px_720px
+
+    MPMT : torus neck 11
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260109_103141.png 1280px_720px
+
+    MPMT : torus neck 12
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260109_103541.png 1280px_720px
+
+    MPMT : torus neck 13
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260109_103608.png 1280px_720px
+
+    MPMT : 14
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260109_113915.png 1280px_720px
+
+    MPMT : 15
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260109_161845.png 1280px_720px
+
+    MPMT : 16
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260109_161903.png 1280px_720px
+
+    MPMT : 17
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260109_163745.png 1280px_720px
+
+    MPMT : 18
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260109_163806.png 1280px_720px
+
+    MPMT : 19
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260109_172124.png 1280px_720px
+
+    MPMT : 20
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260109_172814.png 1280px_720px
+
+    MPMT : 21
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260109_172848.png 1280px_720px
+
+    MPMT 19,20,21
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260109_172124.png 640px_360px 640px_360px
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260109_172814.png 640px_360px 640px_0px
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260109_172848.png 640px_360px 0px_360px
+
+    MPMT 19,20,21,construction
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260109_172124.png 640px_360px 640px_360px
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260109_172814.png 640px_360px 640px_0px
+    GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260109_103141.png 640px_360px 0px_360px
+
     EMF 0 
-    GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251218_211103.png 1280px_720px
+    GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251218_211103.png 1280px_720px 
 
     EMF 1
     GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251218_211150.png 1280px_720px
@@ -3076,6 +3158,29 @@
 
     EMF 6
     GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251220_195707.png 1280px_720px
+
+    EMF 0356
+    GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251218_211103.png 640px_360px 0px_0px
+    GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251218_211411.png 640px_360px 640px_0px
+    GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251220_194457.png 640px_360px 0px_360px
+    GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251220_195707.png 640px_360px 640px_360px
+
+    EMF X306
+    GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251218_211411.png 640px_360px 640px_0px
+    GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251218_211103.png 640px_360px 0px_360px
+    GEOM/J25_4_0_opticks_Debug/EMFCoils/cxr_min/20251220_195707.png 640px_360px 640px_360px
+
+    EMF2 0
+    GEOM/J25_7_2_opticks_Debug/Chenjing-EMFcoilsgeometry/SecondLookJan14/20260114_221150.png 1280px_720px
+
+    EMF2 1
+    GEOM/J25_7_2_opticks_Debug/Chenjing-EMFcoilsgeometry/SecondLookJan14/20260114_222346.png 1280px_720px
+
+    EMF2 2
+    GEOM/J25_7_2_opticks_Debug/Chenjing-EMFcoilsgeometry/SecondLookJan14/20260115_152658.png 1280px_720px
+
+    EMF2 3
+    GEOM/J25_7_2_opticks_Debug/Chenjing-EMFcoilsgeometry/SecondLookJan14/20260115_153205.png 1280px_720px
 
     ## HUH : NOT APPEARING IN SLIDE BACKGROUND : BUT URL OK
     ##
