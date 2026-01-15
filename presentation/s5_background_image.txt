@@ -2992,6 +2992,11 @@
     GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/Chimney_ipc/20250707_135926.png 640px_360px 640px_0px
     GEOM/J25_4_0_opticks_Debug/cxr_min_cxt_min/WaterDistributor/20251009_150312.png 640px_360px 640px_360px
 
+    Other recent JUNO+Opticks Geom Fixes
+    GEOM/J25_4_0_opticks_Debug/cxr_min/wp_atm_lpmt/20250822_162218.png 640px_360px 0px_360px
+    GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/Chimney_ipc/20250707_135926.png 640px_360px 640px_0px
+    GEOM/J25_4_0_opticks_Debug/cxr_min_cxt_min/WaterDistributor/20251009_150312.png 640px_360px 640px_360px
+
     WaterDistributor Overlap
     GEOM/J25_4_0_opticks_Debug/cxr_min_cxt_min/WaterDistributor/20251009_150312.png 
 

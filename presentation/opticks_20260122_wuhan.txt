@@ -200,7 +200,7 @@ OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
     * Every day + when JUNOSW/Simulation changes => automated OJ build + test + release
     * :b:`For reproducibility, use dated reference releases` eg **2026_01_08**
     * ``tut_detsim.py --opticks-mode 1`` is default (optical simulation on GPU)
-    * priors mis-named J25.4.0_... despite being latest J25.7.1_... (:r:`Thanks Jiabin`)
+    * priors mis-named J25.4.0... despite being latest J25.7.1... (:r:`Thanks Jiabin`)
 
 .. raw:: html
 
@@ -974,9 +974,8 @@ EMF Coils implementation from Chen Jing
 
 
 
-
-:small:`2025 : JUNO+Opticks Geom Fixes`
-----------------------------------------
+:small:`Other recent JUNO+Opticks Geom Fixes`
+------------------------------------------------
 
 .. raw:: html
 
@@ -1033,79 +1032,79 @@ EMF Coils implementation from Chen Jing
 
 
 
+.. comment
+
+    :small:`Public Service : Work with Many on JUNO Geometry + Opticks Usage` 
+    ----------------------------------------------------------------------------------------
 
 
-:small:`Public Service : Work with Many on JUNO Geometry + Opticks Usage` 
-----------------------------------------------------------------------------------------
+    .. sidebar:: :small:`Supported Opticks Users`
+
+        .. class:: small 
+
+           Via email and forum : https://groups.io/g/opticks 
+
+           Ilker Parmaksiz, Univ of Texas at Arlington (UTA)
+             * :r:`181x speedup cf single-threaded Geant4` NEXT-CRAB-0 (Xenon TPC)
+             * EPJ publication + PhD Thesis
+
+           Gabor Galgoczi et al., BNL, (EIC-Opticks fork)
+             * developed workaround for light-leak bug reported by Gabor 
+      
+           Zepeng Li, U. Hawaii
+             * Opticks setup 
+
+           Nicola Mori, INFN
+             * Opticks setup 
+
+        .. class:: tiny
+
+            NEXT : Neutrino Experiment with a Xenon TPC : neutrinoless double beta decay search 
+
+            CRAB : Camera Readout and Barium Tagging 
+
+            EIC : Electron-Ion Collider, BNL
 
 
-.. sidebar:: :small:`Supported Opticks Users`
+
 
     .. class:: small 
 
-       Via email and forum : https://groups.io/g/opticks 
+       **Work with JUNO+Opticks students/postdocs**
 
-       Ilker Parmaksiz, Univ of Texas at Arlington (UTA)
-         * :r:`181x speedup cf single-threaded Geant4` NEXT-CRAB-0 (Xenon TPC)
-         * EPJ publication + PhD Thesis
+       Zhenning Qu, IHEP
+         * Opticks + Atmospheric Muon simulation
+         * :r:`Production test at Dongguan GPU cluster`
 
-       Gabor Galgoczi et al., BNL, (EIC-Opticks fork)
-         * developed workaround for light-leak bug reported by Gabor 
-  
-       Zepeng Li, U. Hawaii
-         * Opticks setup 
+       Peidong Yu, IHEP
+         * JUNO geom fixes : Water Distributor, WP Wall PMTs
 
-       Nicola Mori, INFN
-         * Opticks setup 
+       Dingyong Yang, IHEP
+         * Opticks testing
 
-    .. class:: tiny
+       Haosen Zhang, IHEP
+         * Opticks muon testing
 
-        NEXT : Neutrino Experiment with a Xenon TPC : neutrinoless double beta decay search 
+       Jin Chen, IHEP
+         * Development of JUNOSW EMF Coils addition
 
-        CRAB : Camera Readout and Barium Tagging 
+       Liam Jones, Liverpool + DUYANG Hongyue, SDU
+         * Liverpool GPU Cluster preparation for Opticks
 
-        EIC : Electron-Ion Collider, BNL
-
-
-
-
-.. class:: small 
-
-   **Work with JUNO+Opticks students/postdocs**
-
-   Zhenning Qu, IHEP
-     * Opticks + Atmospheric Muon simulation
-     * :r:`Production test at Dongguan GPU cluster`
-
-   Peidong Yu, IHEP
-     * JUNO geom fixes : Water Distributor, WP Wall PMTs
-
-   Dingyong Yang, IHEP
-     * Opticks testing
-
-   Haosen Zhang, IHEP
-     * Opticks muon testing
-
-   Jin Chen, IHEP
-     * Development of JUNOSW EMF Coils addition
-
-   Liam Jones, Liverpool + DUYANG Hongyue, SDU
-     * Liverpool GPU Cluster preparation for Opticks
-
-   Jiabin Wang, SDU
-     * Opticks usage
+       Jiabin Wang, SDU
+         * Opticks usage
 
 
-.. s5_talk::
+    .. s5_talk::
 
-   Service work : assisting with JUNO geometry and supporting Opticks usage
+       Service work : assisting with JUNO geometry and supporting Opticks usage
 
 
 
 
 
-III. Existing problems 
--------------------------
+Problems 
+------------
 
 .. class:: normal 
 
@@ -1120,7 +1119,7 @@ III. Existing problems
 
 .. class:: normal 
 
-    2. JUNO geometry continues to change, eg: 
+    2. JUNO geometry continues rapid change, eg: 
 
        * Water Distributor
        * Water Pool PMTs still being added
@@ -1159,8 +1158,8 @@ III. Existing problems
 
 
 
-:small:`IV. Work plan for next year` 
--------------------------------------------------------
+:small:`Plans` 
+-----------------------------------------
 
 .. sidebar:: :small:`Investigations on the side`
 
@@ -1184,6 +1183,10 @@ III. Existing problems
 .. class:: small 
 
 
+   **Get Geometry Changes Merged**
+
+   * WaterDistributer, EMFcoils, 8-inch MPMT
+
    **Automated Validation/Performance Monitoring**
 
    * integrate with gitlab CI/CD  
@@ -1200,14 +1203,6 @@ III. Existing problems
 
    * examples, documentation, training, streamline repository
 
-   **Geant4 contact**
-
-   * develop/propose API for external photon propagation
-   * :r:`avoid customized Geant4 processes` 
-
-   **Non-NVIDIA GPU Investigation**
-
-   * Contact local GPU vendors, eg InnoSilicon Fenghua No. 3 (claim: CUDA compatible with RT)
 
 
 .. class:: tiny 
@@ -1222,29 +1217,14 @@ III. Existing problems
 
 .. comment
 
-    :small:`Evaluation Estimate : (position started September 2nd 2024)`
-    ----------------------------------------------------------------------
+   **Geant4 contact**
 
-    .. class:: small
+   * develop/propose API for external photon propagation
+   * :r:`avoid customized Geant4 processes` 
 
-        +-------------------+-------------------------------------------------------------------------------+---------+--------------------+
-        |                   |  Review Project                                                               | Est.    |  Note              | 
-        +===================+===============================================================================+=========+====================+
-        |                   |                                                                               |         |                    |
-        |                   |                                                                               |         |                    |
-        |                   |  Mission Completion (50%)                                                     |   5.0   |                    |
-        |                   |                                                                               |         |                    |
-        |   Mission         |                                                                               |         |                    |
-        |   Completed       +-------------------------------------------------------------------------------+---------+--------------------+
-        |   (80%)           |   Academic development, academic exchanges, papers (10%)                      |   5.0   |                    |
-        |                   +-------------------------------------------------------------------------------+---------+--------------------+
-        |                   |   Strive for projects and funding (10%)                                       |   1.0   | [1,HELP NEEDED]    |
-        |                   +-------------------------------------------------------------------------------+---------+--------------------+
-        |                   |   Public services (10%)                                                       |   5.0   |                    |
-        +-------------------+-------------------------------------------------------------------------------+---------+--------------------+
-        |   Professional    |   Scientific research ability, academic organization ability, work initiative |   5.0   |                    |
-        |   Quality         |   and creativity, cooperative spirit                                          |         |                    |
-        +-------------------+-------------------------------------------------------------------------------+---------+--------------------+
+   **Non-NVIDIA GPU Investigation**
+
+   * Contact local GPU vendors, eg InnoSilicon Fenghua No. 3 (claim: CUDA compatible with RT)
 
 
 
