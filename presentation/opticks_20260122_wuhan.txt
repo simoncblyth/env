@@ -638,14 +638,209 @@ Split Workflow : Share GPUs between OpticksClients
 
 
 
+Water Distributer (WD) implementation from Peidong
+----------------------------------------------------
 
-:i:`LOROS : simtrace wide bottom view 20251218_100415`
--------------------------------------------------------
+.. sidebar:: :small:`Two Opticks Bugs Revealed`
+
+   .. class:: small
+
+       :b:`FIXED:`
+
+       * G4MultiUnion R + T transforms mis-ordered
+       * erroneous imported transform (-1:last/no)
+ 
+         * revealed as many transform solid
+
+       Both bugs manifested as overlarge bbox
+
+       :r:`Thank you Peidong` 
+
+
+.. class:: normal
+
+   Complex solids, between Water Pool and CD, many R+T transforms, multi-union, long way from origin 
+
+.. class:: normal
+
+   Multiple issues:
+
+   * overlap between WD and Hama PMTs
+   * pipe poking through Tyvek
+   * pipe segments mis-placed  
+   * maximally coincident pipe cut
+     
+
+.. class:: tiny
+
+   Branches : 
+
+   ``yupd-water-distributor`` 
+
+   ``yupd_bottompipe_adjust`` 
+
+   ``yupd_waterdistributor_heightfix`` 
+
+
+
+
+:i:`WDP 89middle`
+------------------
+
+.. class:: center
+
+    ``Lower and Upper WD``
+
+
+
+.. comment
+
+    :i:`WDP 8`
+    -----------
+
+    .. class:: small
+     
+        WDP 8
+
+
+    :i:`WDP 8middle`
+    -----------------
+
+    .. class:: small
+     
+        WDP 8middle
+
+
+    :i:`WDP 9`
+    -----------
+
+    .. class:: small
+     
+        WDP 9
+
+
+    :i:`WDP 9middle`
+    -----------------
+
+    .. class:: small
+     
+        WDP 9middle
+
+
+    :i:`WDP 2`
+    -----------
+
+    .. class:: small
+     
+        WDP 2 : Descending from Upper Chimney
+
+
+
+
+:i:`WDP 3`
+-----------
 
 .. class:: small
+ 
+    ``WDP 3 : Uppermost Water Distributor in Water Pool``
 
-   ``simtrace wide bottom view 20251218_100415``
 
+
+:i:`WDP 4`
+-----------
+
+.. class:: small
+ 
+    ``WDP 4 : Water Distributor at top of CD``
+
+
+
+:i:`WDP 5`
+-----------
+
+.. class:: small
+ 
+    ``WDP 5 : mid-CD``
+
+
+
+:i:`WDP 6`
+-----------
+
+.. class:: small
+ 
+    ``WDP 6 : Water Distributor at bottom of CD``
+
+
+
+:i:`WDP 7`
+-----------
+
+.. class:: small
+ 
+    ``WDP 7 :  Water Distributor at bottom of pool``
+
+
+
+
+
+
+
+
+:small:`Water Distributer Issues` (:b:`FIXED`)
+----------------------------------------------
+
+.. class:: normal
+
+    Raytrace directly reveals (MR1062):
+
+    * clear overlap with PMTs
+    * midview : pipe segments stick thru tyvek
+    * lowervier : again upper segments thru tyvek
+
+
+
+.. comment
+
+    MR1062 clear overlap
+    ----------------------
+
+
+    :i:`LWDS : perspective ray trace : midview : upper pipe segments are sticking thru the tyvek`
+    -----------------------------------------------------------------------------------------------
+
+    .. class:: small
+
+       ``perspective ray trace : midview : upper pipe segments are sticking thru the tyvek``
+
+
+
+    :i:`LWDS : perspective ray trace : lowervier : again upper pipe segments are sticking thru the tyvek`
+    -----------------------------------------------------------------------------------------------------
+
+    .. class:: small
+
+        ``perspective ray trace : lowerview : again upper pipe segments are sticking thru the tyvek``
+
+
+
+
+.. comment
+
+    TOO SMALL 
+
+    :small:`WD Issues : simtrace 2D slices`
+    ----------------------------------------
+
+    .. class:: normal 
+
+       precise view, ray trace within plane 
+
+       * label intersects by boundary/volume
+
+       MR1062 :r:`TOFIX`:
+
+       * pipe sticks thru lower tyvek (pool floor)
 
 
 :i:`LOROS : simtrace boundary wide view at top`
@@ -656,15 +851,39 @@ Split Workflow : Share GPUs between OpticksClients
    ``simtrace boundary wide view at top``
 
 
+.. raw:: html
+
+   <p style="margin-bottom:40mm;" />
+   
+.. sidebar:: simtrace 2D slices
+
+     planar raytrace => precise view 
+
+     * label intersects : boundary/volume
+     * clearly shows overlaps
 
 
-
-:i:`LOROS : simtrace boundary wider view at bottom`
------------------------------------------------------
+:i:`LOROS : simtrace wide bottom view 20251218_100415`
+-------------------------------------------------------
 
 .. class:: small
 
-   ``simtrace boundary wider view at bottom``
+   ``simtrace wide bottom view 20251218_100415``
+
+.. raw:: html
+
+   <p style="margin-bottom:90mm;" />
+   
+.. sidebar:: MR1062 issues visible
+
+     :b:`FIXED`:
+
+     * fake-boundaries within "snake" pipe
+     * multi-coincident pipe cuts
+
+
+
+
 
 
 
@@ -676,130 +895,16 @@ Split Workflow : Share GPUs between OpticksClients
     ``simtrace primtab : snake thru the dead zone with normals``
 
 
+.. raw:: html
 
-:i:`LOROS : simtrace boundary : snake thru the dead zone with normals`
-------------------------------------------------------------------------
+   <p style="margin-bottom:90mm;" />
+   
+.. sidebar:: With intersect normals
 
-.. class:: small
+     normals point "outwards", showing:
 
-    ``simtrace boundary : snake thru the dead zone with normals``
-
-
-
-
-.. comment
-
-
-    :i:`LWDS : orthographic ray trace : pipe cuts need to be a few mm higher in Z`
-    -------------------------------------------------------------------------------
-
-    .. class:: small
-
-       ``orthographic ray trace : pipe cuts need to be a few mm higher in Z``
-     
-
-
-
-    :i:`LWDS : orthographic ray trace : both pipe cuts need to be higher`
-    ----------------------------------------------------------------------
-
-    .. class:: small
-
-       ``orthographic ray trace : both pipe cuts need to be higher``
-
-
-
-:i:`LWDS : orthographic ray trace : both pipe cuts need to be higher : midview` 
----------------------------------------------------------------------------------
-
-
-.. class:: small
-
-    ``orthographic ray trace : both pipe cuts need to be higher : midview``
-
-
-
-:i:`LWDS : perspective ray trace : midview : upper pipe segments are sticking thru the tyvek`
------------------------------------------------------------------------------------------------
-
-.. class:: small
-
-   ``perspective ray trace : midview : upper pipe segments are sticking thru the tyvek``
-
-
-
-
-:i:`LWDS : perspective ray trace : lowervier : again upper pipe segments are sticking thru the tyvek`
------------------------------------------------------------------------------------------------------
-
-.. class:: small
-
-    ``perspective ray trace : lowerview : again upper pipe segments are sticking thru the tyvek``
-
-
-
-
-:i:`LWDS : xy simtrace with point at pipe center`
-----------------------------------------------------
-
-
-.. class:: small
-
-    ``xy simtrace with point at pipe center``
-
-    ``MOI=0.000,0.000,-20052.5,1500  # Z=-20052.5 middle of water between Tyvek``
-     
-     ``OPTICKS_EVENT_NAME=2dxy POINT=264.136,-566.442,0 cxt_min.sh pdb  ## red point at pipe center in XY`` 
-
-
-:i:`LWDS : xz simtrace showing the mis-placed gap`
-----------------------------------------------------
-
-
-.. class:: small
-
-    ``xz simtrace showing the mis-placed gap``
-
-    ``MOI=264.136,-566.442,-20475,1500        # XY:middle-of-pipe Z:middle-of-outer-tyvek``
-
-
-
-:i:`LWDS : After shift : 0`
-------------------------------
-
-.. class:: small
-
-    ``cxr_min.sh : Raytrace After shift : no overlap visible at middle``
-
-
-
-:i:`LWDS : After shift : 1`
-------------------------------
-
-.. class:: small
-
-    ``cxr_min.sh : Raytrace After shift : no overlap visible at lower``
-
-
-
-:i:`LWDS : After shift : 2`
-------------------------------
-
-
-.. class:: small
-
-    ``cxt_min.sh : Simtrace After shift : no overlap visible``
-
-
-
-
-:i:`LWDS : After shift : 3`
-------------------------------
-
-
-.. class:: small
-
-    ``cxt_min.sh : Simtrace After shift : no overlap visible : closeup``
+     * orientation
+     * coincident solids
 
 
 
@@ -812,6 +917,142 @@ Split Workflow : Share GPUs between OpticksClients
     ``cxt_min.sh : Simtrace Split Snake``
 
 
+.. raw:: html
+
+   <p style="margin-bottom:90mm;" />
+   
+.. sidebar:: Segmented "Snake" pipe
+
+     * avoids multiple issues
+
+
+
+
+.. comment
+
+
+    :i:`LOROS : simtrace boundary wider view at bottom`
+    -----------------------------------------------------
+
+    .. class:: small
+
+       ``simtrace boundary wider view at bottom``
+
+
+
+    :i:`LOROS : simtrace boundary : snake thru the dead zone with normals`
+    ------------------------------------------------------------------------
+
+    .. class:: small
+
+        ``simtrace boundary : snake thru the dead zone with normals``
+
+
+    :i:`LWDS : orthographic ray trace : pipe cuts need to be a few mm higher in Z`
+    -------------------------------------------------------------------------------
+
+    .. class:: small
+
+       ``orthographic ray trace : pipe cuts need to be a few mm higher in Z``
+     
+
+    :i:`LWDS : orthographic ray trace : both pipe cuts need to be higher`
+    ----------------------------------------------------------------------
+
+    .. class:: small
+
+       ``orthographic ray trace : both pipe cuts need to be higher``
+
+
+
+    :i:`LWDS : orthographic ray trace : both pipe cuts need to be higher : midview` 
+    ---------------------------------------------------------------------------------
+
+
+    .. class:: small
+
+        ``orthographic ray trace : both pipe cuts need to be higher : midview``
+
+
+
+    :i:`LWDS : xy simtrace with point at pipe center`
+    ----------------------------------------------------
+
+
+    .. class:: small
+
+        ``xy simtrace with point at pipe center``
+
+        ``MOI=0.000,0.000,-20052.5,1500  # Z=-20052.5 middle of water between Tyvek``
+         
+         ``OPTICKS_EVENT_NAME=2dxy POINT=264.136,-566.442,0 cxt_min.sh pdb  ## red point at pipe center in XY`` 
+
+
+:i:`LWDS : xz simtrace showing the mis-placed gap`
+----------------------------------------------------
+
+
+.. class:: small
+
+    ``XZ plane simtrace showing the mis-placed gap``
+
+    ``MOI=264.136,-566.442,-20475,1500  # XY:middle-of-pipe Z:middle-of-outer-tyvek``
+
+
+.. raw:: html
+
+   <p style="margin-bottom:40mm;" />
+   
+.. sidebar:: :small:`Precise (MOI) control of ray plane`
+
+     * shoot rays inside pipe
+     * shows mis-placed gaps, overlap
+
+
+
+
+
+
+
+.. comment
+
+    :i:`LWDS : After shift : 0`
+    ------------------------------
+
+    .. class:: small
+
+        ``cxr_min.sh : Raytrace After shift : no overlap visible at middle``
+
+
+
+    :i:`LWDS : After shift : 1`
+    ------------------------------
+
+    .. class:: small
+
+        ``cxr_min.sh : Raytrace After shift : no overlap visible at lower``
+
+
+
+    :i:`LWDS : After shift : 2`
+    ------------------------------
+
+
+    .. class:: small
+
+        ``cxt_min.sh : Simtrace After shift : no overlap visible``
+
+
+    :i:`LWDS : After shift : 3`
+    ------------------------------
+
+
+    .. class:: small
+
+        ``cxt_min.sh : Simtrace After shift : no overlap visible : closeup``
+
+
+
 :i:`LWDS : Legs still not segmented at bottom`
 -----------------------------------------------
 
@@ -821,14 +1062,17 @@ Split Workflow : Share GPUs between OpticksClients
     ``cxt_min.sh : Legs still not segmented at bottom``
 
 
+.. raw:: html
+
+   <p style="margin-bottom:50mm;" />
+   
+.. sidebar:: :small:`Peidongs Change`
+
+     * fixed two overlaps
+     * :r:`one overlap remains` 
 
 
-WaterDistributer implementation from Peidong
------------------------------------------------
 
-.. class:: normal
-
-  * branches : ``yupd-water-distributor`` ``yupd_bottompipe_adjust`` ``yupd_waterdistributor_heightfix`` 
 
 
 

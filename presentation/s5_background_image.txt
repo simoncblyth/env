@@ -3004,8 +3004,19 @@
     eic-opticks/Gabor_Galgoczi_BNL_Geant4_technical_forum_EIC_Opticks_p1.png 640px_360px 0px_360px
     eic-opticks/Gabor_Galgoczi_BNL_Geant4_technical_forum_EIC_Opticks_p2.png 640px_360px 640px_360px
 
+    WD Issues : simtrace 2D slices
+    GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251218_100415.png 640px_360px 640px_360px 
+    GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251216_215053.png 640px_360px 640px_0px
+    GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251216_154533.png 640px_360px 0px_360px
+
     LOROS : simtrace wide bottom view 20251218_100415
     GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251218_100415.png 1280px_720px 
+
+    LOROS : simtrace boundary wide view at top 
+    GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251216_215053.png 1280px_720px
+
+    LOROS : simtrace primtab : snake thru the dead zone with normals
+    GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251216_154533.png 1280px_720px
 
     LOROS : simtrace LocalOuterReflectorOrbSubtraction : default with the spurious
     GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251217_160831.png 1280px_720px
@@ -3016,14 +3027,8 @@
     LOROS : simtrace outer reflector with subtracted cut tubes, with spurious boundary
     GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251217_105737.png 1280px_720px
 
-    LOROS : simtrace boundary wide view at top 
-    GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251216_215053.png 1280px_720px
-
     LOROS : simtrace boundary wider view at bottom
     GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251216_215017.png 1280px_720px
-
-    LOROS : simtrace primtab : snake thru the dead zone with normals
-    GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251216_154533.png 1280px_720px
 
     LOROS : simtrace boundary : snake thru the dead zone with normals
     GEOM/LocalOuterReflectorOrbSubtraction/cxt_min/20251216_154346.png 1280px_720px
@@ -3066,6 +3071,58 @@
 
     LWDS : Legs still not segmented at bottom
     GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/AfterSplitJan8/20260108_151513.png 1280px_720px
+
+    MR1062 clear overlap
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/MR1062/20251210_150243.png 1280px_720px
+
+    Water Distributer Issues (FIXED)
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/MR1062/20251210_150243.png 640px_360px 640px_0px
+    GEOM/LowerWaterDistributorSeg/cxr_min/20251218_150501.png 640px_360px 640px_360px
+    GEOM/LowerWaterDistributorSeg/cxr_min/20251218_150521.png 640px_360px 0px_360px
+
+    WDP 0
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/Portraits/20260116_103520.png 1280px_720px
+
+    WDP 1
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/Portraits/20260116_104610.png 1280px_720px
+
+    WDP 2
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/Portraits/20260116_112736.png 1280px_720px
+
+    WDP 3
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/Portraits/20260116_112744.png 1280px_720px
+
+    WDP 4
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/Portraits/20260116_112757.png 1280px_720px
+
+    WDP 5
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/Portraits/20260116_112808.png 1280px_720px
+
+    WDP 6
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/Portraits/20260116_112827.png 1280px_720px
+
+    WDP 7
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/Portraits/20260116_112844.png 1280px_720px
+
+    WDP 8
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/Portraits/20260116_140735.png 1280px_720px
+
+    WDP 8middle
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/Portraits/20260116_140735_crop_middle.png 640px_720px 640px_0px
+
+    WDP 9
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/Portraits/20260116_140918.png 1280px_720px
+
+    WDP 9middle
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/Portraits/20260116_140918_crop_middle.png 640px_720px 640px_0px 
+
+    WDP 89middle
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/Portraits/20260116_140735_crop_middle.png 640px_720px 0px_0px
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/Portraits/20260116_140918_crop_middle.png 640px_720px 640px_0px 
+
+    Lower and Upper WD
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/Portraits/20260116_140735_crop_middle.png 640px_720px 0px_0px
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/Portraits/20260116_140918_crop_middle.png 640px_720px 640px_0px 
 
     MPMT : torus neck 0
     GEOM/J25_7_2_opticks_Debug/yupd-8inch-pmt/FirstLookJan8/20260108_170710.png 1280px_720px
