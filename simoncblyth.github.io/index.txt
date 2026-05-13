@@ -100,12 +100,71 @@ of gcc and c++ dialect that can be used::
 
 
 
+CHEP Search for Opticks
+-----------------------
+
+* https://www.epj-conferences.org/component/solr/?task=results#!q=Opticks&sort=relevance&rows=10
+
+
 Publications
 ---------------
 
-TBD
 
-   **CHEP 2024 (Krakow, Poland)** 
+
+https://www.epj-conferences.org/articles/epjconf/abs/2025/22/epjconf_chep2025_01093/epjconf_chep2025_01093.html
+
+
+
+   *Opticks: GPU ray traced optical photon simulation*
+
+   **CHEP 2024 (Krakow, Poland) Proceedings** : Simon C. Blth, EPJ Web of Conferences 337, 01093 (2025)
+
+   * https://doi.org/10.1051/epjconf/202533701093
+ 
+   * Published online : 07 October 2025
+
+   * https://www.epj-conferences.org/articles/epjconf/abs/2025/22/epjconf_chep2025_01093/epjconf_chep2025_01093.html
+
+   * https://www.epj-conferences.org/articles/epjconf/pdf/2025/22/epjconf_chep2025_01093.pdf
+
+
+.. comment
+
+    27th International Conference on Computing in High Energy and Nuclear Physics (CHEP 2024)
+ 
+    Opticks: GPU ray traced optical photon simulation
+ 
+    Opticks, Optical Photon, GPU, NVIDIA, CUDA, OptiX, Simulation, Geant4
+ 
+ 
+    Opticks is an open source project that accelerates optical photon simulation by
+    integrating NVIDIA GPU ray tracing, accessed via the NVIDIA OptiX API, with
+    Geant4 toolkit based simulations. Optical photon simulation times of 10 seconds
+    per 100 million photons have been measured with the full JUNO geometry and
+    optical model with a 3rd RTX generation GPU. The JUNO optical model
+    incorporates optical processes inside PMTs including thin layer interference
+    effects. The GPU geometry is auto-translated from the Geant4 geometry. Optical
+    physics processes of scattering, absorption, scintillator reemission and
+    boundary processes are implemented in CUDA based on Geant4.
+    Wavelength-dependent material and surface properties as well as inverse
+    cumulative distribution functions for reemission are interleaved into GPU
+    textures providing fast interpolated property lookup or wavelength generation.
+    In this work we describe performance measurements and new features developed to
+    facilitate and optimize production usage of Opticks within the JUNO simulation
+    framework. The features include geometry generalization enabling use of
+    triangulated solids together with analytic geometry, out-of-core processing
+    enabling simulation of events with more photons than can fit within available
+    VRAM, interactive ray traced visualization and also the adoption of the Philox
+    counterbased random number generator optimizing random number generation.
+
+
+    https://indico.cern.ch/event/1338689/
+
+    University of Kraków, Poland
+
+    AGH University of Kraków, Institute of Nuclear Physics Polish Academy of Sciences and Jagiellonian University
+
+    Published online : 07 October 2025    
 
 
 
@@ -122,6 +181,10 @@ https://www.epj-conferences.org/articles/epjconf/abs/2024/05/epjconf_chep2024_11
 
    * https://www.epj-conferences.org/articles/epjconf/pdf/2024/05/epjconf_chep2024_11014.pdf
 
+   * https://www.jlab.org/conference/CHEP2023
+
+   * 08-12 May 2023 
+
 
 https://www.epj-conferences.org/articles/epjconf/abs/2021/05/epjconf_chep2021_03009/epjconf_chep2021_03009.html
 
@@ -135,6 +198,11 @@ https://www.epj-conferences.org/articles/epjconf/abs/2021/05/epjconf_chep2021_03
 
    * https://www.epj-conferences.org/articles/epjconf/pdf/2021/05/epjconf_chep2021_03009.pdf
 
+   * https://indico.cern.ch/event/948465/
+
+   * vCHEP 2021 was held as a virtual event between Monday-Friday 17th-21st May 2021.
+
+
 
 https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11003/epjconf_chep2020_11003.html
 
@@ -146,6 +214,15 @@ https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11
 
     * https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11003/epjconf_chep2020_11003.html
 
+
+.. comment
+
+   http://chep2019.org
+   4-8 November 2019
+   24th International Conference on Computing in High Energy and Nuclear Physics  
+   EPJ Web of Conferences 245, 11003 (2020)
+
+    
     
 
 

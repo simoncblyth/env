@@ -83,6 +83,15 @@
 
 
 
+.. |yes| raw:: html
+
+   <span style="color:green; font-weight:bold;">✔</span>
+
+.. |no| raw:: html
+
+   <span style="color:red; opacity:0.3;">✘</span>
+
+
 
 
 .. |nbsp10| unicode:: U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 U+00A0 .. 10 nbsp fail to add up  
@@ -135,6 +144,10 @@
         span.i { display: none; } 
         pre.sliteral { class:"literal-block small"; }   
 
+
+        /* Centers text in all body cells and headers for this class */
+        .center-aligned-table td, 
+        .center-aligned-table th { text-align: center !important; }
 
         pre.mypre25 {
              display: block;

@@ -3000,6 +3000,9 @@
     WaterDistributor Overlap
     GEOM/J25_4_0_opticks_Debug/cxr_min_cxt_min/WaterDistributor/20251009_150312.png 
 
+    WaterDistributor Overlap Fixed
+    GEOM/J25_7_2_opticks_Debug/yupd_bottompipe_adjust/Portraits/20260117_185926.png 1280px_720px
+
     2025 : Progress from EIC-Opticks Fork  (Electron-Ion Collider)
     eic-opticks/Gabor_Galgoczi_BNL_Geant4_technical_forum_EIC_Opticks_p1.png 640px_360px 0px_360px
     eic-opticks/Gabor_Galgoczi_BNL_Geant4_technical_forum_EIC_Opticks_p2.png 640px_360px 640px_360px
@@ -3243,6 +3246,12 @@
 
     EMF2 3
     GEOM/J25_7_2_opticks_Debug/Chenjing-EMFcoilsgeometry/SecondLookJan14/20260115_153205.png 1280px_720px
+
+    QScintThree_test_sh_COMP_012_LOGY0_EDGE1_DPI300
+    qudarap/QScintThree/QScintThree_test_sh_COMP_012_LOGY0_EDGE1_DPI300.png 1280px_720px
+
+    QScintThree_test_sh_COMP_012_LOGY1_EDGE1_DPI300
+    qudarap/QScintThree/QScintThree_test_sh_COMP_012_LOGY1_EDGE1_DPI300.png 1280px_720px
 
     ## HUH : NOT APPEARING IN SLIDE BACKGROUND : BUT URL OK
     ##

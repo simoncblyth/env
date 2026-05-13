@@ -9,13 +9,90 @@ chep-notes(){ cat << EON
 
 
 
-CHEP 2026
-============
+
+May 27, 2026, 2:57 PM - 3:15 PM
+
+* https://indico.cern.ch/event/1471803/contributions/6967960/
+* https://indico.cern.ch/event/1471803/sessions/624974/#20260527
+
+
+
+
+
+Mar 23 (Mon) : Made Registration Request
+-------------------------------------------
+
+* Reference: #385 Date: Mar 23, 2026 
+
+
+
+March 17 ? Thinking about Registration
+---------------------------------------
+
+
+https://indico.cern.ch/event/1471803/overview
+
+It is important to note that if you are not listed on any abstracts and don't
+use an institutional email address (University or research institute), the LOC
+can't issue you an invitation letter. 
+
+Regarding the visa application letter, we will provide it only for participants
+whose nationalities are not eligible for visa exemption when entering Thailand.
+Please check the details at the Thai Embassy in your country or the visa
+information page here.
+
+
+
+
+
+CHEP 2026 : 25-29 May 
+======================
+
 
 
 Dear simon blyth,
 
-We've received your abstract "Opticks: GPU Accelerated Optical Photon Simulation for JUNO and Other Experiments" to which we have assigned id #229.
+We're pleased to announce that your abstract "Opticks: GPU Accelerated Optical
+Photon Simulation for JUNO and Other Experiments" with ID #229 has been
+accepted in track "Track 5 - Event generation and simulation" (Poster
+Presentation).
+
+See below a summary of your submitted abstract:
+Conference: 28th Conference on Computing in High Energy and Nuclear Physics (CHEP 2026)
+Submitted by: simon blyth
+Title: Opticks: GPU Accelerated Optical Photon Simulation for JUNO and Other Experiments
+Authors: Simon Blyth
+Co-authors:
+Track classification: Track 5 - Event generation and simulation
+Presentation type: Poster Presentation
+
+Please ensure that the Indico submission
+(https://indico.cern.ch/event/1471803/abstracts/198887/) is updated with the
+final speaker and authors before March 31, 2026.
+
+The registration form for CHEP2026 is available
+https://indico.cern.ch/event/1471803/registrations/120899/
+Final registration deadline: April 24 2026 (early-bird registration deadline is
+March 23, 2026),
+
+Find information for planning your travel at
+https://indico.cern.ch/event/1471803/page/39490-information.
+
+Kind regards,
+The organizers of 28th Conference on Computing in High Energy and Nuclear
+Physics (CHEP 2026)
+
+--
+Indico :: Call for Abstracts
+https://indico.cern.ch/event/1471803/
+
+
+
+
+Dear simon blyth,
+
+We've received your abstract "Opticks: GPU Accelerated Optical Photon
+Simulation for JUNO and Other Experiments" to which we have assigned id #229.
 
 Kind regards,
 The organizers of 28th Conference on Computing in High Energy and Nuclear Physics (CHEP 2026)
