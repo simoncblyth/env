@@ -938,6 +938,14 @@
     rtx4/architecture-10.jpg 640px_360px 0px_360px
     rtx4/architecture-08.jpg 640px_360px 640px_360px 
 
+    NVIDIA RTX PRO 6000 Blackwell
+    rtx4/nvidia-rtx-pro-6000-blackwell-server-edition-gpu-ss.png 640px_360px 640px_0px
+    rtx4/architecture-10.jpg 640px_360px 0px_360px
+    rtx4/architecture-08.jpg 640px_360px 640px_360px
+
+    Check
+    rtx4/nvidia-rtx-pro-6000-blackwell-server-edition-gpu-ss.png 1280px_720px
+
     Hardware accelerated Ray tracing (RT Cores) in the Data Center
     nvidia/ada_lovelace/NVIDIA-L4-Render-2.jpg 640px_360px 0px_360px
 
@@ -2603,6 +2611,9 @@
   
     amdahl_p_sensitive.png
     figs/amdahl/mpcap/amdahl_p_sensitive.png 1280px_720px
+
+    amdahl300
+    figs/amdahl/amdahl300.png 1280px_720px
 
     N7_Substamp_ALL_Etime_vs_Photon__34s_100M_debug.png
     GEOM/J23_1_0_rc3_ok0/CSGOptiXSMTest/ALL1_sreport/figs/cxs_min/mpcap/N7_Substamp_ALL_Etime_vs_Photon__34s_100M_debug.png 1280px_720px 

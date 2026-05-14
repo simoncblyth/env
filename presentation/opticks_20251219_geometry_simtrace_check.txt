@@ -2,9 +2,9 @@
    :title: opticks_20251219_geometry_simtrace_check
    :description: (2025 December 8) JUNO, OptiX, Opticks
    :note0: 5+2 min 
-   :url:
-   :note1: 
-   :note2:
+   :url: dummy
+   :note1: dummy
+   :note2: dummy
 
 
 .. include:: my_s5defs.txt

@@ -1414,6 +1414,12 @@ p-e(){
   : ~/env/presentation/presentation.bash
   presentation-e  
 }
+
+p-ee(){
+  : ~/env/presentation/presentation.bash
+  EXTRA="opticks_20260122_wuhan.txt opticks_20250917_dirac_workshop_ihep.txt"  presentation-e
+}
+
 p-cd(){
   : ~/env/presentation/presentation.bash
   presentation-cd 

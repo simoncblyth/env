@@ -83,13 +83,16 @@
 
 
 
-.. |yes| raw:: html
+.. |Y| raw:: html
 
    <span style="color:green; font-weight:bold;">✔</span>
 
-.. |no| raw:: html
+.. |N| raw:: html
 
    <span style="color:red; opacity:0.3;">✘</span>
+
+
+.. |P| replace:: γ
 
 
 

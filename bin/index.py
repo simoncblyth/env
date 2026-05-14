@@ -44,6 +44,9 @@ def dt_to_epo(dt):
     return int(dt.strftime("%s"))
 
 def extract_date_from_moyr(txt):
+    """
+    Looks like tries to extract datetime from strings like "May2026" 
+    """
     m = moyrptn.search(txt)
     if not m: return None
     moyr = m.string[m.start():m.end()]  
@@ -54,6 +57,9 @@ def extract_date_from_moyr(txt):
     return dict(dt=dt, src="extract_date_from_moyr", moyr=moyr) 
 
 def extract_date_from_ymd(txt):
+    """
+    Extracts datetime from txt like "20260514"
+    """
     m = ymdptn.search(txt)
     if not m: return None
     ymd = m.string[m.start():m.end()]  
@@ -143,7 +149,10 @@ class Rst(Doc):
         for line in lines[imeta+1:iblank]:
             #print(line) 
             m = ptn.match(line)
-            assert m, ("bad line", line)
+            if not m:
+                print(f"Rst \":key: val\" pattern failed to match line[{line}] in path[{path}]" )
+            pass
+            assert m, ("bad line", line, path)
             gd = m.groupdict()
             key = gd["key"]
             val = gd["val"]
@@ -284,7 +293,6 @@ def parse_args(doc):
 
     d = {}
     d["level"] = "INFO" 
-    #d["base"] = "~/simoncblyth.bitbucket.io/env/presentation" 
     d["base"] = "~/simoncblyth.github.io/env/presentation" 
     d["srcbase"] = "~/env/presentation" 
     d["format"] = "%(asctime)-15s %(levelname)-7s %(name)-20s:%(lineno)-3d %(message)s"
