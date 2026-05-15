@@ -181,6 +181,13 @@
     nanobind/logo.jpg 427px_240px 773px_380px
     drogon/drogon_logo_screenshot.png 213px_100px 440px_580px
 
+    Opticks Server Prototype : python + FastAPI + nanobind + CSGOptiX
+    FastAPI/logo-teal.png 640px_260px 640px_100px
+    nanobind/logo.jpg 427px_240px 773px_380px
+
+    NVIDIA Triton Inference Server
+    nvidia/triton/nvidia_triton_inference_server.png 830px_360px 450px_360px
+
     Opticks Progress Summary 
     ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 640px_360px 640px_0px
     LayrTest/4/figs/LayrTest/mpcap/LayrTest__R12860_Aspa.png 640px_360px 0px_360px

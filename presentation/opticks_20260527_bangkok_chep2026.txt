@@ -306,7 +306,7 @@ Outline
 
     Blackwell(4th Gen RTX) vs Ada(3rd Gen RTX):
 
-    * fourth-gen RT Cores : ray tracing ~doubled
+    * :r:`fourth-gen RT Cores : ray tracing ~doubled`
     * 96GB GDDR7 : internal bandwidth ~doubled (1792 GB/s)
     * PCIe 5.0 : external bandwidth ~doubled
     * fifth-gen Tensor Cores : add FP4 (4-bit float), AI ~doubled 
@@ -338,7 +338,8 @@ Four NVIDIA RTX Gen : Ray Tracing : :b:`~2x every ~2 yrs`
 
 .. comment
 
-    :widths: 5 10 5 5 5 5 4
+    :widths: auto
+    :widths: auto
 
 
 .. raw:: html
@@ -348,38 +349,42 @@ Four NVIDIA RTX Gen : Ray Tracing : :b:`~2x every ~2 yrs`
 
 .. table::
     :class: center-aligned-table
-    :widths: auto
+    :widths: 5 10 3 3 3 5 3 4 4
     :align: center
     
-    +--------------+-----------------+---------+------------+-------------+------------------+-------------+
-    | Gen          |  Model          | Year    | VRAM       |   RT (Ray tracing)             |             |
-    |              |                 |         +------+-----+-------------+------------------+ Rise        |
-    |              |                 |         | GB   | GB/s|    Cores    | TFLOPS           |             |
-    +==============+=================+=========+======+=====+=============+==================+=============+
-    | Turing       | Quadro RTX 6000 |  2018   |  24  | 672 | 72          | ~34              | base        |
-    +--------------+-----------------+---------+------+-----+-------------+------------------+-------------+
-    | Ampere       | RTX A6000       |  2020   |  48  | 768 | 84          | ~76              |  2.2x       |
-    +--------------+-----------------+---------+------+-----+-------------+------------------+-------------+
-    | Ada          | RTX 6000 Ada    |  2023   |  48  | 960 | 142         | ~211             |  2.7x       |
-    +--------------+-----------------+---------+------+-----+-------------+------------------+-------------+
-    | Blackwell    | RTX PRO 6000    |  2025   |  96  | 1792|  188        | ~380             |  1.8x       |
-    +--------------+-----------------+---------+------+-----+-------------+------------------+-------------+
+    +--------------+-----------------+---------+------------+---------+----------------------------------------------+
+    | Gen          |  Model          | Year    | VRAM       | CUDA    |   RT (Ray tracing)                           |
+    |              |                 |         +------+-----+ Cores   +-------------+------------------+-------------+
+    |              |                 |         | GB   | GB/s|         |    Cores    | TFLOPS           |   Rise      |
+    +==============+=================+=========+======+=====+=========+=============+==================+=============+
+    | Turing       | Quadro RTX 6000 |  2018   |  24  | 672 |  4,608  | 72          | ~34              | [1]         |
+    +--------------+-----------------+---------+------+-----+---------+-------------+------------------+-------------+
+    | Ampere       | RTX A6000       |  2020   |  48  | 768 | 10,752  | 84          | ~76              |  2.2x       |
+    +--------------+-----------------+---------+------+-----+---------+-------------+------------------+-------------+
+    | Ada          | RTX 6000 Ada    |  2023   |  48  | 960 | 18,176  | 142         | ~211             |  2.7x       |
+    +--------------+-----------------+---------+------+-----+---------+-------------+------------------+-------------+
+    | Blackwell    | RTX PRO 6000    |  2025   |  96  | 1792| 24,064  |  188        | ~380             |  1.8x       |
+    +--------------+-----------------+---------+------+-----+---------+-------------+------------------+-------------+
 
 
 .. class:: small
 
-   * :b:`RT Cores: fixed-function ASICs dedicated to ray tracing - eg bbox intersection, BVH traversal` 
+   * :b:`RT Cores: fixed-function ASICs dedicated to ray tracing : bbox intersection, ray-triangle intersection, BVH traversal, ...` 
 
-   .. admonition:: RT TFLOPS: NVIDIA synthetic ray trace metric -- :r:`Turing -> Blackwell : 11x`
+
+   .. admonition:: NVIDIA RT TFLOPS: synthetic ray trace metric -- :r:`Turing -> Blackwell : 11x`
        :class: hint
 
        (Equivalent FLOPs per Ray Intersection) x (Intersections per clock) x (Core Clock) x (Number of RT Cores)
 
 
-.. class:: large
-   :align: center
 
-   :b:`Opticks optical simulation speed directly scales with ray tracing speed`
+.. class:: small
+
+   [1] baseline : 2018 "World's First Ray-Tracing GPU -- 10 Gigarays/sec"
+
+
+
 
 
 .. s5_talk::
@@ -388,21 +393,24 @@ Four NVIDIA RTX Gen : Ray Tracing : :b:`~2x every ~2 yrs`
     Each of the four RTX GPU generations have doubled ray tracing performance. 
 
 
+
+
+
+
 .. comment
 
-   * 2018 base : "First Ray-Tracing GPU" , "10 Gigarays/s"
    * Blackwell memory bandwidth x1.9 Ada (GDDR6->7)
    * Blackwell: supports PCIe 5.0 - doubling host-to-device transfer speed [with PCIe 5.0 motherboards] (Others: 3.0, 4.0, 4.0)
 
-    https://www.techpowerup.com/gpu-specs/quadro-rtx-6000.c3307            24 GB, 6,299 USD  672.0 GB/s 
-    https://www.techpowerup.com/gpu-specs/rtx-a6000.c3686                  48 GB, 4,649 USD  768.0 GB/s 
-    https://www.techpowerup.com/gpu-specs/rtx-6000-ada-generation.c3933    48 GB, 6,799 USD  960.0 GB/s 
-    https://www.techpowerup.com/gpu-specs/rtx-pro-6000-blackwell.c4272     96 GB, 8,565 USD  1792  GB/s 
+    https://www.techpowerup.com/gpu-specs/quadro-rtx-6000.c3307            24 GB, 6,299 USD  672.0 GB/s   4608
+    https://www.techpowerup.com/gpu-specs/rtx-a6000.c3686                  48 GB, 4,649 USD  768.0 GB/s  10752 
+    https://www.techpowerup.com/gpu-specs/rtx-6000-ada-generation.c3933    48 GB, 6,799 USD  960.0 GB/s  18176 
+    https://www.techpowerup.com/gpu-specs/rtx-pro-6000-blackwell.c4272     96 GB, 8,565 USD  1792  GB/s  24064  
 
     https://aecmag.com/workstations/review-nvidia-rtx-pro-blackwell-series-gpus/
     https://aecmag.com/workstations/review-nvidia-rtx-pro-blackwell-series-gpus
 
-
+    nvidia-rtx-blackwell-gpu-architecture.pdf
 
 
 
@@ -416,6 +424,7 @@ Four NVIDIA RTX Gen : Ray Tracing : :b:`~2x every ~2 yrs`
 
 
 .. class:: tiny
+
 
     .. table:: Event Time(s) vs PH(M)
         :align: right 
@@ -448,11 +457,32 @@ Four NVIDIA RTX Gen : Ray Tracing : :b:`~2x every ~2 yrs`
 
 
 
+
 .. raw:: html
 
-    <p class="mymidleftbox">Optical simulation 4x faster 1st->3rd gen RTX,  (3rd gen, Ada : 100M photons simulated in 10 seconds) [TMM PMT model]</p>
-    <pre>
-   
+    <p class="mymidleftbox">Optical simulation 4x faster 1st->3rd gen RTX </p>
+
+    <p class="mybotrightbox">3rd gen Ada : 100M ph sim. in 10s [TMM PMT model, Custom CSG]</p>
+
+
+
+
+.. raw:: html
+
+   <p class="floating-info-box">
+      Opticks optical simulation speed directly scales with ray tracing speed.
+   </p>
+
+.. raw:: html
+
+    <p style="margin-bottom:17cm;" />
+
+
+.. class:: tiny
+    :align: right
+
+    TMM : Transfer-Matrix Method |nbsp10| |nbsp10|
+ 
 
 .. s5_talk::
 
@@ -811,7 +841,7 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
         :align: center
 
         +------------------+-----------+-------------+------------------+------------------+-------------------+---------------+----------------+
-        | Opticks+JUNOSW   | merge     | |P|-lite    |  Simulate        | (GPU merge)+     | (CPU merge)+      |  Total [s]    |  Speedup       |   
+        | Opticks+JUNOSW   | merge     | ph-lite     |  Simulate        | (GPU merge)+     | (CPU merge)+      |  Total [s]    |  Speedup       |   
         | hit_mode         |           |             |  Kernel [s]      |  Download [s]    |  Collection [s]   |               |  vs std        |
         +==================+===========+=============+==================+==================+===================+===============+================+
         | hit              |           |  |N|        |          22.996  |          1.949   |       190.445     |    215.560    |        x32     |
@@ -826,14 +856,17 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. comment
 
+   |P|-lite
+
    ~/j/zhenning_double_muon/SProf_table.rst  
          THIS DOCUMENTS THE COMMANDS USED TO GET THESE NUMBERS
 
 
 .. class:: normal
 
-    * :r:`huge speedup of hit collection [eg: 146 -> 0.4 seconds] from GPU pre-merging`
+    * :r:`huge hit collection speedup [eg: 146 -> 0.4 seconds] from GPU merging`
     * :b:`GPU hit merging time more than compensated by reduced download time` 
+    * BUT: thrust merging vram spike => reduce slots to avoid OOM (ph-lite 2x, NOT:4x)
 
 
 .. raw:: html
@@ -909,14 +942,39 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 
 
+:i:`Scaling Opticks`
+-----------------------
+
+
+.. raw:: html
+
+     <p style="margin-bottom:52mm;" />
+
+.. class:: huge
+
+    Geant4 + Opticks + NVIDIA OptiX : Production Scaling ?
+
+
+.. class:: normal
+
+   * hard to make good use of GPU resources, gets harder with each generation
+
+     * :r:`under-utilized GPUs`  
+
+   * monolithic scaling Opticks ? 
+
+     * GPU idle while : Geant4 init + non-optical simulation : :r:`wasteful of GPU resources`
+
+   :b:`=> Client-Server architecture` 
+
+   * separate GPU optical simulation into OpticksServer
+   * share server between CPU nodes  
 
 
 
+.. s5_talk::
 
-
-
-
-
+   Important to make best use of limited GPU resources
 
 
 
@@ -931,7 +989,7 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. class:: huge
 
-    Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow 2x2?
+    Geant4 + Opticks + NVIDIA OptiX : Monolith x4 ?
 
 
 .. s5_talk::
@@ -948,7 +1006,7 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. class:: huge
 
-    Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow 4x4?
+    Geant4 + Opticks + NVIDIA OptiX : Monolith x16 ?
 
 .. raw:: html
 
@@ -1053,19 +1111,10 @@ OpticksClients + OpticksService : Share GPUs
     +---------------------+-------------------------------------------------------------+---------------------------------+ 
 
 
-
 .. class:: normal
-     :align: center
- 
-     ``NP* NP_CURL::transformRemote( NP* a, size_t index, size_t count )``
-             ``HTTP POST array to endpoint, receive array in response``
 
+    * Client build from common codebase with ``OPTICKS_CONFIG=Client``
 
-
-
-.. class:: tiny
-
-     https://github.com/simoncblyth/np/blob/master/NP_CURL.h (libcurl array transport) https://github.com/simoncblyth/np/blob/master/NP.hh (C++ array with NumPy serialization)
 
 
 .. s5_talk::
@@ -1075,44 +1124,68 @@ OpticksClients + OpticksService : Share GPUs
 
 
 
+NP_CURL.h : Array transport via HTTP POST
+-----------------------------------------------
+
+.. class:: normal
+
+    :b:`Basis for Opticks Client`
+
+.. class:: normal
+     :align: center
+ 
+     ``NP* NP_CURL::transformRemote( NP* a, size_t index, size_t count )``
+          ``HTTP POST array to endpoint, receive array in response``
+
+.. class:: normal
+     :align: left
+
+     https://github.com/simoncblyth/np/blob/master/NP_CURL.h
+        requires libcurl 7.76.1+ (2021) - default in many Linux distro
+ 
+     https://github.com/simoncblyth/np/blob/master/NP.hh
+        C++ array with NumPy serialization
+     
+
+     HTTP headers carry metadata : shape, dtype, number of photons, geometry root digest, ...    
+
+
+
+.. s5_talk::
+
+     Basis for Opticks Client
 
 
 
 
-
-
-
-Split Workflow : Share GPUs between OpticksClients
------------------------------------------------------
+:small:`Opticks Server Prototype : python + FastAPI + nanobind + CSGOptiX`
+---------------------------------------------------------------------------
 
 .. class:: normal 
 
-    :b:`OpticksClient` : Detector Simulation Framework (Geant4 etc..) :strike:`GPU`
-       * *U4.h* : collect gensteps 
-       * *NP_CURL.h* : **HTTP POST** (libcurl)
+    ``CSGOptiX/tests/CSGOptiXService_FastAPI_test/CSGOptiXService_FastAPI_test.sh``
 
-         * request : genstep array
-         * response : hits array
+    * *FastAPI* : **ASGI** python web framework
+    * *nanobind* : python <=> C++ (Using *uv*, :strike:`pip`)
+    * *opticks/CSG* : load persisted geometry
+    * *opticks/CSGOptiX* : simulate 
 
-    :b:`OpticksService` : CSGOptiX + NVIDIA OptiX + :b:`GPU`
-       * *FastAPI* : **ASGI** python web framework (alt: *sanic*, *aiohttp*) :tiny:`grandmetric.com/python-rest-frameworks-performance-comparison/`
-       * *nanobind* : python <=> C++ (alt: *pybind11*), *uv* : :strike:`pip`
-       * *CSGFoundry.h* : load persisted geometry
-       * *CSGOptiXService.h* : simulate 
+    :r:`Prototype client + service operational`
 
-    :r:`Prototype clients + service under development`
-       * :b:`scale up to MC production ? ~100/1000 clients ?` 
-       * :b:`use multi-GPU to serve more clients ?`
+    * :b:`load testing with k6`  https://k6.io 
+    * :r:`server not concurrent`
+
+
+    **NVIDIA Triton Inference Server**
+
+    * potential shortcut to production Opticks server
+
 
 .. raw:: html
 
     <p style="margin-bottom:10mm;" />
 
 
-.. class:: normal 
-
-    **OR** C++ web framework eg:
-       * :strike:`binding`, :r:`less standard`
 
 .. s5_talk::
 
@@ -1123,88 +1196,42 @@ Split Workflow : Share GPUs between OpticksClients
     The service currently uses FastAPI, a  python web framework 
     as thats simple to start with.
 
-    I will also try C++ web frameworks like Drogon,
-    as getting async compute to work might be easier 
-    without the complication of language barriers and binding.
 
 
 
 
+NVIDIA Triton Inference Server
+--------------------------------
+
+.. sidebar:: :small:`Potential basis for Opticks Server`
+
+   .. class:: small
+
+       * efficiently bring Opticks to non-GPU nodes
+       * dynamic batching of small events : extend utility
+       * profit from multiple GPU nodes
+       * serve more clients
+       * :b:`make good use of GPU resources`
 
 
+.. class:: small
 
+    Triton : :r:`open-source`, designed to accelerate AI deployment at scale
 
+    * despite "Inference" name : flexible async tensor orchestration
+    * :b:`NVIDIA maintained open source server software`
+    * dynamic batching : requests queued and combined in batch
+    * multi-GPU + MIG support, eg with RTX Pro 6000 Blackwell
+    * widely used : tech, financial, manufacturing companies 
+  
+    MAYBE : :r:`wrap Opticks as Custom C++ Triton Backend`
 
-
-
-
-
-
-:small:`Opticks MC production monolithic deployment with Dirac(X) ? Require:`
----------------------------------------------------------------------------------
-
-.. class:: normal
-
-    * NVIDIA GPU (5~10x performance benefit with RTX GPUs)
-    * docker container support : https://hub.docker.com/r/simoncblyth/cuda/tags
-    * NVIDIA Container Toolkit
-    * :r:`Minimum NVIDIA Driver version requirement of NVIDIA OptiX`   
-
-      * NVIDIA OptiX : **implementation is within Driver**
-
-    :b:`NVIDIA GPU resources : expensive, high demand, difficult to fully utilize`
-
-    **Dirac(X) matching job to resources** : :r:`Are Dirac "tags" expressive enough ?`
-
-    * requirement for NVIDIA GPU
-    * mandatory NVIDIA Driver version ``>=`` ?
-    * GPU type order of preference (eg RTX generation "0",1,2,3,..) ?
-    * GPU VRAM requirement, min/max ?
-
-    :b:`GPU workloads becoming ubiquitous, others will have similar needs`
+    * NEED: cudaStream_t for all Opticks GPU usage 
 
 
 .. s5_talk::
 
-    The old monolithic approach requires matching jobs with GPU resources.
-    As far as I understand that is done in Dirac by matching string tags ?  
-    While I expect you could do what is needed, it would probably require lots of 
-    string tags.  Supporting version and integer comparison would make that
-    much easier.  Is there already possible, or is there any hope of that. 
-    Perhaps Dirac is limited by what slurm and HTCondor provide ?
-
-
-:small:`Opticks MC production Server/Client deployment with Dirac(X) ?`
-------------------------------------------------------------------------
-
-.. class:: normal
-
-    :b:`GPU-less` *OpticksClients* : Geant4 + JUNOSW + libcurl : HTTP POST to *OpticksService*
     
-    **Restrictions/Quotas ?**
-
-    * HTTP POST request/response jobs<->server
-    * ~100 MB of network traffic per simulated event  
-
-      * gensteps ``(~10k,6,4) float [~1 MB]`` 
-      * hits ``( ~1M, 4, 4) float [64 MB]``
-
-    * proxy to avoid blocks ? (libcurl very mature)
-    * :r:`complications : authentication, authorization, accounting`
-
-
-.. class:: normal
-
-   Scale Opticks GPU optical photon simulation to large MC productions, with efficient GPU use
-      * :b:`benefit from open source packages/examples with similar requirements`
-
-
-
-.. s5_talk::
-
-    GPU-less Opticks clients avoids GPU matching, but it means that
-    jobs would be using network for genstep uploads and hit downloads. 
-    I wonder are there restrictions or quotas for doing that  ?
 
 
 
@@ -1282,4 +1309,28 @@ Split Workflow : Share GPUs between OpticksClients
 
 
  
+
+.. comment
+
+    Concurrent Opticks Server Ideas
+    ---------------------------------
+
+
+    .. class:: normal
+     
+        Problem: enormous load range
+
+        * handful to billions of photons
+        * fraction of a second to minutes
+
+        python FastAPI asyncio.semaphore
+
+
+        * requests divided into lanes (eg small/medium/large) of fixed concurrency eg 4/2/1 
+        * VRAM carved into fixed size photon buffers corresponding to concurrency config
+
+        **Handling more photons than available slots**
+
+        * slice gensteps, do multiple kernel launches
+
 

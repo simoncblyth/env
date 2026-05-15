@@ -115,6 +115,26 @@
 
 
 
+
+.. raw:: html
+
+   <style>
+      .floating-info-box {
+          position: fixed;
+          top: 15px;
+          right: 20px;
+          width: 500px;
+          background: #fff;
+          border: 1px solid #333;
+          padding: 1px;
+          z-index: 999;
+          color: blue;
+          font-weight: bold; 
+          font-size: 30px; 
+      }
+   </style>
+
+
 .. raw:: html
 
     <style type="text/css">
@@ -255,6 +275,16 @@
              padding:5px;
          }
 
+        p.mybotrightbox { 
+             position:fixed;
+             bottom:40px;
+             right:10px;
+             font-size:25px;
+             background-color:yellow;
+             border:1px solid black;
+             padding:5px;
+             max-width:400px;
+         }
 
 
 
