@@ -385,13 +385,22 @@ Opticks Presentations
 2026
 ~~~~~
 
+
+`env/presentation/opticks_20260527_bangkok_chep2026.html <env/presentation/opticks_20260527_bangkok_chep2026.html>`_
+
+    Opticks: GPU Accelerated Optical Photon Simulation for JUNO and Other Experiments
+
+    28th CHEP Conf, Chulalongkorn Univ, Bangkok, Thailand,  27 May 2026
+
+    **WIP: Under preparation**
+
+
 `env/presentation/opticks_20260122_wuhan.html <env/presentation/opticks_20260122_wuhan.html>`_
 
     Status of *JUNOSW + Opticks : GPU ray trace accelerated optical photon simulation*
 
     JUNO Collaboration Meeting, Wuhan, 22 January 2026
 
-    **WIP: Under preparation**
     
 
 2025
