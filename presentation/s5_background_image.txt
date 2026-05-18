@@ -188,6 +188,9 @@
     NVIDIA Triton Inference Server
     nvidia/triton/nvidia_triton_inference_server.png 830px_360px 450px_360px
 
+    NVIDIA Triton Inference Server (aka Dynamo-Triton)
+    nvidia/triton/nvidia_triton_inference_server.png 830px_360px 450px_360px
+
     Opticks Progress Summary 
     ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow7_005.png 640px_360px 640px_0px
     LayrTest/4/figs/LayrTest/mpcap/LayrTest__R12860_Aspa.png 640px_360px 0px_360px
