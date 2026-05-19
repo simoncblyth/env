@@ -2,18 +2,18 @@ slides-source(){   echo $BASH_SOURCE ; }
 slides-vi(){       vi $BASH_SOURCE ; }
 slides-usage(){ cat << EOU
 
-CONVERT SLIDES IN S5 RST TO HTML AND PDF 
+CONVERT SLIDES IN S5 RST TO HTML AND PDF
 =========================================
 
 
 FUNCTIONS
 -----------
 
-slides-get--
-    automatically get all pages of the current presentation from presentation-
+slides-get
+    formerly slides-get--, automatically get all pages of the current presentation from presentation-
 
-FIXED issue with slides-get-- : slides-crop was using python without PIL
-shift to using ${OPTICKS_PYTHON:-python} to pick the miniconda python 
+FIXED issue with slides-get : slides-crop was using python without PIL
+shift to using ${OPTICKS_PYTHON:-python} to pick the miniconda python
 
 
 Issue : Over cropping at top of slides
@@ -22,13 +22,13 @@ Issue : Over cropping at top of slides
 Pixel dimensions::
 
     Original : 2560x1562
-    Cropped  : 2560x1382    # 180 pixels trimmed, more at top than bottom 
+    Cropped  : 2560x1382    # 180 pixels trimmed, more at top than bottom
 
 
 Simplify talk interleaving with p2.sh
 ---------------------------------------
 
-* running p2.sh avoids the need to manually change presentation-iname to _TALK 
+* running p2.sh avoids the need to manually change presentation-iname to _TALK
 
 Running this opens two web pages in Safari, without and with the s5_talk slides.
 
@@ -39,29 +39,29 @@ How to interleave presentation slides with s5_talk notes
 -----------------------------------------------------------
 
 1. in presentation source ensure that there is an ".. s5_talk::" directive
-   with notes for each and every slide 
+   with notes for each and every slide
 
-2. after the presentation is completed and normal PDF made using "slides-get--"
-   use ./p2.sh generate the interleaved html.  Rerun p2.sh whilst 
-   thinking about what you are going to say and editing the annotations.  
+2. after the presentation is completed and normal PDF made using "slides-get"
+   use ./p2.sh generate the interleaved html.  Rerun p2.sh whilst
+   thinking about what you are going to say and editing the annotations.
 
    * see p2.sh for some tips on handling too much annotation with "SMALL"
 
-     * also find ways to say things in fewer words, and defer details 
+     * also find ways to say things in fewer words, and defer details
        to other slides
 
-   * CAUTION : do not edit the derived _TALK .rst file in which the contents    
-     of s5_talk directives become separate pages, instead edit the 
+   * CAUTION : do not edit the derived _TALK .rst file in which the contents
+     of s5_talk directives become separate pages, instead edit the
      content of the s5_talk directives in the non-_TALK file
 
-4. Once have finalized the annotations, rerun "slides-get--" capture and pdf creation 
-   with iname temporarily with _TALK appended that will get  
+4. Once have finalized the annotations, rerun "slides-get" capture and pdf creation
+   with iname temporarily with _TALK appended that will get
    exactly twice the number of pages compared to the un-annotated slides
 
-   * WIP: avoid the need to temporarily change the iname 
-   * MAYBE: slides-get-talk-- DOES THIS ALREADY  
+   * WIP: avoid the need to temporarily change the iname
+   * MAYBE: slides-get-talk DOES THIS ALREADY
 
-5. to convert the PDF to a two-up form for looking at while 
+5. to convert the PDF to a two-up form for looking at while
    giving the presentation.
 
     * in Preview.app select print, in "Layout" choose "Pages per sheet: 2"
@@ -69,7 +69,7 @@ How to interleave presentation slides with s5_talk notes
     * then save as PDF with name such as "opticks_jul2020_juno_TALK_2up.pdf"
 
 6. the above is fine but the text can be a bit small : an alternative is
-   to double up the front page, and then Preview view 2 pages 
+   to double up the front page, and then Preview view 2 pages
    can be used for side by side presentation and annotation.
 
 ::
@@ -78,12 +78,12 @@ How to interleave presentation slides with s5_talk notes
     epsilon:opticks_jul2020_juno_TALK blyth$ pwd
     /tmp/simoncblyth.bitbucket.io/env/presentation/opticks_jul2020_juno_TALK
 
-    epsilon:opticks_jul2020_juno_TALK blyth$ open .  
+    epsilon:opticks_jul2020_juno_TALK blyth$ open .
            ## in the Finder ensure the PNG for each are listed in desired order, sorted by name
            ## then select them all and use ctrl-click to "Make PDF from PNGs sized to fit"
            ## save as "opticks_jul2020_juno_plus1"
-    
-7. present the ordinary slides (get someone else to flip pages) while 
+
+7. present the ordinary slides (get someone else to flip pages) while
    viewing the _plus1 which provides a wide double landscape view
    of the slides beside the notes
 
@@ -97,11 +97,11 @@ Better way to combine slides and annotations avoiding space, by combining PNG 2-
     epsilon:opticks_jan2021_juno_sim_review_TALK blyth$ pwd
     /tmp/simoncblyth.bitbucket.io/env/presentation/opticks_jan2021_juno_sim_review_TALK
 
-    comb.py -g2    ## 2-by-2 combination of all PNGs in current dir, written to "comb" subdir in name sorted order 
+    comb.py -g2    ## 2-by-2 combination of all PNGs in current dir, written to "comb" subdir in name sorted order
 
-    cd comb 
+    cd comb
     open .
-    # adjust the sort order, select and then using scripting interface to make PDF from the PNG 
+    # adjust the sort order, select and then using scripting interface to make PDF from the PNG
 
 
 Sharing PDF from macOS Preview.app over AirDrop to iOS devices
@@ -109,35 +109,35 @@ Sharing PDF from macOS Preview.app over AirDrop to iOS devices
 
 * wake up iOS device and check it has a network connection
 * on laptop open the PDF to share in Preview.app
-* select File > Share > AirDrop : this opens the AirDrop panel 
+* select File > Share > AirDrop : this opens the AirDrop panel
 * an icon for the iOS device should appear in Preview.app
-* tap the icon should cause a notification on the iOS device, 
-  pick the app (eg Books) to handle the PDF then should 
-  have it immediately  
+* tap the icon should cause a notification on the iOS device,
+  pick the app (eg Books) to handle the PDF then should
+  have it immediately
 
 
 Fix iPad failing to sense landscape
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Sometimes iPad is stuck in portrait.
-Need to reboot to get the rotation sensor to operate. 
+Need to reboot to get the rotation sensor to operate.
 
 
 Best way to view slide with annotation page on iPad
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Readdle Documents App 
-    scroll view in portrait allows two pages to be seen together. 
+Readdle Documents App
+    scroll view in portrait allows two pages to be seen together.
 
 Files App
-    also OK 
-    
+    also OK
+
 laptop Preview.app fullscreen
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* make sure to use "View > Enter Full Screen"  : ctrl-command-F 
+* make sure to use "View > Enter Full Screen"  : ctrl-command-F
 
-  * DO NOT USE "View > Slideshow" : shift-command-F : AS THAT AUTO ADVANCES PAGES 
+  * DO NOT USE "View > Slideshow" : shift-command-F : AS THAT AUTO ADVANCES PAGES
 
 
 
@@ -150,16 +150,16 @@ PDF page size : Very large because somehow 72dpi ?
 minor issue : some fullscreen image pages have a band at foot 860-846 of about 14 pixels
 -------------------------------------------------------------------------------------------
 
-eg /env/graphics/ggeoview/jpmt-inside-wide_crop.png 
+eg /env/graphics/ggeoview/jpmt-inside-wide_crop.png
 
-Original image is : 2560x1440 
+Original image is : 2560x1440
 
 
 Fullscreen spec in s5_background_image is half that size::
 
    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
-   Measuring safari window 
+   Measuring safari window
 
    83:722
 
@@ -169,7 +169,7 @@ aspect check
 --------------
 
 * slides safari sets aspect to 16/9
-* use cross-hairs (shift-cmd-4) to check 
+* use cross-hairs (shift-cmd-4) to check
 
 
 ::
@@ -203,11 +203,11 @@ g4dae
     /Library/WebServer/Documents/env/presentation/g4dae_geometry_exporter
 
 
-    delta:presentation blyth$ hg add 
+    delta:presentation blyth$ hg add
     adding g4dae_geometry_exporter_okinawa.pdf
     env/presentation/g4dae_geometry_exporter_okinawa.pdf: up to 85 MB of RAM may be required to manage this file
     (use 'hg revert env/presentation/g4dae_geometry_exporter_okinawa.pdf' to cancel the pending addition)
-    delta:presentation blyth$ 
+    delta:presentation blyth$
 
 
 
@@ -224,30 +224,30 @@ Checking configured settings
         delta:~ blyth$ slides-cd ..
         delta:presentation blyth$ mv gpu_optical_photon_simulation gpu_optical_photon_simulation_apr28
 
-*slides-get 0 0*   
-    first page only 
+*slides-get 0 0*
+    first page only
 
 
 Creating HTML slides from S5 Restructured Text Sources
 --------------------------------------------------------
 
-For simplicity arrange to have only one .txt file in the presentations folder, eg when 
+For simplicity arrange to have only one .txt file in the presentations folder, eg when
 adapting an existing presentation::
 
-    simon:presentation blyth$ svn cp nov2013_gpu_nuwa.txt gpu_optical_photon_simulation.txt     
+    simon:presentation blyth$ svn cp nov2013_gpu_nuwa.txt gpu_optical_photon_simulation.txt
     A         gpu_optical_photon_simulation.txt
     simon:presentation blyth$ svn mv  nov2013_gpu_nuwa.txt  nov2013_gpu_nuwa.txt.old
     A         nov2013_gpu_nuwa.txt.old
     D         nov2013_gpu_nuwa.txt
 
 
-Check/update *slides-name*, *slides-branch*, *slides-host* settings using *slides-vi* *slides-info*, to 
-correspond to the name and location of the S5 sources. Normally 
+Check/update *slides-name*, *slides-branch*, *slides-host* settings using *slides-vi* *slides-info*, to
+correspond to the name and location of the S5 sources. Normally
 would just need to update *slides-name*, in above example *gpu_optical_photon_simulation*.
 
 Update S5 source, regenerate html and view local html in browser::
 
-    simon:presentation blyth$ vi gpu_optical_photon_simulation.txt 
+    simon:presentation blyth$ vi gpu_optical_photon_simulation.txt
     simon:presentation blyth$ make
     python ./rst2s5-2.6.py --theme-url ui/my-small-white --current-slide --visible-controls --language=en gpu_optical_photon_simulation.txt gpu_optical_photon_simulation.html
     created gpu_optical_photon_simulation.html NAMES gpu_optical_photon_simulation
@@ -262,7 +262,7 @@ To check a particular page use links like:
 The above steps can also be done with *slides-make*.
 
 *slides-make*
-            Uses rst2s5.py to convert S5 .txt sources into .html.  
+            Uses rst2s5.py to convert S5 .txt sources into .html.
 
 
 Rsync derived files elsewhere and cleanup source tree
@@ -288,7 +288,7 @@ Publish html to web server
 ----------------------------
 
 #. make sure working copy is clean and commit changed files to subversion
-#. update env working copy on webserver 
+#. update env working copy on webserver
 #. generate the html on the web server with *slides-make* or manually as shown above
 #. use *slides-rsync* to propagate into the appropriate place for Sphinx derived html
 #. rsync to the webserver htdocs with *slides-publish* note that the destination
@@ -297,7 +297,7 @@ Publish html to web server
 Hmm, also needed to::
 
    cd ~/env
-   make rsync 
+   make rsync
 
 * TODO: streamline this, too many steps that have to be done in the correct order, see **eup** func on C2R
 
@@ -322,19 +322,19 @@ Publish to remote apache
 Integrate URLs of presentation HTML with Sphinx
 --------------------------------------------------
 
-In the Sphinx index.rst in the presention folder add 
+In the Sphinx index.rst in the presention folder add
 raw html lists of links in order to allow navigation
 from Sphinx derived docs to the presentation html and pdf.
 
 Coexisting with Sphinx
 -----------------------
 
-Slide sources are named *.txt* rather than *.rst* 
+Slide sources are named *.txt* rather than *.rst*
 
-This avoid Sphinx attempting to build the S5 sources, which are 
+This avoid Sphinx attempting to build the S5 sources, which are
 in plain docutils restructured text using S5 definitions rather
 than Sphinx RST.
-  
+
 The generated S5 html and pdf are placed within the Sphinx
 build directory at the appropriate place in the tree
 corresponding to the RST sources
@@ -358,13 +358,13 @@ Include Fullscreen Image in S5 slides ?
 * https://developer.mozilla.org/en-US/docs/Web/CSS/background-repeat
 
 Use raw html directive at the head of the RST source, identifying slides
-to receive background images via div#id css selectors where the id are 
+to receive background images via div#id css selectors where the id are
 a somewhat mangled slide titles.
 
 Note:
 
 #. document relative and server relative links are usable from css
-#. protocol relative, starting "//" also works but that would mean 
+#. protocol relative, starting "//" also works but that would mean
    hardcoding the sever hostname
 
 ::
@@ -375,45 +375,45 @@ Note:
 
        <style type="text/css">
 
-         /* 
+         /*
               1282 × 960  pixels    143.99 pixels/inch  237.1 KB (242,821 bytes)     chroma_dayabay_adlid.png
-              1278 × 962  pixels    143.99 pixels/inch  433.5 KB (443,928 bytes)     chroma_dayabay_pool_pmts.png      
+              1278 × 962  pixels    143.99 pixels/inch  433.5 KB (443,928 bytes)     chroma_dayabay_pool_pmts.png
 
-              With "background-size: contain" and not specifying a size for the div leads 
-              to scaling being dependant on the dimensions of the div, which depend on the amount 
+              With "background-size: contain" and not specifying a size for the div leads
+              to scaling being dependant on the dimensions of the div, which depend on the amount
               of content lines on the page, also this changes resize browser window. When
               little content the image is scaled up into top left corner.
 
-              With "background-size: cover" and not specifying a size for the div leads 
+              With "background-size: cover" and not specifying a size for the div leads
               to scaling to fill horizontally, but vertical chop when the content ends.
 
-              Omitting "background-size" and not specifying a size for the div get 
-              no image scaling, it appears as-is but chopped according to size of the div. 
+              Omitting "background-size" and not specifying a size for the div get
+              no image scaling, it appears as-is but chopped according to size of the div.
 
               Omitting "background-size" and specifying "div.slide { height: 100%; }"
               gets no image scaling and image presented as-is without any chopping.  This
-              is a better approach as the per slide config is minimised to just 
-              specifying the url. 
+              is a better approach as the per slide config is minimised to just
+              specifying the url.
 
          */
 
-          div.slide { 
+          div.slide {
              background-clip: border-box;
              background-repeat: no-repeat;
              height: 100%;
           }
           div.slide#full-screen{
              background-image: url(images/chroma/chroma_dayabay_adlid.png);
-          }  
+          }
           div.slide#full-screen-2{
              background-image: url(images/chroma/chroma_dayabay_pool_pmts.png);
-          }  
+          }
           div.slide#test-server-relative-link{
              background-image: url(/env/test/LANS_AD3_CoverGas_Humidity.png);
-          }  
+          }
           div.slide#test-protocol-relative-link{
              background-image: url(//localhost/env/test/LANS_AD3_CoverGas_Humidity.png);
-          }  
+          }
 
 
        </style>
@@ -431,28 +431,28 @@ Note:
 
        Content appears on top of the image, that can be difficult to read.
 
-      
 
 
 
-Convert .html pages to .pdf 
+
+Convert .html pages to .pdf
 ------------------------------
 
-Creates PDF documents from a sequence of cropped browser 
-screen capture PNGs. 
+Creates PDF documents from a sequence of cropped browser
+screen capture PNGs.
 
-This is particularly useful with S5 slides created with 
-rst2s5.py as this avoids having to duplicate the layout exercise 
+This is particularly useful with S5 slides created with
+rst2s5.py as this avoids having to duplicate the layout exercise
 for the pdf.  A PDF can be created from the rst via several routes
-but it will not look like the S5 slides without duplicated styling 
+but it will not look like the S5 slides without duplicated styling
 effort.
 
-The disadvantage is bitmapped PDFs lacking clickable links. 
-Mitigate this (and gain some html traffic) by providing a 
+The disadvantage is bitmapped PDFs lacking clickable links.
+Mitigate this (and gain some html traffic) by providing a
 prominent reference to the online html version of the slides.
 
-The advantage of having slides in html, generated from 
-plain text RST files outweighs the disadvantage.  
+The advantage of having slides in html, generated from
+plain text RST files outweighs the disadvantage.
 
 
 
@@ -498,19 +498,19 @@ PDF CREATION FUNCTIONS
 ------------------------
 
 *slides-get N M*
-                performs the below functions, does screencaptures to PNG, 
+                performs the below functions, does screencaptures to PNG,
                 cropping PNG and converting to PDF, usage::
 
-                     slides-get 0 5    
+                     slides-get 0 5
 
 
 *slides-capture N M*
                 screencapture a sequence of Safari pages, eg S5 slides
 
                 During operation the sequence of Browser pages will load
-                one by one.  As each URL is visited, user intervention 
-                to click the window is required. As the tabs are left it is 
-                preferable to start with only a small number of 
+                one by one.  As each URL is visited, user intervention
+                to click the window is required. As the tabs are left it is
+                preferable to start with only a small number of
                 Safari tabs before running the script.
 
                 For each load:
@@ -523,13 +523,13 @@ PDF CREATION FUNCTIONS
 *slides-crop*
               runs python cropper on all NN.png, creating NN_crop.png
 *slides-convert*
-              uses convert to concatenate NN_crop.png into name.pdf , this 
-              is using ImageMagick (a very heavy dependency). 
+              uses convert to concatenate NN_crop.png into name.pdf , this
+              is using ImageMagick (a very heavy dependency).
 
-              Initially used Automator action, 
+              Initially used Automator action,
               /Library/WebServer/Documents/env/muon_simulation/presentation/pngs2pdf.workflow
 
-              Subsequently created an Automator Service `Make PDF from PNGs`, 
+              Subsequently created an Automator Service `Make PDF from PNGs`,
               documented at :env:`osx/osx_automator_workflows`
 
 
@@ -540,24 +540,24 @@ PDF CREATION FUNCTIONS
 ::
 
     delta:opticks_gpu_optical_photon_simulation blyth$ downsize.py *.png
-    INFO:env.doc.downsize:Resize 2  
-    INFO:env.doc.downsize:downsize 00_crop.png to create 00_crop_half.png 2682px_1498px -> 1341px_749px 
-    INFO:env.doc.downsize:downsize 01_crop.png to create 01_crop_half.png 2682px_1498px -> 1341px_749px 
-    INFO:env.doc.downsize:downsize 02_crop.png to create 02_crop_half.png 2682px_1498px -> 1341px_749px 
+    INFO:env.doc.downsize:Resize 2
+    INFO:env.doc.downsize:downsize 00_crop.png to create 00_crop_half.png 2682px_1498px -> 1341px_749px
+    INFO:env.doc.downsize:downsize 01_crop.png to create 01_crop_half.png 2682px_1498px -> 1341px_749px
+    INFO:env.doc.downsize:downsize 02_crop.png to create 02_crop_half.png 2682px_1498px -> 1341px_749px
     ...
-    INFO:env.doc.downsize:downsize 30_crop.png to create 30_crop_half.png 2682px_1498px -> 1341px_749px 
-    INFO:env.doc.downsize:downsize 31_crop.png to create 31_crop_half.png 2682px_1498px -> 1341px_749px 
-    INFO:env.doc.downsize:downsize 32_crop.png to create 32_crop_half.png 2682px_1498px -> 1341px_749px 
+    INFO:env.doc.downsize:downsize 30_crop.png to create 30_crop_half.png 2682px_1498px -> 1341px_749px
+    INFO:env.doc.downsize:downsize 31_crop.png to create 31_crop_half.png 2682px_1498px -> 1341px_749px
+    INFO:env.doc.downsize:downsize 32_crop.png to create 32_crop_half.png 2682px_1498px -> 1341px_749px
 
 
 EOU
 }
 
-slides-env(){     
-    : bitbucketstatic- looks not needed 
-    elocal- ; 
-    #bitbucketstatic- ; 
-    presentation- ;  
+slides-env(){
+    : bitbucketstatic- looks not needed
+    elocal- ;
+    #bitbucketstatic- ;
+    presentation- ;
 }
 slides-fold(){  echo $(slides-branch)/$(slides-name) ; }
 
@@ -565,10 +565,10 @@ slides-fold(){  echo $(slides-branch)/$(slides-name) ; }
 #slides-dir(){   echo $HOME/simoncblyth.bitbucket.io/env/$(slides-fold) ; }
 slides-dir(){   echo /tmp/simoncblyth.bitbucket.io/env/$(slides-fold) ; }
 
-slides-sdir(){  echo $(env-home)/$(slides-branch) ; } 
+slides-sdir(){  echo $(env-home)/$(slides-branch) ; }
 slides-pdir(){  echo $(env-home)/_build/dirhtml/$(slides-fold) ; }
 slides-path(){  echo $(slides-dir)/$(slides-name).${1:-pdf} ; }
-slides-open(){  open $(slides-path $*) ; } 
+slides-open(){  open $(slides-path $*) ; }
 slides-info(){
    cat << EOI
 
@@ -577,9 +577,9 @@ slides-info(){
    slides-sdir : $(slides-sdir)             go here with slides-scd
    slides-pdir : $(slides-pdir)
    slides-path : $(slides-path)
-   
+
    slides-name   : $(slides-name)          override via SLIDES_NAME $SLIDES_NAME
-   slides-branch : $(slides-branch)        override via SLIDES_BRANCH $SLIDES_BRANCH 
+   slides-branch : $(slides-branch)        override via SLIDES_BRANCH $SLIDES_BRANCH
    slides-host   : $(slides-host)          override via SLIDES_HOST $SLIDES_HOST
    slides-url    : $(slides-url)           override via SLIDES_URL $SLIDES_URL
    slides-ppath  : $(slides-ppath)
@@ -593,7 +593,21 @@ slides-tcd(){ TALK=1 slides-cd ; }
 
 slides-scd(){  cd $(slides-sdir); }
 slides-mkdir(){ mkdir -p $(slides-dir) ; }
-slides-get(){
+
+
+
+slides-allow(){
+
+   : This forces the screen capture authorization timestamp to update to right now
+
+   type $FUNCNAME
+   defaults write ~/Library/Group\ Containers/group.com.apple.replayd/ScreenCaptureApprovals.plist "com.apple.Terminal" -date "$(date +'%Y-%m-%d %H:%M:%S +0000')"
+   killall replayd
+
+}
+
+
+slides-get-pages(){
    local msg="=== $FUNCNAME :"
 
    # adjust safari window size
@@ -607,62 +621,67 @@ slides-get(){
    [ $? -ne 0 ] && echo $msg ERROR from slides-crop && return 1
 
    slides-rm-uncropped
-   # on OSX invokes slided-convert-automator 
-   # this just opens folder of .pngs and gives instructions on how to use the automator 
+   # on OSX invokes slided-convert-automator
+   # this just opens folder of .pngs and gives instructions on how to use the automator
    # action to make .pdf from them
    slides-convert
 
 
-   return 0 
+   return 0
 
 }
 
 slides-get-page-range(){       slides-get 0 42 ; }
 
-slides-get--notes(){ << EON
+slides-get-notes(){ << EON
 
-* slides-get-- and slides-get--s automatically determine pagecount by grepping the curled html 
+* slides-get and slides-s automatically determine pagecount by grepping the curled html
 
 EON
 }
 
-slides-get--(){
+slides-get(){
    local msg="=== $FUNCNAME :"
    local pc=$(slides-url-pagecount)
    echo $msg SMRY $SMRY
-   echo $msg slides-url $(slides-url)  
-   echo $msg pagecount $pc 
-   slides-get 0 $(( $pc - 1 ))
+   echo $msg slides-url $(slides-url)
+   echo $msg pagecount $pc
+   slides-get-pages 0 $(( $pc - 1 ))
 }
 
-slides-get-talk--(){
-   TALK=1 slides-get--   
+slides-get--()
+{
+   echo $BASH_SOURCE - this old bash function now just slides-get as its the normal usage
 }
 
-slides-dupe-cover(){ 
-   : kludge extra title page with TALK PDF making Preview 2-page pairings correct 
-   cp 00_crop.png 00_crop_.png 
-} 
+slides-get-talk(){
+   TALK=1 slides-get
+}
 
-slides--s(){  SMRY=1        slides-get-- $* ; }
-slides--st(){ TALK=1 SMRY=1 slides-get-- $* ; }
-slides--td(){  TALK=1        slides-get-- $* ; slides-dupe-cover ; }
-slides--t(){  TALK=1        slides-get-- $* ; }
-slides--(){                 slides-get-- $* ; }
+slides-dupe-cover(){
+   : kludge extra title page with TALK PDF making Preview 2-page pairings correct
+   cp 00_crop.png 00_crop_.png
+}
+
+slides-s(){  SMRY=1        slides-get $* ; }
+slides-st(){ TALK=1 SMRY=1 slides-get $* ; }
+slides-td(){  TALK=1       slides-get $* ; slides-dupe-cover ; }
+slides-t(){  TALK=1        slides-get $* ; }
+slides--(){                slides-get $* ; }
 
 
 
 slides-name(){       echo $(presentation-oname) ; }   # this is sensitive to TALK envvar appending _TALK when defined
 slides-branch(){    echo ${SLIDES_BRANCH:-presentation} ; }        # env relative path to where .txt sources reside
 
-#slides-host(){      echo ${SLIDES_HOST:-simoncblyth.bitbucket.io} ; }   
-slides-host(){      echo ${SLIDES_HOST:-localhost} ; }   
+#slides-host(){      echo ${SLIDES_HOST:-simoncblyth.bitbucket.io} ; }
+slides-host(){      echo ${SLIDES_HOST:-localhost} ; }
 
 slides-url-prior(){ echo ${SLIDES_URL:-http://$(slides-host)/e/$(slides-fold)/$(slides-name).html} ; }
-slides-ppath-prior(){ echo $(apache-htdocs $1)/e/$(slides-fold)/$(slides-name).${2:-pdf} ; }   
+slides-ppath-prior(){ echo $(apache-htdocs $1)/e/$(slides-fold)/$(slides-name).${2:-pdf} ; }
 
 slides-url(){       echo ${SLIDES_URL:-http://$(slides-host)/env/$(slides-branch)/$(slides-name).html} ; }
-slides-ppath(){     echo $(apache-htdocs $1)/env/$(slides-branch)/$(slides-name).${2:-pdf} ; }   
+slides-ppath(){     echo $(apache-htdocs $1)/env/$(slides-branch)/$(slides-name).${2:-pdf} ; }
 
 slides-url-page(){  echo "$(slides-url)?p=$1" ; }
 
@@ -676,12 +695,12 @@ EON
 
 slides-urls(){
    local pc=$(slides-url-pagecount)
-   local page 
+   local page
    local url
-   seq 0 $(( $pc - 1 )) | while read page ; do 
+   seq 0 $(( $pc - 1 )) | while read page ; do
        url=$(slides-url-page $page)
        echo $url
-   done 
+   done
 }
 slides-urls-s(){ SMRY=1 slides-urls ; }
 
@@ -689,17 +708,17 @@ slides-urls-s(){ SMRY=1 slides-urls ; }
 
 slides-safari(){  osascript $(slides-safari-path) ; }
 slides-safari-edit(){  vi $(slides-safari-path) ; }
-slides-safari-path(){  echo $(env-home)/doc/safari.applescript ; }  
+slides-safari-path(){  echo $(env-home)/doc/safari.applescript ; }
 
 slides-safaria(){  osascript $(slides-safaria-path) ; }
 slides-safaria-edit(){  vi $(slides-safaria-path) ; }
-slides-safaria-path(){  echo $(env-home)/doc/safaria.applescript ; }  
+slides-safaria-path(){  echo $(env-home)/doc/safaria.applescript ; }
 
 
 
 slides-chrome(){  osascript $(slides-chrome-path) ; }
 slides-chrome-edit(){  vi $(slides-chrome-path) ; }
-slides-chrome-path(){  echo $(env-home)/doc/chrome.applescript ; }  
+slides-chrome-path(){  echo $(env-home)/doc/chrome.applescript ; }
 
 
 slides-screenshots-dir(){ echo $(apache-htdocs)/env/geant4/geometry/collada/g4daeview ; }
@@ -710,7 +729,7 @@ slides-pages(){
   local i
   local START=${1:-0}
   local END=${2:-0}
-  typeset -i START END 
+  typeset -i START END
   for ((i=START;i<=END;++i)); do echo $i; done
 }
 
@@ -729,18 +748,18 @@ slides-rsync(){
    local outdir=$(slides-dir)
    local ans
    read -p "$msg rsync derived outputs to $outdir and clean them from working copy  : Enter YES to proceed " ans
-   [ "$ans" != "YES" ] && echo $msg skipping && return 
+   [ "$ans" != "YES" ] && echo $msg skipping && return
 
    mkdir -p $outdir
    echo $msg rsync S5 html slides and sources to $outdir
    make rsync OUTDIR=$outdir
 
-   echo $msg removing any derived .html .pdf files 
+   echo $msg removing any derived .html .pdf files
    make clean
 }
 
 slides-publish(){
-  case $NODE_TAG in 
+  case $NODE_TAG in
      C2|C2R) $FUNCNAME-rsync ;;
           *) $FUNCNAME-ln ;;
   esac
@@ -759,7 +778,7 @@ slides-publish-rsync(){
 }
 
 #slides-fmt(){ echo pdf ; }  # PIL cannot crop PDF
-slides-fmt(){ echo png ; }   
+slides-fmt(){ echo png ; }
 slides-quit(){ touch ~/QUIT ; }
 slides-capture(){
    local msg="=== $FUNCNAME "
@@ -774,7 +793,7 @@ slides-capture(){
    local zpage
    local name
    local cname
- 
+
 
    for page in $pages ; do
       url=$(slides-url-page $page)
@@ -782,24 +801,24 @@ slides-capture(){
       name="${zpage}.${fmt}"
       cname="${zpage}_crop.${fmt}"
 
-      [ -f "$HOME/QUIT" ] && echo $msg QUIT due to HOME/QUIT  && return 
+      [ -f "$HOME/QUIT" ] && echo $msg QUIT due to HOME/QUIT  && return
 
       slides-safari
 
-      if [ -f "$name" -o -f "$cname" ]; then 
+      if [ -f "$name" -o -f "$cname" ]; then
           echo $msg file $name or $cname from url "$url" already downloaded : delete and rerun to refresh
       else
 
-          echo $msg opening url "$url" 
+          echo $msg opening url "$url"
           open -a Safari.app "$url"
           #slides-safaria    # pressing key a : makes the page selector GUI invisible via javascript
           cmd="screencapture -T0 -t$fmt -w -i -o $name"
           #
-          #    -T<seconds>  Take the picture after a delay of <seconds>, default is 5 
+          #    -T<seconds>  Take the picture after a delay of <seconds>, default is 5
           #    -w           only allow window selection mode
           #    -i           capture screen interactively, by selection or window
           #    -o           in window capture mode, do not capture the shadow of the window
-          #    -t<format>   image format to create, default is png (other options include pdf, jpg, tiff and other formats)      
+          #    -t<format>   image format to create, default is png (other options include pdf, jpg, tiff and other formats)
           #
           echo $msg about to do $cmd : tap browser window once loaded and highlighted blue
           sleep 1
@@ -824,17 +843,17 @@ slides-crop(){
    local msg="=== $FUNCNAME "
    slides-cd
    echo $msg cropping png
-   slides-crop- 
+   slides-crop-
 }
 
 slides-crop-test-(){
 
-   [ -z "$SLIDES_CROP_TEST" ] && echo $FUNCNAME : expecting SLIDES_CROP_TEST envvar pointing to png slide to be cropped && return 
+   [ -z "$SLIDES_CROP_TEST" ] && echo $FUNCNAME : expecting SLIDES_CROP_TEST envvar pointing to png slide to be cropped && return
    local fold=/tmp/$FUNCNAME
    mkdir -p $fold
    cd $fold
    cp $SLIDES_CROP_TEST .
-   slides-crop-   
+   slides-crop-
 }
 slides-crop-test(){
 
@@ -903,41 +922,41 @@ EOD
 slides-magick-in-path()
 {
    local magick_bin=/opt/local/lib/ImageMagick7/bin
-   if [ -d "$magick_bin" ]; then 
+   if [ -d "$magick_bin" ]; then
        PATH=$magick_bin:$PATH
        which magick
-   fi 
+   fi
 }
 
 slides-convert(){
    : OSX pdf is a lot smaller than the magick ones
    local msg="=== $FUNCNAME "
-   local pdf=$(slides-name).pdf   
+   local pdf=$(slides-name).pdf
    slides-cd
-   echo $msg converting PNG into $pdf 
+   echo $msg converting PNG into $pdf
 
    slides-magick-in-path
 
    if [ "$(which magick)" != "" ]; then
         echo $FUNCNAME - using magick
         #magick ???_crop.png $pdf
-        #magick ???_crop.png -compress lossless -density 300 $pdf 
-        magick ???_crop.png -strip -compress JPEG -quality 75 $pdf   
+        #magick ???_crop.png -compress lossless -density 300 $pdf
+        magick ???_crop.png -strip -compress JPEG -quality 75 $pdf
         : observed these settings strip-JPEG-75 to reduce from 40MB to 11MB with unnoticeable degradation
-   elif [ "$(which convert)" != "" ]; then  
+   elif [ "$(which convert)" != "" ]; then
         echo $FUNCNAME - using  convert
         convert ???_crop.png $pdf
    else
         echo $FUNCNAME - using automator
-        slides-convert-automator 
-   fi 
+        slides-convert-automator
+   fi
 
 }
 slides-scp(){
    local msg="=== $FUNCNAME "
    local tag=${1:-C2R}
    local scp="scp $(slides-path pdf) $tag:$(NODE_TAG=$tag slides-path pdf)"
-   echo $msg $scp 
+   echo $msg $scp
    eval $scp
    echo $msg : NB may need to do a slides-publish on the destination to make the PDF accessible
 }
@@ -948,13 +967,13 @@ slides-scp-htdocs(){
    local tag=${1:-C2R}
    apache-
    local scp="scp $(slides-path pdf) $tag:$(slides-ppath $tag pdf)"
-   echo $msg $scp 
+   echo $msg $scp
    eval $scp
 }
 
 
 slides-rst2pdf(){
-   /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin/rst2pdf $* 
+   /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin/rst2pdf $*
 }
 slides-rst2pdf-convert(){
   local name=$(slides-name)
@@ -966,7 +985,7 @@ slides-rst2pdf-convert(){
 
 slides-apache-prepare(){
    local msg="=== $FUNCNAME "
-   apache- 
+   apache-
    local cmd="sudo mkdir -p $(apache-htdocs)/env/$(slides-branch)"
    echo $msg $cmd
    eval $cmd
@@ -989,7 +1008,7 @@ slides-apache-publish(){
 
    local cmd
    local dirs="ui images"
-   for dir in $dirs ; do 
+   for dir in $dirs ; do
        cmd="cp -r $dir $target/"
        echo $cmd
        eval $cmd

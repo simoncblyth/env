@@ -3,8 +3,24 @@
    :title: Opticks: GPU Accelerated Optical Photon Simulation for JUNO and Other Experiments
    :description: (2026 May 27) JUNO, OptiX, Opticks
    :note0: 18 min
+   :docdb: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=16362
 
 .. include:: my_s5defs.txt
+
+
+.. docdb notice
+
+    Dear All,
+
+    My draft slides for a parallel CHEP talk next week, Wednesday 27th May, entitled:
+
+        Opticks: GPU Accelerated Optical Photon Simulation for JUNO and Other Experiments
+
+    are linked below. Any suggestions/comments are welcome.
+
+        https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=16362
+
+    Simon
 
 
 .. chep 2026 abstract
@@ -1124,7 +1140,10 @@ OpticksClients + OpticksService : Share GPUs
 
 .. class:: normal
 
-    * Client build from common codebase with ``OPTICKS_CONFIG=Client``
+    Client build from common Opticks codebase with ``OPTICKS_CONFIG=Client``
+
+    * :b:`OpticksClient use just like OpticksFull(monolithic) - simulate via network to remote GPU`
+
 
 
 
@@ -1140,26 +1159,53 @@ NP_CURL.h : Array transport via HTTP POST
 
 .. class:: normal
 
-    :b:`Basis for Opticks Client`
+    :b:`Basis for Opticks Client` - using libcurl 7.76.1+ (2021) - default in many Linux distro
 
-.. class:: normal
-     :align: center
 
-     ``NP* NP_CURL::transformRemote( NP* a, size_t index, size_t count )``
-          ``HTTP POST array to endpoint, receive array in response``
+.. container:: center
+
+    ``NP* NP_CURL::transformRemote( NP* a, size_t index, size_t count )``
+      *HTTP POST array to endpoint, receive array in response, metadata in headers*
+
+
 
 .. class:: normal
      :align: left
 
-     https://github.com/simoncblyth/np/blob/master/NP_CURL.h
-        requires libcurl 7.76.1+ (2021) - default in many Linux distro
-
-     https://github.com/simoncblyth/np/blob/master/NP.hh
-        C++ array with NumPy serialization
+     ``NP.hh`` : C++ array with NumPy serialization (Opticks numerical base), ``NP_CURL.h`` headers:
 
 
-     HTTP headers carry metadata : shape, dtype, number of photons, geometry root digest, ...
+.. table::
+    :align: center
+    :widths: auto
+    :class: small center-aligned-table
 
+    +-------------------------------+-------------------------------------------------------------------+
+    |  HTTP metadata headers        |   Note                                                            |
+    +===============================+===================================================================+
+    | x-opticks-shape               |  array shape eg "(10,6,4)" for 10 gensteps                        |
+    +-------------------------------+-------------------------------------------------------------------+
+    | x-opticks-dtype               |  eg "float32"                                                     |
+    +-------------------------------+-------------------------------------------------------------------+
+    | x-opticks-index               |  eg eventID controlling random number stream offsets              |
+    +-------------------------------+-------------------------------------------------------------------+
+    | x-opticks-count               |  eg: number of photons in genstep, cost of request                |
+    +-------------------------------+-------------------------------------------------------------------+
+    | x-opticks-meta                |  general eg geometry root node digest - :b:`assert same geometry` |
+    +-------------------------------+-------------------------------------------------------------------+
+
+
+.. class:: normal
+     :align: left
+
+     HTTP 429, 503 : Too Many Requests, Service Unavailable (temporary downtime)
+
+     * follows ``Retry-After: <seconds>`` header suggestion
+
+
+.. class:: tiny
+
+     https://github.com/simoncblyth/np/blob/master/NP_CURL.h --  https://github.com/simoncblyth/np/blob/master/NP.hh
 
 
 .. s5_talk::
@@ -1224,45 +1270,45 @@ NVIDIA Triton Inference Server (aka Dynamo-Triton)
    .. class:: small
 
        * efficiently bring Opticks to non-GPU nodes
-       * dynamic batch small requests
-       * :r:`profit from multiple GPU, concurrency`
+       * no language barrier + binding, no python GIL
+       * mature Prometheus metrics monitoring
        * :b:`make good use of GPU resources`
        * serve more clients
        * **backends can work with non-NVIDIA GPUs**
 
 .. class:: small
 
-    Triton : :r:`open-source`, designed to accelerate AI deployment at scale
+    Triton[1] : :r:`open-source`, designed to accelerate AI deployment at scale
 
+    * despite "Inference", "AI" : is flexible async tensor server
     * :b:`NVIDIA maintained open source server software`
-    * despite "Inference" in name : flexible async tensor server
     * dynamic batching : requests queued and combined in batch
-    * multi-GPU support
+    * multi-GPU support, concurrency
     * widely used : tech, financial, manufacturing companies
 
     :r:`Wrap Opticks as Custom C++ Triton Backend "model(s)" ?`
 
     Make request load like inference : smaller, more uniform
 
-    * requests during genstep collection
-
-      * => tunable request load
+    Make requests during genstep collection :
+      * => tunable ``max_slots``
       * :b:`decouple compute from physics`
 
-    * high GPU utilization => concurrency
-    * concurrency needs:
-
+    High GPU utilization => concurrency :
       * async CUDA Opticks
-      * buffer pool allocator (esp: photons)
+      * async CUDA memory pools [2]
 
-    :r:`Concurrency degree depends:`
+    Robust Server (MC campaign):
+      * static flat VRAM
+      * backpressure, signal client retry
 
-    * VRAM + allocator + Triton config
 
 
 .. class:: tiny
 
-    https://developer.nvidia.com/dynamo-triton
+    [1] https://developer.nvidia.com/dynamo-triton
+
+    [2] ``cudaMallocFromPoolAsync``
 
 
 .. comment
