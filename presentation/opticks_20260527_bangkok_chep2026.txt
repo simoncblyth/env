@@ -710,6 +710,27 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 
 
+:i:`Simulation of High Energy Events, eg: Multi-Muon`
+-------------------------------------------------------
+
+
+.. raw:: html
+
+     <p style="margin-bottom:52mm;" />
+
+.. class:: huge
+
+    Simulation of High Energy Events, eg: Multi-Muon
+
+
+
+.. s5_talk::
+
+   Multi-Muon events can have literally billions of optical photons
+
+
+
+
 :i:`GEOM_J25_4_0_opticks_Debug_cxr_min_muon_cxs_20250707_112242.png`
 ---------------------------------------------------------------------
 
@@ -1142,7 +1163,7 @@ OpticksClients + OpticksService : Share GPUs
 
     Client build from common Opticks codebase with ``OPTICKS_CONFIG=Client``
 
-    * :b:`OpticksClient use just like OpticksFull(monolithic) - simulate via network to remote GPU`
+    * :b:`OpticksClient use just like OpticksFull(monolithic) - simulate via network to GPU node`
 
 
 

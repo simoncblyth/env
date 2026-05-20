@@ -2161,3 +2161,6 @@ cppweb-(){      . $(env-home)/tools/cppweb.bash && cppweb-env $* ; }
 drogon-(){      . $(env-home)/tools/drogon.bash && drogon-env $* ; }
 crow-(){      . $(env-home)/tools/crow.bash && crow-env $* ; }
 flexflow-(){      . $(env-home)/tools/flexflow.bash && flexflow-env $* ; }
+triton-(){      . $(env-home)/triton/triton.bash && triton-env $* ; }
+
+
