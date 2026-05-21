@@ -1,0 +1,40 @@
+# Gemini guesswork
+version: "3.8"
+
+services:
+  triton-opticks-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: triton_opticks_sandbox
+    
+    # 1. Keeps the container alive so you can jump in and compile code
+    stdin_open: true
+    tty: true
+
+    # 2. Automatically passes through your physical NVIDIA GPUs
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    # 3. Exposes Triton's default communication ports to your host machine
+    ports:
+      - "8000:8000" # HTTP REST API
+      - "8001:8001" # gRPC API
+      - "8002:8002" # Metrics API
+
+    # 4. Maps your local code, model repositories, and CVMFS dynamically
+    volumes:
+      - /cvmfs:/cvmfs:shared
+      - ./my_backend_source:/workspace/backend
+      - ./triton_model_repository:/opt/tritonserver/model_repository
+
+    # 5. Inject environment variables directly into the container
+    environment:
+      - LD_LIBRARY_PATH=/cvmfs/sft.cern.ch/lcg/views/setup.sh:/opt/tritonserver/lib
+      - OPTICKS_HOME=/opt/opticks
+

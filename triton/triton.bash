@@ -2,8 +2,14 @@
 triton-env(){  echo -n ; }
 triton-vi(){  vi $BASH_SOURCE ; }
 triton-usage(){ cat << EOU
+Getting Familiar with NVIDIA Triton Inference Server
+======================================================
 
 
+Top level
+----------
+
+* https://github.com/triton-inference-server
 
 
 
@@ -14,12 +20,10 @@ https://github.com/triton-inference-server/server
 
 https://github.com/triton-inference-server/backend/blob/main/README.md#triton-backend-api
 
-
 https://arxiv.org/pdf/2312.06838
     Optimizing High Throughput Inference on Graph
     Neural Networks at Shared Computing Facilities
     with the NVIDIA Triton Inference Server
-
 
 https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/index.html
 
@@ -32,13 +36,19 @@ https://github.com/triton-inference-server/tutorials/blob/main/Quick_Deploy/vLLM
 https://github.com/triton-inference-server/vllm_backend/tree/main
 
 
+tritonserver images catalog
+-----------------------------
+
+* https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tritonserver?version=26.04-vllm-python-py3
+
+
+
 server
 ------
 
+* https://github.com/triton-inference-server/server
 
 * https://github.com/triton-inference-server/server/blob/main/docs/customization_guide/compose.md#customize-triton-container
-
-
 
 * https://github.com/triton-inference-server/server/blob/main/docs/customization_guide/compose.md#build-it-yourself
 
@@ -46,7 +56,6 @@ Build it yourself
 If you would like to do what compose.py is doing under the hood yourself, you
 can run compose.py with the --dry-run option and then modify the
 Dockerfile.compose file to satisfy your needs.
-
 
 * https://github.com/triton-inference-server/server/blob/main/docs/customization_guide/compose.md#triton-with-unsupported-and-custom-backends
 
@@ -63,7 +72,6 @@ You also need to install any additional dependencies required by your backend
 as part of the Dockerfile. Then use Docker to create the image.
 
 $ docker build -t tritonserver_custom -f Dockerfile.compose .
-
 
 
 
@@ -135,7 +143,7 @@ using socks proxy from inside docker container : to download the model
 ::
 
     pip install pysocks
-    export HTTP_PROXY="socks5h://172.17.0.1:8080" HTTPS_PROXY="socks5h://172.17.0.1:8080" http_proxy="socks5h://172.17.0.1:8080" https_proxy="socks5h://172.17.0.1:8080" 
+    export HTTP_PROXY="socks5h://172.17.0.1:8080" HTTPS_PROXY="socks5h://172.17.0.1:8080" http_proxy="socks5h://172.17.0.1:8080" https_proxy="socks5h://172.17.0.1:8080"
   python3 -c "
 from huggingface_hub import snapshot_download
 snapshot_download(repo_id='facebook/opt-125m', local_dir='./model_cache/opt-125m')
@@ -222,16 +230,13 @@ the kernel to hop out of container logic back onto the host loop.
 
 EOU
 
-
-
 }
 
-triton-bash0(){
-   docker run --rm -it --entrypoint /bin/bash $(triton-image) ;
+triton-vllm-bash0(){
+   docker run --rm -it --entrypoint /bin/bash $(triton-vllm-image) ;
 }
-
-triton-bash(){
-   docker run --net=host --rm -it -v ~/vllm_backend:/work -w /work  $(triton-image) /bin/bash
+triton-vllm-bash(){
+   docker run --net=host --rm -it -v ~/vllm_backend:/work -w /work  $(triton-vllm-image) /bin/bash
 }
 
 
@@ -239,47 +244,48 @@ triton-docker-ip-show(){ ip addr show docker0 ; }
 triton-docker-ip(){      echo 172.17.0.1 ; }
 
 
-triton-image(){ echo nvcr.io/nvidia/tritonserver:26.04-vllm-python-py3 ; }
+triton-vllm-pull(){  docker pull $(triton-vllm-image) ; }
+triton-vllm-image(){ echo nvcr.io/nvidia/tritonserver:26.04-vllm-python-py3 ; }
 
-triton-run(){
+triton-vllm-run(){
 
    cd ~/vllm_backend
 
     : --net=host -p 8001:8001
-    : those dont make sense together the p is ignored and causes warning
+    : net and p dont make sense together the p is ignored and causes warning
 
    docker run --gpus all -it --rm \
-        --net=host \
+       --net=host \
        --shm-size=1G \
        --ulimit memlock=-1 \
        --ulimit stack=67108864 \
        -v ${PWD}:/work \
        -w /work \
-       $(triton-image) \
+       $(triton-vllm-image) \
        tritonserver \
        --model-repository ./samples/model_repository
 
 }
 
-triton-query-0()
+triton-vllm-query-0()
 {
     : nope because used --net=host so need to directly use 127.0.0.1
     curl -X POST $(triton-docker-ip):8000/v2/models/vllm_model/generate -d '{"text_input": "What is Triton Inference Server?", "parameters": {"stream": false, "temperature": 0}}'
 }
 
-triton-query-1()
+triton-vllm-query-1()
 {
     curl --noproxy "*" -X POST http://127.0.0.1:8000/v2/models/vllm_model/generate \
          -d '{"text_input": "What is Triton Inference Server?", "parameters": {"stream": false, "temperature": 0}}'
 }
 
-triton-query-2()
+triton-vllm-query-2()
 {
     curl --noproxy "*" -X POST http://127.0.0.1:8000/v2/models/vllm_model/generate \
          -d '{"text_input": "What is Triton Inference Server?", "parameters": {"stream": false, "temperature": 0}}'
 }
 
-triton-query()
+triton-vllm-query()
 {
     if [ -z "$1" ]; then
         echo "Error: Please provide a question."

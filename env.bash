@@ -1,4 +1,4 @@
-[ -e ~/env.local.bash ] && . ~/env.local.bash 
+[ -e ~/env.local.bash ] && . ~/env.local.bash
 
 env-logpath(){ echo $(env-home)/docs/log/$(date +"%b%Y").rst ; }
 env-logpath(){ echo $(env-home)/docs/log/$(date +"%b%Y").rst ; }
@@ -18,7 +18,7 @@ env-cache(){
    local path=$(env-cache-path)
    [ ! -f "$path" ] && env-cache-update
    echo $msg sourcing env from $path
-   source $path 
+   source $path
 }
 env-cache-update(){
    local path=$(env-cache-path)
@@ -48,9 +48,9 @@ env-touch-index(){
    # recursivly touch existing index.rst going up the directory tree from PWD
    # for pursuading sphinx to rebuild a deep page
    local dir=${1:-$PWD}
-   [ "$dir" == "/" ] && return 
+   [ "$dir" == "/" ] && return
    local idx=$dir/index.rst
-   [ -f "$idx" ] && echo $idx && touch $idx 
+   [ -f "$idx" ] && echo $idx && touch $idx
    $FUNCNAME $(dirname $dir)
 }
 
@@ -64,7 +64,7 @@ env-clean-build()
 
    local ans
    read -p "$msg enter YES to proceed with deleting the above .build folders : " ans
-   [ "$ans" != "YES" ] && echo $msg skipped && return 
+   [ "$ans" != "YES" ] && echo $msg skipped && return
 
    local name
    find . -type d -name '*.build' | while read name ; do
@@ -93,32 +93,32 @@ env-htdocs-rsync(){
 }
 
 
-env_u_(){ 
+env_u_(){
    # mapping directory to url  : hmmm this should live in home- not here ??
    local dir=${1:-$PWD}
    local abs=$(realpath $dir)   # see ~/e/tools/realpath/
 
-   local envhome=${ENV_HOME:-$HOME/env} 
-   local workflowhome=${WORKFLOW_HOME:-$HOME/workflow} 
-   local homehome=${HOME_HOME:-$HOME/home} 
-   local optickshome=${OPTICKS_HOME:-$HOME/opticks} 
+   local envhome=${ENV_HOME:-$HOME/env}
+   local workflowhome=${WORKFLOW_HOME:-$HOME/workflow}
+   local homehome=${HOME_HOME:-$HOME/home}
+   local optickshome=${OPTICKS_HOME:-$HOME/opticks}
 
    case $abs in
-           ${envhome}) echo http://localhost/env_notes/ ;; 
-          ${envhome}*) echo http://localhost/env_notes/${abs/$envhome\/}/ ;; 
-      ${workflowhome}) echo http://localhost/w/ ;; 
-     ${workflowhome}*) echo http://localhost/w/${abs/$workflowhome\/}/ ;; 
-          ${homehome}) echo http://localhost/h/ ;; 
-         ${homehome}*) echo http://localhost/h/${abs/$homehome\/}/ ;; 
-       ${optickshome}) echo https://bitbucket.org/simoncblyth/opticks/src/master/ ;; 
-      ${optickshome}*) echo https://bitbucket.org/simoncblyth/opticks/src/master/${abs/$optickshome\/}/ ;; 
+           ${envhome}) echo http://localhost/env_notes/ ;;
+          ${envhome}*) echo http://localhost/env_notes/${abs/$envhome\/}/ ;;
+      ${workflowhome}) echo http://localhost/w/ ;;
+     ${workflowhome}*) echo http://localhost/w/${abs/$workflowhome\/}/ ;;
+          ${homehome}) echo http://localhost/h/ ;;
+         ${homehome}*) echo http://localhost/h/${abs/$homehome\/}/ ;;
+       ${optickshome}) echo https://bitbucket.org/simoncblyth/opticks/src/master/ ;;
+      ${optickshome}*) echo https://bitbucket.org/simoncblyth/opticks/src/master/${abs/$optickshome\/}/ ;;
                     *) echo http://www.google.com ;;
    esac
 }
-u(){ 
+u(){
    local url=$(env_u_ $*)
    echo $msg open URL corresponding to PWD $PWD : $url
-   [ "$(uname)" == "Darwin" ] && open $url 
+   [ "$(uname)" == "Darwin" ] && open $url
 }
 
 env_tip_(){
@@ -130,13 +130,13 @@ env_tip_(){
        ${ENV_HOME}) echo https://bitbucket.org/simoncblyth/env/src/tip/ ;;
       ${ENV_HOME}*) echo https://bitbucket.org/simoncblyth/env/src/tip/${abs/$ENV_HOME\/}/ ;;
                  *) echo http://www.google.com ;;
-   esac 
+   esac
 }
 
 tip(){
    local url=$(env_tip_ $*)
    echo $msg open URL corresponding to PWD $PWD : $url
-   [ "$(uname)" == "Darwin" ] && open $url 
+   [ "$(uname)" == "Darwin" ] && open $url
 }
 
 
@@ -145,7 +145,7 @@ tip(){
 
 env-open(){
   local url=${1:-stackoverflow.com}
-  if [ "$(which open 2> /dev/null)" == "" ]; then 
+  if [ "$(which open 2> /dev/null)" == "" ]; then
       clui-
       clui-open $url
   else
@@ -165,18 +165,18 @@ ENV BASH FUNCTIONS
 Bash function reminders
 ------------------------
 
-type name        
-    list a function definition 
-set               
+type name
+    list a function definition
+set
     list all functions
-unset -f name     
+unset -f name
     remove a function
-typeset -F        
+typeset -F
     lists just the names
-local 
+local
     from inside a function lists the locals, eg::
-    
-        ff(){ local a="hello" ; local b="world" ; local ; }  
+
+        ff(){ local a="hello" ; local b="world" ; local ; }
 	ff
 
 * http://www.network-theory.co.uk/docs/bashref/ShellFunctions.html
@@ -194,16 +194,16 @@ On N::
 
    export  ENV_HOME=/home/blyth/eenv ; ## modify in .bash_profile to use the exported
 
-better workaround via reverse proxy on H 
+better workaround via reverse proxy on H
 ------------------------------------------
 
-#. requies nginx to be running on H 
+#. requies nginx to be running on H
 #. one time `svn switch --relocate` is needed to keep working with the env WC on N::
 
 	[blyth@belle7 e]$ svn switch --relocate http://dayabay.phys.ntu.edu.tw/repos/env http://hfag.phys.ntu.edu.tw:90/repos/env
 
 #. ditto for heprez::
-        [blyth@belle7 heprez]$ svn switch --relocate http://dayabay.phys.ntu.edu.tw/repos/heprez http://hfag.phys.ntu.edu.tw:90/repos/heprez   
+        [blyth@belle7 heprez]$ svn switch --relocate http://dayabay.phys.ntu.edu.tw/repos/heprez http://hfag.phys.ntu.edu.tw:90/repos/heprez
 
 
 
@@ -219,36 +219,36 @@ env functions
 ---------------
 
 *env-dbg*
-     invoke with bash rather than . when debugging to see 
+     invoke with bash rather than . when debugging to see
      line numbers of errors, CAUTION error reporting can be a line off
 
 *env-rsync top-level-fold [target-node]*
      propagate a top-level-folder without svn, caution can
      leave SVN wc state awry ... usually easiest to delete working
      copy and "svn up" when want to come clean and go back to SVN
-     
+
 *env-rsync-all   [target-node]*
      rsync env working copy excluding .svn etc..
-     to a list of remote nodes specified by ssh node tag 
+     to a list of remote nodes specified by ssh node tag
 
 *env-again*
-     delete working copy and checkout again 
+     delete working copy and checkout again
 
 *env-u*
-     update the working copy, aliased to "eu" 
-          
+     update the working copy, aliased to "eu"
+
 *env-rst name.bash*
      create rst wrapper to include the usage bash function
 
 *env-toc*
-     create index.rst toctree referencing all .rst in PWD 
+     create index.rst toctree referencing all .rst in PWD
 
 *env-wdir dir:-PWD*
-     create index.rst using wdir directive to provide a list of .pdf 
-     used for parallel or sweep.py trees  
+     create index.rst using wdir directive to provide a list of .pdf
+     used for parallel or sweep.py trees
 
 
-absorbing an exported env working copy 
+absorbing an exported env working copy
 -----------------------------------------
 
 Useful following server downtime::
@@ -259,11 +259,11 @@ Useful following server downtime::
 toctree hookup
 ---------------
 
-When referring to implicit indices such as "python/python.bash" or "tools/tools.bash" use the 
+When referring to implicit indices such as "python/python.bash" or "tools/tools.bash" use the
 form "python/index". The bash2rst tool does the appropriate path swapping to generated a
 cleaner output tree without repeated levels.
 
-.. warning:: this could be confusing when using manual index.rst together with auto generated *_docs* 
+.. warning:: this could be confusing when using manual index.rst together with auto generated *_docs*
 
 
 ======
@@ -285,7 +285,7 @@ env-source(){   echo $(env-home)/env.bash ; }
 env-cd(){   cd $(env-home) ; }
 
 env-pwdx(){
-   # determine cwd of another process on OSX, on Linux just use pwdx 
+   # determine cwd of another process on OSX, on Linux just use pwdx
    local pid=$1
    lsof -a -p $pid -d cwd -Fn | cut -c2- | grep -v $pid
 }
@@ -295,30 +295,30 @@ env-rdir(){
   local home=$(env-home)
   local para=$(local-base)/env
   local here=$(pwd -P)  # physical with symlinks resolved
-  case $here in 
+  case $here in
      $home) echo -n ;;
      $para) echo -n ;;
     $home*) echo ${here/$home\/} ;;
     $para*) echo ${here/$para\/} ;;
-         *) echo here $here is not inside home $home or para $para 1>&2 && echo .  ;; 
-  esac 
+         *) echo here $here is not inside home $home or para $para 1>&2 && echo .  ;;
+  esac
 }
 env-pdir(){
   local home=$(env-home)
   local para=$(local-base)/env
   local here=$(pwd -P)  # physical with symlinks resolved
-  case $here in 
+  case $here in
      $home) echo $para ;;
      $para) echo $home ;;
     $home*) echo $para/${here/$home\/} ;;
     $para*) echo $home/${here/$para\/} ;;
-         *) echo here $here is not inside home $home or para $para 1>&2 && echo .  ;; 
-  esac 
+         *) echo here $here is not inside home $home or para $para 1>&2 && echo .  ;;
+  esac
 }
 env-para(){ cd $(env-pdir) ; }
-pd(){ 
-   : shortcut function from env/env.bash 
-   env-para && pwd 
+pd(){
+   : shortcut function from env/env.bash
+   env-para && pwd
 }
 
 env-vi(){       vi $(env-source) ; }
@@ -351,7 +351,7 @@ $(basename $PWD)
 .. toctree::
 
 EOX
-  ls -1 *.rst | grep -v index.rst | while read line ; do printf "   %s\n" ${line/.rst} ;  done 
+  ls -1 *.rst | grep -v index.rst | while read line ; do printf "   %s\n" ${line/.rst} ;  done
 
 echo ""
 }
@@ -361,14 +361,14 @@ env-toc(){
 
    local ans
    read -p "Enter YES to delete this and recreate " ans
-   [ "$ans" != "YES" ] && echo OK skipping && return 
-   
+   [ "$ans" != "YES" ] && echo OK skipping && return
+
 
    $FUNCNAME- > index.rst
 }
 
-env-rst-(){  
-  cat << EOZ 
+env-rst-(){
+  cat << EOZ
 
 .. include:: $name
    :start-after: cat << EO$token
@@ -376,8 +376,8 @@ env-rst-(){
 
 EOZ
 }
-env-rst-xml-(){  
-  cat << EOZ 
+env-rst-xml-(){
+  cat << EOZ
 
 .. include:: $name
    :start-after: <description>
@@ -388,19 +388,19 @@ EOZ
 
 env-rst(){
    local path=$1
-   local token=${2:-U}   # have to avoid saying E O U together due to bash2rst 
+   local token=${2:-U}   # have to avoid saying E O U together due to bash2rst
    local dir=$(dirname $path)
    local name=$(basename $path)
    local base
-   if [ "$name" == "build.xml" ]; then 
+   if [ "$name" == "build.xml" ]; then
        base=${name/.xml}
    else
        base=${name/.bash}
    fi
    local rstpath=$dir/$base.rst
-   [ -f "$rstpath" ] && echo $msg rst $rstpath exists already, delete and rerun to proceed && return 
+   [ -f "$rstpath" ] && echo $msg rst $rstpath exists already, delete and rerun to proceed && return
 
-   case $name in 
+   case $name in
      build.xml) $FUNCNAME-xml- > $rstpath ;;
              *) $FUNCNAME-     > $rstpath ;;
    esac
@@ -429,11 +429,11 @@ EOL
 
 env-wdir(){
 
-  local dir=${1:-$PWD} 
+  local dir=${1:-$PWD}
   local path=$dir/index.rst
-  [ -f "$path" ] && echo $msg path $path exists already && return 
+  [ -f "$path" ] && echo $msg path $path exists already && return
 
-  echo $msg writing $path 
+  echo $msg writing $path
   $FUNCNAME- > $path
 }
 
@@ -453,8 +453,8 @@ env-sphinx(){
    python-
    local msg="=== $FUNCNAME"
    cmd="cd $(env-home) && PATH=$(env-home)/bin:$PATH make && make rsync "
-   echo $msg $cmd updating html 
-   eval $cmd 
+   echo $msg $cmd updating html
+   eval $cmd
 }
 
 env-mode(){   echo dbg ; }
@@ -464,10 +464,10 @@ env-bindir(){   echo $(env-modedir)/bin ; }
 env-objdir(){   echo $(env-modedir)/obj ; }
 env-libdir(){   echo $(env-modedir)/lib ; }
 env-libpath(){
-      [ "$1" == "blank" ] && echo -n && return 
+      [ "$1" == "blank" ] && echo -n && return
       eroot-
       python-
-      case $(hostname -s) in 
+      case $(hostname -s) in
          cms01|cms02) echo $(env-libdir):$(eroot-libdir):$(python-libdir) ;;
           simon|g4pb) echo $(env-libdir):$(eroot-libdir):$(python-libdir) ;;
                    *) echo $(env-libdir):$(eroot-libdir):$(python-libdir) ;;
@@ -489,7 +489,7 @@ env-runpath-(){
    echo $xdi:$cat:$ldd:$ipy:$gdb
 }
 
- 
+
 env-runenv(){ cat << EOC
 env -i $(env-runenv-) PATH=$(env-runpath-) DISPLAY=$DISPLAY PYTHONPATH=$ROOTSYS/lib ENV_HOME=$ENV_HOME ENV_PRIVATE_PATH=$ENV_PRIVATE_PATH HOME=$HOME USER=$USER ABERDEEN_HOME=$ABERDEEN_HOME
 EOC
@@ -524,12 +524,12 @@ env-owners-(){ cat << EOO
     aberdeen blyth
     base     blyth
     scm      blyth
-    trac     blyth 
+    trac     blyth
     apache   blyth
     mysql    blyth
     python   blyth
-    root     blyth 
-    offline  blyth 
+    root     blyth
+    offline  blyth
 EOO
 ## used by autocomp-owners-
 }
@@ -542,9 +542,9 @@ env-sourcelink(){
 
 env-sourcetag(){ echo C2R ; }
 
-env-designated(){ 
+env-designated(){
   [ -n "$ENV_DESIGNATED" ] && echo $ENV_DESIGNATED && return 0
-  ## the below are for test servers 
+  ## the below are for test servers
   case ${1:-$NODE_TAG} in
     YY) echo YY ;;
     ZZ) echo ZZ ;;
@@ -561,10 +561,10 @@ env-abort-path(){ echo $(env-home)/ABORT ; }
 env-abort-touch(){ touch $(env-abort-path) ; }
 env-abort-clear(){ rm -f $(env-abort-path) ; }
 env-abort(){
-   local msg="=== $FUNCNAME :" 
+   local msg="=== $FUNCNAME :"
    env-abort-touch
-   echo $msg ABORT ... sleeping forever 
-   sleep 1000000000000000 
+   echo $msg ABORT ... sleeping forever
+   sleep 1000000000000000
 }
 env-abort-active-(){ [ -f "$(env-abort-path)" ] && return 0 || return 1  ;  }
 env-abort-active(){ $FUNCNAME- && echo y || echo n ; }
@@ -582,7 +582,7 @@ env-relocate(){
      if [ ! -d "$wcd" ] ; then
         echo -n
      elif [ ! -d "$wcd/.svn" ] ; then
-        echo $msg skipping $wcd as not working copy 
+        echo $msg skipping $wcd as not working copy
      else
         env-relocate- $tag $wcd
      fi
@@ -599,19 +599,19 @@ env-relocate-(){
   local urlwc=$(env-urlwc $wcd)
   local dtag=$(env-designated)
 
-  [ "$tag" != "$dtag" ]  && echo $msg WARNING the designated tag $dtag differes from what you are relocating to 
-  [ "$url" == "$urlwc" ] && echo $msg url of $wcd working copy  $urlwc  already matches that of tag $tag ... skipping && return 0 
+  [ "$tag" != "$dtag" ]  && echo $msg WARNING the designated tag $dtag differes from what you are relocating to
+  [ "$url" == "$urlwc" ] && echo $msg url of $wcd working copy  $urlwc  already matches that of tag $tag ... skipping && return 0
 
   local iwd=$PWD
   cd $wcd
   local cmd="svn switch --relocate $urlwc $url "
-  echo $msg from $PWD ... $cmd 
+  echo $msg from $PWD ... $cmd
   local ans
   read -p "Switch source repository URL for WC ? enter YES to proceed "  ans
   [ "$ans" != "YES" ] && echo $msg skipping ... && return 0
 
   echo $msg proceeding...
-  eval $cmd  
+  eval $cmd
 
   cd $iwd
 
@@ -621,8 +621,8 @@ env-relocate-(){
 env-ihep(){  echo http://$1.ihep.ac.cn ; }
 env-ntu(){   echo http://$1.phys.ntu.edu.tw ; }
 
-env-localserver(){ 
-  case ${1:-$(env-designated)} in 
+env-localserver(){
+  case ${1:-$(env-designated)} in
      G) echo http://localhost ;;
      P) echo $(env-ntu grid1):8080 ;;
      C) echo $(env-ntu cms01) ;;
@@ -632,7 +632,7 @@ C2|C2R) echo $(env-ntu dayabay) ;;
     Y1) echo http://202.122.39.101 ;;
     Y2) echo $(env-ihep dayabay-new) ;;
     ZZ) echo $(env-ihep dayabay) ;;
-  esac  
+  esac
 }
 
 env-url(){         echo $(env-localserver $1)/repos/${2:-env}/trunk ; }
@@ -686,22 +686,22 @@ abd-(){         . $(env-home)/aberdeen/abd.bash && abd-env $* ; }
 
 dtracebuild-(){  . $(env-home)/dtrace/dtracebuild.bash && dtracebuild-env $* ; }
 
-apache2-(){     . $(env-home)/apache/apache2.bash && apache2-env $* ; } 
-apache-(){      . $(env-home)/apache/apache.bash && apache-env $* ; } 
-apacheconf-(){  . $(env-home)/apache/apacheconf/apacheconf.bash && apacheconf-env $* ; } 
+apache2-(){     . $(env-home)/apache/apache2.bash && apache2-env $* ; }
+apache-(){      . $(env-home)/apache/apache.bash && apache-env $* ; }
+apacheconf-(){  . $(env-home)/apache/apacheconf/apacheconf.bash && apacheconf-env $* ; }
 
-caen-(){        . $(env-home)/caen/caen.bash      && caen-env $* ; } 
+caen-(){        . $(env-home)/caen/caen.bash      && caen-env $* ; }
 
-base-(){        . $(env-home)/base/base.bash    && base-env $* ; } 
+base-(){        . $(env-home)/base/base.bash    && base-env $* ; }
 local-(){       . $(env-home)/base/local.bash   && local-env $* ; }
-elocal-(){      . $(env-home)/base/local.bash   && local-env $* ; }   ## avoid name clash 
-cron-(){        . $(env-home)/base/cron.bash    && cron-env $* ; } 
+elocal-(){      . $(env-home)/base/local.bash   && local-env $* ; }   ## avoid name clash
+cron-(){        . $(env-home)/base/cron.bash    && cron-env $* ; }
 ebash-(){       . $(env-home)/base/bash.bash    && bash-env $* ; }
 sudo-(){        . $(env-home)/base/sudo.bash    && sudo-env $* ; }
 mail-(){        . $(env-home)/mail/mail.bash    && mail-env $* ; }
 
-scm-(){         . $(env-home)/scm/scm.bash && scm-env $* ; } 
-scm-backup-(){  . $(env-home)/scm/scm-backup.bash && scm-backup-env $* ; } 
+scm-(){         . $(env-home)/scm/scm.bash && scm-env $* ; }
+scm-backup-(){  . $(env-home)/scm/scm-backup.bash && scm-backup-env $* ; }
 
 unittest-(){    . $(env-home)/unittest/unittest.bash && unittest-env $* ; }
 qmtest-(){      . $(env-home)/unittest/qmtest.bash  && qmtest-env  $* ; }
@@ -715,28 +715,28 @@ nosebit-(){      . $(env-home)/nosebit/nosebit.bash    && nosebit-env $* ; }
 _nose-(){       . $(env-home)/unittest/nose.bash  && _nose-env  $* ; }
 _annobit-(){    . $(env-home)/annobit/annobit.bash  && _annobit-env $* ; }
 
-trac-(){        . $(env-home)/trac/trac.bash && trac-env $* ; } 
-htdocs-(){      . $(env-home)/trac/htdocs.bash && htdocs-env $* ; } 
-tracpreq-(){    . $(env-home)/trac/tracpreq.bash && tracpreq-env $* ; } 
+trac-(){        . $(env-home)/trac/trac.bash && trac-env $* ; }
+htdocs-(){      . $(env-home)/trac/htdocs.bash && htdocs-env $* ; }
+tracpreq-(){    . $(env-home)/trac/tracpreq.bash && tracpreq-env $* ; }
 tmacros-(){     . $(env-home)/trac/macros/macros.bash  && tmacros-env $* ; }
 
-package-(){     . $(env-home)/python/package.bash      && package-env $* ; } 
+package-(){     . $(env-home)/python/package.bash      && package-env $* ; }
 pkg-(){         . $(env-home)/python/pkg.bash          && pkg-env $* ; }
 pypi-(){        . $(env-home)/python/pypi.bash         && pypi-env $* ; }
 
-otrac-(){       . $(env-home)/otrac/otrac.bash     && otrac-env $* ; } 
-trac-conf-(){   . $(env-home)/otrac/trac-conf.bash && trac-conf-env $* ; } 
-trac-ini-(){    . $(env-home)/otrac/trac-ini.bash  && trac-ini-env  $* ; } 
+otrac-(){       . $(env-home)/otrac/otrac.bash     && otrac-env $* ; }
+trac-conf-(){   . $(env-home)/otrac/trac-conf.bash && trac-conf-env $* ; }
+trac-ini-(){    . $(env-home)/otrac/trac-ini.bash  && trac-ini-env  $* ; }
 authzpolicy-(){ . $(env-home)/otrac/authzpolicy.bash && authzpolicy-env $* ; }
 
-svn-(){         . $(env-home)/svn/svn.bash         && svn-env $* ; } 
+svn-(){         . $(env-home)/svn/svn.bash         && svn-env $* ; }
 
 
-sqlite-(){      . $(env-home)/sqlite/sqlite.bash && sqlite-env $* ; } 
+sqlite-(){      . $(env-home)/sqlite/sqlite.bash && sqlite-env $* ; }
 
-swish-(){       . $(env-home)/swish/swish.bash && swish-env $* ; } 
+swish-(){       . $(env-home)/swish/swish.bash && swish-env $* ; }
 
-cvs-(){         . $(env-home)/cvs/cvs.bash && cvs-env $* ; } 
+cvs-(){         . $(env-home)/cvs/cvs.bash && cvs-env $* ; }
 
 
 
@@ -765,41 +765,41 @@ xml-(){         . $(env-home)/xml/xml.bash ; }
 
 
 
-  
-# the below may not work in non-interactive running ???  
-md-(){  local f=${FUNCNAME/-} && local p=$(env-home)/$f/$f.bash && [ -r $p ] && . $p ; } 
- 
- 
+
+# the below may not work in non-interactive running ???
+md-(){  local f=${FUNCNAME/-} && local p=$(env-home)/$f/$f.bash && [ -r $p ] && . $p ; }
+
+
 ee(){ cd $(env-home)/$1 ; }
- 
+
 env-dbg(){
    bash $(env-home)/env.bash
 }
 
 env-env(){
   local msg="=== $FUNCNAME :"
- 
-  TZERO_DBG=0   ## the interactive/non-interactive switch use for debugging cron/batch issues 
 
-  # 
-  #  a better way to debug [-t 0 ] issues is  
+  TZERO_DBG=0   ## the interactive/non-interactive switch use for debugging cron/batch issues
+
+  #
+  #  a better way to debug [-t 0 ] issues is
   #       env -i bash -c ' whatever '
-  #   * -i prevents the env from being passed along 
+  #   * -i prevents the env from being passed along
   #   * single quotes to protech from "this" shell
   #
 
   local iwd=$(pwd)
   cd $(env-home)
- 
-  base-  
+
+  base-
   #svn-
- 
+
   PATH=$(env-home)/bin:$PATH
- 
+
   cd $iwd
-  
-  #cmt-  
-  
+
+  #cmt-
+
   #boost-
   #boost-export
 
@@ -808,19 +808,19 @@ env-env(){
 sss(){
    local msg="=== $FUNCNAME :"
    [ "$NODE_TAG" != "C" ] && echo $msg only on C && return 1
-   
+
    svn-
    svnsync-
    svnsync-synchronize
 }
 
 
-env-u(){ 
+env-u(){
   local msg="=== $FUNCNAME :"
   local cmd="svn update $(env-home)"
   echo $msg \"$cmd\"
   eval $cmd
-  [ -r $(env-home)/env.bash ] && . $(env-home)/env.bash  
+  [ -r $(env-home)/env.bash ] && . $(env-home)/env.bash
   env-
 
   cd $(env-home)
@@ -831,21 +831,21 @@ env-u(){
 
 
 
-env-wiki(){ 
+env-wiki(){
 
-[ 1 == 2 ] && cat << EOD	
-   #	
-   #  usage examples :	
+[ 1 == 2 ] && cat << EOD
+   #
+   #  usage examples :
    #
    #	 env-wiki export WikiStart WikiStart
    #           export the wiki page "WikiStart" to file  "WikiStart"
-   #   
+   #
    #	 env-wiki import WikiStart WikiStart
    #           import the file into the web app
    #
    #
 EOD
-	 trac-admin $SCM_FOLD/tracs/env wiki $* ; 
+	 trac-admin $SCM_FOLD/tracs/env wiki $* ;
 }
 
 
@@ -857,12 +857,12 @@ env-find(){
 env-rstfind(){
   local q=${1:-dummy}
   cd $(env-home)
-  find . -name '*.rst' -exec grep -H $q {} \;  
+  find . -name '*.rst' -exec grep -H $q {} \;
 }
 env-bashfind(){
   local q=${1:-dummy}
   cd $(env-home)
-  find . -name '*.bash' -exec grep -H $q {} \;  
+  find . -name '*.bash' -exec grep -H $q {} \;
 }
 env-dfind(){
   local q=${1:-dummy}
@@ -888,7 +888,7 @@ env-x-pkg(){
   fi
 
   for x in $xs
-  do	
+  do
      base-x-pkg $x
      scm-x-pkg $x
      dyw-x-pkg $x
@@ -910,13 +910,13 @@ env-x-pkg-not-working(){
   		cmd="$d-x-pkg $X"
 		echo $cmd
 		eval $cmd
- 	fi 	
+ 	fi
   done
 
 }
 
 env-local-dir(){
-   sudo mkdir -p $LOCAL_BASE/env 
+   sudo mkdir -p $LOCAL_BASE/env
    sudo chown $USER $LOCAL_BASE/env
 }
 
@@ -928,17 +928,17 @@ env-rsync(){
 
    local fold=${1:-dybpy}
    local target=${2:-C}
-   
+
    local cmd="rsync  -raztv $(env-home)/$fold/ $target:env/$fold/ --exclude '*.pyc' --exclude '.svn'  "
-    
-   echo $cmd 
+
+   echo $cmd
    eval $cmd
 
 }
 
 env-rsync-all(){
   local msg="=== $FUNCNAME :"
-  echo $msg to SVNless nodes 
+  echo $msg to SVNless nodes
   local tag
   for tag in $* ; do
     env-rsync-all- $tag
@@ -949,7 +949,7 @@ env-rsync-all-(){
    local msg="=== $FUNCNAME :"
    local target=${1:-H2}
    local cmd="rsync -e ssh  -raztv $(env-home)/ $target:env/ --exclude '*.pyc' --exclude '.svn' --exclude '*.xcodeproj'  "
-   echo $cmd 
+   echo $cmd
    [ "$NODE_TAG" == "$target" ] && echo $msg ABORT cannot rsync to self && return 1
    eval $cmd
 }
@@ -965,13 +965,13 @@ env-remove(){     export PATH=$(echo $PATH | perl -p -e "s,$1:,," - ) ; }
 env-llp-remove(){ export $(env-libvar)=$(echo $PATH | perl -p -e "s,$1:,," - ) ; }
 
 env-prepend(){
-  local add=$1 
-  env-notpath- $add && export PATH=$add:$PATH 
+  local add=$1
+  env-notpath- $add && export PATH=$add:$PATH
 }
 
 env-append(){
-  local add=$1 
-  env-notpath- $add && export PATH=$PATH:$add 
+  local add=$1
+  env-notpath- $add && export PATH=$PATH:$add
 }
 
 env-libvar(){
@@ -982,21 +982,21 @@ env-libvar(){
 }
 
 env-llp-prepend(){
-  local add=$1 
+  local add=$1
   if [ "$(uname)" == "Darwin" ]; then
     echo $DYLD_LIBRARY_PATH | grep -v $add - > /dev/null && export DYLD_LIBRARY_PATH=$add:$DYLD_LIBRARY_PATH
-  else  
-    echo $LD_LIBRARY_PATH | grep -v $add - > /dev/null && export LD_LIBRARY_PATH=$add:$LD_LIBRARY_PATH 
+  else
+    echo $LD_LIBRARY_PATH | grep -v $add - > /dev/null && export LD_LIBRARY_PATH=$add:$LD_LIBRARY_PATH
   fi
 }
 
 env-pp-prepend(){
-  local add=$1 
+  local add=$1
   echo $PYTHONPATH | grep -v $add - > /dev/null && export PYTHONPATH=$add:$PYTHONPATH
 }
 
 env-pp(){
-  echo $PYTHONPATH | tr ":" "\n" 
+  echo $PYTHONPATH | tr ":" "\n"
 }
 
 
@@ -1005,7 +1005,7 @@ env-llp(){
       echo $DYLD_LIBRARY_PATH | tr ":" "\n"
    else
       echo $LD_LIBRARY_PATH | tr ":" "\n"
-   fi    
+   fi
 }
 
 
@@ -1013,28 +1013,28 @@ env-ldconfig(){
 
    local msg="=== $FUNCNAME :"
    local dir=$1
-   
+
    local conf=/etc/ld.so.conf
-   
+
    [ ! -d $dir  ]                && echo $msg ABORT no dir $dir && return 1
    [ ! -f $conf ]                && echo $msg ABORT no $conf && return 1
    [ "$(which ldconfig)" == "" ] && echo $msg ABORT no ldconfig in your path && return 1
-   
+
    grep -q $dir $conf && echo $msg the dir $dir is already there $conf && return 0
-   
+
    echo $msg appending $dir to $conf
-   sudo bash -c "echo $dir >> $conf  " 
+   sudo bash -c "echo $dir >> $conf  "
 
    cat $conf
    sudo ldconfig
-   
+
 }
 
 env-ldconf(){
 
    local conf=/etc/ld.so.conf
-   cat $conf 
-   
+   cat $conf
+
 
 
 }
@@ -1044,15 +1044,15 @@ env-again(){
 
   local msg="=== $FUNCNAME :"
 
-  [ -z $(env-home) ] && echo $msg ABORT no $(env-home) && return 1 
-  
+  [ -z $(env-home) ] && echo $msg ABORT no $(env-home) && return 1
+
   local dir=$(dirname $(env-home))
   local name=$(basename $(env-home))
   local url=$(env-url)
-  
+
   read -p "$msg are you sure you want to wipe $name from $dir and then checkout again from $url  ? answer YES to proceed "  answer
-  [ "$answer" != "YES" ] && echo $msg skipping && return 1 
-  
+  [ "$answer" != "YES" ] && echo $msg skipping && return 1
+
   cd $dir && rm -rf $name && svn co $url $name
 
 }
@@ -1061,21 +1061,21 @@ env-again(){
 env-egglink(){
 
    cat << DELIB
-   
+
    setuptools needs layout .,..
-   
+
        EnvDistro
           setup.py
           env/
-             __init__.py 
+             __init__.py
              trac/
                 __init__.py
-   
-   
-   
+
+
+
 DELIB
 
-  local msg="=== $FUNCNAME :" 
+  local msg="=== $FUNCNAME :"
   local dir=$(dirname $(env-home))
   cd $dir
   local setup="setup.py"
@@ -1086,7 +1086,7 @@ DELIB
   echo $msg proceed to egglink using setuptools develop mode
   which python
   python setup.py develop
-  
+
 
 }
 
@@ -1098,7 +1098,7 @@ env-egglink-setup(){
 """
    This was sourced from $BASH_SOURCE:$FUNCNAME at $(date)
 
-   The find_packages is going to be very user specific... 
+   The find_packages is going to be very user specific...
    as it depends on what exists above $(env-home)
 
 """
@@ -1112,8 +1112,8 @@ setup(
       version='0.1',
       packages = pkgs ,
       )
-   
-   
+
+
 EOS
 
 }
@@ -1124,7 +1124,7 @@ env-curl(){
   local cmd="curl -O $url "
   echo $msg $cmd $PWD
   eval $cmd
-  [ "$?" != "0" ] && echo $msg FAILED : $cmd $PWD : SLEEPING && sleep 10000000000000  
+  [ "$?" != "0" ] && echo $msg FAILED : $cmd $PWD : SLEEPING && sleep 10000000000000
 }
 
 env-mcurl(){
@@ -1135,7 +1135,7 @@ env-mcurl(){
      echo $msg $cmd $PWD
      eval $cmd
      [ "$?" != "0" ] && echo $msg FAILED : $cmd $PWD ...
-  done 
+  done
   local name=$(basename $1)
   [ ! -f "$name" ] && echo $msg FAILED TO GET $name FROM ANY URL : SLEEPING && sleep 100000000000
 }
@@ -1148,9 +1148,9 @@ env-ab(){
   apache-
   local tags="P C C2"
   local tag
-  for tag in $tags ; do 
+  for tag in $tags ; do
      local url=$(env-wikiurl $tag)
-     local cmd="ab -v 2 -n 10 $url "   
+     local cmd="ab -v 2 -n 10 $url "
      echo $msg tag $tag ... $cmd
      eval $cmd
   done
@@ -1158,7 +1158,7 @@ env-ab(){
 }
 
 env-columns(){
-   
+
    local msg="=== $FUNCNAME :"
    type $FUNCNAME
    echo COLUMNS : $COLUMNS
@@ -1171,7 +1171,7 @@ env-columns(){
 
 
 
-env-index-head-(){ cat << EOH 
+env-index-head-(){ cat << EOH
 <html>
 <head>
 </head>
@@ -1210,17 +1210,17 @@ env-index-tail-(){ cat << EOT
 EOT
 }
 
-# just using symbolic link works more simply 
+# just using symbolic link works more simply
 #env-pth(){
 #  local libdir=${1:-$(env-home)}
 #  local libnam=${2:-$(basename $libdir)}
 #  local msg="=== $FUNCNAME :"
 #  python-
 #  local site=$PYTHON_SITE
-#  [ ! -d "$site" ] && echo $msg site $site does not exist && return 
+#  [ ! -d "$site" ] && echo $msg site $site does not exist && return
 #  local pth=$site/$libnam.pth
-#  [ -f "$pth" ] && echo $msg pth $pth exists already && cat $pth && ls -l $pth && return 
-#  echo $msg writing libnam $libnam to pth $pth 
+#  [ -f "$pth" ] && echo $msg pth $pth exists already && cat $pth && ls -l $pth && return
+#  echo $msg writing libnam $libnam to pth $pth
 #  sudo bash -c "echo $libdir  > $pth"
 #}
 
@@ -1238,7 +1238,7 @@ env-htdocs-url(){
    local name=$(basename $path)
    htdocs-
    echo $(TRAC_INSTANCE=env htdocs-url)/$(htdocs-privat)/$name
-} 
+}
 
 
 env-override(){
@@ -1260,7 +1260,7 @@ tg-(){         . $(env-home)/offline/tg/tg.bash && tg-env $*  ; }
 pl-(){         . $(env-home)/pl/pl.bash && pl-env $* ; }
 pymysql-(){    . $(env-home)/mysql/pymysql.bash && pymysql-env $*  ; }
 modwsgi-(){    . $(env-home)/apache/apachebuild/modwsgi.bash && modwsgi-env $* ; }
-cpp-(){        . $(env-home)/base/cpp.bash && cpp-env $* ; } 
+cpp-(){        . $(env-home)/base/cpp.bash && cpp-env $* ; }
 lighttpd-(){   . $(env-home)/lighttpd/lighttpd.bash && lighttpd-env $* ; }
 pkgr-(){       . $(env-home)/base/pkgr.bash && pkgr-env $* ; }
 modroot-(){    . $(env-home)/apache/modroot.bash && modroot-env $* ; }
@@ -1338,7 +1338,7 @@ lxr-(){      . $(env-home)/doc/lxr.bash && lxr-env $* ; }
 doxygen-(){      . $(env-home)/doc/doxygen.bash && doxygen-env $* ; }
 bitn-(){      . $(env-home)/trac/slave/bitn.bash && bitn-env $* ; }
 tracdoxygen-(){      . $(env-home)/trac/package/tracdoxygen.bash && tracdoxygen-env $* ; }
-abtviz-(){      . $(env-home)/AbtViz/abtviz.bash && abtviz-env $* ; }  
+abtviz-(){      . $(env-home)/AbtViz/abtviz.bash && abtviz-env $* ; }
 tracdep-(){      . $(env-home)/trac/tracdep.bash && tracdep-env $* ; }
 jmeter-(){      . $(env-home)/http/jmeter.bash && jmeter-env $* ; }
 scube-(){      . $(env-home)/scons/scube.bash && scube-env $* ; }
@@ -1798,7 +1798,7 @@ cmak-(){            . $(env-home)/tools/cmak.bash && cmak-env $* ; }
 openssh-(){         . $(env-home)/tools/openssh/openssh.bash && openssh-env $* ; }
 cmakecheck-(){      . $(env-home)/cmakecheck/cmakecheck.bash && cmakecheck-env $* ; }
 
-# windows learning 
+# windows learning
 
 win-(){             . $(env-home)/windows/win.bash && win-env $* ; }
 gitbash-(){         . $(env-home)/windows/gitbash.bash && gitbash-env $* ; }
@@ -1858,7 +1858,7 @@ g4op-(){         . $(env-home)/geant4/g4op/g4op.bash && g4op-env $* ; }
 
 
 
-#### opticks externals ###  TODO: **copy** into externals with opticks-xcollect, once spawned can remove non-essentials (dev notes etc..)  
+#### opticks externals ###  TODO: **copy** into externals with opticks-xcollect, once spawned can remove non-essentials (dev notes etc..)
 #
 #boost-(){           . $(env-home)/boost/boost.bash && boost-env $* ; }
 #glm-(){             . $(env-home)/graphics/glm/glm.bash && glm-env $* ; }
@@ -1879,7 +1879,7 @@ g4op-(){         . $(env-home)/geant4/g4op/g4op.bash && g4op-env $* ; }
 #xercesc-(){         . $(env-home)/xml/xercesc/xercesc.bash && xercesc-env $* ; }
 #g4-(){              . $(env-home)/g4/g4.bash && g4-env $* ; }
 #
-#### opticks infrastructure/launchers ###  other than opticks.bash **move** into externals (?) 
+#### opticks infrastructure/launchers ###  other than opticks.bash **move** into externals (?)
 #
 #opticks-(){         . $(env-home)/opticks.bash && opticks-env $* ; }
 #opticksdata-(){     . $(env-home)/opticksdata.bash && opticksdata-env $* ; }
@@ -2083,7 +2083,7 @@ tf-(){      . $(env-home)/tools/tensorflow/tf.bash && tf-env $* ; }
 keras-(){      . $(env-home)/ai/keras.bash && keras-env $* ; }
 igprof-(){      . $(env-home)/tools/igprof.bash && igprof-env $* ; }
 mapd-(){      . $(env-home)/tools/mapd.bash && mapd-env $* ; }
-licensehd-(){      . $(env-home)/tools/licensehd.bash && licensehd-env $* ; } 
+licensehd-(){      . $(env-home)/tools/licensehd.bash && licensehd-env $* ; }
 hg2git-(){      . $(env-home)/tools/hg2git/hg2git.bash && hg2git-env $* ; }
 mdl-(){      . $(env-home)/graphics/nvidia/mdl.bash && mdl-env $* ; }
 nest-(){      . $(env-home)/scintillation/nest/nest.bash && nest-env $* ; }
@@ -2162,5 +2162,6 @@ drogon-(){      . $(env-home)/tools/drogon.bash && drogon-env $* ; }
 crow-(){      . $(env-home)/tools/crow.bash && crow-env $* ; }
 flexflow-(){      . $(env-home)/tools/flexflow.bash && flexflow-env $* ; }
 triton-(){      . $(env-home)/triton/triton.bash && triton-env $* ; }
+tritonbackend-(){   . $(env-home)/tritonbackend/tritonbackend.bash && tritonbackend-env $* ; }
 
 
