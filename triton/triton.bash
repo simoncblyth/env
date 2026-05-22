@@ -74,6 +74,11 @@ as part of the Dockerfile. Then use Docker to create the image.
 $ docker build -t tritonserver_custom -f Dockerfile.compose .
 
 
+Conceptual_Guide
+-----------------
+
+* https://github.com/triton-inference-server/tutorials/tree/main/Conceptual_Guide
+
 
 
 backend : "create and build your own Triton backend"
@@ -83,7 +88,23 @@ backend : "create and build your own Triton backend"
 
 * https://github.com/triton-inference-server/backend#backend-shared-library
 
+* https://github.com/triton-inference-server/backend/tree/main/examples
 
+
+
+
+search github for backends
+----------------------------
+
+* https://github.com/search?q=TRITONBACKEND&type=code
+
+
+non-NVIDIA example backends
+----------------------------
+
+* https://github.com/OpenNMT/CTranslate2
+* https://github.com/speechmatics/ctranslate2_triton_backend
+* https://github.com/speechmatics/ctranslate2_triton_backend/blob/main/src/ctranslate2.cc
 
 
 vllm_backend

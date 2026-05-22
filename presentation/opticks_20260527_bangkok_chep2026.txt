@@ -128,6 +128,9 @@
 
 
 
+.. comment
+
+       <span>&nbsp;</span>
 
 
 Outline
@@ -138,11 +141,12 @@ Outline
    :height: 547px
    :align: right
 
+
+.. raw:: html
+
+    <p style="margin-bottom:-2mm;" />
+
 .. class:: small
-
-    .. raw:: html
-
-       <span>&nbsp;</span>
 
     * Optical Photon Simulation Context
 
@@ -161,6 +165,10 @@ Outline
       * Recent Opticks Enhancements : directed by Muon Production Experience
       * GPU Hit Merging : High Level Parallelization with CUDA Thrust
       * GPU Hit Merging : Avoids hiding Opticks performance
+
+    * Opticks + JUNOSW : Testing as Geometry and Models continue to Evolve
+
+      * EMF Compensation Coils, Water Distributor, "Simtrace"
 
     * Geant4 + Opticks + NVIDIA OptiX : Production Scaling ?
 
@@ -981,6 +989,170 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
     GPU hit merging, avoids obscuring Opticks performance behind CPU post-processing
 
     GPU hit merging time is more than compensated by reduced download time
+
+
+
+
+:small:`Opticks + JUNOSW : Testing as Geometry and Models continue to Evolve`
+------------------------------------------------------------------------------------
+
+
+.. sidebar:: :small:`Visual Inspection Test Tools:`
+
+    .. class:: small
+
+
+        **1. "Simtrace" 2D ray trace sliced view**
+
+        Planar rays from grid of planar gensteps => intersects
+
+        * present intersects with **pyvista** (:strike:`matplotlib`)
+        * precise control : viewpoint + slice plane
+        * point clouds with normals overlap check (kdtree)
+
+        :b:`"Simtrace" clarity => many geom issues obvious`
+
+
+        **2. OpenGL photon anim + OptiX ray trace geom**
+
+        NEW: **SGLM_InterpolatedView.h**
+
+        * NumPy prep EYE,LOOK,UP "ELU" arrays
+        * Catmull-Rom spline interpolate EYE points
+        * Quaternion SLERP : interpolated orientation
+
+        :b:`=> Natural fly-around anim without careful ELU`
+
+        Profit from : :r:`viz geometry == sim geometry`
+
+
+
+
+
+.. class:: small
+
+    Recent JUNO Simulation Geometry Additions:
+
+    * Water Distributor System
+    * EM Field (EMF) compensation coils
+    * Extra Water Pool 8-inch PMTs
+    * ...
+
+    **Opticks Unit tests : class/struct level "opticks-t"**
+
+    ~221 ctest taking ~90s (geom from latest Opticks+JUNOSW release)
+
+
+    **Integration Tests : JUNOSW vs Opticks+JUNOSW**
+
+    * A: Opticks + JUNOSW : write Opticks SEvt NumPy files
+    * B: U4Recorder + JUNOSW : write Opticks SEvt from Geant4
+    * A-vs-B photon history chi-squared
+
+      * :r:`deviations reveal issues` (typically geometry problems)
+
+    * GPU workstation configured as gitlab CI runner [NEW]
+
+      * Dedicated "OJ" repo for integration test scripts
+
+
+    AIM: :b:`automated scheduled validation`
+
+    * cast results as junit report (available in gitlab CI free-tier)
+    * :r:`automated problem finding` |y|, automated fix |n|
+
+      * fix judgement : change source OR generalize translation
+
+
+
+.. s5_talk::
+
+   Testing
+
+
+:i:`EMF2 3`
+------------
+
+.. class:: normal
+
+    :i:`EMF2 3` ``EMF Compensation Coils : View from bottom of pool (v. large vol. excluded)``
+
+.. s5_talk::
+
+    View at bottom of pool
+
+
+
+
+
+
+:i:`WDP 4`
+-----------
+
+.. class:: small
+
+    ``WDP 4 : Water Distributor at top of CD``
+
+
+
+.. s5_talk::
+
+    Top
+
+
+
+:i:`WDP 6`
+-----------
+
+.. class:: small
+
+    ``WDP 6 : Water Distributor at bottom of CD``
+
+.. s5_talk::
+
+    Bottom of CD
+
+
+
+
+
+
+:i:`LWDS : Simtrace Split Snake`
+---------------------------------
+
+
+
+.. raw:: html
+
+     <p style="position:fixed;top:1px;left:100px;font-size:30px;background-color:white;border:1px solid black;padding:5px;">
+     Precise "Simtrace" 2D sliced view - Water Distributor and pipes at bottom of JUNO CD
+     </p>
+
+
+
+.. raw:: html
+
+   <p style="margin-bottom:90mm;" />
+
+
+
+
+.. comment
+
+    .. class:: small
+
+        ``cxt_min.sh : Simtrace Split Snake``
+
+    .. sidebar:: :small:`"Simtrace" 2D slice view`
+
+         .. class:: small
+
+             * precise ray traced 2D view
+             * precise control of slice plane
+
+.. s5_talk::
+
+   Segmenting the pipe avoids issues crossing the Tyvek
 
 
 
