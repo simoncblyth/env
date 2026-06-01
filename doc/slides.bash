@@ -668,6 +668,7 @@ slides-st(){ TALK=1 SMRY=1 slides-get $* ; }
 slides-td(){  TALK=1       slides-get $* ; slides-dupe-cover ; }
 slides-t(){  TALK=1        slides-get $* ; }
 slides--(){                slides-get $* ; }
+slides--88(){ JPEG_QUALITY=88 slides-get $* ; }
 
 
 
@@ -928,8 +929,32 @@ slides-magick-in-path()
    fi
 }
 
+slides-convert-notes(){ cat << EON
+
+I created a PDF presentation from PNG screenshots with the below commandline on macOS::
+
+    magick ???_crop.png -strip -compress JPEG -quality $quality $pdf
+
+The PDF looks fine, but I find that in some renderers the page forward/back does not work.
+What causes this ? Whats the fix ?  In Preview.app the page size is reported as  90.32 × 49.5 cm
+
+Gemini suggests problem from too large a page as magick defaults to 72dpi, suggests to use::
+
+   magick -density 150 -units PixelsPerInch ???_crop.png -strip -compress JPEG -quality $quality $pdf
+
+
+
+EON
+}
+
+
+
 slides-convert(){
    : OSX pdf is a lot smaller than the magick ones
+
+   : THERE MAY BE A PROBLEM WITH THE magick COMMANDLINE PREVENTING PAGE FORWARDS CONTROL
+   : WITH SOME RENDERERS - THE PAGE SIZE IS REPORTED AS 90.32 × 49.5 cm
+
    local msg="=== $FUNCNAME "
    local pdf=$(slides-name).pdf
    slides-cd
@@ -943,7 +968,13 @@ slides-convert(){
         echo $FUNCNAME - using magick - JPEG_QUALITY $quality
         #magick ???_crop.png $pdf
         #magick ???_crop.png -compress lossless -density 300 $pdf
-        magick ???_crop.png -strip -compress JPEG -quality $quality $pdf
+        #magick ???_crop.png -strip -compress JPEG -quality $quality $pdf   ## HAS PAGE FORWARD/BACK ISSUE
+
+        magick -density 150 -units PixelsPerInch ???_crop.png -strip -compress JPEG -quality $quality $pdf  ## GEMINI_1
+
+        #magick ???_crop.png -resize 1240x1754\> -background white -extent 1240x1754 -density 150 -units PixelsPerInch -strip -compress JPEG -quality $quality $pdf ## GEMINI_2 A4
+
+
         : observed these settings strip-JPEG-75 to reduce from 40MB to 11MB with unnoticeable degradation
    elif [ "$(which convert)" != "" ]; then
         echo $FUNCNAME - using  convert

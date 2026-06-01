@@ -1,4 +1,4 @@
-#!/bin/bash -l 
+#!/bin/bash
 
 usage(){ cat << EOU
 p2.sh : presentation with annotation s5_talk pages interleaved
@@ -35,6 +35,9 @@ Note that the sizing is implemented in rst2rst.py::
 
 EOU
 }
+
+
+. $HOME/env/env.bash && env-env
 
 presentation-
 iname=$(presentation-iname)

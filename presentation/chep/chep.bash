@@ -5,8 +5,15 @@ chep-cd(){ cd $(env-home)/presentation/chep ; }
 
 chep-notes(){ cat << EON
 
+CHEP
+====
 
 
+INDICO.CERN.CH LOGIN CAUTION
+-------------------------------
+
+* can login using google or github - simon.c.blyth@gmail.com - but then lack write permission
+* must login using "blyth@ihep.ac.cn" to have write permission
 
 
 
@@ -16,6 +23,8 @@ May 27, 2026, 2:57 PM - 3:15 PM
 * https://indico.cern.ch/event/1471803/sessions/624974/#20260527
 
 
+
+MHMK 301
 
 
 
