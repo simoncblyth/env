@@ -84,11 +84,26 @@ Conceptual_Guide
 backend : "create and build your own Triton backend"
 ---------------------------------------------------------
 
+
+
+
+
+
+
 * https://github.com/triton-inference-server/backend
 
 * https://github.com/triton-inference-server/backend#backend-shared-library
 
+* https://github.com/triton-inference-server/backend#where-can-i-find-all-the-backends-that-are-available-for-triton
+
+
+
 * https://github.com/triton-inference-server/backend/tree/main/examples
+
+TensorRT, ONNX, TensorFlow, PyTorch, OpenVINO, FIL, TensorRT-LLM, vLLM
+
+
+
 
 
 
@@ -105,6 +120,50 @@ non-NVIDIA example backends
 * https://github.com/OpenNMT/CTranslate2
 * https://github.com/speechmatics/ctranslate2_triton_backend
 * https://github.com/speechmatics/ctranslate2_triton_backend/blob/main/src/ctranslate2.cc
+
+
+tensorrt_backend
+-----------------
+
+Impressions
+
+* looks like lots of code just needs to standardize to returning "TRITONSERVER_Error*"
+  and otherwise is free to do what it likes
+
+
+
+grep -l dependencies::
+
+    filesystem.h        :   shared_library.cc    ## DirName
+
+    loader.h            :   loader.cc,           ##   LoadPlan
+                            model_state.cc   
+
+    io_binding_info.h   :   io_binding_info.cc, instance_state.h
+
+    instance_state.h    :   instance_state.cc, model_state.cc,  tensorrt.cc
+
+    logging.h           :   filesystem.cc, logging.cc, shared_library.cc, tensorrt.cc, loader.h, model_state.h
+
+    model_state.h       :   model_state.cc, tensorrt.cc, instance_state.h, loader.h
+
+    output_allocator.h  :   output_allocator.cc, io_binding_info.h
+
+    semaphore.h         :   instance_state.h, model_state.h
+
+    shape_tensor.h      :   instance_state.h, shape_tensor.cc, tensorrt_utils.h
+
+    shared_library.h    :   filesystem.cc, shared_library.cc, tensorrt.cc
+
+    tensorrt_model.h    :   model_state.h, tensorrt_model.cc, tensorrt_model_instance.h
+
+    tensorrt_model_instance.h  : instance_state.h, model_state.h, tensorrt_model_instance.cc
+
+    tensorrt_utils.h    :   instance_state.h, model_state.h, tensorrt_model_instance.cc
+
+
+
+
 
 
 vllm_backend
