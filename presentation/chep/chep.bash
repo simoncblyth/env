@@ -9,6 +9,25 @@ CHEP
 ====
 
 
+CHEP 2027, Bucharest, Romania, 13-17 September 2027 
+-----------------------------------------------------
+
+* a previous CHEP was Sofia, Bulgaria - not far away
+
+
+
+CHEP 2026 Proceedings
+-----------------------
+
+* 28 August 2026: Proceeding submission deadline.
+* 4 December 2026: Revised proceedings submission deadline.
+* 26 February 2027: Proceeding to be available.
+
+
+* https://indico.cern.ch/event/1471803/page/40062-proceedings
+
+
+
 INDICO.CERN.CH LOGIN CAUTION
 -------------------------------
 
@@ -19,6 +38,8 @@ INDICO.CERN.CH LOGIN CAUTION
 
 May 27, 2026, 2:57 PM - 3:15 PM
 
+
+* https://indico.cern.ch/event/1471803/timetable/#20260525.detailed
 * https://indico.cern.ch/event/1471803/contributions/6967960/
 * https://indico.cern.ch/event/1471803/sessions/624974/#20260527
 
