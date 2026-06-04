@@ -12,6 +12,11 @@ Top level
 * https://github.com/triton-inference-server
 
 
+HEP Usage
+----------
+
+* https://hrzhao76.github.io/AthenaTriton/intro.html
+
 
 Random Walk thru Triton docs
 ------------------------------
