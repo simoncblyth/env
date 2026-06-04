@@ -2163,5 +2163,6 @@ crow-(){      . $(env-home)/tools/crow.bash && crow-env $* ; }
 flexflow-(){      . $(env-home)/tools/flexflow.bash && flexflow-env $* ; }
 triton-(){      . $(env-home)/triton/triton.bash && triton-env $* ; }
 tritonbackend-(){   . $(env-home)/tritonbackend/tritonbackend.bash && tritonbackend-env $* ; }
+tmux-(){            . $(env-home)/tools/tmux.bash && tmux-env $* ; }
 
 

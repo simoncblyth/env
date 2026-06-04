@@ -1,0 +1,35 @@
+tmux-env(){ echo -n ; }
+tmux-vi(){ vi $BASH_SOURCE ; }
+tmux-usage(){ cat << EOU
+tmux : terminal multiplexer
+============================
+
+Every tmux command starts with the Prefix key, which by default is Ctrl + b. 
+You press that, let go, and then press your action key::
+
+
+   Split Vertically   (side-by-side)  Ctrl + b then %
+   Split Horizontally (top/bottom)    Ctrl + b then "
+   Move between panels                Ctrl + b then Arrow Keys
+   Close current panel                Just type exit or Ctrl + d
+   Toggle zooming to show one panel   Ctrl + b then z          [THIS IS HANDY WHEN COPY/PASTE]
+
+
+When using srun to get access to a GPU node eg with::
+
+    oj6k () 
+    { 
+        : bash session on the server - eg to check nvidia-smi CUDA version etc;
+        srun --partition=junogpu --qos=junoatmgpu --gres=gpu:pro6000:1 --cpus-per-task=1 --mem=4G --pty bash
+    }
+
+
+It means that the only connection to that machine is through the one session
+with no easy way to have a separate session. So have to multiplex, making 
+tmux handy for just this situation. This allows splitting the terminal
+into two panels with nvtop running in one and a GPU using script
+run in the other.
+
+
+EOU
+}
