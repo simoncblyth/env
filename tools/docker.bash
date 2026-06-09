@@ -37,6 +37,25 @@ GPU containerization ?
   12 min intro 
 
 
+get docker to pull using socks proxy
+-------------------------------------
+
+::
+
+    A[blyth@localhost ~]$ sudo cat /etc/systemd/system/docker.service.d/http-proxy.conf
+    [Service]
+    Environment="HTTP_PROXY=socks5://127.0.0.1:8080"
+    Environment="HTTPS_PROXY=socks5://127.0.0.1:8080"
+    Environment="NO_PROXY=localhost,127.0.0.1"
+
+
+    sudo systemctl daemon-reload
+    sudo systemctl restart docker
+
+    docker pull alpine
+
+
+
 
 EOU
 }

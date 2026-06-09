@@ -2164,5 +2164,5 @@ flexflow-(){      . $(env-home)/tools/flexflow.bash && flexflow-env $* ; }
 triton-(){      . $(env-home)/triton/triton.bash && triton-env $* ; }
 tritonbackend-(){   . $(env-home)/tritonbackend/tritonbackend.bash && tritonbackend-env $* ; }
 tmux-(){            . $(env-home)/tools/tmux.bash && tmux-env $* ; }
-
+ollama-(){          . $(env-home)/tools/ollama/ollama.bash && ollama-env $* ; }
 
