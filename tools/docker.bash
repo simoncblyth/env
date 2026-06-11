@@ -55,6 +55,82 @@ get docker to pull using socks proxy
     docker pull alpine
 
 
+maybe 
+---------
+
+::
+
+    A[blyth@localhost ~]$ sudo cat /etc/systemd/system/docker.service.d/http-proxy.conf
+    [Service]
+    Environment="HTTP_PROXY=socks5h://172.17.0.1:8080"
+    Environment="HTTPS_PROXY=socks5h://172.17.0.1:8080"
+    Environment="NO_PROXY=localhost,127.0.0.1"
+
+
+
+(GEMINI) network contexts relevant to docker over socks proxy
+----------------------------------------------------------------
+
+::
+
+    [ Your Host Machine ] <--- (SOCKS Proxy Listening here)
+      │
+      ├── Context 1: The Docker Daemon (Systemd) 
+      │     └── Pulls images, talks to Docker Hub. Sees host as "127.0.0.1".
+      │
+      ├── Context 2: The Build Sandbox (BuildKit)
+      │     └── Handles "FROM" image lookups. Lives in an isolated client/daemon bridge.
+              It expects configurations passed from the user's local ~/.docker/config.json file, 
+              using either the default bridge gateway or host.docker.internal.
+
+
+      │
+      └── Context 3: The Container Environment (RUN/Execution)
+            └── Ephemeral sandbox running "dnf/yum/apt". Sees host as "172.17.0.1".
+
+             The IP to use: 172.17.0.1 (or host.docker.internal). 
+             To a container, 127.0.0.1 means itself. 
+             It cannot see your host's localhost. 
+             It must talk to the host via the network gateway.
+
+
+If you want a flawless proxy setup across all contexts, configure them like this:
+
+For docker pull / Daemon:
+
+* Use socks5h://127.0.0.1:8080 in /etc/systemd/system/docker.service.d/http-proxy.conf.
+
+For docker build (FROM metadata lookups):
+
+* Use socks5h://172.17.0.1:8080 in your user's ~/.docker/config.json.
+
+For Package Managers inside Containers (dnf/apt):
+
+* Pass --build-arg HTTP_PROXY="socks5h://172.17.0.1:8080" into your build command.
+
+⚠️ Crucial Security Note: Whenever you route containers to 172.17.0.1:8080, your
+SOCKS proxy on the host must be listening on 0.0.0.0 (all interfaces) rather
+than just 127.0.0.1, otherwise it will drop the incoming connection from the
+Docker bridge network.
+
+
+
+BuildKit config
+---------------
+
+~/.docker/config.json::
+
+    {
+      "proxies": {
+        "default": {
+          "httpProxy": "socks5h://172.17.0.1:8080",
+          "httpsProxy": "socks5h://172.17.0.1:8080",
+          "noProxy": "localhost,127.0.0.1"
+        }
+      }
+    }
+
+
 
 
 EOU
