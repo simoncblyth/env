@@ -4,6 +4,39 @@ ollama-usage(){ cat << EOU
 tools/ollama/ollama.bash
 ==========================
 
+Linux control of ollama service
+--------------------------------
+
+::
+
+     sudo systemctl status ollama
+     sudo systemctl start ollama
+     sudo systemctl restart ollama
+
+
+List models
+------------
+
+::
+
+    A[blyth@localhost ~]$ ollama list
+    NAME                     ID              SIZE      MODIFIED     
+    gemma4:26b-a4b-it-qat    2dd70431afed    15 GB     2 days ago      
+    gemma4:12b               4eb23ef187e2    7.6 GB    2 days ago      
+    gemma4:12b-it-qat        38044be4f923    7.2 GB    2 days ago      
+    gemma3:4b                a2af6cc3eb7f    3.3 GB    3 months ago    
+    qwen3:8b                 500a1f067a9f    5.2 GB    9 months ago    
+    A[blyth@localhost ~]$ 
+
+
+
+
+
+
+
+Ollama installation on Linux
+------------------------------
+
 
 ::
 

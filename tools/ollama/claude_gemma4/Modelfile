@@ -1,0 +1,7 @@
+FROM gemma4:26b-a4b-it-qat
+
+# Expand the context window to 64K tokens so Claude Code has room to think
+PARAMETER num_ctx 65536
+
+# Lower temperature keeps the model structurally stable for agent tool calling
+PARAMETER temperature 0.2
