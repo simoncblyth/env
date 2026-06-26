@@ -25,18 +25,22 @@ To subscribe to the low volume mailing list, send an email to opticks+subscribe@
     +--------------------------------------------------+-----------------------------------------+ 
 
 
-Day to day Opticks development is in bitbucket
+Day to day Opticks development is in github
 ------------------------------------------------
+
+* https://github.com/simoncblyth
+* https://github.com/simoncblyth/opticks
+
+Bitbucket and GitLab Opticks repo are only updated infrequently, for releases
+---------------------------------------------------------------------------------
 
 * https://bitbucket.org/simoncblyth
 * https://bitbucket.org/simoncblyth/opticks/commits/all
 
+* https://code.ihep.ac.cn/blyth/opticks/
 
-Github Opticks repo is only updated infrequently, for snapshots
------------------------------------------------------------------
 
-* https://github.com/simoncblyth
-* https://github.com/simoncblyth/opticks
+
 
 Images
 -------
