@@ -5,9 +5,7 @@ grafana-env(){ echo -n ; }
 grafana-usage-almalinux(){ cat << EOU
 
 http://localhost:3000
-
-login with uw/pw:admin/admin
-
+login with uw/pw:admin/______e   ## changed default pw of admin
 
 EOU
 }
@@ -185,6 +183,7 @@ SELECT
   memory_utilization as "Node 1 Memory"
 FROM device_telemetry
 WHERE time >= $__from / 1000 and time < $__to / 1000;
+
 
 
 
