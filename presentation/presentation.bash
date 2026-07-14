@@ -1307,7 +1307,8 @@ presentation-e(){
 }
 
 presentation-ee(){ 
-   EXTRA=opticks_20231219_using_junosw_plus_opticks_release.txt presentation-e 
+   #EXTRA=opticks_20231219_using_junosw_plus_opticks_release.txt presentation-e 
+   EXTRA=opticks_202605XX_TALK.txt presentation-e 
 }
 
 
@@ -1417,7 +1418,8 @@ p-e(){
 
 p-ee(){
   : ~/env/presentation/presentation.bash
-  EXTRA="opticks_20260122_wuhan.txt opticks_20250917_dirac_workshop_ihep.txt"  presentation-e
+  #EXTRA="opticks_20260122_wuhan.txt opticks_20250917_dirac_workshop_ihep.txt"  presentation-e
+  EXTRA="opticks_202605XX.txt opticks_20260527_bangkok_chep2026.txt opticks_20260122_wuhan.txt opticks_20250917_dirac_workshop_ihep.txt"  presentation-e
 }
 
 p-cd(){
@@ -1649,5 +1651,6 @@ presentation-rst2talk-(){
 #presentation-iname(){ echo ${INAME:-opticks_20251219_geometry_simtrace_check} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20260122_wuhan} ; }
 #presentation-iname(){ echo ${INAME:-opticks_202605XX} ; }
-presentation-iname(){ echo ${INAME:-opticks_20260527_bangkok_chep2026} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20260527_bangkok_chep2026} ; }
+presentation-iname(){ echo ${INAME:-opticks_20260721_beijing_juno} ; }
 
