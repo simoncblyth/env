@@ -1,0 +1,21 @@
+graph TD
+    %% Using TD makes it vertical/narrow
+    %% Using <br/> inside brackets prevents horizontal stretching
+
+    A["<b>1. Geometry & Physics</b><br/>(Model Changes)"] 
+    --> B["<b>2. Optimization</b><br/>(Code Efficiency)"]
+    
+    B --> C["<b>3. Added Features</b><br/>(Server-Client,<br/>non-NVIDIA GPU)"]
+    
+    C --> D["<b>4. Validation</b><br/>(Comparison with<br/>Geant4)"]
+    
+    D --> E["<b>5. Performance Mon.</b><br/>(System Metrics)"]
+    
+    E --> A
+
+    %% Styling to make it look clean
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bfb,stroke:#333,stroke-width:2px
+    style D fill:#fbb,stroke:#333,stroke-width:2px
+    style E fill:#dff,stroke:#333,stroke-width:2px

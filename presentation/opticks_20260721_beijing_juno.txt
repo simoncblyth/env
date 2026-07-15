@@ -1,9 +1,9 @@
 .. meta::
    :name: opticks_20260721_beijing_juno.txt
    :title: Opticks: GPU Accelerated Optical Photon Simulation for JUNO and Other Experiments
-   :description: (2026 May 27) JUNO, OptiX, Opticks
+   :description: (2026 July 21) JUNO, OptiX, Opticks
    :note0: 18 min
-   :docdb: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=16362
+   :docdb: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?sessionid=4520
 
 .. include:: my_s5defs.txt
 
@@ -14,14 +14,18 @@
 
    dev-cycle
 
-   Speeding up dev-cycle with automation/monitoring
+   DONE : Speeding up dev-cycle with automation/monitoring
+   DONE : grafana screenshots
 
-   * grafana screenshots
-
+   server-client
 
    Preparation for three species LS model
 
    * DONE : wavelength generation
+   * DONE : CDF and ICDF plots
+
+
+   * Updates for Blackwell : CUDA OptiX
 
 
 
@@ -80,6 +84,154 @@
 
 
 
+Opticks+JUNOSW Development Cycle
+--------------------------------
+
+.. class:: normal
+
+    :b:`Opticks : fast replacement for Geant4 optical sim,` :r:`BUT FRAGILE:`
+
+.. class:: normal
+
+    * model/geometry change often needs CUDA development 
+
+      * eg: new three species LS model with state transitions
+
+    * any change can break correctness + performance
+
+    **=>Speed up cycle by automating : Validation + Performance Mon.**   
+
+.. class:: normal
+
+    **Opticks Monitoring**
+
+    * gitlab-ci nightly tests - https://code.ihep.ac.cn/blyth/oj/
+    * GPU Workstation: gitlab-runner + Grafana server
+    * summarize test performance/status into SQLite3 DB tables
+    * visualize using Grafana Dashboard
+
+      * interactive plotting, using SQL queries => dynamic results
+
+    "Pipeline" works - NEXT: extend coverage to all important tests   
+
+
+
+
+
+
+:i:`opticks_monitoring_grafana_20260715_155458.png` 
+----------------------------------------------------
+
+``Editing Grafana cxs_min.sh  : kernel time vs num_photon``
+
+
+:i:`opticks_monitoring_grafana_20260715_160444.png` 
+----------------------------------------------------
+
+``Opticks Grafana Dashboard``
+
+
+grafana
+--------
+
+``Grafana Dashboard Examples : popular tool => AI helps greatly`` 
+
+
+:small:`MC Method : Sampling using Cumulative Distribution Function (CDF)`
+--------------------------------------------------------------------------------------
+
+.. image:: /env/presentation/normal_pdf_cdf.png
+   :width: 400px
+   :align: right
+
+.. class:: small
+
+   :red:`Aim : create sample (a set of values) that follows an analytic PDF`
+
+   **Cumulative distribution function (CDF) : Prob( X < x)**
+
+   * definite integral PDF f -> CDF F
+
+     * **F(b) - F(a) = P( a < X <= b ) = Integral a->b  f(x) dx**      
+
+   * monotonically increasing function, CDF(-inf) = 0, CDF(inf) = 1    
+
+   **Map uniform randoms onto probabilities**
+
+   1. integrate PDF -> CDF (mapping PDF domain onto probability [0,1] )
+   2. invert the CDF, so domain becomes [0,1]  
+   3. inverted_CDF(uniform random) -> sample value 
+
+   **Intuitively : throw randoms uniformly "vertically"**
+
+   * Sigmoid CDF : low probability close to zero or 1 corresponding to tails  
+   * greater probability in high PDF areas      
+   * extreme case of delta-function PDF : all probability at one value
+
+     * sigmoid CDF becomes Heaviside step-function
+
+   :red:`CDF "encodes" shape of PDF in convenient form for sampling` 
+
+
+.. class:: tiny
+
+   https://en.wikipedia.org/wiki/Inverse_transform_sampling
+
+
+
+
+
+
+:small:`Monte Carlo Method : Modelling Scintillator Re-emission`
+--------------------------------------------------------------------------------------
+
+.. image:: /env/presentation/inverted_cdf_GScintillatorLib_py.png
+   :width: 500px
+   :align: right
+
+.. class:: small
+
+   *reemission_probability(wavelength)*
+       fraction of light absorbed in scintillator  
+       re-emitted with different wavelength.   
+
+   generating re-emitted wavelength
+       * expected *PDF(wavelength)* -> *inverted_CDF(probability)*
+
+   **Opticks Re-emission model** 
+
+   * fraction of absorbed photons "reincarnated" in same thread   
+   * *inverted_CDF(probability)* -> GPU "re-emission" texture 
+ 
+   .. raw:: html
+
+       <pre class="mypretiny">
+       float uniform_sample_reemit = curand_uniform(&rng);
+       if (uniform_sample_reemit < reemission_probability ) 
+       {  
+           ... 
+           p.wavelength = reemission_lookup(curand_uniform(&rng));   <b><span class="alarm"> # re-emission texture lookup  </span></b>
+           s.flag = BULK_REEMIT ;
+           return CONTINUE;
+       }    
+       else 
+       {   
+           s.flag = BULK_ABSORB ;
+           return BREAK;
+       }    
+       </pre>
+
+
+
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/opticks/src/default/optixrap/cu/propagate.h
+ 
+
+
+
+
+
 :small:`Scint wavelength generation in triplicate (LAB, bisMSB, PPO)` 
 ----------------------------------------------------------------------
 
@@ -100,7 +252,7 @@
 .. raw:: html
 
     <pre style="mypre8">
-     0        e-m   e   e+m                          1-e-m 1-e 1-e+m        1
+     0        e-m   e   e+m  ["HD20": e=.05,m=e/10]   -e-m 1-e 1-e+m        1
      |         |    |    |                             |    |    |          |
      +---LHS-------------+                             +----------RHS-------+
      |         +----:----------------MID--------------------:----+          |
@@ -113,9 +265,11 @@
 
 .. class:: small
 
-   * At edge (u < 0.05, u > 0.95) :  CDF flat => ICDF steep :  :r:`need ultra high resolution`
-   * **"HD20"** 4096 bin, 20x at edge (but only 3x larger) => :b:`enables GPU wavelength(float) to match Geant4(double)` 
-   * :b:`margins prevent Chi2 spikes from float im-precision at zone transitions`  
+   * [u: uniform random 0->1] At edge (u < 0.05, u > 0.95) :  CDF flat => ICDF steep :  :r:`need ultra high resolution`
+   * **"HD20"** 4096 bin, 20x at edge (but only 3x larger) => :b:`enables GPU wavelength lookup(float) to match Geant4 calc(double)` 
+   * :b:`margins(m) prevent Chi2 spikes from float im-precision at zone boundaries`  
+
+   ``float qscint_three::wavelength_hd20(int species_idx, float u ) const``
 
 
 :i:`QScintThree_test_sh_COMP_012_LOGY0_EDGE1_DPI300`
