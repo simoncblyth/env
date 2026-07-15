@@ -15,6 +15,7 @@
    dev-cycle
 
    DONE : Speeding up dev-cycle with automation/monitoring
+   TODO : gitlab-ci screenshot
    DONE : grafana screenshots
 
    server-client
@@ -25,7 +26,7 @@
    * DONE : CDF and ICDF plots
 
 
-   * Updates for Blackwell : CUDA OptiX
+   * TODO : Updates for Blackwell : CUDA OptiX -  optix 9.1 cuda 13.1
 
 
 
@@ -45,18 +46,18 @@
     </h1>
     </header>
     </div>
-    <img style="position:absolute; top:400px; LEFT:100px; WIDTH:200px; " src="juno/JUNO_logo.png" >
+    <!--img style="position:absolute; top:400px; LEFT:100px; WIDTH:200px; " src="juno/JUNO_logo.png" >
 
-     <p style="position:fixed;top:550px;left:100px;font-size:20px;background-color:white;border:1px solid black;padding:5px;width:200px;">
+     <!--p style="position:fixed;top:550px;left:100px;font-size:20px;background-color:white;border:1px solid black;padding:5px;width:200px;">
      On behalf of the JUNO Collaboration
-     </p>
+     </p-->
 
 
 
 
     <div class="mycredit">
        <h2 style="background-color:lightgrey">
-          Simon C Blyth, IHEP, CAS &mdash; 28th CHEP Conf, Chulalongkorn Univ, Bangkok, Thailand &mdash; (27 May 2026)
+          Simon C Blyth, IHEP &mdash; JUNO Collaboration Meeting, IHEP, Beijing &mdash; (21 July 2026)
        </h2>
     </div>
 
@@ -66,7 +67,6 @@
     and integrates that with Geant4. GPU parallelism gives drastic speedups of more than a factor of 1000.
     This render shows the photons resulting from a muon crossing the JUNO scintillator,
     each line represents a single photon.
-
 
 
 
@@ -84,205 +84,10 @@
 
 
 
-Opticks+JUNOSW Development Cycle
---------------------------------
+.. comment
 
-.. class:: normal
-
-    :b:`Opticks : fast replacement for Geant4 optical sim,` :r:`BUT FRAGILE:`
-
-.. class:: normal
-
-    * model/geometry change often needs CUDA development 
-
-      * eg: new three species LS model with state transitions
-
-    * any change can break correctness + performance
-
-    **=>Speed up cycle by automating : Validation + Performance Mon.**   
-
-.. class:: normal
-
-    **Opticks Monitoring**
-
-    * gitlab-ci nightly tests - https://code.ihep.ac.cn/blyth/oj/
-    * GPU Workstation: gitlab-runner + Grafana server
-    * summarize test performance/status into SQLite3 DB tables
-    * visualize using Grafana Dashboard
-
-      * interactive plotting, using SQL queries => dynamic results
-
-    "Pipeline" works - NEXT: extend coverage to all important tests   
-
-
-
-
-
-
-:i:`opticks_monitoring_grafana_20260715_155458.png` 
-----------------------------------------------------
-
-``Editing Grafana cxs_min.sh  : kernel time vs num_photon``
-
-
-:i:`opticks_monitoring_grafana_20260715_160444.png` 
-----------------------------------------------------
-
-``Opticks Grafana Dashboard``
-
-
-grafana
---------
-
-``Grafana Dashboard Examples : popular tool => AI helps greatly`` 
-
-
-:small:`MC Method : Sampling using Cumulative Distribution Function (CDF)`
---------------------------------------------------------------------------------------
-
-.. image:: /env/presentation/normal_pdf_cdf.png
-   :width: 400px
-   :align: right
-
-.. class:: small
-
-   :red:`Aim : create sample (a set of values) that follows an analytic PDF`
-
-   **Cumulative distribution function (CDF) : Prob( X < x)**
-
-   * definite integral PDF f -> CDF F
-
-     * **F(b) - F(a) = P( a < X <= b ) = Integral a->b  f(x) dx**      
-
-   * monotonically increasing function, CDF(-inf) = 0, CDF(inf) = 1    
-
-   **Map uniform randoms onto probabilities**
-
-   1. integrate PDF -> CDF (mapping PDF domain onto probability [0,1] )
-   2. invert the CDF, so domain becomes [0,1]  
-   3. inverted_CDF(uniform random) -> sample value 
-
-   **Intuitively : throw randoms uniformly "vertically"**
-
-   * Sigmoid CDF : low probability close to zero or 1 corresponding to tails  
-   * greater probability in high PDF areas      
-   * extreme case of delta-function PDF : all probability at one value
-
-     * sigmoid CDF becomes Heaviside step-function
-
-   :red:`CDF "encodes" shape of PDF in convenient form for sampling` 
-
-
-.. class:: tiny
-
-   https://en.wikipedia.org/wiki/Inverse_transform_sampling
-
-
-
-
-
-
-:small:`Monte Carlo Method : Modelling Scintillator Re-emission`
---------------------------------------------------------------------------------------
-
-.. image:: /env/presentation/inverted_cdf_GScintillatorLib_py.png
-   :width: 500px
-   :align: right
-
-.. class:: small
-
-   *reemission_probability(wavelength)*
-       fraction of light absorbed in scintillator  
-       re-emitted with different wavelength.   
-
-   generating re-emitted wavelength
-       * expected *PDF(wavelength)* -> *inverted_CDF(probability)*
-
-   **Opticks Re-emission model** 
-
-   * fraction of absorbed photons "reincarnated" in same thread   
-   * *inverted_CDF(probability)* -> GPU "re-emission" texture 
- 
-   .. raw:: html
-
-       <pre class="mypretiny">
-       float uniform_sample_reemit = curand_uniform(&rng);
-       if (uniform_sample_reemit < reemission_probability ) 
-       {  
-           ... 
-           p.wavelength = reemission_lookup(curand_uniform(&rng));   <b><span class="alarm"> # re-emission texture lookup  </span></b>
-           s.flag = BULK_REEMIT ;
-           return CONTINUE;
-       }    
-       else 
-       {   
-           s.flag = BULK_ABSORB ;
-           return BREAK;
-       }    
-       </pre>
-
-
-
-.. class:: tiny 
-
-   https://bitbucket.org/simoncblyth/opticks/src/default/optixrap/cu/propagate.h
- 
-
-
-
-
-
-:small:`Scint wavelength generation in triplicate (LAB, bisMSB, PPO)` 
-----------------------------------------------------------------------
-
-
-.. class:: small
-
-   +----------------------+-----------------------------------------------------------------------------+  
-   | U4ScintThree.h       | Geant4 : **ScintIntegral::GetEnergy** -> ICDF                               |     
-   +----------------------+-----------------------------------------------------------------------------+  
-   | QTexLayered.h        | CUDA layered texture from array (layers, height, width, payload )           |  
-   +----------------------+-----------------------------------------------------------------------------+  
-   | qscint_three.h       | wavelength_hd20  tex atlas lookup with random u0 -> wl                      | 
-   +----------------------+-----------------------------------------------------------------------------+  
-   | QScintThree.h        | * Scint ICDF texture atlas 3*3 layers  (3 species, 3 zone LHS/MID/RHS)      |
-   |                      | * initialize qscint_three.h on CPU, upload to GPU                           | 
-   +----------------------+-----------------------------------------------------------------------------+  
-
-.. raw:: html
-
-    <pre style="mypre8">
-     0        e-m   e   e+m  ["HD20": e=.05,m=e/10]   -e-m 1-e 1-e+m        1
-     |         |    |    |                             |    |    |          |
-     +---LHS-------------+                             +----------RHS-------+
-     |         +----:----------------MID--------------------:----+          |
-     |              :    |        1 - 2*(e-m)          |    :               |
-     |              :    |                             |    :               |
-     |        u < e :    |     otherwise MID zone      |    : u > 1 - e     |                        
-     |  x=u/(e+m)   :    | x = (u-(e-m))/(1-2*(e-m))   | x=(u-(1-e-m))/(e+m)|           
-     </pre>
-
-
-.. class:: small
-
-   * [u: uniform random 0->1] At edge (u < 0.05, u > 0.95) :  CDF flat => ICDF steep :  :r:`need ultra high resolution`
-   * **"HD20"** 4096 bin, 20x at edge (but only 3x larger) => :b:`enables GPU wavelength lookup(float) to match Geant4 calc(double)` 
-   * :b:`margins(m) prevent Chi2 spikes from float im-precision at zone boundaries`  
-
-   ``float qscint_three::wavelength_hd20(int species_idx, float u ) const``
-
-
-:i:`QScintThree_test_sh_COMP_012_LOGY0_EDGE1_DPI300`
-----------------------------------------------------
-
-.. class:: small
-
-    ``1e9 wavelength hists - Geant4:Opticks diff not visible - Chi2/ndf < 1.001`` 
-
-
-:i:`QScintThree_test_sh_COMP_012_LOGY1_EDGE1_DPI300`
-----------------------------------------------------
-
+      * Optical Photon Simulation ≈ Ray Traced Image Rendering
+      * NVIDIA RTX PRO 6000 Blackwell
 
 
 
@@ -304,24 +109,25 @@ Outline
     * Optical Photon Simulation Context
 
       * (JUNO) Optical Photon Simulation Problem...
-      * Optical Photon Simulation ≈ Ray Traced Image Rendering
-      * NVIDIA RTX PRO 6000 Blackwell
       * Four NVIDIA RTX Gen : Ray Tracing : ~2x every ~2 yrs
       * Opticks Optical simulation directly scales with ray tracing speed
       * NVIDIA OptiX : Ray Tracing Engine -- Accessible GPU Ray Tracing
       * Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
       * Amdahl 'Law' : Overall Speedup S(p,n) for Parallel Fraction p and Parallized Speedup n
 
-    * Simulation of High Energy Events, eg: Multi-Muon
+    * Opticks + JUNOSW (OJ) : Testing as Geometry and Models continue to Evolve
 
-      * Photons from muon crossing JUNO Scintillator
-      * Recent Opticks Enhancements : directed by Muon Production Experience
-      * GPU Hit Merging : High Level Parallelization with CUDA Thrust
-      * GPU Hit Merging : Avoids hiding Opticks performance
+      * Opticks+JUNOSW Monitoring
+      * OJ Grafana Dashboard for cxs_min.sh test
 
-    * Opticks + JUNOSW : Testing as Geometry and Models continue to Evolve
+    * Preparations for Three Species LS model
 
-      * EMF Compensation Coils, Water Distributor, "Simtrace"
+      * MC Method : Sampling using Cumulative Distribution Function (CDF)
+      * Monte Carlo Method : Modelling Scintillator Re-emission
+      * Scint wavelength generation in triplicate (LAB, bisMSB, PPO)
+      * One billion wavelengths Chi2 check
+
+    * Updates for Blackwell : CUDA 13.1 OptiX 9.1
 
     * Geant4 + Opticks + NVIDIA OptiX : Production Scaling ?
 
@@ -333,8 +139,6 @@ Outline
       * NVIDIA Triton Inference Server (aka Dynamo-Triton)
 
     * Summary + Links
-
-
 
 .. comment
 
@@ -350,6 +154,7 @@ Outline
 
    * handling high energy events
    * scaling Opticks for monte carlo production
+
 
 
 
@@ -402,121 +207,42 @@ Outline
 
 
 
+.. comment
+
+    :small:`NVIDIA RTX PRO 6000 Blackwell`
+    -------------------------------------------
+
+
+    .. class:: small
+
+        Blackwell(4th Gen RTX) vs Ada(3rd Gen RTX):
+
+        * :r:`fourth-gen RT Cores : ray tracing ~doubled`
+        * 96GB GDDR7 : internal bandwidth ~doubled (1792 GB/s)
+        * PCIe 5.0 : external bandwidth ~doubled
+        * fifth-gen Tensor Cores : add FP4 (4-bit float), AI ~doubled
+        * add Multi-Instance GPU (MIG) support
+
+          - virtual "split" into four instances
+
+        * **power doubled** (600W)
 
 
 
+    .. raw:: html
+
+         <p style="position:fixed;top:1px;left:700px;font-size:30px;background-color:white;border:1px solid black;padding:5px;">
+         Server Edition
+         </p>
 
 
 
+    .. s5_talk::
 
-
-
-
-
-
-
-
-
-:small:`Optical Photon Simulation ≈ Ray Traced Image Rendering`
--------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Not a Photo, a Calculation`
-
-    .. image:: ../optix/samples/optix-ray-tracing-glasses.png
-       :width: 410px
-       :align: right
-
-    .. class:: tiny
-
-        http://on-demand.gputechconf.com/siggraph/2013/presentation/SG3106-Building-Ray-Tracing-Applications-OptiX.pdf
-
-
-.. raw:: html
-
-    <p style="margin-bottom:2cm;" />
-
-.. class:: small
-
-    :b:`simulation`
-       photon parameters at sensors (PMTs)
-
-    :b:`rendering`
-       pixel values at image plane
-
-
-.. raw:: html
-
-    <p style="margin-bottom:2cm;" />
-
-
-.. class:: small
-
-    **Much in common : geometry, light sources, optical physics**
-
-    * :redbold:`both limited by ray geometry intersection, aka ray tracing`
-
-.. raw:: html
-
-    <p style="margin-bottom:2cm;" />
-
-.. class:: small
-
-    **Many Applications of ray tracing** :
-
-    * advertising, design, architecture, films, games,...
-    * -> huge efforts to improve hw+sw over 30 yrs
-
-
-.. s5_talk::
-
-    Optical photon simulation and image rendering are
-    both limited by finding intersects between rays and
-    geometry : thats ray tracing.
-
-    GPU ray tracing is extremely highly optimized, making
-    it a very attractive tool for implementing optical photon simulation.
-
-
-
-
-
-
-
-
-:small:`NVIDIA RTX PRO 6000 Blackwell`
--------------------------------------------
-
-
-.. class:: small
-
-    Blackwell(4th Gen RTX) vs Ada(3rd Gen RTX):
-
-    * :r:`fourth-gen RT Cores : ray tracing ~doubled`
-    * 96GB GDDR7 : internal bandwidth ~doubled (1792 GB/s)
-    * PCIe 5.0 : external bandwidth ~doubled
-    * fifth-gen Tensor Cores : add FP4 (4-bit float), AI ~doubled
-    * add Multi-Instance GPU (MIG) support
-
-      - virtual "split" into four instances
-
-    * **power doubled** (600W)
-
-
-
-.. raw:: html
-
-     <p style="position:fixed;top:1px;left:700px;font-size:30px;background-color:white;border:1px solid black;padding:5px;">
-     Server Edition
-     </p>
-
-
-
-.. s5_talk::
-
-    NVIDIA RTX Pro 6000 Blackwell is from the 4th RTX generation.
-    Compared to the 3rd generation there has been a doubling
-    of ray tracing performance and also doubling in other areas
-    such as internal and external bandwidth.
+        NVIDIA RTX Pro 6000 Blackwell is from the 4th RTX generation.
+        Compared to the 3rd generation there has been a doubling
+        of ray tracing performance and also doubling in other areas
+        such as internal and external bandwidth.
 
 
 Four NVIDIA RTX Gen : Ray Tracing : :b:`~2x every ~2 yrs`
@@ -602,6 +328,10 @@ Four NVIDIA RTX Gen : Ray Tracing : :b:`~2x every ~2 yrs`
 
 
 
+
+
+
+
 :i:`AB_Substamp_ALL_Etime_vs_Photon_rtx_gen1_gen3.png`
 --------------------------------------------------------
 
@@ -679,7 +409,6 @@ Four NVIDIA RTX Gen : Ray Tracing : :b:`~2x every ~2 yrs`
     compared to the 1st.
 
     Opticks optical performance directly scales with ray tracing performance.
-
 
 
 
@@ -878,425 +607,394 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 
 
-:i:`Simulation of High Energy Events, eg: Multi-Muon`
--------------------------------------------------------
-
-
-.. raw:: html
-
-     <p style="margin-bottom:52mm;" />
-
-.. class:: huge
-
-    Simulation of High Energy Events, eg: Multi-Muon
-
-
-
-.. s5_talk::
-
-   So I have given the context, now lets consider how to handle high energy events
-
-
-
-
-:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_muon_cxs_20250707_112242.png`
----------------------------------------------------------------------
-
-``EVT=muon_cxs cxr_min.sh #12 : photons from muon crossing JUNO Scintillator``
-
-
-.. s5_talk::
-
-    This render shows the photons from a muon crossing the JUNO Scintillator.
-
-
-:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_muon_cxs_20250707_112243.png`
----------------------------------------------------------------------
-
-``EVT=muon_cxs cxr_min.sh #13``
-
-
-.. s5_talk::
-
-    Klop
-
-
-:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_muon_cxs_20250707_112244.png`
----------------------------------------------------------------------
-
-``EVT=muon_cxs cxr_min.sh #14``
-
-
-
-.. raw:: html
-
-   <p style="margin-bottom:4cm;" />
-
-
-``Large counts motivate merging of hits with same (pmtid,timebucket) : adding counts and keeping earliest time``
-
-
-.. s5_talk::
-
-   The large numbers of hits onto each PMT motivates merging hits within a timewindow,
-   giving substantial data reduction.
-
-
-
-:small:`Recent Opticks Enhancements : directed by Muon Production Experience`
--------------------------------------------------------------------------------
-
-.. class:: normal
-
-   **Add Opticks "lite" photons** : used with JUNOSW "Muon" hits ``(--pmt-hit-type 2)``
-
-   * Opticks ``sphotonlite`` (16 bytes), 4x smaller than ``sphoton`` (64 bytes)
-   * :b:`reduce overheads for big events`, photons per launch ~250M -> ~500M [32 GB VRAM]
-
-   **Removed 32-bit max photon limits -> simulation of giga optical photon events**
-
-   * :b:`handles monster double+ muon events`, tested with > 8 billion photon events
-   * events with more photons than fit in VRAM => multiple launches
-
-
-   **Add CUDA implementation of hit merging** (``thrust::sort_by_key,reduce_by_key``)
-
-   * merge hits onto same PMT within time buckets (eg: 1 ns)
-   * hits selected + merged on GPU
-
-     * async CUDA impl : ``cudaStream_t cudaEvent_t`` with  :b:`future object pattern`
-     * :r:`benefit twice` : reduce download time (as merged) + avoid slow CPU merge
-
-   * multi-launch events : concatenate merged hits, then ``QEvt::FinalMerge_async``
-
-
-
 .. comment
 
-   32(16) launches with ``sphoton(sphotonlite)`` [32GB VRAM]
+    :small:`Opticks + JUNOSW : Testing as Geometry and Models continue to Evolve`
+    ------------------------------------------------------------------------------------
 
 
-.. s5_talk::
+    .. sidebar:: :small:`Visual Inspection Test Tools:`
 
-   Production testing motivated three enhancements:
+        .. class:: small
 
-   * adding photon-lite : reduces global memory usage on GPU and the size of downloads from the GPU
-   * removing photon limits : tested with > 8 billion photon events
-   * CUDA hit merging : combine hits onto the same PMT within time buckets, typically of 1 ns
 
-     * merging has double benefits, reduce download time and avoid slow CPU merge
+            **1. "Simtrace" 2D ray trace sliced view**
 
+            Planar rays from grid of planar gensteps => intersects
 
+            * present intersects with **pyvista** (:strike:`matplotlib`)
+            * precise control : viewpoint + slice plane
+            * point clouds with normals overlap check (kdtree)
 
-:small:`GPU Hit Merging : High Level Parallelization with CUDA Thrust`
-----------------------------------------------------------------------------
+            :b:`"Simtrace" clarity => many geom issues obvious`
 
 
-.. raw:: html
+            **2. OpenGL photon anim + OptiX ray trace geom**
 
-    <pre style="mypretiny">
-    struct key_functor {   //  <span class="r">Bitwise-OR (pmtid,timebucket) </span>
-      float    timewindow;
-      uint64_t operator()(const sphotonlite& p) const // 16+48 = 64
-      {
-         return (uint64_t(p.identity()) << 48) | uint64_t(p.time/timewindow);
-      }
-    };
-    </pre>
+            NEW: **SGLM_InterpolatedView.h**
 
+            * NumPy prep EYE,LOOK,UP "ELU" arrays
+            * Catmull-Rom spline interpolate EYE points
+            * Quaternion SLERP : interpolated orientation
 
-.. class:: small
+            :b:`=> Natural fly-around anim without careful ELU`
 
-  Opticks/sysrap ``SPM::merge_partial_select`` using CUDA Thrust (higher level C++ way to use CUDA)
+            Profit from : :r:`viz geometry == sim geometry`
 
-  +--------------------+-------------------------+-----------------------------------------------------+
-  |  Thrust method     |  Action                 |  Note                                               |
-  +====================+=========================+=====================================================+
-  | ``copy_if``        |  photon -> hit          | using flagmask                                      |
-  +--------------------+-------------------------+-----------------------------------------------------+
-  | ``transform``      |  hit -> key             | bitwise-OR (pmtid, timebucket)                      |
-  +--------------------+-------------------------+-----------------------------------------------------+
-  | ``sort_by_key``    | hit, key -> hit         | hit ordered with same (pmtid,timebucket) contiguous |
-  +--------------------+-------------------------+-----------------------------------------------------+
-  | ``reduce_by_key``  | hit, key -> hitmerged   | merge two hit : earlier time, sum hitcount          |
-  +--------------------+-------------------------+-----------------------------------------------------+
 
 
-  ``https://github.com/simoncblyth/opticks/blob/master/sysrap/SPM.cu``
 
-  ``https://github.com/simoncblyth/opticks/blob/master/sysrap/sphotonlite.h``
-
-
-.. s5_talk::
-
-   The key to GPU hit merging is this bitwise OR of pmtid and timebucket,
-   which provides an integer identity for sort_by_key and reduce_by_key.
-
-
-
-:small:`GPU Hit Merging : Avoids hiding Opticks performance`
----------------------------------------------------------------
-
-
-.. class:: small
-
-    **Simulation times (excl. init) for one double muon event, ~150M photons, 28M hit, 6.4M mergedHit, 1ns bucket merge**
-
-    * Workstation (Dell Precision 7960), NVIDIA RTX 5000 Ada, 3rd gen. RT cores, 32 GB
-
-
-    +---------------------------+------------------------+----------------------+
-    | JUNOSW Standard           |  full PMT hit          | summary "muon" hit   |
-    +===========================+========================+======================+
-    |                           |      7112 s  (118min)  |     6904 s (115min)  |
-    +---------------------------+------------------------+----------------------+
-
-
-
-.. class:: small
-
-    .. table::
-        :class: center-aligned-table
-        :widths: 3 1 1 2 3 3 3 3
-        :align: center
-
-        +------------------+-----------+-------------+------------------+------------------+-------------------+---------------+----------------+
-        | Opticks+JUNOSW   | merge     | ph-lite     |  Simulate        | (GPU merge)+     | (CPU merge)+      |  Total [s]    |  Speedup       |
-        | hit_mode         |           |             |  Kernel [s]      |  Download [s]    |  Collection [s]   |               |  vs std        |
-        +==================+===========+=============+==================+==================+===================+===============+================+
-        | hit              |           |  |N|        |          22.996  |          1.949   |       190.445     |    215.560    |        x32     |
-        +------------------+  CPU      +-------------+------------------+------------------+-------------------+---------------+----------------+
-        | hitlite          |           |  |Y|        |          23.108  |          0.484   |       146.471     |    170.226    |         x31    |
-        +------------------+-----------+-------------+------------------+------------------+-------------------+---------------+----------------+
-        | hitmerged        |           |  |N|        |          22.988  |      :b:`0.543`  |         6.712     |     30.400    |     :r:`x233`  |
-        +------------------+  GPU      +-------------+------------------+------------------+-------------------+---------------+----------------+
-        | hitlitemerged    |           |  |Y|        |          23.097  |      :b:`0.181`  |         0.403     |     23.835    |     :r:`x221`  |
-        +------------------+-----------+-------------+------------------+------------------+-------------------+---------------+----------------+
-
-
-.. comment
-
-   |P|-lite
-
-   ~/j/zhenning_double_muon/SProf_table.rst
-         THIS DOCUMENTS THE COMMANDS USED TO GET THESE NUMBERS
-
-
-.. class:: normal
-
-    * :r:`huge hit collection speedup [eg: 146 -> 0.4 seconds] from GPU merging`
-    * :b:`GPU hit merging time more than compensated by reduced download time`
-    * BUT: thrust merging vram spike => reduce slots to avoid OOM (ph-lite 2x, NOT:4x)
-
-
-.. raw:: html
-
-     <p style="margin-bottom:-7mm;" />
-
-.. class:: huge
-
-    **Opticks+J :** :r:`overall speedup > x200  [~2 hrs → ~30 s]`
-
-.. raw:: html
-
-     <p style="margin-bottom:-7mm;" />
-
-
-
-
-
-.. s5_talk::
-
-    This tables compare the timings for simulation of one double muon event with 150M photons,
-    using four different hit modes.
-
-    The simulation kernel time is the same in the four hit modes,
-    its the same ray tracing being done.
-
-    Merge and collect times are very different.
-
-    A few minutes to CPU merge is no problem compared to several hours BUT it swamps 23 seconds of simulation kernel.
-
-    GPU merge time of a fraction of a second is more than made up for by reduced download time
-    and drastically faster hit collection.
-
-    Doing the hit merging on GPU avoids hiding Opticks performance behing post processing.
-
-    Overall simulation speedup is more than a factor of 200.
-
-    Simulations ordinarily taking 2 hours, can be completed in 30 s with Opticks.
-
-
-
-.. comment
-
-   * ~no diff in kernel time (same RT), ``photon->photonlite`` helps only ~25%
-
-    GPU hit merging, avoids obscuring Opticks performance behind CPU post-processing
-
-    GPU hit merging time is more than compensated by reduced download time
-
-
-
-
-:small:`Opticks + JUNOSW : Testing as Geometry and Models continue to Evolve`
-------------------------------------------------------------------------------------
-
-
-.. sidebar:: :small:`Visual Inspection Test Tools:`
 
     .. class:: small
 
+        Recent JUNO Simulation Geometry Additions:
 
-        **1. "Simtrace" 2D ray trace sliced view**
+        * Water Distributor System
+        * EM Field (EMF) compensation coils
+        * Extra Water Pool 8-inch PMTs
+        * ...
 
-        Planar rays from grid of planar gensteps => intersects
+        **Opticks Unit tests : class/struct level "opticks-t"**
 
-        * present intersects with **pyvista** (:strike:`matplotlib`)
-        * precise control : viewpoint + slice plane
-        * point clouds with normals overlap check (kdtree)
-
-        :b:`"Simtrace" clarity => many geom issues obvious`
-
-
-        **2. OpenGL photon anim + OptiX ray trace geom**
-
-        NEW: **SGLM_InterpolatedView.h**
-
-        * NumPy prep EYE,LOOK,UP "ELU" arrays
-        * Catmull-Rom spline interpolate EYE points
-        * Quaternion SLERP : interpolated orientation
-
-        :b:`=> Natural fly-around anim without careful ELU`
-
-        Profit from : :r:`viz geometry == sim geometry`
+        ~221 ctest taking ~90s (geom from latest Opticks+JUNOSW release)
 
 
+        **Integration Tests : JUNOSW vs Opticks+JUNOSW**
+
+        * A: Opticks + JUNOSW : write Opticks SEvt NumPy files
+        * B: U4Recorder + JUNOSW : write Opticks SEvt from Geant4
+        * A-vs-B photon history chi-squared
+
+          * :r:`deviations reveal issues` (typically geometry problems)
+
+        * GPU workstation configured as gitlab CI runner [NEW]
+
+          * Dedicated "OJ" repo for integration test scripts
 
 
+        AIM: :b:`automated scheduled validation`
 
-.. class:: small
+        * cast results as junit report (available in gitlab CI free-tier)
+        * :r:`automated problem finding` |y|, automated fix |n|
 
-    Recent JUNO Simulation Geometry Additions:
-
-    * Water Distributor System
-    * EM Field (EMF) compensation coils
-    * Extra Water Pool 8-inch PMTs
-    * ...
-
-    **Opticks Unit tests : class/struct level "opticks-t"**
-
-    ~221 ctest taking ~90s (geom from latest Opticks+JUNOSW release)
-
-
-    **Integration Tests : JUNOSW vs Opticks+JUNOSW**
-
-    * A: Opticks + JUNOSW : write Opticks SEvt NumPy files
-    * B: U4Recorder + JUNOSW : write Opticks SEvt from Geant4
-    * A-vs-B photon history chi-squared
-
-      * :r:`deviations reveal issues` (typically geometry problems)
-
-    * GPU workstation configured as gitlab CI runner [NEW]
-
-      * Dedicated "OJ" repo for integration test scripts
-
-
-    AIM: :b:`automated scheduled validation`
-
-    * cast results as junit report (available in gitlab CI free-tier)
-    * :r:`automated problem finding` |y|, automated fix |n|
-
-      * fix judgement : change source OR generalize translation
+          * fix judgement : change source OR generalize translation
 
 
 
-.. s5_talk::
+    .. s5_talk::
 
-   JUNO geometry and model continue to evolve
+       JUNO geometry and model continue to evolve
 
-   * making validation and testing an ongoing requirement
-   * one powerful test technique is photon history chi2
+       * making validation and testing an ongoing requirement
+       * one powerful test technique is photon history chi2
 
-   Recent progress in automated testing is to setup a gitlab CI runner
-   on a GPU workstation to help with promptly finding issues with
-   both the Geant4 geometry and with the translation of it.
+       Recent progress in automated testing is to setup a gitlab CI runner
+       on a GPU workstation to help with promptly finding issues with
+       both the Geant4 geometry and with the translation of it.
 
-   Opticks ray traced visualization is also very useful for finding
-   and investigating issues. This takes advantage of the performant ray tracing
-   and the fact that the visualized geometry is exactly the same as the
-   simulated geometry.
+       Opticks ray traced visualization is also very useful for finding
+       and investigating issues. This takes advantage of the performant ray tracing
+       and the fact that the visualized geometry is exactly the same as the
+       simulated geometry.
 
 
 
-:i:`EMF2 3`
-------------
+
+
+
+Opticks+JUNOSW (OJ) Monitoring
+----------------------------------
 
 .. class:: normal
 
-    :i:`EMF2 3` ``EMF Compensation Coils : View from bottom of pool (v. large vol. excluded)``
+    :b:`Opticks : fast replacement for Geant4 optical sim,` :r:`BUT FRAGILE:`
+
+.. class:: normal
+
+    * model/geometry change often needs CUDA development 
+
+      * eg: new three species LS model with state transitions
+
+    * :r:`any change can break correctness + performance`
+
+      * => :b:`REQUIRES CONTINUOUS MONITORING`
+
+    **Accelerate dev-cycle via automated : Validation + Performance Mon.**   
+
+.. class:: normal
+
+    **OJ + Opticks Monitoring** : https://code.ihep.ac.cn/blyth/oj/
+
+    * gitlab-ci nightly tests - (*gitlab-ci coordination, Grafana presentation*)
+    * GPU Workstation: gitlab-runner + **Grafana** server
+    * *Opticks:* :b:`summarize` test performance/status into SQLite3 DB tables
+    * visualize using **Grafana** Dashboard
+
+      * interactive plotting via SQL queries => dynamic plots
+
+    "Pipeline" works, NEXT: extend coverage to all important tests   
+
 
 .. s5_talk::
 
-    View at bottom of pool, with EM Field compensation coils
+    gitlab-ci good for coordination, but just gives pass/fail
 
 
 
-:i:`WDP 4`
------------
+:i:`opticks_monitoring_grafana_20260715_155458.png` 
+----------------------------------------------------
+
+``Editing Grafana cxs_min.sh  : kernel time vs num_photon``
+
+
+:i:`opticks_monitoring_grafana_20260715_160444.png` 
+----------------------------------------------------
+
+``Opticks Grafana Dashboard``
+
+
+grafana
+--------
+
+``Grafana Dashboard Examples : popular tool => AI helps greatly`` 
+
+
+:small:`MC Method : Sampling using Cumulative Distribution Function (CDF)`
+--------------------------------------------------------------------------------------
+
+.. image:: /env/presentation/normal_pdf_cdf.png
+   :width: 400px
+   :align: right
 
 .. class:: small
 
-    ``WDP 4 : Water Distributor at top of CD``
+   :red:`Aim : create sample (a set of values) that follows an analytic PDF`
+
+   **Cumulative distribution function (CDF) : Prob( X < x)**
+
+   * definite integral PDF f -> CDF F
+
+     * **F(b) - F(a) = P( a < X <= b ) = Integral a->b  f(x) dx**      
+
+   * monotonically increasing function, CDF(-inf) = 0, CDF(inf) = 1    
+
+   **Map uniform randoms onto probabilities**
+
+   1. integrate PDF -> CDF (mapping PDF domain onto probability [0,1] )
+   2. invert the CDF, so domain becomes [0,1]  
+   3. inverted_CDF(uniform random) -> sample value 
+
+   **Intuitively : throw randoms uniformly "vertically"**
+
+   * Sigmoid CDF : low probability close to zero or 1 corresponding to tails  
+   * greater probability in high PDF areas      
+   * extreme case of delta-function PDF : all probability at one value
+
+     * sigmoid CDF becomes Heaviside step-function
+
+   :red:`CDF "encodes" shape of PDF in convenient form for sampling` 
+
+
+.. class:: tiny
+
+   https://en.wikipedia.org/wiki/Inverse_transform_sampling
 
 
 
-.. s5_talk::
-
-    Top
 
 
 
-:i:`WDP 6`
------------
+:small:`Monte Carlo Method : Modelling Scintillator Re-emission`
+--------------------------------------------------------------------------------------
+
+.. image:: /env/presentation/inverted_cdf_GScintillatorLib_py.png
+   :width: 500px
+   :align: right
 
 .. class:: small
 
-    ``WDP 6 : Water Distributor at bottom of CD``
+   *reemission_probability(wavelength)*
+       fraction of light absorbed in scintillator  
+       re-emitted with different wavelength.   
 
-.. s5_talk::
+   generating re-emitted wavelength
+       * expected *PDF(wavelength)* -> *inverted_CDF(probability)*
 
-    Bottom of CD
+   **Opticks Re-emission model** 
+
+   * fraction of absorbed photons "reincarnated" in same thread   
+   * *inverted_CDF(probability)* -> GPU "re-emission" texture 
+ 
+   .. raw:: html
+
+       <pre class="mypretiny">
+       float uniform_sample_reemit = curand_uniform(&rng);
+       if (uniform_sample_reemit < reemission_probability ) 
+       {  
+           ... 
+           p.wavelength = reemission_lookup(curand_uniform(&rng));   <b><span class="alarm"> # re-emission texture lookup  </span></b>
+           s.flag = BULK_REEMIT ;
+           return CONTINUE;
+       }    
+       else 
+       {   
+           s.flag = BULK_ABSORB ;
+           return BREAK;
+       }    
+       </pre>
+
+
+
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/opticks/src/default/optixrap/cu/propagate.h
+ 
 
 
 
 
 
+:small:`Scint wavelength generation in triplicate (LAB, bisMSB, PPO)` 
+----------------------------------------------------------------------
 
-:i:`LWDS : Simtrace Split Snake`
----------------------------------
 
+.. class:: small
 
+   +----------------------+-----------------------------------------------------------------------------+  
+   | U4ScintThree.h       | Geant4 : **ScintIntegral::GetEnergy** -> ICDF                               |     
+   +----------------------+-----------------------------------------------------------------------------+  
+   | QTexLayered.h        | CUDA layered texture from array (layers, height, width, payload )           |  
+   +----------------------+-----------------------------------------------------------------------------+  
+   | qscint_three.h       | wavelength_hd20  tex atlas lookup with random u0 -> wl                      | 
+   +----------------------+-----------------------------------------------------------------------------+  
+   | QScintThree.h        | * Scint ICDF texture atlas 3*3 layers  (3 species, 3 zone LHS/MID/RHS)      |
+   |                      | * initialize qscint_three.h on CPU, upload to GPU                           | 
+   +----------------------+-----------------------------------------------------------------------------+  
 
 .. raw:: html
 
-     <p style="position:fixed;top:1px;left:100px;font-size:30px;background-color:white;border:1px solid black;padding:5px;">
-     Precise "Simtrace" 2D sliced view - Water Distributor and pipes at bottom of JUNO CD
-     </p>
+    <pre style="mypre8">
+     0        e-m   e   e+m  ["HD20": e=.05,m=e/10]   -e-m 1-e 1-e+m        1
+     |         |    |    |                             |    |    |          |
+     +---LHS-------------+                             +----------RHS-------+
+     |         +----:----------------MID--------------------:----+          |
+     |              :    |        1 - 2*(e-m)          |    :               |
+     |              :    |                             |    :               |
+     |        u < e :    |     otherwise MID zone      |    : u > 1 - e     |                        
+     |  x=u/(e+m)   :    | x = (u-(e-m))/(1-2*(e-m))   | x=(u-(1-e-m))/(e+m)|           
+     </pre>
+
+
+.. class:: small
+
+   * [u: uniform random 0->1] At edge (u < 0.05, u > 0.95) :  CDF flat => ICDF steep :  :r:`need ultra high resolution`
+   * **"HD20"** 4096 bin, 20x at edge (but only 3x larger) => :b:`enables GPU wavelength lookup(float) to match Geant4 calc(double)` 
+   * :b:`margins(m) prevent Chi2 spikes from float im-precision at zone boundaries`  
+
+   ``float qscint_three::wavelength_hd20(int species_idx, float u ) const``
+
+
+:i:`QScintThree_test_sh_COMP_012_LOGY0_EDGE1_DPI300`
+----------------------------------------------------
+
+.. class:: small
+
+    ``1e9 wavelength hists - Geant4:Opticks diff not visible - Chi2/ndf < 1.001`` 
+
+
+:i:`QScintThree_test_sh_COMP_012_LOGY1_EDGE1_DPI300`
+----------------------------------------------------
 
 
 
-.. raw:: html
-
-   <p style="margin-bottom:90mm;" />
 
 
+.. comment
 
 
-.. s5_talk::
+    :i:`EMF2 3`
+    ------------
 
-   A "Simtrace" uses a planar grid of gensteps producing planar rays
-   to yield labelled intersects to provide a 2D slice through the geometry.
+    .. class:: normal
+
+        :i:`EMF2 3` ``EMF Compensation Coils : View from bottom of pool (v. large vol. excluded)``
+
+    .. s5_talk::
+
+        View at bottom of pool, with EM Field compensation coils
+
+
+
+    :i:`WDP 4`
+    -----------
+
+    .. class:: small
+
+        ``WDP 4 : Water Distributor at top of CD``
+
+
+
+    .. s5_talk::
+
+        Top
+
+
+
+    :i:`WDP 6`
+    -----------
+
+    .. class:: small
+
+        ``WDP 6 : Water Distributor at bottom of CD``
+
+    .. s5_talk::
+
+        Bottom of CD
+
+
+
+
+
+
+    :i:`LWDS : Simtrace Split Snake`
+    ---------------------------------
+
+
+
+    .. raw:: html
+
+         <p style="position:fixed;top:1px;left:100px;font-size:30px;background-color:white;border:1px solid black;padding:5px;">
+         Precise "Simtrace" 2D sliced view - Water Distributor and pipes at bottom of JUNO CD
+         </p>
+
+
+
+    .. raw:: html
+
+       <p style="margin-bottom:90mm;" />
+
+
+
+
+    .. s5_talk::
+
+       A "Simtrace" uses a planar grid of gensteps producing planar rays
+       to yield labelled intersects to provide a 2D slice through the geometry.
+
+
+
+
+Updates for Blackwell RTX 6000 : CUDA 13.1 OptiX 9.1
+------------------------------------------------------
+
+.. class:: normal
+
+    * NVIDIA Blackwell RTX 6000 (March 2025)
+    * NVIDIA CUDA 13.1 (December 4, 2025) -- "biggest expansion of CUDA since launch in 2006"
+    * NVIDIA OptiX 9.1 (December 12, 2025)
+
+
+
 
 
 
