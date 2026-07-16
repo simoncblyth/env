@@ -3274,7 +3274,13 @@
     QScintThree_test_sh_COMP_012_LOGY1_EDGE1_DPI300
     qudarap/QScintThree/QScintThree_test_sh_COMP_012_LOGY1_EDGE1_DPI300.png 1280px_720px
 
+    QScintThree_test_sh_COMP_012_LOGY1_EDGE1_DPI300_BOFFSET1e7
+    qudarap/QScintThree/QScintThree_test_sh_COMP_012_LOGY0_EDGE0_DPI300_BOFFSET1e7.png 1280px_720px
+
     Opticks+JUNOSW (OJ) Monitoring
+    opticks_monitoring/devcycle/oj_dev_cycle.png 358px_700px 922px_0px
+
+    Opticks+JUNOSW (OJ) Monitoring Goal
     opticks_monitoring/devcycle/oj_dev_cycle.png 358px_700px 922px_0px
 
     opticks_monitoring_grafana_20260715_155458.png
@@ -3285,6 +3291,9 @@
 
     grafana
     opticks_monitoring/grafana/dashboard_example.png 1280px_720px
+
+    opticks_monitoring_gitlab_ci_20260716_141838.png
+    opticks_monitoring/gitlab_ci/20260716_141838.png 1280px_720px
 
     ## HUH : NOT APPEARING IN SLIDE BACKGROUND : BUT URL OK
     ##
