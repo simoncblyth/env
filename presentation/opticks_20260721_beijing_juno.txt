@@ -10,12 +10,13 @@
 
 .. what_to_cover
 
-   MAYBE : big picture - opticks_roadmap - issues : dev-cycle, not-enough-GPUs
+   * MAYBE : allude to big picture opticks_roadmap issues (dev-cycle, not-enough-GPUs) in conclusion
 
-   server-client
+   * MORE : server-client, trim high level, add page for technicalities of server-client split specifics 
 
-   * TODO : Updates for Blackwell : CUDA OptiX -  optix 9.1 cuda 13.1
+     * chop Opticks in two via OPTICKS_CONFIG and WITH_CUDA WITH_CURL
 
+   * MAYBE : Updates for Blackwell : CUDA OptiX -  optix 9.1 cuda 13.1
 
 
 
@@ -66,8 +67,8 @@
       * Updates for Blackwell : CUDA 13.1 OptiX 9.1
 
 
-Outline
----------
+:i:`Outline`
+-------------
 
 .. image:: newtons-opticks.png
    :width: 299px
@@ -77,32 +78,36 @@ Outline
 
 .. raw:: html
 
-    <p style="margin-bottom:-2mm;" />
+    <p style="margin-bottom:-5mm;" />
 
 .. class:: small
 
-    * Optical Photon Simulation Context
+    * [p2] OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
+    * [p3] Optical Photon Simulation Context
 
       * (JUNO) Optical Photon Simulation Problem...
       * Four NVIDIA RTX Gen : Ray Tracing : ~2x every ~2 yrs
       * NVIDIA OptiX : Ray Tracing Engine -- Accessible GPU Ray Tracing
       * Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
-    * Opticks + JUNOSW (OJ) : Testing as Geometry and Models continue to Evolve
+    * [p7] Opticks + JUNOSW (OJ) : Testing as Geometry and Models continue to Evolve
 
       * Opticks+JUNOSW Monitoring
       * gitlab-ci in OJ repository
       * Opticks Grafana Dashboard
       * Goal of Monitoring
 
-    * Preparations for Three Species LS model
+    * [p12] Preparations for Three Species LS model
 
       * MC Method : Sampling using Cumulative Distribution Function (CDF)
-      * Monte Carlo Method : Modelling Scintillator Re-emission
+      * Generation of scintillator wavelengths on device using GPU texture
       * Scint wavelength generation in triplicate (LAB, bisMSB, PPO)
       * One billion wavelengths Chi2 check
+      * Status of Three Species LS model Preparations
 
-    * Geant4 + Opticks + NVIDIA OptiX : Production Scaling ?
+    * [p20] Opticks Updates for CUDA 13.1 OptiX 9.1
+
+    * [p21] Geant4 + Opticks + NVIDIA OptiX : Production Scaling ?
 
       * Geant4 + Opticks + NVIDIA OptiX : Monolith x4, x16
       * OpticksClients + OpticksService : Share GPUs
@@ -111,7 +116,7 @@ Outline
       * Opticks Server Prototype : python + FastAPI + nanobind + CSGOptiX
       * NVIDIA Triton Inference Server (aka Dynamo-Triton)
 
-    * Summary + Links
+    * [p30] Summary + Links
 
 .. comment
 
@@ -127,6 +132,96 @@ Outline
 
    * handling high energy events
    * scaling Opticks for monte carlo production
+
+
+
+
+
+OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
+-----------------------------------------------------
+
+.. comment
+
+    In [3]: import numpy as np ; np.array([1640,868])*0.25
+    Out[3]: array([410., 217.])
+
+    In [4]: import numpy as np ; np.array([1640,868])*0.3
+    Out[4]: array([492. , 260.4])
+
+    In [5]: import numpy as np ; np.array([1640,868])*0.27
+    Out[5]: array([442.8 , 234.36])
+
+    In [6]: import numpy as np ; np.array([1640,868])*0.28
+    Out[6]: array([459.2 , 243.04])
+
+
+
+.. comment
+
+   Möbius strip 
+
+.. sidebar:: :small:`Continuous Integration+Delivery`
+
+    .. image:: ci_cd/blackduck_cicd.png
+       :width: 459px
+       :height: 243px
+       :align: center
+
+
+.. class:: normal
+
+   Everyday ~17:15 non-GPU gitlab-runners:
+
+   * **OJ** : build + geometry conversion test
+   * release -> ``/cvmfs/opticks.ihep.ac.cn/oj/``  
+
+   :r:`Non-GPU runners limit testing`
+
+   1st build after Opticks release eg ``Opticks-v0.6.6``
+
+   * -> dated **OJ** "reference" release  
+
+
+
+.. raw:: html
+
+   <pre class="mypre18">
+   > realpath /cvmfs/opticks.ihep.ac.cn/oj/releases/LatestRelease/el9_amd64_gcc11/LastRef/envset.sh
+   /cvmfs/opticks.ihep.ac.cn/oj/releases/J26.1.1_Opticks-v0.6.6/el9_amd64_gcc11/2026_06_22/envset.sh
+   </pre>
+
+.. class:: normal
+
+   To use "LastRef" OJ release (from machine with GPU):
+
+.. raw:: html
+
+   <pre class="mypre18">
+   source /cvmfs/opticks.ihep.ac.cn/oj/releases/LatestRelease/el9_amd64_gcc11/LastRef/envset.sh
+   tut_detsim.py ... 
+   </pre>
+
+
+
+.. comment
+
+   ## Latest build - with day (replaced the week after)
+   realpath  /cvmfs/opticks.ihep.ac.cn/oj/releases/LatestRelease/el9_amd64_gcc11/Latest/envset.sh
+   /cvmfs/opticks.ihep.ac.cn/oj/releases/J26.1.1_Opticks-v0.6.6/el9_amd64_gcc11/Thu/envset.sh
+
+
+
+
+.. s5_talk::
+
+
+   Using Opticks just requires a small modification to scripts, plus of course you 
+   currently need access to an NVIDIA GPU 
+
+   A very useful recent change development is integration of Opticks+JUNOSW Build, Test and Release
+   into the GitLab CI/CD : continuous-integration/continuous-deployment.
+
+
 
 
 
@@ -758,9 +853,10 @@ Opticks+JUNOSW (OJ) Monitoring : Goal
 .. class:: normal
 
     * MC Method : Sampling using Cumulative Distribution Function (CDF)
-    * Monte Carlo Method : Modelling Scintillator Re-emission
+    * Generation of scintillator wavelengths on device using GPU texture
     * Scint wavelength generation in triplicate (LAB, bisMSB, PPO)
     * One billion wavelengths Chi2 check
+    * Status of Three Species LS model Preparations
 
 
 .. s5_talk::
@@ -793,7 +889,7 @@ Opticks+JUNOSW (OJ) Monitoring : Goal
 
    1. integrate PDF -> CDF (mapping PDF domain onto probability [0,1] )
    2. invert the CDF, so domain becomes [0,1]  
-   3. inverted_CDF(uniform random) -> sample value 
+   3. :b:`inverted_CDF(uniform random) -> sample value` 
 
    **Intuitively : throw randoms uniformly "vertically"**
 
@@ -814,10 +910,16 @@ Opticks+JUNOSW (OJ) Monitoring : Goal
 .. s5_talk::
 
     Reminder of the principal of sampling CDFs
+ 
+    Using a GPU texture to hold the inverted CDF provides a very fast
+    way to generate samples on the GPU simply by using a uniform
+    random to do a lookup into the GPU texture.  
 
 
-:small:`Monte Carlo Method : Modelling Scintillator Re-emission`
---------------------------------------------------------------------------------------
+
+
+:small:`Generation of scintillator wavelengths on device using GPU texture`
+-----------------------------------------------------------------------------------
 
 .. image:: /env/presentation/inverted_cdf_GScintillatorLib_py.png
    :width: 500px
@@ -825,43 +927,40 @@ Opticks+JUNOSW (OJ) Monitoring : Goal
 
 .. class:: small
 
-   *reemission_probability(wavelength)*
-       fraction of light absorbed in scintillator  
-       re-emitted with different wavelength.   
+   **GPU texture**
+       1D/2D/3D data structure with highly optimized lookup
+       using dedicated GPU hardware : Texture Mapping Units (TMUs)
 
-   generating re-emitted wavelength
-       * expected *PDF(wavelength)* -> *inverted_CDF(probability)*
+   **Layered GPU texture (aka texture array or "atlas")**
+       Single data structure holding multiple 1D/2D arrays, where
+       layers are accessed with integer index
 
-   **Opticks Re-emission model** 
+
+   **Current Opticks Scintillation model** 
 
    * fraction of absorbed photons "reincarnated" in same thread   
-   * *inverted_CDF(probability)* -> GPU "re-emission" texture 
+   * encode inverted CDF **ICDF** into (cudaTextureObject_t)scint_tex
+   * uniform random lookups into scint_tex => wavelengths from distrib
  
    .. raw:: html
 
        <pre class="mypretiny">
-       float u_reemit = curand_uniform(&rng);
-       if (u_reemit < reemission_probability ) 
-       {  
-           ... 
-           p.wavelength = reemission_lookup(curand_uniform(&rng));   <b><span class="alarm"> # re-emission texture lookup  </span></b>
+       float u_reemit_prob = curand_uniform(&rng);  // pseudo-code
+       if (u_reemit_prob < reemit_prob ) {  
+           float u_wavelength = curand_uniform(&rng);
+           p.wavelength = tex2D<float>(scint_tex, u_wavelength, 0.5f );   <b><span class="alarm"> # (cudaTextureObject_t)scint_tex lookup  </span></b>
            s.flag = BULK_REEMIT ;
            return CONTINUE;
-       }    
-       else 
-       {   
+       } else {   
            s.flag = BULK_ABSORB ;
            return BREAK;
        }    
        </pre>
 
+.. class:: large
 
-
-.. class:: tiny 
-
-   https://bitbucket.org/simoncblyth/opticks/src/default/optixrap/cu/propagate.h
- 
-
+   https://github.com/simoncblyth/opticks/blob/master/qudarap/qscint.h
+   
 .. s5_talk::
 
     GPU ICDF sampling - yields wavelength from a random throw and texture lookup
@@ -889,16 +988,14 @@ Opticks+JUNOSW (OJ) Monitoring : Goal
 
 .. raw:: html
 
-    <pre style="mypre8">
-     0        e-m   e   e+m  ["HD20": e=.05,m=e/10]   -e-m 1-e 1-e+m        1
-     |         |    |    |                             |    |    |          |
-     +---LHS-------------+                             +----------RHS-------+
-     |         +----:----------------MID--------------------:----+          |
-     |              :    |        1 - 2*(e-m)          |    :               |
-     |              :    |                             |    :               |
-     |        u < e :    |     otherwise MID zone      |    : u > 1 - e     |                        
-     |  x=u/(e+m)   :    | x = (u-(e-m))/(1-2*(e-m))   | x=(u-(1-e-m))/(e+m)|           
-     </pre>
+    <pre style="mypre8">0        e-m   e   e+m  ["HD20": e=.05,m=e/10]   -e-m 1-e 1-e+m        1
+    |         |    |    |                             |    |    |          |
+    +---LHS-------------+                             +----------RHS-------+
+    |         +----:----------------MID--------------------:----+          |
+    |              :    |        1 - 2*(e-m)          |    :               |
+    |              :    |                             |    :               |
+    |        u < e :    |     otherwise MID zone      |    : u > 1 - e     |                        
+    |  x=u/(e+m)   :    | x = (u-(e-m))/(1-2*(e-m))   | x=(u-(1-e-m))/(e+m)|</pre>
 
 
 .. class:: small
@@ -909,6 +1006,10 @@ Opticks+JUNOSW (OJ) Monitoring : Goal
 
    ``float qscint_three::wavelength_hd20(int species_idx, float u ) const``
 
+.. class:: large
+
+   https://github.com/simoncblyth/opticks/blob/master/qudarap/qscint_three.h
+ 
 
 .. s5_talk::
 
@@ -979,105 +1080,102 @@ Opticks+JUNOSW (OJ) Monitoring : Goal
 
 
 
-.. comment
+Status of Three Species LS model Preparations
+----------------------------------------------
 
 
-    :i:`EMF2 3`
-    ------------
+.. raw:: html
 
-    .. class:: normal
-
-        :i:`EMF2 3` ``EMF Compensation Coils : View from bottom of pool (v. large vol. excluded)``
-
-    .. s5_talk::
-
-        View at bottom of pool, with EM Field compensation coils
-
-
-
-    :i:`WDP 4`
-    -----------
-
-    .. class:: small
-
-        ``WDP 4 : Water Distributor at top of CD``
-
-
-
-    .. s5_talk::
-
-        Top
-
-
-
-    :i:`WDP 6`
-    -----------
-
-    .. class:: small
-
-        ``WDP 6 : Water Distributor at bottom of CD``
-
-    .. s5_talk::
-
-        Bottom of CD
-
-
-
-
-
-
-    :i:`LWDS : Simtrace Split Snake`
-    ---------------------------------
-
-
-
-    .. raw:: html
-
-         <p style="position:fixed;top:1px;left:100px;font-size:30px;background-color:white;border:1px solid black;padding:5px;">
-         Precise "Simtrace" 2D sliced view - Water Distributor and pipes at bottom of JUNO CD
-         </p>
-
-
-
-    .. raw:: html
-
-       <p style="margin-bottom:90mm;" />
-
-
-
-
-    .. s5_talk::
-
-       A "Simtrace" uses a planar grid of gensteps producing planar rays
-       to yield labelled intersects to provide a 2D slice through the geometry.
-
-
+    <p style="margin-bottom:10mm;" />
 
 
 .. comment
 
-    Updates for Blackwell RTX 6000 : CUDA 13.1 OptiX 9.1
-    ------------------------------------------------------
+    :class: center-aligned-table
+    :align: center
 
-    .. class:: normal
 
-        * NVIDIA Blackwell RTX 6000 (March 2025)
-        * NVIDIA CUDA 13.1 (December 4, 2025) -- "biggest expansion of CUDA since launch in 2006"
+.. table::
+    :class: left-aligned-table
+    :widths: 5, 1
+    :align: center
 
-          * reorganized thrust headers
+    +-----------------------------------------------------------------+-----------+
+    |  Aspect                                                         |  Status   |
+    +=================================================================+===========+
+    |  Wavelength generation in triplicate using 9 layer texture      |   |Y|     |
+    +-----------------------------------------------------------------+-----------+
+    |  Maintain species state for each photon                         |   |N|     |
+    |                                                                 |           |
+    |  * 2 bits in ``sphoton.h`` (set/get)_species                    |           |
+    +-----------------------------------------------------------------+-----------+
+    |  Species "Process" choice by distance comparison                |   |N|     | 
+    |                                                                 |           |
+    |  * needs to be optional without code duplication                |           |
+    |  * (Opticks operates at photon level)                           |           |  
+    +-----------------------------------------------------------------+-----------+
+    |  Species transition probabilities + delays                      |   |N|     |       
+    +-----------------------------------------------------------------+-----------+
+    |  Attain match with JUNOSW/Geant4                                |   |N|     |
+    +-----------------------------------------------------------------+-----------+
+    |  Add test + Grafana dashboard panel to maintain match           |   |N|     | 
+    +-----------------------------------------------------------------+-----------+
 
-        * NVIDIA OptiX 9.1 (December 12, 2025)
 
-          * stricter checks : UNSUPPORTED_PRIMITIVE_TYPE
 
-    .. comment
+.. class:: normal
 
-        Ada->Blackwell : current geom Blackwell vs old geom Ada : :r:`not doubled`
-      
-        * WIP: apples-to-apples comparison
-     
-          * eg: re-create old geometry from past GDML files
+   Dingyong Yang has started looking into the missing aspects
+ 
 
+.. s5_talk::
+
+    Not yet merged
+
+
+
+Opticks Updates for CUDA 13.1 OptiX 9.1
+---------------------------------------------
+
+.. class:: normal
+
+    **Major CUDA upgrade** : supported from ``Opticks-v0.6.6`` 2026/06/18
+
+    * NVIDIA CUDA 13.1 (December 4, 2025) -- "biggest expansion of CUDA since launch in 2006"
+
+      * CMake machinery and thrust header changes required Opticks fixes
+      * Support for eg: NVIDIA Blackwell RTX 6000
+
+    * NVIDIA OptiX 9.1 (December 12, 2025)
+
+      * OptiX : stricter kernel checks eg: UNSUPPORTED_PRIMITIVE_TYPE errors
+
+    New Docker Image : ``el9.4-cuda13.1-opticks``
+
+    * Accessible : https://hub.docker.com/r/simoncblyth/junosw/tags
+    * Image used by JUNOSW gitlab-ci ``~/junosw/.gitlab-ci.yml``
+    * ``~/junoenv/docker/Dockerfile-from-junosw-cudaxx-runtimeplus-el9``
+    * Opticks Dockerfile now just adds CUDA to ``junosw/base:el9-9.4`` image created by Tao Lin 
+
+      * => :b:`future CUDA updates should be simpler`
+
+    * WIP: Performance testing of Opticks on NVIDIA Blackwell RTX 6000 
+
+      * try to enable apples-to-apples comparisons despite continual geometry + model changes 
+
+
+.. s5_talk::
+
+    future CUDA updates should be simpler
+
+
+
+.. comment
+
+    Ada->Blackwell : current geom Blackwell vs old geom Ada : :r:`not doubled`
+  
+    * WIP: apples-to-apples comparison
+    * eg: re-create old geometry from past GDML files
 
 
 
@@ -1469,27 +1567,31 @@ NVIDIA Triton Inference Server (aka Dynamo-Triton)
 
 ..
 
-  *Opticks* : state-of-the-art GPU ray traced optical simulation integrated with *Geant4*,
-  with automated geometry translation.
-
+  *Opticks* : state-of-the-art GPU ray traced optical simulation integrated with *Geant4*
 
 ..
 
   GPU-less *OpticksClient* + *OpticksService* in development,
-  bringing *Opticks* everywhere + improving GPU utilization.
+  bringing *Opticks* everywhere
 
+..
+
+  *OpticksMonitoring* with gitlab-ci + Grafana to
+  speedup dev cycle via nightly GPU tests  
 
 
 .. raw:: html
 
-     <p style="margin-bottom:5mm;" />
+     <p style="margin-bottom:3mm;" />
 
 .. class:: normal
 
   * NVIDIA Ray Trace Performance continues rapid progress (2x each gen., every ~2 yrs)
   * **any simulation limited by optical photons can benefit from Opticks**
-  * more photon limited -> more overall speedup (99% -> ~90x)
 
+.. comment
+
+  * more photon limited -> more overall speedup (99% -> ~90x)
 
 .. table::
     :align: center

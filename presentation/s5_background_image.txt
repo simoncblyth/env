@@ -3295,6 +3295,9 @@
     opticks_monitoring_gitlab_ci_20260716_141838.png
     opticks_monitoring/gitlab_ci/20260716_141838.png 1280px_720px
 
+    OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases NOPE
+    ci_cd/blackduck_cicd.png 410px_217px 1000px_0px
+
     ## HUH : NOT APPEARING IN SLIDE BACKGROUND : BUT URL OK
     ##
     ##  http://localhost/env/presentation/GEOM/J25_4_0_opticks_Debug/cxr_min/SPMT_cxs/20250722_155442.png

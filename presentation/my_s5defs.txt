@@ -139,6 +139,19 @@
 
     <style type="text/css">
 
+        /* Center the table block itself on the slide */
+        table.left-aligned-table {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Force all table headers and data cells to left-align their text */
+        table.left-aligned-table th,
+        table.left-aligned-table td {
+            text-align: left !important;
+        }
+
+
         .strike { text-decoration: line-through; }
         .center {text-align: center;}
         .m20 { font-family: monospace; font-size: 20px; font-weight:bold ;}
