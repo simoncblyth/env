@@ -8,7 +8,7 @@ import numpy as np
 class Space(object):
     """
     pbrt p273
-    
+
     rgb[0] =  3.240479f*xyz[0] - 1.537150f*xyz[1] - 0.498535f*xyz[2];
     rgb[1] = -0.969256f*xyz[0] + 1.875991f*xyz[1] + 0.041556f*xyz[2];
     rgb[2] =  0.055648f*xyz[0] - 0.204043f*xyz[1] + 1.057311f*xyz[2];
@@ -24,7 +24,7 @@ class Space(object):
     How to avoid negative RGB ?  Use wider gamut space ? Otherwise how to clip ?
     """
 
-    s = {} 
+    s = {}
     s["sRGB/D65"] = """
  3.2404542 -1.5371385 -0.4985314
 -0.9692660  1.8760108  0.0415560
@@ -57,7 +57,7 @@ class Space(object):
 """
 
     @classmethod
-    def space(cls, name): 
+    def space(cls, name):
         xyz2rgb_ = np.fromstring(cls.s[name],sep=" ").reshape(3,3)
         rgb2xyz_ = np.linalg.inv(xyz2rgb_)
         return xyz2rgb_, rgb2xyz_
@@ -69,9 +69,9 @@ if __name__ == '__main__':
 
     for key in Space.s.keys():
         x2r, r2x = Space.space(key)
-        print "\n\n"
-        print "\n[%s] XYZ -> RGB\n" % key, x2r
-        print "\n[%s] RGB -> XYZ\n" % key, r2x
+        print("\n\n")
+        print("\n[%s] XYZ -> RGB\n" % key, x2r)
+        print("\n[%s] RGB -> XYZ\n" % key, r2x)
 
 
 
