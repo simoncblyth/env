@@ -903,3 +903,12 @@ osx_app_find(){
 }
 
 
+
+osx_stop_screencapture_nag(){
+   : did this in slides-allow
+}
+
+
+
+
+

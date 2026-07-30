@@ -3298,6 +3298,11 @@
     OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases NOPE
     ci_cd/blackduck_cicd.png 410px_217px 1000px_0px
 
+    Opticks + JUNOSW (OJ) Summary 
+    opticks_monitoring/grafana/20260715_160444.png 640px_360px 640px_0px
+    qudarap/QScintThree/QScintThree_test_sh_COMP_012_LOGY1_EDGE1_DPI300.png 640px_360px 0px_360px
+    ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow_Clients_and_Service_001.png 640px_360px 640px_360px
+    
     ## HUH : NOT APPEARING IN SLIDE BACKGROUND : BUT URL OK
     ##
     ##  http://localhost/env/presentation/GEOM/J25_4_0_opticks_Debug/cxr_min/SPMT_cxs/20250722_155442.png

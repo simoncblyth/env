@@ -278,6 +278,16 @@ Spires search for Opticks
 Other Publications featuring Opticks
 --------------------------------------
 
+
+https://arxiv.org/html/2606.05385v1
+
+   *GPU optical photon Monte Carlo for noble liquid detectors: validation against Geant4 in a large liquid argon TPC benchmark*
+
+   Gabor Galgoczi, Xuyang Ning, Dmitri Smirnov, Brett Viren and Chao Zhan 
+
+   [Uses Simphony (formerly EIC-Opticks) - a fork of Opticks]
+
+
 https://inspirehep.net/literature/2891204
 
     *Performance of an Optical TPC Geant4 Simulation with Opticks GPU-Accelerated Photon Propagation*

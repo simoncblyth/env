@@ -19,7 +19,18 @@ CHEP 2027, Bucharest, Romania, 13-17 September 2027
 CHEP 2026 Proceedings
 -----------------------
 
-* 28 August 2026: Proceeding submission deadline.
+::
+
+    Dear All, 
+
+    As the email subject says, the deadline for proceedings submissions has been
+    extended to 25 September 2026.
+
+    Best,
+    Phat
+
+
+* ORIGINAL : 28 August 2026: Proceeding submission deadline.
 * 4 December 2026: Revised proceedings submission deadline.
 * 26 February 2027: Proceeding to be available.
 

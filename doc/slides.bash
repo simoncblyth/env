@@ -6,6 +6,21 @@ CONVERT SLIDES IN S5 RST TO HTML AND PDF
 =========================================
 
 
+Always permissions problem
+-----------------------------
+
+“Terminal” is requesting to 
+bypass the system private 
+window picker and directly
+access your screen and audio.
+
+This will allow Terminal to record your
+screen and system audio, including
+personal or sensitive information that
+may be visible or audible.
+
+
+
 FUNCTIONS
 -----------
 
@@ -596,7 +611,7 @@ slides-mkdir(){ mkdir -p $(slides-dir) ; }
 
 
 
-slides-allow(){
+slides-allow-0(){
 
    : This forces the screen capture authorization timestamp to update to right now
 
@@ -605,6 +620,18 @@ slides-allow(){
    killall replayd
 
 }
+
+slides-allow(){
+
+   : This forces the screen capture authorization timestamp to update to 10 years from now
+
+   type $FUNCNAME
+   defaults write ~/Library/Group\ Containers/group.com.apple.replayd/ScreenCaptureApprovals.plist "com.apple.Terminal" -date "$(date -v+10y +'%Y-%m-%d %H:%M:%S +0000')"
+   killall replayd
+
+}
+
+
 
 
 slides-get-pages(){
@@ -941,6 +968,11 @@ What causes this ? Whats the fix ?  In Preview.app the page size is reported as 
 Gemini suggests problem from too large a page as magick defaults to 72dpi, suggests to use::
 
    magick -density 150 -units PixelsPerInch ???_crop.png -strip -compress JPEG -quality $quality $pdf
+
+
+Google AI also suggests that if still get problem could try to make the page size A4::
+
+   magick -density 150 -units PixelsPerInch ???_crop.png -strip -resize 1684x1191\> -page A4 -compress JPEG -quality $quality $pdf
 
 
 
