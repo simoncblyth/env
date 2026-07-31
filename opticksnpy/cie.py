@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 """
-Conversion of the binned wavelength spectra into XYZ (using 
+Conversion of the binned wavelength spectra into XYZ (using
 CIE weighting functions) and then RGB produces a spectrum
 
 [FIXED] Unphysical color repetition
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- 
-Uniform scaling by maximal single X,Y,Z or R,G,B 
+
+Uniform scaling by maximal single X,Y,Z or R,G,B
 prior to clipping gets rid of the unphysical color repetition
-but theres kinda a between the green and the blue, where cyan 
-should be 
+but theres kinda a between the green and the blue, where cyan
+should be
 
     #hRGB_raw /= hRGB_raw[0,:,0].max()  # scaling by maximal red, results in muted spectrum
-    #hRGB_raw /= hRGB_raw[0,:,1].max()  # scaling by maximal green,  OK  
-    #hRGB_raw /= hRGB_raw[0,:,2].max()  # scaling by maximal blue, similar to green by pumps the blues and nice yellow  
+    #hRGB_raw /= hRGB_raw[0,:,1].max()  # scaling by maximal green,  OK
+    #hRGB_raw /= hRGB_raw[0,:,2].max()  # scaling by maximal blue, similar to green by pumps the blues and nice yellow
 
 The entire spectral locus is outside sRGB gamut (the triangle),
 so all bins are being clipped.
@@ -21,7 +21,7 @@ so all bins are being clipped.
 Not clipping produces a psychedelic mess.
 
 
-[ISSUE] Blue/Green transition looks unphysical 
+[ISSUE] Blue/Green transition looks unphysical
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Need better way to handle out of gamut ?
@@ -34,7 +34,7 @@ its all negative, so that info is clipped.
     In [68]: np.set_printoptions(linewidth=150)
 
     In [75]: np.hstack([wd[:-1,None],c.raw[0],c.xyz[0],c.rgb[0]])
-    Out[75]: 
+    Out[75]:
     array([[  350.   ,     0.   ,     0.016,     0.102,     0.   ,     0.   ,     0.   ,    -0.   ,     0.   ,     0.   ],
            [  370.   ,     0.015,     0.105,     1.922,     0.   ,     0.   ,     0.001,    -0.001,     0.   ,     0.001],
            [  390.   ,     1.873,     0.582,    20.444,     0.001,     0.   ,     0.011,    -0.003,     0.   ,     0.012],
@@ -61,7 +61,7 @@ Chromatic Adaption
 
 * http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
 
-     
+
 
 Refs
 ~~~~~
@@ -106,9 +106,12 @@ class CIE(object):
         return raw
 
     def hist1d_XYZ(self,w,x,xb):
-        hX, hXx = np.histogram(x,bins=xb, weights=_cie.X(w))   
-        hY, hYx = np.histogram(x,bins=xb, weights=_cie.Y(w))   
-        hZ, hZx = np.histogram(x,bins=xb, weights=_cie.Z(w))   
+        """
+        used from opticksnpy/rainbow.py Rainbow.cieplot_1d
+        """
+        hX, hXx = np.histogram(x,bins=xb, weights=_cie.X(w))
+        hY, hYx = np.histogram(x,bins=xb, weights=_cie.Y(w))
+        hZ, hZx = np.histogram(x,bins=xb, weights=_cie.Z(w))
         assert np.all(hXx == xb) & np.all(hYx == xb ) & np.all(hZx == xb)
         raw = np.dstack([hX,hY,hZ])
         self.raw = np.copy(raw)
@@ -116,9 +119,9 @@ class CIE(object):
 
     def hist2d_XYZ(self,w,x,y,xb,yb):
         bins = [xb,yb]
-        hX, hXx, hXy = np.histogram2d(x,y,bins=bins, weights=_cie.X(w))   
-        hY, hYx, hYy = np.histogram2d(x,y,bins=bins, weights=_cie.Y(w))   
-        hZ, hZx, hZy = np.histogram2d(x,y,bins=bins, weights=_cie.Z(w))   
+        hX, hXx, hXy = np.histogram2d(x,y,bins=bins, weights=_cie.X(w))
+        hY, hYx, hYy = np.histogram2d(x,y,bins=bins, weights=_cie.Y(w))
+        hZ, hZx, hZy = np.histogram2d(x,y,bins=bins, weights=_cie.Z(w))
         assert np.all(hXx == xb) & np.all(hYx == xb ) & np.all(hZx == xb)
         assert np.all(hXy == yb) & np.all(hYy == yb ) & np.all(hZy == yb)
         return np.dstack([hX,hY,hZ])
@@ -126,45 +129,46 @@ class CIE(object):
     def norm_XYZ(self, hXYZ, norm=2, scale=1):
         """
         Trying to find an appropriate way to normalize XYZ values
+        controlled by the value of norm
 
         0,1,2
-              scale by maximal of X,Y,Z 
+              scale by maximal of X,Y,Z
         3
               scale by maximal X+Y+Z
         4
               scale by Yint of an externally determined whitepoint
-              (problem is that is liable to be with very much more light 
+              (problem is that is liable to be with very much more light
               than are looking at...)
         5
-              scale by Yint of the spectrum provided, this 
-              is also yielding very small X,Y,Z 
+              scale by Yint of the spectrum provided, this
+              is also yielding very small X,Y,Z
 
         >50
               scale is used, for normalization with Y value
-              obtained from the histogram norm identified bin 
+              obtained from the histogram norm identified bin
 
 
-        Hmm, some adhoc exposure factor seems unavoidable given the 
+        Hmm, some adhoc exposure factor seems unavoidable given the
         range of intensities so perhaps the adhoc techniques are appropriate after all.
 
-        Initial thinking was that the out-of-gamut problem was tied up with the 
+        Initial thinking was that the out-of-gamut problem was tied up with the
         exposure problem, but they are kinda orthogonal: think vectors in XYZ space,
-        the length of the vector doesnt change the hue.  
-        """  
+        the length of the vector doesnt change the hue.
+        """
         if norm in [0,1,2]:
-            nscale = hXYZ[:,:,norm].max()         
+            nscale = hXYZ[:,:,norm].max()
         elif norm == 3:
-            nscale = np.sum(hXYZ, axis=2).max()   
+            nscale = np.sum(hXYZ, axis=2).max()
         elif norm == 4:
             assert not self.whitepoint is None
             nscale = self.whitepoint[4]
         elif norm == 5 or norm > 50:
             nscale = scale
         else:
-            nscale = 1 
+            nscale = 1
         pass
 
-        hXYZ /= nscale             
+        hXYZ /= nscale
         self.scale = nscale
         self.xyz = np.copy(hXYZ)
         return hXYZ
@@ -174,24 +178,30 @@ class CIE(object):
 
     def hist0d(self, w, norm=2, nb=100):
         hXYZ_raw = self.hist0d_XYZ(w, nb=nb)
-        hXYZ = self.norm_XYZ(hXYZ_raw, norm=norm) 
+        hXYZ = self.norm_XYZ(hXYZ_raw, norm=norm)
         hRGB =  self.XYZ_to_RGB(hXYZ)
         self.rgb = np.copy(hRGB)
         return hRGB,hXYZ,None
 
     def hist1d(self, w, x, xb, norm=2):
+        """
+        :param w: wavelength array
+        :param x: angle array - same length as w
+        :param xb: angle bins
+        :param norm: pick between various normalization approaches - such as using the Y value of the norm-th angle bin
+        """
         hXYZ_raw = self.hist1d_XYZ(w,x,xb)
 
         if norm == 5:
             scale = np.sum(_cie.Y(w))
         elif norm > 50:
-            # assume norm is pointing to a bin, the Y value of which is used for scaling 
+            # assume norm is pointing to a bin, the Y value of which is used for scaling
             scale = hXYZ_raw[0,norm,1]
         else:
-            scale = 1 
+            scale = 1
         pass
 
-        hXYZ = self.norm_XYZ(hXYZ_raw, norm=norm, scale=scale) 
+        hXYZ = self.norm_XYZ(hXYZ_raw, norm=norm, scale=scale)
         hRGB =  self.XYZ_to_RGB(hXYZ)
         self.rgb = np.copy(hRGB)
         return hRGB,hXYZ,xb
@@ -199,24 +209,24 @@ class CIE(object):
     def hist2d(self, w, x, y, xb, yb, norm=2):
         hXYZ_raw = self.hist2d_XYZ(w,x,y,xb,yb)
         self.raw = hXYZ_raw
-        hXYZ = self.norm_XYZ(hXYZ_raw, norm=norm) 
+        hXYZ = self.norm_XYZ(hXYZ_raw, norm=norm)
         hRGB =  self.XYZ_to_RGB(hXYZ)
         extent = [xb[0], xb[-1], yb[0], yb[-1]]
         return hRGB,hXYZ,extent
 
     def spectral_plot(self, ax, wd, norm=2):
- 
+
         ndupe = 1000
         w = np.tile(wd, ndupe)
         x = np.tile(wd, ndupe)
-        xb = wd 
+        xb = wd
 
         hRGB_raw, hXYZ_raw, bx = self.hist1d(w, x, xb, norm=norm)
 
         hRGB_1d = np.clip(hRGB_raw, 0, 1)
         ntile = 100
         hRGB = np.tile(hRGB_1d, ntile ).reshape(-1,ntile,3)
-        extent = [0,2,bx[0],bx[-1]] 
+        extent = [0,2,bx[0],bx[-1]]
 
         #interpolation = 'none'
         #interpolation = 'mitchell'
@@ -255,14 +265,14 @@ def cie_hist2d(w, x, y, xb, yb, norm=1, colorspace="sRGB/D65", whitepoint=None):
 class Whitepoint(object):
     def __init__(self, w):
         """
-        For spectra close to original (think perfect diffuse reflector) 
+        For spectra close to original (think perfect diffuse reflector)
         this is expected to yield the characteristic of the illuminant.
 
         XYZ values must be normalized as clearly simulating more photons
         will give larger values...
 
         The Yint is hoped to provide a less adhoc way of doing the
-        normalization. 
+        normalization.
         """
         assert w is not None
 
@@ -276,7 +286,7 @@ class Whitepoint(object):
         Y /= Yint
         Z /= Yint
 
-        x = X/(X+Y+Z)  # Chromaticity coordinates 
+        x = X/(X+Y+Z)  # Chromaticity coordinates
         y = Y/(X+Y+Z)
 
         self.wp = np.array([X,Y,Z,Yint,x,y])
@@ -295,7 +305,7 @@ def whitepoint(wd):
     Y = np.sum( _cie.Y(wd)*bb )
     Z = np.sum( _cie.Z(wd)*bb )
 
-    norm = Y 
+    norm = Y
 
     # Normalize Y to 1
     X /= norm
@@ -308,12 +318,12 @@ def whitepoint(wd):
 
 def compare_norms(wdom):
     """
-    norm 0:X,1:Y 
-             look almost identical  
-    
-    norm 2:Z, 3:X+Y+Z 
+    norm 0:X,1:Y
+             look almost identical
+
+    norm 2:Z, 3:X+Y+Z
               also look the same
-    
+
     0,1 have better yellow and less of a murky gap between green and blue
     """
     c = CIE()
@@ -345,14 +355,5 @@ if __name__ == '__main__':
 
 
     wp = whitepoint(wdom)
-
- 
-
-
-
-
-
-
-
 
 
