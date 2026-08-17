@@ -1,5 +1,7 @@
-*Opticks Publications, Presentations, Notes*
-=====================================================
+.. |last_updated| date:: %Y-%m-%d %H:%M
+
+*Opticks Publications, Presentations, Notes* -- (Updated: |last_updated|)
+===========================================================================
 
 As servers may become inaccessible 
 this content is hosted from three servers. 
@@ -113,15 +115,36 @@ CHEP Search for Opticks
 Publications
 ---------------
 
+.. comment
+
+  **CHEP 2027 (Bucharest, Romania) Proceedings**
+
+  * https://indico.cern.ch/event/1471803/contributions/7115390/attachments/3284372/5870250/Announcing%20CHEP%202027%20Slides.pdf  
+  * POLITEHNICA Bucharest
+  * 13-17 September 2027
+
+
+URL-TBD
+
+   *Opticks: GPU Accelerated Optical Photon Simulation for JUNO and Other Experiments*
+
+   **CHEP 2026 (Bangkok, Thailand) Proceedings** : Simon C. Blyth, EPJ Web of Conferences ...(TBD)...
+
+   * `env/presentation/opticks_20260527_bangkok_chep2026.html <env/presentation/opticks_20260527_bangkok_chep2026.html>`_
+
+   Highlights:
+
+   * reduced resource simulation - 16 bytes "lite" photon vs full 64 bytes
+   * on-device PMT hit merging using CUDA Thrust, reduces download overheads and avoids CPU post processing
+   * overall speedup measuremenrs of various reduced resource and GPU hit merging modes
+   * explorations of a server-client architecture for Opticks - to enable distributed deployment and resource sharing
 
 
 https://www.epj-conferences.org/articles/epjconf/abs/2025/22/epjconf_chep2025_01093/epjconf_chep2025_01093.html
 
-
-
    *Opticks: GPU ray traced optical photon simulation*
 
-   **CHEP 2024 (Krakow, Poland) Proceedings** : Simon C. Blth, EPJ Web of Conferences 337, 01093 (2025)
+   **CHEP 2024 (Krakow, Poland) Proceedings** : Simon C. Blyth, EPJ Web of Conferences 337, 01093 (2025)
 
    * https://doi.org/10.1051/epjconf/202533701093
  
@@ -131,45 +154,15 @@ https://www.epj-conferences.org/articles/epjconf/abs/2025/22/epjconf_chep2025_01
 
    * https://www.epj-conferences.org/articles/epjconf/pdf/2025/22/epjconf_chep2025_01093.pdf
 
+   * `env/presentation/opticks_20241021_krakow_chep2024.html <env/presentation/opticks_20241021_krakow_chep2024.html>`_
 
-.. comment
+   Highlights: 
 
-    27th International Conference on Computing in High Energy and Nuclear Physics (CHEP 2024)
- 
-    Opticks: GPU ray traced optical photon simulation
- 
-    Opticks, Optical Photon, GPU, NVIDIA, CUDA, OptiX, Simulation, Geant4
- 
- 
-    Opticks is an open source project that accelerates optical photon simulation by
-    integrating NVIDIA GPU ray tracing, accessed via the NVIDIA OptiX API, with
-    Geant4 toolkit based simulations. Optical photon simulation times of 10 seconds
-    per 100 million photons have been measured with the full JUNO geometry and
-    optical model with a 3rd RTX generation GPU. The JUNO optical model
-    incorporates optical processes inside PMTs including thin layer interference
-    effects. The GPU geometry is auto-translated from the Geant4 geometry. Optical
-    physics processes of scattering, absorption, scintillator reemission and
-    boundary processes are implemented in CUDA based on Geant4.
-    Wavelength-dependent material and surface properties as well as inverse
-    cumulative distribution functions for reemission are interleaved into GPU
-    textures providing fast interpolated property lookup or wavelength generation.
-    In this work we describe performance measurements and new features developed to
-    facilitate and optimize production usage of Opticks within the JUNO simulation
-    framework. The features include geometry generalization enabling use of
-    triangulated solids together with analytic geometry, out-of-core processing
-    enabling simulation of events with more photons than can fit within available
-    VRAM, interactive ray traced visualization and also the adoption of the Philox
-    counterbased random number generator optimizing random number generation.
-
-
-    https://indico.cern.ch/event/1338689/
-
-    University of Kraków, Poland
-
-    AGH University of Kraków, Institute of Nuclear Physics Polish Academy of Sciences and Jagiellonian University
-
-    Published online : 07 October 2025    
-
+   * geometry generalization enabling use of triangulated solids together with analytic geometry
+   * out-of-core processing enabling simulation of events with more photons than can fit within available VRAM
+   * interactive ray traced visualization
+   * adoption of the Philox counter based random number generator optimizing random number generation by avoiding state files
+   * simulation performance comparison between GPUs from the 1st and 3rd RTX generations
 
 
 
@@ -189,6 +182,17 @@ https://www.epj-conferences.org/articles/epjconf/abs/2024/05/epjconf_chep2024_11
 
    * 08-12 May 2023 
 
+   * `env/presentation/opticks_20230508_chep.html <env/presentation/opticks_20230508_chep.html>`_
+
+   Highlights:
+
+   * near complete Opticks re-implementation adopting the entirely new NVIDIA OptiX 7+ API
+   * directly CUDA based optical simulation with OptiX usage restricted to providing intersects
+   * modular many small header design : fine grained GPU/CPU testing, large code reductions from CPU/GPU sharing 
+   * CSG tree generalization "list-nodes", similar to G4MultiUnion, improve performance for complex CSG solids
+   * support for interference effects on boundaries with multiple thin layers, such as anti-reflection coatings and photo-
+     cathodes, using CUDA compatible transfer matrix method (TMM) calculations of reflectance, transmittance and absorptance are reported.
+
 
 https://www.epj-conferences.org/articles/epjconf/abs/2021/05/epjconf_chep2021_03009/epjconf_chep2021_03009.html
 
@@ -206,7 +210,15 @@ https://www.epj-conferences.org/articles/epjconf/abs/2021/05/epjconf_chep2021_03
 
    * vCHEP 2021 was held as a virtual event between Monday-Friday 17th-21st May 2021.
 
+   * `env/presentation/opticks_vchep_2021_may19.html <env/presentation/opticks_vchep_2021_may19.html>`_
 
+   Highlights:
+
+   * API changes to support integration of Opticks with JUNOSW
+   * angle dependent collection efficiency culling on GPU
+   * progress report on migration of Opticks to the all new NVIDIA OptiX 7 API
+   * Geometry model in transition using CSG_GGeo that converts from the old GGeo(GMesh,GMergedMesh,GParts) to CSGFoundry
+  
 
 https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11003/epjconf_chep2020_11003.html
 
@@ -218,6 +230,14 @@ https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11
 
     * https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11003/epjconf_chep2020_11003.html
 
+    * `env/presentation/opticks_gpu_optical_photon_simulation_nov2019_chep.html <env/presentation/opticks_gpu_optical_photon_simulation_nov2019_chep.html>`_ (Nov 2019, Adelaide)
+
+    Highlights:
+
+    * Optical simulation speedup factors exceeding 1500 times single threaded Geant4 with a full JUNO analytic GPU geometry automatically translated from the Geant4 geometry
+    * developments enabling Opticks to benefit from ray trace dedicated RT cores available in NVIDIA RTX series GPUs.
+    * automated geometry instancing beyond the source instancing from Geant4 via node tree digests 
+    * validation results
 
 .. comment
 
@@ -226,8 +246,6 @@ https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11
    24th International Conference on Computing in High Energy and Nuclear Physics  
    EPJ Web of Conferences 245, 11003 (2020)
 
-    
-    
 
 
 https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02027/epjconf_chep2018_02027.html
@@ -244,6 +262,16 @@ https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02
 
     * `env/report/opticks-blyth-chep2018-v1.pdf <env/report/opticks-blyth-chep2018-v1.pdf>`_
 
+    Highlights:
+
+    * major changes to the geometry workflow of Opticks
+    * implementation of GPU ray tracing of complex constructive solid geometry (CSG) shapes
+    * use of complete binary tree for CSG shape serialization and tree navigation by bit twiddling 
+    * automated translation of Geant4 geometries to the GPU without triangulation approximation
+    * validation checks using random aligned running
+
+
+
 
 http://iopscience.iop.org/article/10.1088/1742-6596/898/4/042001
 
@@ -256,6 +284,21 @@ http://iopscience.iop.org/article/10.1088/1742-6596/898/4/042001
     * https://iopscience.iop.org/issue/1742-6596/898/4
 
     * https://iopscience.iop.org/article/10.1088/1742-6596/898/4/042001
+
+    * `env/presentation/opticks_gpu_optical_photon_simulation_oct2016_chep.html <env/presentation/opticks_gpu_optical_photon_simulation_oct2016_chep.html>`_
+
+    Highlights:
+
+    * First global presentation of Opticks - based on developments with the last mac laptop (MacBook Pro 2014) with an NVIDIA GPU (NVIDIA GeForce GT 750M, 2GB VRAM, 384 CUDA cores, Kepler)
+    * Workstation performance projections based on CUDA core scaling exceeding 1000x
+    * Geant4 geometry export to COLLADA/DAE, import via forked assimp, NPY geometry cache
+    * conversion of volume based to boundary based geometry
+    * boundary texture
+    * tesselation limitations, "manual" analytic geometry workaround for Daya bay PMTs
+    * CUDA migration of Geant4 optical physics
+
+
+
 
 
 References to Opticks
@@ -405,8 +448,6 @@ Opticks Presentations
     Monitoring *JUNOSW + Opticks : GPU ray trace accelerated optical photon simulation*
 
     JUNO Collaboration Meeting, IHEP, Beijing, 21 July 2026
-
-    **WIP: Under preparation**
 
 
 `env/presentation/opticks_20260527_bangkok_chep2026.html <env/presentation/opticks_20260527_bangkok_chep2026.html>`_
