@@ -2166,4 +2166,5 @@ tritonbackend-(){   . $(env-home)/tritonbackend/tritonbackend.bash && tritonback
 tmux-(){            . $(env-home)/tools/tmux.bash && tmux-env $* ; }
 ollama-(){          . $(env-home)/tools/ollama/ollama.bash && ollama-env $* ; }
 grafana-(){         . $(env-home)/tools/grafana/grafana.bash && grafana-env $* ; }
+tar-(){             . $(env-home)/tar/tar.bash && tar-env $* ; }
 

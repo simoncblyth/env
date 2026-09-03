@@ -13,6 +13,16 @@ VIM Tips
 
 
 
+
+look at a prior version of a file with git show piped to vim
+----------------------------------------------------------------
+
+::
+
+     git show 2f87917:.gitlab-ci/oj_helper.sh | vim -c 'set ft=sh' -
+
+
+
 insert name of current file into the buffer while editing in vim
 -------------------------------------------------------------------
 

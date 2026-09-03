@@ -14,6 +14,14 @@ See Also
 * github-
 
 
+look at a prior version of a file piped to vim
+-----------------------------------------------
+
+::
+
+     git show 2f87917:.gitlab-ci/oj_helper.sh | vim -c 'set ft=sh' -
+
+
 
 Handling dirty merge
 ----------------------
