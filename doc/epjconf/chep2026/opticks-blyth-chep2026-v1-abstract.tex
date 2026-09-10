@@ -1,0 +1,26 @@
+Opticks is an open source framework that accelerates Geant4 toolkit based
+detector simulations by offloading the optical photon simulation to the GPU
+using NVIDIA OptiX ray tracing and NVIDIA CUDA computation. Geant4 detector
+geometries are auto-translated into mostly analytic Constructive Solid Geometry
+forms, with only computationally demanding shapes like tori converted into
+triangulated meshes.
+
+Recent developments, driven by production experience with JUNO, focus on
+enabling efficient simulation of highly energetic multi-muon events 
+that can yield several billion photons per event. We introduce a reduced resource
+simulation mode that cuts persistent storage per photon from 64 bytes down to
+16 bytes, significantly lowering I/O overheads and data footprint.
+
+To maximize throughput, we implemented on-device PMT hit merging using CUDA
+Thrust. This process involves sort and reduction steps, where the merged hit
+identity is constructed from a bitwise OR of the sensor identifier and arrival
+time bucket. This novel method reduces download overheads and avoids slow
+CPU-side processing, allowing the full GPU-acceleration benefits of Opticks to
+be realized.
+
+Performance measurements are presented, demonstrating the overall speedup
+achieved using the various reduced resource and GPU hit merging modes. Finally,
+we describe explorations of a server-client architecture for Opticks, aiming to
+enable distributed deployment and resource sharing.
+
+

@@ -346,6 +346,7 @@ epjconf-tcd(){   cd $(epjconf-tdir); }
 epjconf-tdoc(){ open $(epjconf-tdir)/webofc-doc.pdf ; } 
 
 # latex source dir
+epjconf-dir-prior(){  echo $(env-home)/doc/epjconf/$(epjconf-confname-prior) ; }
 epjconf-dir(){  echo $(env-home)/doc/epjconf/$(epjconf-confname) ; }
 epjconf-cd(){   cd $(epjconf-dir); }
 
@@ -360,18 +361,23 @@ epjconf-opdf(){ echo $(epjconf-odir)/$(epjconf-filename).pdf ; }
 epjconf-open(){ open $(epjconf-opdf) ; }
 
 
-epjconf-vers(){ echo v0 ; }
-#epjconf-vers(){ echo v1 ; }
+epjconf-vers-prior(){ echo v2 ; }
+
+#epjconf-vers(){ echo v0 ; }
+epjconf-vers(){  echo v1 ; }
 #epjconf-vers(){ echo v2 ; }
 
 #epjconf-confname(){ echo chep2018 ; }
 #epjconf-confname(){ echo chep2019 ; }
 #epjconf-confname(){ echo chep2021 ; }
 #epjconf-confname(){ echo chep2023 ; }
-#epjconf-confname(){ echo chep2024 ; }
-epjconf-confname(){ echo chep2026 ; }
+epjconf-confname-prior(){ echo chep2024 ; }
+epjconf-confname(){       echo chep2026 ; }
 
-epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-$(epjconf-vers) ; }
+epjconf-filename(){       echo opticks-blyth-$(epjconf-confname)-$(epjconf-vers) ; }
+epjconf-filename-prior(){ echo opticks-blyth-$(epjconf-confname-prior)-$(epjconf-vers-prior) ; }
+
+
 epjconf-absname(){ echo $(epjconf-filename)-abstract ; }
 
 #epjconf-filename(){ echo opticks-snowmass21-loi-v0 ; }
@@ -461,6 +467,7 @@ EON
 epjconf-texname(){  echo $(epjconf-filename).tex ; }
 epjconf-bibname(){  echo $(epjconf-filename) ; }
 
+epjconf-etex-prior(){     echo $(epjconf-dir-prior)/$(epjconf-filename-prior).tex ; }
 epjconf-etex(){     echo $(epjconf-dir)/$(epjconf-filename).tex ; }
 epjconf-eabs(){     echo $(epjconf-dir)/$(epjconf-absname).tex ; }
 epjconf-ebib(){     echo $(epjconf-dir)/opticks.bib ; }
@@ -485,6 +492,13 @@ epjconf-ppdf     : $(epjconf-ppdf)
 epjconf-etex     : $(epjconf-etex) 
 epjconf-eabs     : $(epjconf-eabs) 
 epjconf-ebib     : $(epjconf-ebib) 
+
+
+epjconf-dir-prior  : $(epjconf-dir-prior)
+epjconf-etex-prior : $(epjconf-etex-prior) 
+
+
+
 
 EOI
 }
@@ -665,9 +679,13 @@ epjconf-edit(){
    local eabs=$(epjconf-eabs) 
    local ebib=$(epjconf-ebib) 
    local aux=$(epjconf-aux)
-   echo $FUNCNAME etex $etex eabs $eabs 
-   echo ebib $ebib aux $aux 
-   vi $etex $eabs
+   local etex_prior=$(epjconf-etex-prior) 
+
+   local vv="FUNCNAME etex eabs ebib aux etex_prior" 
+   local v
+   for v in $vv ; do printf "%30s : %s\n" "$v" "${!v}" ; done
+
+   vi $etex $eabs $etex_prior
 }
 epjconf-e(){    epjconf-edit ; }
 

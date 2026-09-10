@@ -41,6 +41,18 @@ Sections from presentation : opticks\_20260527\_bangkok\_chep2026.txt
 
 * Summary + Links
 
+
+
+IDEAS
+
+* Intro OR Summary 
+
+* find everyone referencing my papers - and reference them back with brief note on what progress they achieved  
+
+
+
+
+
 }
 
 
@@ -53,6 +65,166 @@ Sections from presentation : opticks\_20260527\_bangkok\_chep2026.txt
 \maketitle
 %
 %
+
+\section{Introduction}
+
+\subsection{Hybrid CPU+GPU Simulation Workflow}
+
+
+The hybrid workflow replaces the Geant4 generation of optical photon secondary tracks in a loop
+within the scintillation and Cerenkov processes with the collection of "genstep" parameters
+into the genstep array that is uploaded to the GPU to enable an equivalent optical photon generation
+to be implemented within CUDA threads. The genstep parameters include the number of photons
+and the line segment where to generate them. An Opticks CUDA launch can be regarded to simulate in parallel all
+optical photons from a slice of the collected genstep array. Slice ranges are chosen such that all necessary GPU buffers
+fit within the available VRAM. Each CUDA thread handles the full simulation of an optical photon from generation through to
+termination at absorption or detection for example. Scintillator reemission is also treated as "rebirth" 
+of the photon within the same single thread. Each optical photon thread has a unique index used to control
+where the {\tt sphoton.h} struct details such as position, time, momentum, direction, 
+wavelength and history flags are written into the photon buffer. 
+ 
+Each photon thread requires access to its associated parent genstep parameters. A GPU "seed" buffer
+provides this association between photon indices and genstep indices.  This seed buffer
+is populated directly on the GPU using an NVIDIA CUDA Thrust based implementation.
+The Opticks {\tt iexpand} function uses photon counts from the genstep array to populate 
+an array of genstep indices for every photon in the launch. 
+
+CUDA Thrust parallel primitives, including {\tt exclusive\_scan}, {\tt scatter\_if} and {\tt inclusive\_scan}
+are used to provide a GPU implementation that avoids CPU loops or the need to upload additional arrays to the GPU.  
+
+
+\section{Simulation of High Energy Events}
+
+In large scale liquid scintillator experiments such as JUNO, high-energy events such
+as cosmic ray muons can generate hundreds of millions to billions of optical photons.
+Events with multiple muons with long paths crossing the scintillator yield the most optical photons.  
+With such events recording hits for every photon collected at photomultiplier tubes could
+yield gigabytes of hit data of limited utility. Many studies do not require full details on 
+optical photons collected at PMTs, thus the simulation provide an option to collect and save
+only summary hit information. Using summary hits and merging hits arriving onto the same PMT within 
+configurable time buckets into an aggregate record with the number of hits and the earliest hit time
+allow greatly reduces data sizes.
+
+A CPU hit merging algorithm based on collections of non-merged PMT hit pointers
+for each PMT is invoked from the G4VSensitiveDetector::ProcessHits implementation used
+within the standard JUNO simulation. For CPU simulation this approach is considered 
+adequate as the processing time for the merging is a small fraction of the overall
+processing time. 
+
+Initially the Opticks integrated JUNO simulation reused this CPU hit merging algorithm, 
+performing the merge of all hit photons downloaded from GPU buffers. The processing 
+time for CPU merging following GPU simulation was however found to dominate the 
+processing time for the optical photon simulation.  This situation motivated development
+of GPU hit merging.
+
+\subsection{CUDA Thrust Implementation of GPU hit merging} 
+
+\begin{center}
+\begin{table}
+\begin{tabular}{ |m{80mm}|m{30mm}|m{30mm}|m{60mm}| } 
+ \hline
+Opticks Event Array          &  Struct/Type      &  NumPy shape               &  Note      \\ 
+\hline\hline                                                                 
+   genstep                   & {\tt quad6}       &  (num\_genstep,6,4)        & Required   \\
+ \hline                                                                      
+   seed                      & {\tt int}         &  (num\_photon)             & Optional   \\
+ \hline                                                                      
+   photon                    & {\tt sphoton}     &  (num\_photon,4,4)         & Required   \\
+ \hline                                                                      
+   hit                       & {\tt sphoton}     &  (num\_hit,4,4)            & Optional   \\
+ \hline
+   hitmerged                 & {\tt sphoton}     &  (num\_hitmerged,4,4)      & Optional   \\
+ \hline
+   photonlite                & {\tt sphotonlite} &  (num\_photon,4,4)         & Optional   \\ 
+ \hline
+   hitlite                   & {\tt sphotonlite} &  (num\_photon,4)           & Optional   \\
+ \hline
+   hitlitemerged             & {\tt sphotonlite} &  (num\_hitmerged,4)        & Optional   \\
+ \hline
+   record                    & {\tt sphoton}     &  (num\_photon,32,4,4)      & Optional - up to 32 photon steps for debugging \\  
+ \hline
+   seq                       & {\tt sseq}        &  (num\_photon,4,2)         & Optional - history sequence flags 2x64 bit \\  
+\end{tabular}
+\caption{\label{tabeventarrays}Principal event arrays with their types. The "lite" arrays use summary 16 byte {\tt sphotonlite} struct. The photon and hit arrays
+use 64 byte {\tt sphoton} struct. Only genstep and photon arrays are required.  All arrays can be persisted using NumPy serialization for python debugging.  
+\end{table}
+\vspace{-8mm}
+\end{center}%
+
+Opticks event arrays are summarized in~\ref{tabeventarrays}.  
+Only the genstep and photon arrays are mandatory, with population and download of all other arrays optional. 
+Typically one of the hit, hitlite, hitmerged OR hitlitemerged arrays is populated and downloaded. 
+The {\tt thrust::copy\_if} parallel primitive is used to apply history flag selection to
+the photon(photonlite) array to yield the hit(hitlite) subset array and merging is
+applied to yield hitmerged(hitlitemerged) arrays. As hit(hitlite) selection and merging are needed 
+for both the detailed 64 byte {\tt sphoton} struct and the summary 16 byte {\tt sphotonlite} struct
+arrays the implementations are templated. As hit selection and merging are closely related they are
+implemented in a single method {\tt SPM::merge\_partial\_select}. The method arguments include 
+the selection flag mask and the
+timewindow in nanoseconds where zero is special cased to disable merging,
+
+
+Opticks optical photon simulation makes extensive use of the CUDA Thrust library of parallel
+primitives which provides a high level way to benefit from GPU parallel performance.
+The principal CUDA Thrust C++ primitives used to implement GPU hit selection and 
+merging are summarized in Table~\ref{thrustmethods}.
+
+At initialization the total GPU VRAM is queried and a heuristic calculation of the maximum number of photon slots
+that can be simulated in a single launch is estimated ({\tt SEventConfig::MaxSlot}).
+Subsequently for each event a vector of slices of the genstep array {\tt SGenstep::GetGenstepSlices}
+is formed such that the photons from every genstep array slice fit within the maximum number of slots.
+For events where VRAM is sufficient to simulate all photons in a single launch a single call to the select and merge method
+yields the configured hit/hitmerged/hitlite/hitlitemerged array. Events requiring multiple launches are merged
+after each launch with the resulting arrays concatenated on the CPU and uploaded to the device prior to
+performing a final merge using the same method with a special cased flagmask argument that indicates 
+that no selection is done. 
+
+
+\begin{center}
+\begin{table}
+\begin{tabular}{ |m{80mm}|m{30mm}| } 
+ \hline
+ Action                              & CUDA Thrust method                \\ 
+\hline\hline 
+  Select hits from photons             & {\tt copy\_if}         \\ 
+\hline 
+  hash(pmtid,timebucket) from hit     & {\tt transform}        \\ 
+\hline 
+  Sort hits by hash(pmtid,timebucket) & {\tt sort\_by\_key}    \\ 
+\hline 
+  Merge hit: earlier time, sum counts & {\tt reduce\_by\_key} \\ 
+ \hline
+\end{tabular}
+\caption{\label{tabthrustmethods}Principal CUDA Thrust primitives used to implement GPU hit merging. }
+\end{table}
+\vspace{-8mm}
+\end{center}%
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+ 
+
+  
+
+ 
+
+
+
+ 
+
+
 %
 %
 \section{Introduction}%
@@ -112,21 +284,6 @@ In addition a simulation performance comparison between GPUs from the 1st and 3r
 is provided. 
 %
 %
-\comment{
-\subsection{Importance of optical photon simulation}%
-%
-%
-Suppression of cosmic muon induced backgrounds with veto selections are crucial for neutrino
-detectors such as JUNO~\cite{juno}, necessitating production of large simulated samples of muon events. 
-However, a muon of typical energy 200 GeV crossing the JUNO scintillator can yield tens of millions of 
-optical photons, which are found with Geant4 simulations to consume more than 99\% of CPU time
-and impose severe memory constraints.
-%
-As optical photons in neutrino detectors can be considered to be produced
-only by scintillation and Cherenkov processes and yield only hits
-on photomultiplier tubes, it is straightforward to combine an external optical photon simulation 
-with a Geant4 simulation of all other particles.
-}%endcomment
 %
 \subsection{GPU ray tracing}%
 %
@@ -173,6 +330,9 @@ hybrid Geant4 + Opticks workflow : {\tt G4CXOpticks} translates Geant4 geometry 
 \label{workflow} 
 \vspace{-5mm}
 \end{figure}
+
+
+
 %
 \section{Hybrid simulation workflow}%
 \label{secworkflow}%
@@ -190,16 +350,6 @@ other parameters needed to reproduce photon generation on the GPU. Relocating ph
 GPU avoids CPU memory allocation. Only non-culled photon hits needed for the next stage electronics 
 simulation require CPU memory allocation. Details on the GPU implementation of the simulation 
 can be found in prior proceedings~\cite{chep2023}. 
-%
-%GPU optical photon generation and propagation are implemented in simple headers that are included
-%into the OptiX ray tracing pipeline that runs in parallel. 
-%For each step of the propagation, rays representing photons are intersected
-%with the geometry using simple header intersect functions that are also included into the ray tracing pipeline.
-%The intersected boundary together with the photon wavelength are used to do interpolated texture lookups of
-%material properties such as absorption and scattering lengths.
-%Converting these lengths to distances using pseudorandom numbers and 
-%the known exponential distributions allows a comparison of absorption and scattering distances 
-%with geometrical boundary distance to assign photon histories. 
 %
 %
 \begin{figure}
@@ -226,16 +376,6 @@ At initialization Opticks translates the geometry through the below sequence of 
 \item Opticks {\tt CSGFoundry} : CPU/GPU model with {\tt CSGSolid}, {\tt CSGPrim} and {\tt CSGNode} 
 \item NVIDIA OptiX 7+ : Instance and Geometry Acceleration Structures (IAS, GAS)
 \end{enumerate}  
-%
-%The {\tt stree} intermediate model is created from the Geant4 model by {\tt U4Tree.h},
-%which traverses the Geant4 volume tree converting materials, surfaces, solids, volumes and sensors.
-%Triangle and face data for all solids are collected by {\tt U4Mesh.h} using 
-%the Geant4 tesselation accessed from {\tt G4Polyhedron}. 
-%Subsequently the {\tt CSGFoundry} model is created from the intermediate model and uploaded to GPU.   
-%Most of the geometry information in the intermediate model is managed by a single header only struct, {\tt NPFold.h}, 
-%which provides an in memory directory tree of arrays using a recursive folders of folders of arrays data structure.
-%The complete structural n-ary tree of volumes and n-ary CSG trees for each {\tt G4VSolid} 
-%are serialized into arrays using first child and sibling references.
 %
 Both the {\tt stree} and {\tt CSGFoundry} geometry models are independent of Geant4 and can be persisted into directories of NumPy~\cite{numpy} binary files. 
 %Fast binary file loading and uploading to GPU allows optical simulation and visualization

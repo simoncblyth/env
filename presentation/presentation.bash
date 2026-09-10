@@ -1651,6 +1651,6 @@ presentation-rst2talk-(){
 #presentation-iname(){ echo ${INAME:-opticks_20251219_geometry_simtrace_check} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20260122_wuhan} ; }
 #presentation-iname(){ echo ${INAME:-opticks_202605XX} ; }
-#presentation-iname(){ echo ${INAME:-opticks_20260527_bangkok_chep2026} ; }
-presentation-iname(){ echo ${INAME:-opticks_20260721_beijing_juno} ; }
+presentation-iname(){ echo ${INAME:-opticks_20260527_bangkok_chep2026} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20260721_beijing_juno} ; }
 
