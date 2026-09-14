@@ -588,10 +588,14 @@ epjconf-pdflatex()
     local texname=$(epjconf-texname)
     [ ! -f "$texname" ] && echo $msg texname $texname does not exist : CREATE IT AND TRY AGAIN && return 2 
 
-
     type $FUNCNAME
+
+    echo TEXINPUTS=$(epjconf-texinputs) pdflatex -output-directory $odir $texname
     TEXINPUTS=$(epjconf-texinputs) pdflatex -output-directory $odir $texname
 }
+
+
+epjconf--v(){ VERBOSE=1 epjconf-- ; }
 
 epjconf--()
 {
@@ -607,6 +611,12 @@ epjconf--()
     ls -l $(epjconf-odir)    
 }
 
+
+epjconf-after-tex-update()
+{
+   # updates cache files used to make pdflatex faster - that depend on the exact version of pdftex binary
+   sudo fmtutil-sys --all
+}
 
 
 
@@ -680,12 +690,13 @@ epjconf-edit(){
    local ebib=$(epjconf-ebib) 
    local aux=$(epjconf-aux)
    local etex_prior=$(epjconf-etex-prior) 
-
-   local vv="FUNCNAME etex eabs ebib aux etex_prior" 
+   presentation-
+   local pres=$(presentation-path)
+   local vv="FUNCNAME etex eabs ebib aux etex_prior pres" 
    local v
    for v in $vv ; do printf "%30s : %s\n" "$v" "${!v}" ; done
 
-   vi $etex $eabs $etex_prior
+   vi $etex $eabs $etex_prior $pres
 }
 epjconf-e(){    epjconf-edit ; }
 

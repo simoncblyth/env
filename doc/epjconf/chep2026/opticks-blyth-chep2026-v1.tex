@@ -3,6 +3,33 @@
 \usepackage[varg]{txfonts}
 \newcommand{\comment}[1]{}
 \usepackage{graphicx}
+\usepackage{listings}
+
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{pifont}
+
+% Custom macros matching the rst roles/replacements
+\newcommand{\cmark}{\ding{51}} % Yes / Y checkmark or character
+\newcommand{\xmark}{\ding{55}} % No / N mark or character
+\newcommand{\btext}[1]{\textbf{#1}}
+\newcommand{\rtext}[1]{\textbf{\color{red}#1}}
+
+
+
+
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  captionpos=b,                 % Places caption at the bottom (like figures)
+  frame=single,                 % Adds a simple border around the listing
+  numbers=left,                 % Line numbers on the left
+  %numberstyle=\tiny\color{gray},
+  mathescape=true               % Allows math mode like $\gets$ inside code
+}
+
+
 \usepackage{array}
 \comment{
 
@@ -30,6 +57,7 @@ Sections from presentation : opticks\_20260527\_bangkok\_chep2026.txt
 
   * EMF Compensation Coils, Water Distributor, "Simtrace"
 
+
 * Geant4 + Opticks + NVIDIA OptiX : Production Scaling ?
 
   * Geant4 + Opticks + NVIDIA OptiX : Monolith x4, x16
@@ -40,6 +68,41 @@ Sections from presentation : opticks\_20260527\_bangkok\_chep2026.txt
   * NVIDIA Triton Inference Server (aka Dynamo-Triton)
 
 * Summary + Links
+
+
+
+POINTS FROM PRESENTATION PAGES TO COVER IN PROCEEDINGS
+========================================================
+
+Introduction
+-------------
+
+
+High Energy Adaption
+---------------------
+
+* p13: screenshot
+* p16: results table presentation + benefits discussion
+* p14: benefits of "lite" and merging
+
+  * "lite" benefits + benefit twice from GPU hit merging
+  * monster tests
+  * async - future object (passing mention - if at all - as async so incomplete)
+
+Testing as Geometry and Models continue to Evolve
+---------------------------------------------------
+
+* p17: viz dev
+* p18,19,20: small screenshots ?
+
+Production Scaling ?
+---------------------
+
+* p27: client/server rationale
+* p28: NP\_CURL.h - just a mention
+* p29: server prototype
+* p30: Triton - dont mention vapourware 
+* p31: GPU-less Opticks
 
 
 
@@ -75,124 +138,203 @@ The hybrid workflow replaces the Geant4 generation of optical photon secondary t
 within the scintillation and Cerenkov processes with the collection of "genstep" parameters
 into the genstep array that is uploaded to the GPU to enable an equivalent optical photon generation
 to be implemented within CUDA threads. The genstep parameters include the number of photons
-and the line segment where to generate them. An Opticks CUDA launch can be regarded to simulate in parallel all
-optical photons from a slice of the collected genstep array. Slice ranges are chosen such that all necessary GPU buffers
-fit within the available VRAM. Each CUDA thread handles the full simulation of an optical photon from generation through to
-termination at absorption or detection for example. Scintillator reemission is also treated as "rebirth" 
-of the photon within the same single thread. Each optical photon thread has a unique index used to control
-where the {\tt sphoton.h} struct details such as position, time, momentum, direction, 
-wavelength and history flags are written into the photon buffer. 
- 
-Each photon thread requires access to its associated parent genstep parameters. A GPU "seed" buffer
-provides this association between photon indices and genstep indices.  This seed buffer
-is populated directly on the GPU using an NVIDIA CUDA Thrust based implementation.
-The Opticks {\tt iexpand} function uses photon counts from the genstep array to populate 
-an array of genstep indices for every photon in the launch. 
+and the line segment where to generate them. 
 
-CUDA Thrust parallel primitives, including {\tt exclusive\_scan}, {\tt scatter\_if} and {\tt inclusive\_scan}
-are used to provide a GPU implementation that avoids CPU loops or the need to upload additional arrays to the GPU.  
+The Opticks CUDA launch conceptually simulates all optical photons in parallel, one CUDA thread per optical photon.
+In practice the number of photons that can be simulated in parallel is constrained by the VRAM needed
+to persist the configured photon device arrays. 
+At initialization the total GPU VRAM is queried and a heuristic calculation of the maximum number of photon slots
+that can be simulated in a single launch is estimated ({\tt SEventConfig::MaxSlot}).
+Subsequently for each event a vector of slices of the genstep array {\tt SGenstep::GetGenstepSlices}
+collected from Geant4 is formed such the photons from every genstep array slice stay within VRAM.
 
+%
+\newpage
+\subsection{Optical Photon Simulation Implemented within OptiX Ray Generation Program}
+\label{sec:kernel}
+\begin{samepage}
+%
+Listing~\ref{lst:propagatekernel} summarizes the NVIDIA OptiX ray generation program
+that implements the full simulation of a single optical photon from generation through
+to absorption or detection. Scintillator reemission is treated as "rebirth" 
+of the photon within the same single thread. Each optical photon thread has a unique {\tt photonIdx}
+allowing all threads to simultaneously write into photon arrays.
+%The seed array gives access for each photon to the associated parent genstep parameters.
+%
+The trace call at each while loop iteration
+finds the intersection of a ray with the current photon position and momentum direction
+with the detector geometry. The prd struct includes the distance to the intersection 
+and the surface normal at intersection. The {\tt qsim::propagate} call implements
+scattering, reemission, boundary physics, surface effects, absorption and detection.  
+Optionally the final photon can be persisted into device global memory using
+arrays of 64(16) byte {\tt sphoton(sphotonlite)} struct.
+Also a "record" array can persist the photon history at up to maxRecord steps enabling
+detailed debugging and animated photon history visualizations.   
+%
+\begin{lstlisting}[caption={Optical photon simulation implemented within NVIDIA OptiX ray generation program.}, label={lst:propagatekernel}]
+sevent* evt = params.evt ;
+unsigned genstepIdx = evt->seed[photonIdx] ;
+const quad6& gs = evt->genstep[genstepIdx] ;
 
+qsim* sim = params.sim ;
+
+RNG rng ; // random number generation state 
+sim->rng->init( rng, evt->index, photonIdx );
+
+sphoton p ;
+sim->generatePhoton(p, rng, gs, photonIdx, genstepIdx );
+
+quad2 prd ; // per-ray-data
+
+int command = START ;
+int bounce = 0 ; 
+while( bounce < params.maxBounce && p.time < params.maxTime )
+{   
+    trace(params.geom, p.pos, p.mom, params.tmin, params.tmax, prd );
+    command = sim->propagate(bounce, rng, p);
+
+    if(evt->record && bounce < evt->maxRecord) 
+        evt->record[evt->maxRecord*photonIdx+bounce] = p ;
+
+    bounce++;
+    if(command == BREAK) break ; // photon absorbed or detected
+}   
+
+if( evt->photon ) evt->photon[photonIdx] = p ;   // final photon
+if( evt->photonlite )
+{   
+    sphotonlite l ;
+    sphotonlite::summarizePhoton(l, p) ; 
+    evt->photonlite[photonIdx] = l ;
+}   
+\end{lstlisting}
+\end{samepage}
+%
+\subsection{Opticks event arrays and simulation workflow}
+%
+\begin{center}
+\begin{table}
+\begin{tabular}{ |m{20mm}|m{20mm}|m{30mm}|m{40mm}| } 
+ \hline
+Event Arrays                 &  Struct/Type      &  NumPy shape               &  Note      \\ 
+ \hline
+   genstep                   & {\tt quad6}       &  (num\_genstep,6,4)        & Generation parameters \\
+   seed                      & {\tt int}         &  (num\_photon)             & Associate photon to genstep \\
+ \hline
+   photon                    & {\tt sphoton}     &  (num\_photon,4,4)         & 64 byte details \\
+   photonlite                & {\tt sphotonlite} &  (num\_photon,4)           & 16 byte summary  \\
+ \hline
+   record                    & {\tt sphoton}     &  (num\_photon,32,4,4)      & Photon step history \\  
+   seq                       & {\tt sseq}        &  (num\_photon,4,2)         & Summary flag sequence \\  
+ \hline
+   hit                       & {\tt sphoton}     &  (num\_hit,4,4)            & Selection of photon \\
+   hitmerged                 & {\tt sphoton}     &  (num\_hitmerged,4,4)      & Reduction of hit \\
+   hitlite                   & {\tt sphotonlite} &  (num\_photon,4)           & Selection of photonlite \\
+   hitlitemerged             & {\tt sphotonlite} &  (num\_hitmerged,4)        & Reduction of hitlite   \\
+ \hline
+\end{tabular}
+\caption{\label{tabeventarrays}Principal event arrays used on device by the optical photon simulation. NumPy shapes use 32 bit elements.}
+\end{table}
+\vspace{-8mm}
+\end{center}%
+%
+The main event arrays used by the Opticks GPU optical photon simulation are shown in Table~\ref{tabeventarrays}.
+The genstep array data collected from Geant4 is uploaded to the device prior to launching the simulation kernel 
+and the seed array is filled with genstep indices for each photon expanded from the photon counts for each genstep
+using CUDA Thrust parallel primitives ({\tt sysrap/iexpand.h}).
+The seed array enables the parent genstep for each photon slot to be accessed and the
+photon to be generated. The simulation kernel described in section~\ref{sec:kernel} populates the photon(photonlite) arrays with the final photon state
+at absorption or detection. In addition the simulation kernel can fill the "record" array with the full photon step history and
+the "seq" array flag sequence with 4 bit flags from each step of the photon.
+  
+Following the simulation kernel typically one of the hit, hitmerged, hitlite or hitlitemerged arrays is populated on device
+directly from the corresponding photon(photonlite) array. The implementation of hit selection and merging is described
+in section~\ref{sec:hitmerge}. All arrays can be downloaded and persisted into NumPy format files for loading into python.
+%
 \section{Simulation of High Energy Events}
-
+%
 In large scale liquid scintillator experiments such as JUNO, high-energy events such
 as cosmic ray muons can generate hundreds of millions to billions of optical photons.
-Events with multiple muons with long paths crossing the scintillator yield the most optical photons.  
+Events with multiple muons with long paths crossing the liquid scintillator yield the most optical photons.  
 With such events recording hits for every photon collected at photomultiplier tubes could
 yield gigabytes of hit data of limited utility. Many studies do not require full details on 
-optical photons collected at PMTs, thus the simulation provide an option to collect and save
+optical photons collected at PMTs, thus the simulation provides an option to collect and save
 only summary hit information. Using summary hits and merging hits arriving onto the same PMT within 
 configurable time buckets into an aggregate record with the number of hits and the earliest hit time
 allow greatly reduces data sizes.
 
 A CPU hit merging algorithm based on collections of non-merged PMT hit pointers
 for each PMT is invoked from the G4VSensitiveDetector::ProcessHits implementation used
-within the standard JUNO simulation. For CPU simulation this approach is considered 
-adequate as the processing time for the merging is a small fraction of the overall
-processing time. 
+within the standard JUNO simulation. For CPU simulation this approach is adequate as the
+processing time for the merging is a small fraction of the overall processing time. 
 
 Initially the Opticks integrated JUNO simulation reused this CPU hit merging algorithm, 
 performing the merge of all hit photons downloaded from GPU buffers. The processing 
 time for CPU merging following GPU simulation was however found to dominate the 
 processing time for the optical photon simulation.  This situation motivated development
-of GPU hit merging.
-
-\subsection{CUDA Thrust Implementation of GPU hit merging} 
-
+of GPU hit merging and a "lite" version of photon struct to allow Opticks to
+profit from lower GPU resource usage when summary hits are configured. 
+%
+\subsection{CUDA Thrust Implementations of GPU hit selection and merging} 
+\label{sec:hitmerge}
+%
+When GPU hit merging is not configured the hit(hitlite) arrays are
+selected from the photon(photonlite) arrays with a device to device copy based on photon flag mask indicating detection 
+using CUDA Thrust stream compaction via {\tt thrust::copy\_if}.
+%
+When hit merging is enabled the hitmerged(hitlitemerged) arrays are selected and merged from the
+photon(photonlite) arrays with a single CUDA Thrust based method {\tt SPM::merge\_partial\_select}
+that avoids intermediate arrays and additional processing steps. 
+%
+As hit selection and merging are applied to both the 64(16) byte {\tt sphoton(sphotonlite)} struct
+arrays templated implementations are used with nested functors within the templated types
+that specialize the selection, sorting and merging as described in table~\ref{tabfunctor}.
+%
+%
 \begin{center}
 \begin{table}
-\begin{tabular}{ |m{80mm}|m{30mm}|m{30mm}|m{60mm}| } 
- \hline
-Opticks Event Array          &  Struct/Type      &  NumPy shape               &  Note      \\ 
-\hline\hline                                                                 
-   genstep                   & {\tt quad6}       &  (num\_genstep,6,4)        & Required   \\
- \hline                                                                      
-   seed                      & {\tt int}         &  (num\_photon)             & Optional   \\
- \hline                                                                      
-   photon                    & {\tt sphoton}     &  (num\_photon,4,4)         & Required   \\
- \hline                                                                      
-   hit                       & {\tt sphoton}     &  (num\_hit,4,4)            & Optional   \\
- \hline
-   hitmerged                 & {\tt sphoton}     &  (num\_hitmerged,4,4)      & Optional   \\
- \hline
-   photonlite                & {\tt sphotonlite} &  (num\_photon,4,4)         & Optional   \\ 
- \hline
-   hitlite                   & {\tt sphotonlite} &  (num\_photon,4)           & Optional   \\
- \hline
-   hitlitemerged             & {\tt sphotonlite} &  (num\_hitmerged,4)        & Optional   \\
- \hline
-   record                    & {\tt sphoton}     &  (num\_photon,32,4,4)      & Optional - up to 32 photon steps for debugging \\  
- \hline
-   seq                       & {\tt sseq}        &  (num\_photon,4,2)         & Optional - history sequence flags 2x64 bit \\  
+\begin{tabular}{ |m{20mm}|m{100mm}| }
+\hline
+Nested Functor          &  Action       \\
+\hline\hline
+{\tt key\_functor}      &  Returns identity integer for a hit within a time bucket  \\  
+\hline
+{\tt reduce\_op}        &  Merge two instances, adding hit counts and choosing earlier time  \\ 
+\hline
+{\tt select\_pred}      &  Selection predicate comparing photon flag mask with selection mask \\    
+\hline
 \end{tabular}
-\caption{\label{tabeventarrays}Principal event arrays with their types. The "lite" arrays use summary 16 byte {\tt sphotonlite} struct. The photon and hit arrays
-use 64 byte {\tt sphoton} struct. Only genstep and photon arrays are required.  All arrays can be persisted using NumPy serialization for python debugging.  
+\caption{\label{tabfunctor}Nested functors of {\tt sphoton} and {\tt sphotonlite} that are used with the CUDA Thrust primitives to specialize selection, sorting and merging as
+appropriate to the different structs.} 
 \end{table}
 \vspace{-8mm}
 \end{center}%
-
-Opticks event arrays are summarized in~\ref{tabeventarrays}.  
-Only the genstep and photon arrays are mandatory, with population and download of all other arrays optional. 
-Typically one of the hit, hitlite, hitmerged OR hitlitemerged arrays is populated and downloaded. 
-The {\tt thrust::copy\_if} parallel primitive is used to apply history flag selection to
-the photon(photonlite) array to yield the hit(hitlite) subset array and merging is
-applied to yield hitmerged(hitlitemerged) arrays. As hit(hitlite) selection and merging are needed 
-for both the detailed 64 byte {\tt sphoton} struct and the summary 16 byte {\tt sphotonlite} struct
-arrays the implementations are templated. As hit selection and merging are closely related they are
-implemented in a single method {\tt SPM::merge\_partial\_select}. The method arguments include 
-the selection flag mask and the
-timewindow in nanoseconds where zero is special cased to disable merging,
-
-
+%
+%
 Opticks optical photon simulation makes extensive use of the CUDA Thrust library of parallel
 primitives which provides a high level way to benefit from GPU parallel performance.
 The principal CUDA Thrust C++ primitives used to implement GPU hit selection and 
 merging are summarized in Table~\ref{thrustmethods}.
 
-At initialization the total GPU VRAM is queried and a heuristic calculation of the maximum number of photon slots
-that can be simulated in a single launch is estimated ({\tt SEventConfig::MaxSlot}).
-Subsequently for each event a vector of slices of the genstep array {\tt SGenstep::GetGenstepSlices}
-is formed such that the photons from every genstep array slice fit within the maximum number of slots.
 For events where VRAM is sufficient to simulate all photons in a single launch a single call to the select and merge method
 yields the configured hit/hitmerged/hitlite/hitlitemerged array. Events requiring multiple launches are merged
 after each launch with the resulting arrays concatenated on the CPU and uploaded to the device prior to
 performing a final merge using the same method with a special cased flagmask argument that indicates 
 that no selection is done. 
-
-
+%
 \begin{center}
 \begin{table}
 \begin{tabular}{ |m{80mm}|m{30mm}| } 
  \hline
- Action                              & CUDA Thrust method                \\ 
+ Action                                & CUDA Thrust method                \\ 
 \hline\hline 
   Select hits from photons             & {\tt copy\_if}         \\ 
 \hline 
-  hash(pmtid,timebucket) from hit     & {\tt transform}        \\ 
+  Form key(pmtid,timebucket) from hit  & {\tt transform}        \\ 
 \hline 
-  Sort hits by hash(pmtid,timebucket) & {\tt sort\_by\_key}    \\ 
+  Sort hits by hash(pmtid,timebucket)  & {\tt sort\_by\_key}    \\ 
 \hline 
-  Merge hit: earlier time, sum counts & {\tt reduce\_by\_key} \\ 
+  Merge hit: earlier time, sum counts  & {\tt reduce\_by\_key} \\ 
  \hline
 \end{tabular}
 \caption{\label{tabthrustmethods}Principal CUDA Thrust primitives used to implement GPU hit merging. }
@@ -201,24 +343,42 @@ that no selection is done.
 \end{center}%
 
 
+Table~\ref{tab:opticks_junosw_performance} shows performance in four modes named after the type of hit arrays that are downloaded from GPU.
+The merged modes apply hit merging on the GPU avoiding post processing on the CPU. As the GPU ray trace accelerated simulation is exactly
+the same in the four cases the kernel simulation time is approximately the same. 
 
+The 6.3 seconds time difference between hitmerged and hitlitemerged modes is dominated by hit localization that is not required for lite photons, as
+in that case this localization is done during the simulation. The localization applies 4x4 transforms to every global coordinate hit to give positions within the 
+frame of the PMT is currently performed on the CPU. Implementing GPU hit localization is expected to remove this time difference.
 
-
-
-
-
-
-
-
-
-
-      
-
- 
-
-  
-
- 
+Performing the hit merging on the GPU is doubly beneficial as it eliminates the need for slow CPU merging and it
+reduces the data downloaded by a factor of four due to the reduced number of merged hits.
+In these measurements the benefits from using "lite" photon are not visible as 150M photons were simulated in a single launch.
+With 32GB of VRAM the maximum number of photons that can be simulated per launch is approximately 250M with full 64 byte photons
+and 500M with 16 byte photons. This max photon increase is only a factor of two, not a factor of four that would be suggested by struct sizes, 
+due to transient VRAM usage needed by CUDA Thrust for the hit merging. Simulation of larger events requiring two or more launches for full photons
+but only one for lite photons are needed to quantify the advantages from the lite photons and also the advantages of using more VRAM.
+The benefits from using lite photons might be considered equivalent to the benefit of doubling available VRAM.
+%
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{llccccc}
+    \toprule
+    \textbf{Opticks+JSW}    & \textbf{merge} & \textbf{Simulate}     & \textbf{(GPU merge)+}   & \textbf{(CPU merge)+}    & \textbf{Total [s]} & \textbf{Speedup} \\
+    \textbf{hit\_mode}      &                & \textbf{Kernel [s]}   & \textbf{Download [s]}   & \textbf{Collection [s]}  &                    & \textbf{vs std}  \\
+    \midrule
+    hit           & \multirow{2}{*}{CPU}     & 23.0                  & 1.95                    & 190.4                    & 215.6              & x32             \\
+    hitlite       &                          & 23.1                  & 0.48                    & 146.5                    & 170.2              & x31             \\
+    \midrule                                                                                                                                   
+    hitmerged     & \multirow{2}{*}{GPU}     & 23.0                  & \btext{0.54}            & 6.7                      & 30.4               & \rtext{x233}    \\
+    hitlitemerged &                          & 23.1                  & \btext{0.18}            & 0.4                      & 23.8               & \rtext{x221}    \\
+    \bottomrule
+  \end{tabular}
+  \caption{\label{tab:opticks_junosw_performance}Comparison of processing times in various hit modes and speedups relative to standard single threaded Geant4 with the JUNO simulation (JSW),
+for one double muon event with 150M photons, 28M hit and 6.4M mergedHit using and 1 ns merge bucket. The "lite" modes write {\tt sphotonlite}. 
+Timings obtained using Dell Precision 7960 workstation with NVIDIA RTX 5000 Ada generation GPU (third generation RT cores) with 32 GB of VRAM.}
+\end{table}
 
 
 

@@ -30,6 +30,11 @@ CHEP 2026 Proceedings
     Phat
 
 
+* 25th September - last Friday in September
+* One week before then is the coming Friday 18th
+
+
+
 * ORIGINAL : 28 August 2026: Proceeding submission deadline.
 * 4 December 2026: Revised proceedings submission deadline.
 * 26 February 2027: Proceeding to be available.
