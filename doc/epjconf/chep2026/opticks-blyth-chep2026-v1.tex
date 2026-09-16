@@ -127,16 +127,31 @@ IDEAS
 Opticks[1-7] applies NVIDIA\textregistered\ OptiX\texttrademark~\cite{optix} GPU ray tracing
 to optical photon simulation and integrates this with the Geant4 [8] simulation of all other particles.
 Offloading optical photon simulation to the GPU eliminates processing time and memory bottlenecks especially for
-large high-yield detectors such as the 20 kton Jiangmen Underground Neutrino Observatory (JUNO)~\cite{juno}. Although developed
-for JUNO, Opticks has been used by other experiments including LZ~\cite{lz}, NEXT~\cite{next} 
-and EIC~\cite{eic}. Prior CHEP proceedings [1–7] cover the development history of Opticks.
+large high-yield detectors such as the 20 kton Jiangmen Underground Neutrino Observatory (JUNO)~\cite{juno}. 
+Although developed for JUNO, Opticks has been used by other experiments including LZ~\cite{lz}, NEXT~\cite{next}, DUNE~\cite{dune}
+and the Electron Ion Collider~\cite{eic}. Prior CHEP proceedings [1–7] cover the development history of Opticks.
 These proceedings focus on enhancements motivatated by JUNO production experience with the simulation
 of high energy events, such as cosmic ray muons which can yield several billions
 of optical photons per event.
 %
 %
-%
 \newpage
+\subsection{Optical photon simulation problem}
+Simulating optical photons resulting from cosmic ray muons crossing the JUNO liquid scintillator consumes
+more than 99.5\% of total CPU time in standard Geant4~\cite{g4} based simulations. This time is dominated by 
+ray tracing, calculating intersection positions of rays representing photon steps with the detector geometry,
+
+Optical photon simulation is extremely well suited to GPU parallelization, due to
+the simplicity of optical physics requiring minimal register memory per threads and massive
+parallelism through billions of independent photons.  
+NVIDIA OptiX~\cite{optix} provides a single-ray programming model that 
+leverages state-of-the-art acceleration structures and dedicated RT Cores on NVIDIA RTX~\cite{rtx} GPUs
+which has enabled Opticks to implement the full photon simulation lifecycle from generation through to
+absorption or detection entirely in one kernel. 
+%
+%
+%
+%
 \subsection{Hybrid CPU+GPU Simulation Workflow}
 %
 \label{secworkflow}%
@@ -171,6 +186,14 @@ that can be simulated in a single launch is estimated ({\tt SEventConfig::MaxSlo
 Subsequently for each event a vector of slices of the genstep array {\tt SGenstep::GetGenstepSlices}
 collected from Geant4 is formed such the photons from every genstep array slice stay within VRAM.
 %
+
+
+
+
+
+
+
+
 %
 \newpage
 \subsection{Optical Photon Simulation Implemented within OptiX Ray Generation Program}
@@ -404,36 +427,33 @@ Timings obtained using Dell Precision 7960 workstation with NVIDIA RTX 5000 Ada 
 \end{table}
 %
 %
-\section{Scaling Opticks+JUNOSW for Monte Carlo Productions}
 %
-While Opticks can eliminate the optical photon bottleneck in Geant4 simulations, 
-achieving high GPU resource efficiency across production Monte Carlo campaigns remains
-challenging. Opticks optical simulation performance doubles
-with each new NVIDIA RTX generation due to advances in ray-tracing
-hardware making the difficulty of fully utilizing these GPU resources
-effectively doubles as well. 
-Within a monolithic application the GPU remains idle during
-Geant4 and framework initialization and during non-optical simulation.
-As simulation is CPU-bound by non-optical physics, overlapping local CPU work with GPU propagation yields minimal gains.
-However, adopting a server-client architecture enables aggregating CPU workloads from dozens of worker nodes
-onto a centralized GPU server saturates the GPU while resolving the shortage of dedicated GPU hardware.
+\section{Scaling Opticks for Monte Carlo Production}
+
+Opticks eliminates the optical photon bottleneck in Geant4 simulations;
+however, sustaining high GPU resource utilization across production Monte Carlo campaigns 
+with diverse workloads and hardware capabilities remains challenging.
+Optical simulation performance has roughly doubled with each NVIDIA RTX GPU generation 
+due to ray-tracing hardware advances, making GPU starvation an increasingly critical issue.
+In a monolithic Opticks application, the GPU remains idle during Geant4 initialization 
+and non-optical simulation phases. 
+While overlapping CPU generation with GPU propagation can yield moderate gains, 
+adopting a client-server architecture offers the architectural flexibility to fully saturate GPU resources,
+eliminate redundant geometry initialization costs, and mitigate GPU hardware scarcity. 
+Crucially, tuning the ratio of CPU clients to GPU servers in production campaigns affords fine-grained 
+control over GPU utilization, decoupled from specific workloads or hardware capbilities.
+
+The modular package structure of Opticks enables a clean division into client and server components 
+compiled from a single codebase. Core optical simulation packages requiring CUDA and OptiX dependencies 
+are isolated on the remote server, which services requests from lightweight clients. 
+The current prototype server uses Python, FastAPI, and nanobind to expose the C++ \texttt{CSGOptiX} simulation engine, 
+with the client relying on \texttt{libcurl} to provide HTTP transport.
+
+Future work will explore replacing the prototype with the NVIDIA Triton Inference Server using 
+gRPC transport and Protocol Buffers. This may provide more robust multi-client performance
+and higher throughput when returning large hit arrays.
 
 
-
-%Multi-threaded Geant4 accumulating gensteps into a shared thread-safe queue can provide some 
-
-
-
-\comment{
-What are the main challenges of scaling Monte Carlo productions using Opticks
-GPU optical photon simulation to accelerate Geant4 ?  Main ones are access to
-enough GPUs, and making good use of available GPUs. Any other challenges ? What
-strategies could mitigate ? What about server/client to share GPU resources to
-non-GPU nodes ?
-}
-
-
- 
 
 \section{Summary}
 %
@@ -446,6 +466,15 @@ non-GPU nodes ?
 %Comparisons between different GPUs shows optical simulation performance 
 %to closely follow ray tracing performance with a factor of four improvement between 
 %GPUs from the first and third RTX generations. 
+
+
+Shader Execution Reordering (SER) introduced with third RTX generation GPUs has
+been reported~\cite{ser} with the Simphony~\cite{simphony} Opticks fork to achieve more
+than a factor of 10 reduction in propagation kernel times by mitigating warp divergence.
+
+
+
+
 %
 %
 %\newpage
@@ -521,6 +550,12 @@ F. An et al., J. Phys. G. {\bf 43}, 030401 (2016)
 NEXT Collaboration. Performance of an optical TPC Geant4 simulation with opticks GPU-accelerated photon propagation.\\
 Eur. Phys. J. C 85, 910 (2025). https://doi.org/10.1140/epjc/s10052-025-14612-0
 %
+\bibitem{dune}
+Accelerating Optical Photon Simulation in DUNE with Opticks\\
+Ilker Parmaksiz, Aaron Higuera, Laura Paulucci, Viktor Pec, Estanislao Forino\\
+arXiv:2608.27306 [hep-ex]\\
+DOI: https://doi.org/10.48550/arXiv.2608.27306
+%
 \bibitem{lz}
 GPU simulation with Opticks: The future of optical simulations for LZ \\
 Oisín Creaner, Simon Blyth, Sam Eriksen, Lisa Gerhardt, Maria Elena Monzani and Quentin Riffard\\
@@ -533,7 +568,14 @@ Galgoczi, G., Kauder, K., Potekhin, M. et al.\\
 Eur. Phys. J. C 86, 934 (2026).\\
 https://doi.org/10.1140/epjc/s10052-026-16180-3
 %
+\bibitem{ser}
+Mitigating warp divergence in GPU optical photon Monte Carlo: an order of magnitude speedup with Shader Execution Reordering.\\
+Galgoczi, G. (2026), arXiv:2608.21396 [physics.ins-det]. https://arxiv.org/abs/2608.21396
 %
+\bibitem{simphony}
+G. Galgoczi et al., GPU optical photon Monte Carlo for noble liquid detectors:
+validation against Geant4 in a large liquid argon TPC benchmark, arXiv:2606.05385
+(2026).
 %\bibitem{amdahl}
 %Validity of the single processor approach to achieving large scale computing capabilities.\\
 %Amdahl, G. M. (1967).\\ 
