@@ -4,6 +4,8 @@
 \newcommand{\comment}[1]{}
 \usepackage{graphicx}
 \usepackage{listings}
+\usepackage{array}
+
 
 \usepackage{booktabs}
 \usepackage{multirow}
@@ -27,7 +29,6 @@
 }
 
 
-\usepackage{array}
 \comment{
 
 Sections from presentation : opticks\_20260527\_bangkok\_chep2026.txt
@@ -113,7 +114,7 @@ IDEAS
 %
 \begin{document}
 \title{Opticks: GPU Accelerated Optical Photon Simulation for JUNO and Other Experiments}
-\author{\firstname{Simon} C. \lastname{Blyth}\inst{1}\fnsep\thanks{Corresponding author \email{simon.c.blyth@gmail.com}.}}
+\author{\firstname{Simon} C. \lastname{Blyth}\inst{1}\fnsep\thanks{Corresponding author \email{simon.c.blyth@gmail.com}.} on behalf of the JUNO Collaboration}
 \institute{Institute of High Energy Physics, CAS, Beijing, China.}
 \abstract{\input{opticks-blyth-chep2026-v1-abstract.tex}}
 \maketitle
@@ -124,14 +125,13 @@ IDEAS
 \section{Introduction}%
 \label{intro}
 %
-Opticks[1-7] applies NVIDIA\textregistered\ OptiX\texttrademark~\cite{optix} GPU ray tracing
-to optical photon simulation and integrates this with the Geant4 [8] simulation of all other particles.
+Opticks~\cite{opticks,chep2024,chep2023,chep2021,chep2019,chep2018,chep2016} applies NVIDIA\textregistered\ OptiX\texttrademark~\cite{optix} GPU ray tracing, including RT Core 
+hardware acceleration on NVIDIA RTX GPUs~\cite{rtx}, to optical photon simulation and integrates this with Geant4~\cite{g4} for all other particles.
 Offloading optical photon simulation to the GPU eliminates processing time and memory bottlenecks especially for
 large high-yield detectors such as the 20 kton Jiangmen Underground Neutrino Observatory (JUNO)~\cite{juno}. 
 Although developed for JUNO, Opticks has been used by other experiments including LZ~\cite{lz}, NEXT~\cite{next}, DUNE~\cite{dune}
-and the Electron Ion Collider~\cite{eic}. Prior CHEP proceedings [1–7] cover the development history of Opticks.
-These proceedings focus on enhancements motivatated by JUNO production experience with the simulation
-of high energy events, such as cosmic ray muons which can yield several billions
+and the Electron Ion Collider~\cite{eic}. Prior CHEP proceedings~\cite{chep2024,chep2023,chep2021,chep2019,chep2018,chep2016} cover the development history of Opticks.
+These proceedings focus on enhancements motivatated by JUNO production experience with high energy events, such as cosmic-ray muons which can yield several billions
 of optical photons per event.
 %
 %
@@ -255,7 +255,7 @@ if( evt->photonlite )
 The main event arrays utilized during optical photon simulation are detailed in Table~\ref{tabeventarrays}. 
 Prior to launching the simulation kernel, the genstep array collected from Geant4 is transferred to the GPU. 
 A seed array is then constructed on the device by expanding the genstep photon counts into parent genstep indices 
-using CUDA Thrust parallel primitives (\texttt{sysrap/iexpand.h}). 
+using CUDA Thrust~\cite{thrust} parallel primitives (\texttt{sysrap/iexpand.h}). 
 This seed array allows each parallel CUDA thread to look up its corresponding parent genstep parameters 
 and generate the initial photon state on the device.
 
@@ -391,13 +391,13 @@ In these single-launch benchmarks (150M photons), the full capacity advantages
 of \texttt{sphotonlite} are masked because total memory stayed within 32\,GB
 VRAM limits. On this hardware, maximum single-launch capacity is approximately
 250M full photons versus 500M lite photons—a $2\times$ gain rather than the
-theoretical $4\times$ structural ratio due to transient workspace allocations
+theoretical $4\times$ struct size ratio due to transient workspace allocations
 required by CUDA Thrust during sorting and reduction. When summary photon information
 is sufficient using \texttt{sphotonlite} effectively doubles the usable event capacity of the available
 GPU VRAM.
 %
 
-As a stress test of multi-launch simulation an artifical event with 8.25 billion optical photons
+As a stress test of multi-launch simulation an artificial event with 8.25 billion optical photons
 was simulated with full merged hits in 33 launches using 32\,GB VRAM.
 %
 %
@@ -427,52 +427,47 @@ Optical simulation performance has roughly doubled with each NVIDIA RTX GPU gene
 due to ray-tracing hardware advances, making GPU starvation an increasingly critical issue.
 In a monolithic Opticks application, the GPU remains idle during Geant4 initialization 
 and non-optical simulation phases. 
-While overlapping CPU generation with GPU propagation can yield moderate gains, 
-adopting a client-server architecture offers the architectural flexibility to fully saturate GPU resources,
+While overlapping CPU work with GPU propagation is expected to yield moderate gains, adoption of
+a client-server architecture offers the architectural flexibility to fully saturate GPU resources,
 eliminate redundant geometry initialization costs, and mitigate GPU hardware scarcity. 
 Crucially, tuning the ratio of CPU clients to GPU servers in production campaigns affords fine-grained 
-control over GPU utilization, decoupled from specific workloads or hardware capbilities.
+control over GPU utilization, decoupled from specific workloads or the evolving hardware capabilities.
 
-The modular package structure of Opticks enables a clean division into client and server components 
-compiled from a single codebase. Core optical simulation packages requiring CUDA and OptiX dependencies 
+The multi-package structure of Opticks organized by dependency has enabled a
+straightforward division with client and server components compiled from a single codebase.
+Core optical simulation packages requiring CUDA and OptiX
 are isolated on the remote server, which services requests from lightweight clients. 
 The current prototype server uses Python, FastAPI, and nanobind to expose the C++ \texttt{CSGOptiX} simulation engine, 
 with the client relying on \texttt{libcurl} to provide HTTP transport.
 
-Future work will explore replacing the prototype with the NVIDIA Triton Inference Server using 
-gRPC transport and Protocol Buffers. This may provide more robust multi-client performance
-and higher throughput when returning large hit arrays.
+
+\section{Summary and Outlook}
+
+Production experience with the simulation of JUNO high energy events
+have motivated development of a reduced resource simulation mode and GPU hit merging
+that avoid the benefits of Opticks accelerated optical photon simulation from being
+obscured by CPU post processing.
+
+Prototyping the FastAPI-based Opticks server has been instructive. However,
+adopting the NVIDIA Triton Inference Server with Opticks as a custom backend
+is expected to offer a more production-ready foundation suitable for achieving
+the robust multi-client throughput required for large-scale Monte Carlo production.
+
+Shader Execution Reordering (SER)~\cite{ser} is an optimization technique introduced with the Ada 
+generation of RTX GPUs that reduces execution and data divergence in ray tracing kernels by on-the-fly reordering of threads that
+are performing similar work resulting in improved GPU utilization.
+%This functionality is supported from NVIDIA OptiX 8, with the \texttt{optixReorder} call. 
+Studies using the Simphony~\cite{simphony} Opticks fork report~\cite{sergalgoczi} an order of magnitude reduction
+in optical kernel execution times with a 1.4kt Liquid Argon Time Projection Chamber geometry. 
+Reductions in optical kernel duration from SER and future RTX generations will likely be particularly beneficial in the
+context of an Opticks GPU server where the processing bottleneck has been shifted from CPU to GPU. Future work will measure both optical
+and overall application speedups provided by SER for high-energy event simulations within the JUNO detector geometry.
 
 Current distributed computing frameworks like DIRAC, HTCondor and Slurm 
 lack the fine-grained matchmaking capabilities necessary to detect and route jobs
 based on preference for specific GPU microarchitectural features such as RT cores
-or Shader Execution Reordering (SER). Future work will address this lack in the context
+or Shader Execution Reordering (SER)~\cite{ser}. Future work will address this lack in the context
 of scaling up the Opticks enhanced JUNO simulation.  
-
-
-\section{Summary}
-%
-%Opticks enables Geant4-based optical photon simulations to benefit from 
-%state-of-the-art NVIDIA GPU ray tracing, made accessible via the NVIDIA OptiX 7+ API,
-%allowing memory and time processing bottlenecks to be eliminated. 
-%Recent feature additions such as out-of-core optical photon simulation and the 
-%adoption of the curand Philox random number generator remove limits on the number of 
-%photons that can be simulated and make Opticks easier to use. 
-%Comparisons between different GPUs shows optical simulation performance 
-%to closely follow ray tracing performance with a factor of four improvement between 
-%GPUs from the first and third RTX generations. 
-
-Although Opticks achieves an optical photon speedup exceeding 1000x, Amdahl's law dictates that the overall simulation speedup
-is bounded by the remaining non-optical processing time in Geant4.
-%
-
-Shader Execution Reordering (SER) introduced with third RTX generation GPUs has
-been reported~\cite{ser} with the Simphony~\cite{simphony} Opticks fork to achieve more
-than a factor of 10 reduction in propagation kernel times by mitigating warp divergence.
-
-
-
-
 %
 %
 %\newpage
@@ -484,42 +479,62 @@ for his JUNO software assistance over many years. NVIDIA is acknowledged for ext
 support for the OptiX 7+ API transition.
 %
 This work is supported by National Natural Science Foundation of China (NSFC)
-under grant No. 12275293.
+under grant No. 12275293 and grant No. 12675248.
 %
 \begin{thebibliography}{}
 %
 %1 
 \bibitem{opticks}
-Opticks Repository, {\tt https://bitbucket.org/simoncblyth/opticks/}\\
-Opticks References, {\tt https://simoncblyth.bitbucket.io}\\
-Opticks Group, {\tt https://groups.io/g/opticks}
+Opticks Repository, \texttt{https://github.com/simoncblyth/opticks/}\\
+Opticks References, \texttt{https://simoncblyth.github.io}\\
+Opticks Group, \texttt{https://groups.io/g/opticks}
 %
 %2
 \bibitem{chep2024}
-S. C. Blyth, EPJ Web Conf. {\bf 337}, 11093 (2025) \\
-{\tt https://doi.org/10.1051/epjconf/202533701093}
-%
-\bibitem{chep2023}
-S. Blyth, EPJ Web Conf. {\bf 295}, 11014 (2024) \\
-{\tt https://doi.org/10.1051/epjconf/202429511014}
+S. C. Blyth, 
+%"Opticks: GPU ray traced optical photon simulation",
+EPJ Web Conf. {\bf 337}, 11093 (2025),\\
+\texttt{https://doi.org/10.1051/epjconf/202533701093}
 %3
-\bibitem{chep2021}
-S. Blyth, EPJ Web Conf. {\bf 251}, 03009 (2021) \\
-{\tt https://doi.org/10.1051/epjconf/202125103009}
+\bibitem{chep2023}
+S. Blyth,
+%"Opticks: GPU Optical Photon Simulation via NVIDIA OptiX", 
+EPJ Web Conf. {\bf 295}, 11014 (2024),\\
+\texttt{https://doi.org/10.1051/epjconf/202429511014}
 %4
-\bibitem{chep2019}
-S. Blyth, EPJ Web Conf. {\bf 245}, 11003 (2020) \\
-{\tt https://doi.org/10.1051/epjconf/202024511003}
+\bibitem{chep2021}
+S. Blyth,
+%"Integration of JUNO simulation framework with Opticks: GPU accelerated optical propagation via NVIDIA® OptiX™",
+EPJ Web Conf. {\bf 251}, 03009 (2021),\\
+\texttt{https://doi.org/10.1051/epjconf/202125103009}
 %5
+\bibitem{chep2019}
+S. Blyth,
+%"Meeting the challenge of JUNO simulation with Opticks: GPU optical photon acceleration via NVIDIA® OptiX™",
+EPJ Web Conf. {\bf 245}, 11003 (2020),\\
+\texttt{https://doi.org/10.1051/epjconf/202024511003}
+%6
 \bibitem{chep2018}
-S. Blyth, EPJ Web Conf. {\bf 214}, 02027 (2019) \\
-{\tt https://doi.org/10.1051/epjconf/201921402027}
-%6 
+S. Blyth,
+%"Opticks : GPU Optical Photon Simulation for Particle Physics using NVIDIA® OptiX™",
+EPJ Web Conf. {\bf 214}, 02027 (2019),\\
+\texttt{https://doi.org/10.1051/epjconf/201921402027}
+%7 
 \bibitem{chep2016}
-Blyth Simon C 2017 J. Phys.: Conf. Ser. {\bf 898} 042001 \\
-{\tt https://doi.org/10.1088/1742-6596/898/4/042001}
+Blyth Simon C,
+%"Opticks : GPU Optical Photon Simulation for Particle Physics using NVIDIA® OptiX™", 
+2017 J. Phys.: Conf. Ser. {\bf 898} 042001,\\
+\texttt{https://doi.org/10.1088/1742-6596/898/4/042001}
 %
-%7
+%8
+\bibitem{optix}
+S. Parker et al., ACM Trans. Graph.: Conf. Series {\bf 29}, 66 (2010)\\
+\hspace*{0.0em}OptiX introduction, \texttt{https://developer.nvidia.com/optix}\\
+\hspace*{0.0em}OptiX API, \texttt{https://raytracing-docs.nvidia.com/optix8/index.html}
+%9
+\bibitem{rtx}
+NVIDIA RTX\texttrademark\, Platform,\\ \texttt{https://developer.nvidia.com/rtx}
+%10
 \bibitem{g4}
 S. Agostinelli et al., Nucl. Instrum. Methods. Phys. Res. A {\bf 506}, 250 (2003)\\
 \hspace*{0.0em}J. Allison et al., IEEE Trans Nucl Sci, {\bf 53}, 270 (2006)\\
@@ -529,70 +544,62 @@ S. Agostinelli et al., Nucl. Instrum. Methods. Phys. Res. A {\bf 506}, 250 (2003
 %   Geant4 Developments and Applications, J. Allison et al., IEEE Trans. Nucl. Sci. 53 (2006) 270-278
 %   Geant4 - A Simulation Toolkit, S. Agostinelli et al., Nucl. Instrum. Meth. A 506 (2003) 250-303
 %
-%8
-\bibitem{optix}
-S. Parker et al., ACM Trans. Graph.: Conf. Series {\bf 29}, 66 (2010)\\
-\hspace*{0.0em}OptiX introduction, {\tt https://developer.nvidia.com/optix}\\
-\hspace*{0.0em}OptiX API, {\tt https://raytracing-docs.nvidia.com/optix8/index.html}
-%
-%9
-\bibitem{rtx}
-NVIDIA RTX\texttrademark\, Platform, {\tt https://developer.nvidia.com/rtx}
-%10
+
+%11
 \bibitem{juno}
-Neutrino physics with JUNO \\
-F. An et al., J. Phys. G. {\bf 43}, 030401 (2016) 
+JUNO Collaboration, "Neutrino physics with JUNO",
+J. Phys. G. {\bf 43}, 030401 (2016)\\
+\texttt{https://doi.org/10.1088/0954-3899/43/3/030401}
 %
-%
-\bibitem{next}
-NEXT Collaboration. Performance of an optical TPC Geant4 simulation with opticks GPU-accelerated photon propagation.\\
-Eur. Phys. J. C 85, 910 (2025). https://doi.org/10.1140/epjc/s10052-025-14612-0
-%
-\bibitem{dune}
-Accelerating Optical Photon Simulation in DUNE with Opticks\\
-Ilker Parmaksiz, Aaron Higuera, Laura Paulucci, Viktor Pec, Estanislao Forino\\
-arXiv:2608.27306 [hep-ex]\\
-DOI: https://doi.org/10.48550/arXiv.2608.27306
-%
+%14
 \bibitem{lz}
-GPU simulation with Opticks: The future of optical simulations for LZ \\
-Oisín Creaner, Simon Blyth, Sam Eriksen, Lisa Gerhardt, Maria Elena Monzani and Quentin Riffard\\
-EPJ Web Conf., 251 (2021) 03037\\
-DOI: https://doi.org/10.1051/epjconf/202125103037
+Oisín Creaner, Simon Blyth, Sam Eriksen, Lisa Gerhardt, Maria Elena Monzani and Quentin Riffard,
+"GPU simulation with Opticks: The future of optical simulations for LZ" \\
+EPJ Web Conf., 251 (2021) 03037,\\
+\texttt{https://doi.org/10.1051/epjconf/202125103037}
 %
+%15
+\bibitem{next}
+NEXT Collaboration, "Performance of an optical TPC Geant4 simulation with opticks GPU-accelerated photon propagation."\\
+Eur. Phys. J. C 85, 910 (2025),\\
+\texttt{https://doi.org/10.1140/epjc/s10052-025-14612-0}
+%
+%16
+\bibitem{dune}
+Ilker Parmaksiz, Aaron Higuera, Laura Paulucci, Viktor Pec, Estanislao Forino,
+"Accelerating Optical Photon Simulation in DUNE with Opticks"\\
+arXiv:2608.27306 [hep-ex],\\
+\texttt{https://doi.org/10.48550/arXiv.2608.27306}
+%
+%17
 \bibitem{eic}
-GPU acceleration of optical photon propagation in low photon yield applications: Opticks for the Electron Ion Collider.\\
-Galgoczi, G., Kauder, K., Potekhin, M. et al.\\
-Eur. Phys. J. C 86, 934 (2026).\\
-https://doi.org/10.1140/epjc/s10052-026-16180-3
+Galgoczi, G., Kauder, K., Potekhin, M. et al.,
+"GPU acceleration of optical photon propagation in low photon yield applications: Opticks for the Electron Ion Collider."\\
+Eur. Phys. J. C 86, 934 (2026),\\
+\texttt{https://doi.org/10.1140/epjc/s10052-026-16180-3}
+%
+%
+\bibitem{thrust}
+CUDA Thrust library of parallel algorithms,\\
+\texttt{https://developer.nvidia.com/thrust}
+%
 %
 \bibitem{ser}
-Mitigating warp divergence in GPU optical photon Monte Carlo: an order of magnitude speedup with Shader Execution Reordering.\\
-Galgoczi, G. (2026), arXiv:2608.21396 [physics.ins-det]. https://arxiv.org/abs/2608.21396
+NVIDIA Shader Execution Reordering, supported from NVIDIA OptiX 8\\
+%\texttt{https://developer.nvidia.com/blog/improve-shader-performance-and-in-game-frame-rates-with-shader-execution-reordering/}\\
+\texttt{https://raytracing-docs.nvidia.com/optix8/api/index.html}
 %
 \bibitem{simphony}
-G. Galgoczi et al., GPU optical photon Monte Carlo for noble liquid detectors:
-validation against Geant4 in a large liquid argon TPC benchmark, arXiv:2606.05385
-(2026).
-%\bibitem{amdahl}
-%Validity of the single processor approach to achieving large scale computing capabilities.\\
-%Amdahl, G. M. (1967).\\ 
-%Proceedings of the April 18-20, 1967, Spring Joint Computer Conference, 483–485. https://doi.org/10.1145/1465482.1465560\\
+G. Galgoczi et al., "GPU optical photon Monte Carlo for noble liquid detectors: validation against Geant4 in a large liquid argon TPC benchmark",\\
+arXiv:2606.05385 (2026)  [physics.ins-det],\\
+\texttt{https://arxiv.org/abs/2606.05385}
 %
-%11
-\bibitem{throughput}
-Understanding Throughput Oriented Architectures \\
-M. Garland, D.B. Kirk, Commun. ACM {\bf 53}(11), 58 (2010) 
-%12
-\bibitem{numpy}
-The NumPy array: a structure for efficient numerical computation \\
-S. Van der Walt, S. Colbert, G. Varoquaux, Comput. Sci. Eng. {\bf 13}, 22 (2011)
 %
-%13
-\bibitem{curand}
-cuRAND, {\tt http://docs.nvidia.com/cuda/curand/index.html}\\
-\hspace*{0.0em}Generator tests, {\tt https://docs.nvidia.com/cuda/curand/testing.html}\\
-\hspace*{0.0em}{\tt https://docs.nvidia.com/cuda/curand/device-api-overview.html\#performance-notes}
+\bibitem{sergalgoczi}
+Galgoczi, G., "Mitigating warp divergence in GPU optical photon Monte Carlo: an order of magnitude speedup with Shader Execution Reordering.",\\
+arXiv:2608.21396 (2026) [physics.ins-det],\\
+\texttt{https://arxiv.org/abs/2608.21396}
+%
 %
 %
 \end{thebibliography}

@@ -16,6 +16,25 @@ CHEP 2027, Bucharest, Romania, 13-17 September 2027
 
 
 
+Dear Publication Committee and Collaborators,
+
+The PDF of my CHEP 2026 proceedings paper: 
+
+   "Opticks: GPU Accelerated Optical Photon Simulation for JUNO and Other Experiments"
+
+is linked from https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=15356
+
+The submission deadline is one week from today on Friday 25 Sep 2026.
+Comments/suggestions are very welcome.
+
+Simon
+
+
+
+
+
+
+
 CHEP 2026 Proceedings
 -----------------------
 
@@ -58,6 +77,14 @@ May 27, 2026, 2:57 PM - 3:15 PM
 * https://indico.cern.ch/event/1471803/timetable/#20260525.detailed
 * https://indico.cern.ch/event/1471803/contributions/6967960/
 * https://indico.cern.ch/event/1471803/sessions/624974/#20260527
+
+
+
+CHEP 2024 PROCEEDINGS
+----------------------
+
+* https://www.epj-conferences.org/articles/epjconf/abs/2025/22/contents/contents.html
+
 
 
 
