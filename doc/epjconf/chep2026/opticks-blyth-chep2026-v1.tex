@@ -6,11 +6,19 @@
 \usepackage{listings}
 \usepackage{array}
 
+% 1. Load xcolor first
+\usepackage{xcolor}
+
+% 2. Fix the typo in webofc's color setup
+\definecolor{blue }{named}{blue}
+
+% 3. Now load orcidlink
+\usepackage{orcidlink}
 
 \usepackage{booktabs}
 \usepackage{multirow}
-\usepackage{xcolor}
 \usepackage{pifont}
+
 
 % Custom macros matching the rst roles/replacements
 \newcommand{\cmark}{\ding{51}} % Yes / Y checkmark or character
@@ -114,13 +122,13 @@ IDEAS
 %
 \begin{document}
 \title{Opticks: GPU Accelerated Optical Photon Simulation for JUNO and Other Experiments}
-\author{\firstname{Simon} C. \lastname{Blyth}\inst{1}\fnsep\thanks{Corresponding author \email{simon.c.blyth@gmail.com}.} on behalf of the JUNO Collaboration}
+\author{\firstname{Simon} C. \lastname{Blyth}\inst{1}\orcidlink{0009-0005-2227-2466}\fnsep\thanks{Corresponding author \email{simon.c.blyth@gmail.com}.} on behalf of the JUNO Collaboration}
+%\author{\firstname{Simon} C. \lastname{Blyth}\inst{1}\fnsep\thanks{Corresponding author \email{simon.c.blyth@gmail.com}.} on behalf of the JUNO Collaboration}
 \institute{Institute of High Energy Physics, CAS, Beijing, China.}
 \abstract{\input{opticks-blyth-chep2026-v1-abstract.tex}}
 \maketitle
 %
-%
-%
+%  https://orcid.org/0009-0005-2227-2466
 %
 \section{Introduction}%
 \label{intro}

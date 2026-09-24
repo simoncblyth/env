@@ -30,9 +30,17 @@ Comments/suggestions are very welcome.
 Simon
 
 
+ORCHID
+-------
+
+* https://orcid.org/0009-0005-2227-2466
 
 
 
+CHEP 2026 Proceedings Reviewing
+--------------------------------
+
+* https://indico.cern.ch/event/1471803/papers/6967960/
 
 
 CHEP 2026 Proceedings
@@ -59,7 +67,33 @@ CHEP 2026 Proceedings
 * 26 February 2027: Proceeding to be available.
 
 
+
+PROCEEDINGS SUBMISSION
+------------------------
+
+
+Instructions
+
 * https://indico.cern.ch/event/1471803/page/40062-proceedings
+
+
+My contribution page
+
+Login
+~~~~~
+
+1. click "Login" at top right
+2. scrub and default junk in the Username field - enter "blyth@ihep.ac.cn"
+3. that does not work - so try "Home Institute/eduGain" button to the right
+4. click "The Institute of High Energy Physics of Th" ihep.ac.cn - single item in the list
+5. familiar "Our Identity Provider" logo should appear with Username/Password fields
+6. click on the "Username" field and select "blyth45(23 Jun 2026)/code.ihep.ac.cn" from the OS-or-browser remebered listA
+7. click "Login"
+8. Now the top right of indico pages should show "S. blyth45" showing within dropdown "blyth@ihep.ac.cn"
+
+On the CHEP contribution page a "Peer reviewing" section should now appear with a "Submit Paper" button
+
+* https://indico.cern.ch/event/1471803/contributions/6967960/
 
 
 
@@ -68,7 +102,6 @@ INDICO.CERN.CH LOGIN CAUTION
 
 * can login using google or github - simon.c.blyth@gmail.com - but then lack write permission
 * must login using "blyth@ihep.ac.cn" to have write permission
-
 
 
 May 27, 2026, 2:57 PM - 3:15 PM
