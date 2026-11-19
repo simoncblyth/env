@@ -23,6 +23,41 @@ https://medium.com/@datagumshoe/using-uv-and-conda-together-effectively-a-fast-f
 https://realpython.com/python-uv/
 
 
+
+
+install uv for simon
+----------------------
+
+::
+
+    zeta:scrap simon$ curl -LsSf https://astral.sh/uv/install.sh | sh
+    downloading uv 0.13.5 aarch64-apple-darwin
+    installing to /Users/simon/.local/bin
+      uv
+      uvx
+    everything's installed!
+
+    To add $HOME/.local/bin to your PATH, either restart your shell or run:
+
+        source $HOME/.local/bin/env (sh, bash, zsh)
+        source $HOME/.local/bin/env.fish (fish)
+    zeta:scrap simon$ 
+
+
+
+setup shared uv_cache directory that can be used from private uv envs of each user
+------------------------------------------------------------------------------------
+
+::
+
+    sudo mkdir /usr/local/uv_cache
+    sudo chown -R blyth:staff /usr/local/uv_cache
+
+    export UV_CACHE_DIR=/usr/local/uv_cache   ## add this to environment of all uv users
+
+
+
+
 experiment with uv without "uv pip"
 --------------------------------------
 

@@ -43,6 +43,19 @@ CHEP 2026 Proceedings Reviewing
 * https://indico.cern.ch/event/1471803/papers/6967960/
 
 
+Submitted documents from ~/opticks_refs
+-----------------------------------------
+
+::
+
+    zeta:opticks_refs blyth$ l | head -4
+    total 7344544
+         0 drwxr-xr-x  465 blyth  staff      14880 Sep 24 14:36 .
+     14008 -rw-r--r--@   1 blyth  staff    7170940 Sep 24 14:34 opticks-blyth-chep2026-v1.pdf
+       792 -rw-r--r--@   1 blyth  staff     404037 Sep 24 14:18 publication_right_form.pdf
+
+
+
 CHEP 2026 Proceedings
 -----------------------
 

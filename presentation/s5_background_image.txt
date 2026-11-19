@@ -3302,12 +3302,21 @@
     opticks_monitoring/grafana/20260715_160444.png 640px_360px 640px_0px
     qudarap/QScintThree/QScintThree_test_sh_COMP_012_LOGY1_EDGE1_DPI300.png 640px_360px 0px_360px
     ../Documents/Geant4OpticksWorkflow7/Geant4OpticksWorkflow_Clients_and_Service_001.png 640px_360px 640px_360px
+
+    Shader Execution Reordering (SER) - re-grouping to reduce divergence 
+    nvidia/ser/ser0.png 604px_303px 640px_360px 
+
+    GPU Architecture : Ballpark memory heirarchy
+    nvidia/architecture/GPU_SM_L2_cache.png 768px_432px 200px_250px
     
     ## HUH : NOT APPEARING IN SLIDE BACKGROUND : BUT URL OK
     ##
     ##  http://localhost/env/presentation/GEOM/J25_4_0_opticks_Debug/cxr_min/SPMT_cxs/20250722_155442.png
     ##  http://localhost/env/presentation/GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/wp_pmt_semi_ipc/20250721_111242.png
     ##  http://localhost/env/presentation/GEOM/J25_4_0_opticks_Debug/SGLFW_SOPTIX_Scene_test/wp_pmt_semi_ipc/20250721_111433.png
+    ##
+    ##    1008 806
+    ##     504 403
     ##
     ## 1186px_448px
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
