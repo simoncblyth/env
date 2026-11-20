@@ -82,138 +82,7 @@
 
 
 
-:small:`Shader Execution Reordering (SER) - re-grouping to reduce divergence`
-----------------------------------------------------------------------------------------------
 
-
-.. class:: small
-
-    SER : GPU ray-tracing optimization - dynamically groups threads : reduces execution + memory divergence
-
-.. class:: small
-
-    +----------------------------------------------------------+---------+-----------+---------------+
-    | 100M optical photons from JUNO CD center - kernel time   |  no SER |  with SER |               |
-    |                                                          +---------+-----------+---------------+
-    |                                                          | 21 s    |  12 s     | 1.75x speedup |
-    +----------------------------------------------------------+---------+-----------+---------------+
-    
-
-
-
-    * BNL (DUNE) Opticks-fork user (Simphony) users report[1] 16x speedup from SER
-
-    Opticks simulation time very sensitive to geometry + geometry modelling
-
-    * BUT: large difference in SER benefit warrants investigation + optimization
-
-
-.. class:: small
-
-    [1] https://arxiv.org/abs/2608.21396 
-
-
-.. comment
-
-:tiny:`Mitigating warp divergence in GPU optical photon Monte Carlo: an order of magnitude speedup with Shader Execution Reordering`
- 
-
-
-:small:`GPU Architecture : Ballpark memory heirarchy` 
--------------------------------------------------------
-
-.. class:: small
-
-    +------------------------+------------------------+---------------------+-----------------------+
-    | Memory Tier            | Latency (Clock Cycles) | Aggregate Bandwidth | Typical Capacity      |
-    +========================+========================+=====================+=======================+
-    | Registers              | ~1 cycle               | ~70–80+ TB/s        | 256 KB per SM         |
-    +------------------------+------------------------+---------------------+-----------------------+
-    | L1 Cache / Shared Mem  | ~20–30 cycles          | ~15–20 TB/s         | 128–256 KB per SM     |
-    +------------------------+------------------------+---------------------+-----------------------+
-    | L2 Cache               | ~150–250 cycles        | ~3–12 TB/s          | 6–96 MB (GPU-wide)    |
-    +------------------------+------------------------+---------------------+-----------------------+
-    | VRAM (HBM / GDDR)      | ~300–600+ cycles       | ~1–4.8 TB/s         | 8–192 GB (Off-chip)   |
-    +------------------------+------------------------+---------------------+-----------------------+
-
-
-
-.. raw:: html
-
-     <p style="margin-bottom:165mm;" />
-
-.. class:: small
-
-    SM : Streaming Multiprocessors, L2 cache : On chip memory shared by SM     
-
-    (https://ai-systems-engineering.com/en/posts/gpu-architecture/)
-
-
-
-
-
-
-
-
-
-
-
-:small:`Opticks CSG Impl guided by Kernel Profiling (NVIDIA Nsight Compute)`
-------------------------------------------------------------------------------
-
-.. sidebar:: :small:`CSG Optimization`
-
-    .. class:: small
-
-        Complete Binary Tree (CBT) [:b:`current approach`]
-           navigate by bit twiddling level order index,
-           BUT sparse for deep trees (complex shapes)
-
-        Reverse Polish Notation (RPN) [:r:`in development`]
-           inherent postorder, navigate by spans, :strike:`padding` 
-       
-
-        1. CBT => RPN (halves JUNO CSG nodes)
-        2. shrink node, 64 => 4 byte
-
-        Aims:
-
-        * every JUNO solid in L2 cache line (128 bytes)
-        * maximize L2 cache-line prefetching   
-        * avoid "thrashing the cache"
-     
-
-
-
-
-.. class:: normal
-
-    JUNO+Opticks simulation kernel profile insights:
-
-    1. trace > 100x propagation => :r:`intersect limited`  
-    2. entire JUNO CSG fits inside L2 cache (64MB) 
-    3. ~12% L2 cache stalls from CSG node navigation
-
-  
-
-
-    +--------------------------+---------+-------------------+
-    |  CBT -> RPN              | Status  |  Note             |      
-    +==========================+=========+===================+
-    |  Full JUNO translation   |  |y|    |                   |
-    +--------------------------+---------+-------------------+
-    |  Traits parm/itra access |  |y|    | avoid duplication |
-    +--------------------------+---------+-------------------+
-    |  Prim Intersection       | |y| |n| |                   |
-    +--------------------------+---------+-------------------+
-    |  Tree Intersection       |  |n|    |                   |
-    +--------------------------+---------+-------------------+
-    |  Listnode intersection   |  |n|    |                   |
-    +--------------------------+---------+-------------------+
-    
-
-
-      
 
 
 
@@ -256,7 +125,7 @@ Standard Outline
      +-------------------------------------------------------------------------------+
      |                                                                               |
      | * :r:`Maximize Opticks benefits to JUNO and other experiments`                |
-     | * Maximize GPU benefits to HEP projects able to innovate, eg CEPC             |
+     | * Maximize GPU benefits to HEP projects able to innovate                      |
      |                                                                               |
      +-------------------------------------------------------------------------------+
 
@@ -365,6 +234,1008 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
     * This shows how Opticks integrates Geant4 simulations with NVIDIA OptiX GPU ray tracing.  
     * The most crucial part is the translation of geometry into the form needed on the GPU 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Outline of "Research task completion status" Sections
+-----------------------------------------------------
+
+
+.. raw:: html
+
+   <p style="margin-bottom:10mm;" />
+   
+
+.. class:: normal
+
+    1. Simulation Geometry Additions + Opticks Translations
+    2. Simulation Model Addition : Three Species LS model (LAB, bisMSB, PPO)
+    3. Scaling Opticks with Server/Client Architecture
+    4. Compatibility Updates for Geant4 11.4, CUDA 13.1, OptiX 9.1
+
+       * enables use of NVIDIA Blackwell GPUs
+
+    5. Opticks+JUNOSW (OJ) Monitoring
+    6. OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases
+    7. Opticks Profiling and Optimization
+
+       * Slimming Release build
+       * Opticks Kernel Profiling with NVIDIA Nsight Compute
+       * Ray trace kernel Optimization with Shader Execution Reordering (SER) 
+       * Optimization of CSG Implementation
+ 
+
+
+:small:`1. Simulation Geometry Additions + Opticks Translations`
+-----------------------------------------------------------------
+
+.. sidebar:: :small:`Opticks Validation Machinery`
+
+     .. class:: small
+
+         * Complete optical recording on CPU+GPU
+         * Chi2 statistical match Geant4:Opticks
+         * Interactive 3D ray traced viz of geom + evt
+         * Precise 2D slice visualization of geometry
+
+
+         Precise 3D + 2D raytrace viz + Chi2:
+            **makes overlaps, mis-placement obvious**
+
+         Profits from:
+            :r:`Viz geometry == Sim geometry` (unlike Geant4) 
+
+         **Opticks Validation => Geometry Validation**
+ 
+
+
+.. class:: small
+
+    * Water Distributer (WD) implementation from Peidong
+
+      * overlap between WD and Hama PMTs
+      * pipe poking through Tyvek
+      * pipe segments mis-placed  
+      * maximally coincident pipe cut
+
+      => :b:`worked with Peidong to fix issues` 
+ 
+    * MPMT 8-inch PMT implementation from Peidong
+
+      * computationally terrible torus impl => :b:`changed to polycone` 
+
+    * EMF Coils implementation from Chen Jing, SJTU
+
+      * many small pieces impl
+      * unexplained breaks
+      * +4000 volumes => :b:`worked with Chen Jing to create rationalized impl`
+
+    :r:`Multiple issues found + fixed (with Peidong + Chen Jing)`
+
+.. class:: normal
+    :center:
+
+    **All geometry changes require GPU translation + validation work** 
+
+
+.. s5_talk::
+
+   All added geometry needs effort to translate to GPU and validate 
+
+
+
+:i:`WDP 89middle`
+------------------
+
+.. class:: center
+
+    ``Lower and Upper WD``
+
+
+.. s5_talk::
+
+    Shows the shape
+
+
+.. comment
+
+    :i:`WDP 3`
+    -----------
+
+    .. class:: small
+     
+        ``WDP 3 : Uppermost Water Distributor in Water Pool``
+
+
+    .. s5_talk::
+
+        Ray trace view of the uppermost
+
+
+    :i:`WDP 4`
+    -----------
+
+    .. class:: small
+     
+        ``WDP 4 : Water Distributor at top of CD``
+
+
+
+    .. s5_talk::
+
+        Top
+
+
+
+
+:i:`WDP 6`
+-----------
+
+.. class:: small
+ 
+    ``WDP 6 : Water Distributor at bottom of CD``
+
+.. s5_talk::
+
+    Bottom of CD
+
+
+
+.. comment
+
+    :i:`WDP 7`
+    -----------
+
+    .. class:: small
+     
+        ``WDP 7 :  Water Distributor at bottom of pool``
+
+
+    .. s5_talk::
+
+        Lowest
+
+
+
+.. comment
+
+
+    :i:`LWDS : Simtrace Split Snake`
+    --------------------------------- 
+
+
+    .. class:: small
+
+        ``cxt_min.sh : Simtrace Split Snake``
+
+
+    .. raw:: html
+
+       <p style="margin-bottom:90mm;" />
+       
+    .. sidebar:: Segmented "Snake" pipe
+
+         * avoids multiple issues
+
+    .. s5_talk::
+
+       Segmenting the pipe avoids issues crossing the Tyvek
+
+
+
+
+:i:`WaterDistributor Overlap Fixed`
+-------------------------------------
+
+.. class:: small
+
+    ``cxt_min.sh : pipes now segmented avoiding overlap``
+
+
+.. raw:: html
+
+   <p style="margin-bottom:50mm;" />
+   
+.. sidebar:: :small:`Peidongs Change`
+
+     * fixed three overlaps
+     * :strike:`one overlap remains` 
+
+       * :r:`MR 1062 now merged`
+
+
+.. s5_talk::
+
+   Three overlaps fixef and this is now merged
+
+
+
+.. comment
+
+    :small:`Water Distributer Issues` (:b:`FIXED`)
+    ----------------------------------------------
+
+    .. class:: normal
+
+        3D Raytrace directly reveals (MR1062):
+
+        * clear overlap with PMTs
+        * midview : pipe segments stick thru tyvek
+        * lowervier : again upper segments thru tyvek
+
+
+    .. s5_talk::
+
+        Issues
+
+
+
+:i:`MPMT 19,20,21,construction`
+---------------------------------
+
+.. class:: normal
+
+     MPMT (branch ``yupd-8inch-pmt``)  
+
+     * tubs-subtract-torus neck : :r:`abombination`
+     * polycone neck
+     * construction of shape
+
+
+.. s5_talk::
+
+    Replacing the torus neck with polycone
+
+
+
+
+
+:i:`MPMT : 16`
+---------------
+
+.. class:: small
+
+     ``MPMT in context``
+
+
+.. s5_talk::
+
+    MPMT in context
+
+
+.. comment
+
+
+    :i:`MPMT : 18`
+    ---------------
+
+    .. class:: small
+
+         ``wide view showing added MPMTs - around the Water Pool``
+
+
+
+    .. s5_talk::
+
+        Wide view
+
+
+
+
+
+:i:`EMF2 2`
+------------
+
+.. class:: small
+
+   ``ELV=^s_EMF MOI=/tmp/emf2.npy EYE=0,0,-2 UP=0,1,0 cxr_min.sh  ## raytrace``
+
+   ``ELV : select solids``
+
+   ``MOI : pick frame``
+
+
+.. raw:: html
+
+     <p style="margin-bottom:10cm;" />
+
+
+.. class:: small
+
+     ``View along EMF axis : (theta,phi) (56,-54) degrees`` 
+
+
+.. s5_talk::
+
+    Along EMF axis
+
+
+:i:`EMF2 3`
+------------
+
+.. class:: normal
+
+    :i:`EMF2 3` ``View from bottom of pool, with very large volumes excluded`` 
+
+.. s5_talk::
+
+    View at bottom of pool
+
+
+
+
+:i:`EMF X306` 
+--------------
+
+.. class:: normal
+
+    Former EMFcoils impl: 
+ 
+    * many small pieces 
+    * unexplained breaks
+    * +4000 volumes
+
+    * :b:`Converted analytically to Opticks`
+
+      * as no phicuts 
+
+
+.. s5_talk::
+
+    View at bottom of pool
+
+
+
+
+
+
+:small:`2. Simulation Model Addition : Three Species LS model (LAB, bisMSB, PPO)`
+-------------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:10mm;" />
+
+
+.. comment
+
+    :class: center-aligned-table
+    :align: center
+
+
+.. table::
+    :class: left-aligned-table
+    :widths: 5, 1
+    :align: center
+
+    +-----------------------------------------------------------------+-----------+
+    |  Aspect                                                         |  Status   |
+    +=================================================================+===========+
+    |   λ gen in triplicate using 9 layer texture atlas               |   |Y|     |
+    +-----------------------------------------------------------------+-----------+
+    |  Maintain species state for each photon (for Debug only)        |   |Y|     |
+    +-----------------------------------------------------------------+-----------+
+    |  Species "Process" choice by distance comparison                |   |Y|     | 
+    +-----------------------------------------------------------------+-----------+
+    |  Species transition probabilities + delays                      |   |Y|     |       
+    +-----------------------------------------------------------------+-----------+
+    |  Attain match with JUNOSW/Geant4                                |   |Y|     |
+    +-----------------------------------------------------------------+-----------+
+    |  Add test + Grafana dashboard panel to maintain match           |   |N|     | 
+    +-----------------------------------------------------------------+-----------+
+
+.. class:: normal 
+
+    Significant fraction of work done by Dingyong Yang
+
+    * :b:`Excellent opportunity to share Opticks workflow details`
+
+
+
+
+
+
+:i:`QScintThree_test_sh_COMP_012_LOGY1_EDGE1_DPI300`
+----------------------------------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:130mm;" />
+
+
+.. class:: small
+
+    ``1e9 wavelengths - (logscale) G4:Opticks diff not visible - Chi2/ndf < 1.001`` 
+
+
+.. s5_talk::
+
+    This compares histograms of a billion wavelengths generated with standard Geant techniques
+    vs inverse CDF tex lookups on GPU.  No differences are visible, and Chi2/ndf is consistent with a match. 
+
+
+
+:i:`QScintThree_test_sh_COMP_012_LOGY0_EDGE1_DPI300`
+----------------------------------------------------
+
+
+
+.. raw:: html
+
+    <p style="margin-bottom:130mm;" />
+
+
+.. class:: small
+
+    ``1e9 wavelengths - (linear) G4:Opticks diff not visible - Chi2/ndf < 1.001`` 
+
+
+.. s5_talk::
+
+    Linear version
+
+
+:i:`QScintThree_test_sh_COMP_012_LOGY1_EDGE1_DPI300_BOFFSET1e7`
+----------------------------------------------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:130mm;" />
+
+
+.. class:: small
+
+    ``1e9 wavelengths - (lin+offset) G4:Opticks diff not visible - Chi2/ndf < 1.001`` 
+
+
+.. s5_talk::
+
+    As the distributions are on top of each other - adding an offset allows to see
+
+
+
+
+
+
+3. Scaling Opticks with Server/Client Architecture
+--------------------------------------------------
+
+
+.. raw:: html
+
+     <p style="margin-bottom:52mm;" />
+
+.. class:: huge
+
+    Geant4 + Opticks + NVIDIA OptiX : Production Scaling ?
+
+
+.. class:: normal
+
+   * hard to make good use of GPU resources, gets harder with each generation
+
+     * :r:`under-utilized GPUs`
+
+   * monolithic scaling Opticks ?
+
+     * GPU idle while : Geant4 init + non-optical simulation : :r:`wasteful of GPU resources`
+
+   :b:`=> Client-Server architecture`
+
+   * separate GPU optical simulation into OpticksServer
+   * share server between CPU nodes
+
+
+
+.. s5_talk::
+
+   How to scale Opticks is an open question
+
+   Scaling monolithically means that GPUs sit idle while Geant4 is initialized and
+   the non-optical simulation is done.
+
+   Can server-client fix : lack of GPU resources + underutilized GPUs
+
+
+
+
+
+
+
+
+:i:`Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow 4x4 ?`
+---------------------------------------------------------------
+
+.. raw:: html
+
+     <p style="margin-bottom:82mm;" />
+
+.. class:: huge
+
+    Geant4 + Opticks + NVIDIA OptiX : Monolith x16 ?
+
+.. raw:: html
+
+     <p style="margin-bottom:36mm;" />
+
+.. class:: right
+
+    "Monolithic" scaling : :r:`very inefficient use of scarce GPU resources`
+
+
+.. s5_talk::
+
+    For large MC productions, scaling this way is not practical because
+    its an extremely inefficient use the GPUs.
+
+
+
+
+
+
+OpticksClients + OpticksService : Share GPUs
+------------------------------------------------------
+
+
+
+.. s5_talk::
+
+    GPU-less clients sharing a service via HTTP POST allows increasing GPU utilization.
+
+
+
+:small:`Opticks "Optical Core" => Server, "Periphery" => Client`
+----------------------------------------------------------------------
+
+
+.. table::
+    :class: center-aligned-table
+    :widths: 2, 5, 1, 1
+    :align: center
+
+    +------------+--------------------------------------------------+-----------+-----------+
+    | Package    |   Role                                           |   Client  |    Server |
+    +============+==================================================+===========+===========+
+    |  SysRap    |  Geometry and event types, array NP.hh           |   |Y|     |     |Y|   |
+    +------------+--------------------------------------------------+-----------+-----------+
+    |  CSG       |  CPU/GPU geometry model                          |   |Y|     |     |Y|   |
+    +------------+--------------------------------------------------+-----------+-----------+
+    | QUDARap    |  CUDA optical simulation                         |   |N|     |     |Y|   |
+    +------------+--------------------------------------------------+-----------+-----------+
+    | CSGOptiX   |  OptiX 7+ geometry, GPU ray trace                |   |N|     |     |Y|   |
+    +------------+--------------------------------------------------+-----------+-----------+
+    |  U4        |  Geometry convert, collect gensteps, return hits |   |Y|     |     |N|   |
+    +------------+--------------------------------------------------+-----------+-----------+
+    |  G4CX      |  Top level interface, acts via :r:`SSimulator`   |   |Y|     |     |N|   |
+    +------------+--------------------------------------------------+-----------+-----------+
+
+
+.. table::
+    :class: center-aligned-table
+    :widths: 2, 5, 4
+    :align: center
+
+    +---------------------+-------------------------------------------------------------+---------------------------------+
+    |                     | Client                                                      |   Server                        |
+    +=====================+=============================================================+=================================+
+    | :strike:`depends:`  | NVIDIA GPU + CUDA + OptiX                                   |  Geant4, U4, G4CX               |
+    +---------------------+-------------------------------------------------------------+---------------------------------+
+    |  depends:           | libcurl 7.76.1+, NP_CURL.h                                  |  python, FastAPI, nanobind      |
+    +---------------------+-------------------------------------------------------------+---------------------------------+
+    | :r:`SSimulator`:    | SOpticksClientSimulator                                     |  CSGOptiX                       |
+    +---------------------+-------------------------------------------------------------+---------------------------------+
+
+
+.. class:: normal
+
+    Client build from common Opticks codebase with ``OPTICKS_CONFIG=Client``
+
+    * :b:`OpticksClient use just like OpticksFull(monolithic) - simulate via network to GPU node`
+
+
+
+.. s5_talk::
+
+    Opticks is a collection of packages split by dependency, which makes it straightforward to divide into server and client.
+    The client can be used just like the full opticks but no GPU is needed. It performs the simulation remotely.
+
+
+
+:small:`4. Compatibility Updates for Geant4 11.4, CUDA 13.1, OptiX 9.1`
+-------------------------------------------------------------------------
+
+.. class:: normal
+
+    **Geant4 11.4** 
+
+    Recreated cvmfs release scripts to support multi-config distributions
+    of Opticks and Opticks+JUNOSW distributions - (Geant4 10.4 + 11.4)
+ 
+    * use cron job on stratum-zero, add sha256 tarball digest verification
+    * adopt cvmfs import - much faster that tarball explosion
+  
+    **CUDA 13.1** : Major reorganization of CUDA Thrust headers
+
+    * New Docker Image : ``el9.4-cuda13.1-opticks`` for JUNOSW gitlab-ci
+
+      * https://hub.docker.com/r/simoncblyth/junosw/tags
+
+    **OptiX 9.1**
+
+    * Minor API updates - stricter kernel checks
+    * transition kernel .ptx -> .optixir (small performance gain + detailed profiling)
+
+    :r:`Enables Opticks+JUNOSW to use NVIDIA Blackwell GPUs`
+
+
+
+
+
+
+5. Opticks+JUNOSW (OJ) Monitoring
+------------------------------------
+
+.. class:: normal
+
+    :b:`Opticks : fast replacement for Geant4 optical sim,` :r:`BUT FRAGILE:`
+
+.. class:: normal
+
+    * model/geometry change often needs CUDA development 
+
+      * eg: new three species LS model with state transitions
+
+    * :r:`any change can break correctness + performance`
+
+      * => :b:`REQUIRES CONTINUOUS MONITORING`
+
+    **Accelerate dev-cycle via automated : Validation + Performance Mon.**   
+
+.. class:: normal
+
+    **OJ + Opticks Monitoring** : https://code.ihep.ac.cn/blyth/oj/
+
+    * gitlab-ci nightly tests - (*gitlab-ci coordination, Grafana presentation*)
+    * GPU Workstation: gitlab-runner + **Grafana** server
+    * *Opticks:* :b:`summarize` test performance/status into SQLite3 DB tables
+    * visualize using **Grafana** Dashboard
+
+      * interactive plotting via SQL queries => dynamic plots
+
+    "Pipeline" works, NEXT: extend coverage to all important tests   
+
+
+
+
+.. s5_talk::
+
+   JUNO geometry and model continue to evolve
+
+   * any change can break validity or performance
+   * so continuous monitoring of validity and performance is needed
+   * some changes require CUDA development to reproduce new functionality on the GPU
+
+     * for example the new three species scintillator model
+
+
+   Recent progress in automated testing is to setup a gitlab runner
+   on a GPU workstation to help with promptly finding issues with
+   both the Geant4 geometry and with the translation of it.
+
+
+
+
+
+
+
+:i:`opticks_monitoring_gitlab_ci_20260716_141838.png` 
+------------------------------------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:100mm;" />
+
+
+.. sidebar:: OJ repository
+
+    .. class:: small
+
+       ``https://code.ihep.ac.cn/blyth/oj`` 
+           Opticks + JUNOSW test scripts
+
+       * daily testing by GPU Workstation gitlab-runner
+       * :r:`report => summary into SQLite3 DB table`  
+       * Grafana result visualization
+
+
+.. s5_talk::
+
+   OJ repository just contains:
+
+   * high level scripts that run scripts from JUNOSW and Opticks 
+   * gitlab configuration of which scripts to run
+
+   * gitlab-ci for the OJ repository coordinates which scripts to run and presents pass/fail
+    
+
+
+:i:`opticks_monitoring_grafana_20260715_160444.png` 
+----------------------------------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:140mm;" />
+
+
+``Opticks Grafana Dashboard``
+    * ``1. interactive time window``
+    * ``2. direct links from gitlab-ci``
+
+
+.. s5_talk::
+
+   Grafana presents test results in a Dashboard
+
+
+
+
+
+
+
+
+
+
+
+
+:small:`6. OJ : Opticks+JUNOSW Automated Gitlab-CI/CD Releases`
+-----------------------------------------------------------------
+
+.. comment
+
+    In [3]: import numpy as np ; np.array([1640,868])*0.25
+    Out[3]: array([410., 217.])
+
+    In [4]: import numpy as np ; np.array([1640,868])*0.3
+    Out[4]: array([492. , 260.4])
+
+    In [5]: import numpy as np ; np.array([1640,868])*0.27
+    Out[5]: array([442.8 , 234.36])
+
+    In [6]: import numpy as np ; np.array([1640,868])*0.28
+    Out[6]: array([459.2 , 243.04])
+
+
+
+.. comment
+
+   Möbius strip 
+
+.. sidebar:: :small:`Continuous Integration+Delivery`
+
+    .. image:: ci_cd/blackduck_cicd.png
+       :width: 459px
+       :height: 243px
+       :align: center
+
+
+.. class:: normal
+
+   Everyday ~17:15 non-GPU gitlab-runners:
+
+   * **OJ** : build + geometry conversion test
+   * release -> ``/cvmfs/opticks.ihep.ac.cn/oj/``  
+
+   **Reimplemented distrib + release scripts**
+
+   * stratum-zero cron : invokes cvmfs import
+   * support multi-config (Geant4 10.4 + 11.4) distrib: 
+
+     * Opticks
+     * Opticks+JUNOSW
+ 
+   First builds of each config after Opticks Release => dated reference OJ Release, eg:
+
+.. raw:: html
+
+   <pre class="mypre18">
+   /cvmfs/opticks.ihep.ac.cn/oj/releases/el9_amd64_gcc15/J26.4.1_Opticks-v0.7.3/2026_11_13/   # Geant4 11.4
+   /cvmfs/opticks.ihep.ac.cn/oj/releases/el9_amd64_gcc11/J26.4.1_Opticks-v0.7.3/2026_11_13/   # Geant4 10.4
+   </pre>
+
+
+
+.. s5_talk::
+
+   * Everyday gitlab runners do a test build of Opticks+JUNOSW that is deployed onto CVMFS. And a test geometry conversion is done.
+   * The first build after each Opticks release is kept as a dated reference release
+   * sourcing this *envset* file on CVMFS sets up the environment to use that Opticks+JUNOSW release
+   * of course you need to be on a GPU machine
+
+
+
+
+
+
+
+
+
+7. Opticks Profiling and Optimization
+---------------------------------------
+
+.. class:: normal
+
+   * Slimming Release build
+
+     * reduced resource usage in Release build => small perfomance gain
+     * added CMake monitoring of header flattened kernel 
+
+   * Adoption of .optixir rather than .ptx for kernel
+
+     * enables detailed source line kernel profiling + small performance gain
+
+   * Opticks Kernel Profiling with NVIDIA Nsight Compute (ncu + ncu-ui)
+
+     * AI interpretation of kernel profile reports - proving helpful
+
+   * Ray trace kernel Optimization with Shader Execution Reordering (SER) 
+
+     * SER reordering - yields 1.75x optical performance boost
+
+   * Optimization of CSG Implementation - guided by kernel profile
+ 
+     * kernel profile reports point finger at CSG serialization
+     * tests with ultra-lite 32 bit CSG node + RPN serialization in progress
+
+
+
+:small:`Shader Execution Reordering (SER) - re-grouping to reduce divergence`
+----------------------------------------------------------------------------------------------
+
+
+.. class:: small
+
+    SER : GPU ray-tracing optimization - dynamically groups threads : reduces execution + memory divergence
+
+.. class:: small
+
+    +----------------------------------------------------------+---------+-----------+---------------+
+    | 100M optical photons from JUNO CD center - kernel time   |  no SER |  with SER |               |
+    |                                                          +---------+-----------+---------------+
+    |                                                          | 21 s    |  12 s     | 1.75x speedup |
+    +----------------------------------------------------------+---------+-----------+---------------+
+    
+
+
+
+    * BNL (DUNE) Opticks-fork user (Simphony) users report[1] 16x speedup from SER
+
+    Opticks simulation time very sensitive to geometry + geometry modelling
+
+    * BUT: large difference in SER benefit warrants investigation + optimization
+
+
+.. class:: small
+
+    [1] https://arxiv.org/abs/2608.21396 
+
+
+.. comment
+
+:tiny:`Mitigating warp divergence in GPU optical photon Monte Carlo: an order of magnitude speedup with Shader Execution Reordering`
+ 
+
+
+:small:`GPU Architecture : Memory Tiers (Clock Frequency ~2.5 GHz)` 
+-------------------------------------------------------------------------
+
+.. class:: small
+
+    +------------------------+------------------------+---------------------+-----------------------+
+    | Memory Tier            | Latency (Clock Cycles) | Aggregate Bandwidth | Typical Capacity      |
+    +========================+========================+=====================+=======================+
+    | Registers              | ~1 cycle               | ~70–80+ TB/s        | 256 KB per SM         |
+    +------------------------+------------------------+---------------------+-----------------------+
+    | L1 Cache / Shared Mem  | ~20–30 cycles          | ~15–20 TB/s         | 128–256 KB per SM     |
+    +------------------------+------------------------+---------------------+-----------------------+
+    | L2 Cache               | ~150–250 cycles        | ~3–12 TB/s          | 6–96 MB (GPU-wide)    |
+    +------------------------+------------------------+---------------------+-----------------------+
+    | VRAM (HBM / GDDR)      | ~300–600+ cycles       | ~1–4.8 TB/s         | 8–192 GB (Off-chip)   |
+    +------------------------+------------------------+---------------------+-----------------------+
+
+
+
+.. raw:: html
+
+     <p style="margin-bottom:165mm;" />
+
+.. class:: small
+
+    SM : Streaming Multiprocessors, L2 cache : On chip memory shared by SM     
+
+    (https://ai-systems-engineering.com/en/posts/gpu-architecture/)
+
+
+
+
+
+
+
+
+
+
+
+:small:`Opticks CSG Impl guided by Kernel Profiling (NVIDIA Nsight Compute)`
+------------------------------------------------------------------------------
+
+.. sidebar:: :small:`CSG Optimization`
+
+    .. class:: small
+
+        Complete Binary Tree (CBT) [:b:`current approach`]
+           navigate by bit twiddling level order index,
+           BUT sparse for deep trees (complex shapes)
+
+        Reverse Polish Notation (RPN) [:r:`in development`]
+           inherent postorder, navigate by spans, :strike:`padding` 
+       
+
+        1. CBT => RPN (halves JUNO CSG nodes)
+        2. shrink node, 64 => 4 byte
+
+        Aims:
+
+        * every JUNO solid in L2 cache line (128 bytes)
+        * maximize L2 cache-line prefetching   
+        * avoid "thrashing the cache"
+     
+
+
+
+
+.. class:: normal
+
+    JUNO+Opticks simulation kernel profile insights:
+
+    1. trace > 100x propagation => :r:`intersect limited`  
+    2. entire JUNO CSG fits inside L2 cache (64MB) 
+    3. ~12% L2 cache stalls from CSG node navigation
+
+  
+
+
+    +--------------------------+---------+-------------------+
+    |  CBT -> RPN              | Status  |  Note             |      
+    +==========================+=========+===================+
+    |  Full JUNO translation   |  |y|    |                   |
+    +--------------------------+---------+-------------------+
+    |  Traits parm/itra access |  |y|    | avoid duplication |
+    +--------------------------+---------+-------------------+
+    |  Prim Intersection       | |y| |n| |                   |
+    +--------------------------+---------+-------------------+
+    |  Tree Intersection       |  |n|    |                   |
+    +--------------------------+---------+-------------------+
+    |  Listnode intersection   |  |n|    |                   |
+    +--------------------------+---------+-------------------+
+    
+
+
+      
+
 
 
 

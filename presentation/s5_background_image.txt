@@ -3280,6 +3280,9 @@
     Opticks+JUNOSW (OJ) Monitoring
     opticks_monitoring/devcycle/oj_dev_cycle.png 358px_700px 922px_0px
 
+    5. Opticks+JUNOSW (OJ) Monitoring
+    opticks_monitoring/devcycle/oj_dev_cycle.png 358px_700px 922px_0px
+
     Opticks+JUNOSW (OJ) Monitoring Goal
     opticks_monitoring/devcycle/oj_dev_cycle.png 358px_700px 922px_0px
 
@@ -3306,7 +3309,7 @@
     Shader Execution Reordering (SER) - re-grouping to reduce divergence 
     nvidia/ser/ser0.png 604px_303px 640px_360px 
 
-    GPU Architecture : Ballpark memory heirarchy
+    GPU Architecture : Memory Tiers (Clock Frequency ~2.5 GHz)
     nvidia/architecture/GPU_SM_L2_cache.png 768px_432px 200px_250px
     
     ## HUH : NOT APPEARING IN SLIDE BACKGROUND : BUT URL OK
