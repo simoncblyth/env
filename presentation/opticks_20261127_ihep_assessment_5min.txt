@@ -200,19 +200,19 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
 
 .. class:: small
 
-    *Opticks* enables Geant4 based simulation to offload optical photon simulation to the GPU  
+    *Opticks* applies NVIDIA GPU ray tracing to optical photon simulation, :b:`optical speedup > 1000x Geant4 (single thread)`
 
 .. raw:: html
 
     <p style="margin-bottom:13cm;" />
 
-.. class:: normal 
+.. class:: huge
 
-    **NVIDIA GPU ray tracing of billions[1] of rays per second applied to optical simulation**
+    **Opticks+J :** :r:`overall speedup > x200  [~2 hrs → ~30 s]`
 
 .. class:: tiny
 
-    [1] Actual performance depends on geometry and its modelling, JUNO optical simulation speedups > 1000x Geant4 have been measured  
+    [1] Actual performance depends on geometry and its modelling, JUNO optical speedups > 1000x Geant4 have been measured  
 
 
 
@@ -275,6 +275,29 @@ Outline of "Research task completion status" Sections
        * Ray trace kernel Optimization with Shader Execution Reordering (SER) 
        * Optimization of CSG Implementation
  
+
+.. class:: huge
+ 
+    .. table::
+        :align: center
+
+        +------------------------------------------+
+        | Most Opticks development is innovative   |  
+        +------------------------------------------+
+
+
+.. class:: normal
+
+    * :b:`Geometry + model updates => original CUDA development`
+
+
+.. s5_talk::
+
+   In the past year
+ 
+   * JUNO simulation geometry and model continued to improve
+   * Opticks work was done to bring those changes to the GPU  
+
 
 
 :small:`1. Simulation Geometry Additions + Opticks Translations`
@@ -642,6 +665,11 @@ Outline of "Research task completion status" Sections
     * :b:`Excellent opportunity to share Opticks workflow details`
 
 
+.. s5_talk::
+
+   Three species LS model - required CUDA development.  Significant part
+   of that was done by Dingyong Yang.  So this enabled him to get familiar
+   with the details of Opticks development.
 
 
 
@@ -687,23 +715,26 @@ Outline of "Research task completion status" Sections
     Linear version
 
 
-:i:`QScintThree_test_sh_COMP_012_LOGY1_EDGE1_DPI300_BOFFSET1e7`
-----------------------------------------------------------------
+
+.. comment
+
+    :i:`QScintThree_test_sh_COMP_012_LOGY1_EDGE1_DPI300_BOFFSET1e7`
+    ----------------------------------------------------------------
 
 
-.. raw:: html
+    .. raw:: html
 
-    <p style="margin-bottom:130mm;" />
-
-
-.. class:: small
-
-    ``1e9 wavelengths - (lin+offset) G4:Opticks diff not visible - Chi2/ndf < 1.001`` 
+        <p style="margin-bottom:130mm;" />
 
 
-.. s5_talk::
+    .. class:: small
 
-    As the distributions are on top of each other - adding an offset allows to see
+        ``1e9 wavelengths - (lin+offset) G4:Opticks diff not visible - Chi2/ndf < 1.001`` 
+
+
+    .. s5_talk::
+
+        As the distributions are on top of each other - adding an offset allows to see
 
 
 
@@ -875,12 +906,16 @@ OpticksClients + OpticksService : Share GPUs
 
     **OptiX 9.1**
 
-    * Minor API updates - stricter kernel checks
+    * API updates - stricter kernel checks
     * transition kernel .ptx -> .optixir (small performance gain + detailed profiling)
 
     :r:`Enables Opticks+JUNOSW to use NVIDIA Blackwell GPUs`
 
 
+
+.. s5_talk::
+
+   Updates for newer versions of externals - enabling use with Blackwell GPUs
 
 
 
@@ -1043,12 +1078,13 @@ OpticksClients + OpticksService : Share GPUs
    **Reimplemented distrib + release scripts**
 
    * stratum-zero cron : invokes cvmfs import
-   * support multi-config (Geant4 10.4 + 11.4) distrib: 
+   * supports multi-config (G4 10.4 + 11.4) distrib
+   * supports multi-build:
 
-     * Opticks
-     * Opticks+JUNOSW
+     * [OK] Opticks 
+     * [OJ] Opticks+JUNOSW
  
-   First builds of each config after Opticks Release => dated reference OJ Release, eg:
+   First OJ builds of each config after OK Release => dated reference OJ Release, eg:
 
 .. raw:: html
 
@@ -1081,12 +1117,12 @@ OpticksClients + OpticksService : Share GPUs
 
    * Slimming Release build
 
-     * reduced resource usage in Release build => small perfomance gain
+     * reduced context size in Release build => :r:`small perfomance gain`
      * added CMake monitoring of header flattened kernel 
 
-   * Adoption of .optixir rather than .ptx for kernel
+   * Adopt OptiX-IR rather than PTX for OptiX compilation
 
-     * enables detailed source line kernel profiling + small performance gain
+     * enables SER + detailed source line kernel profiling + :r:`small performance gain`
 
    * Opticks Kernel Profiling with NVIDIA Nsight Compute (ncu + ncu-ui)
 
@@ -1094,12 +1130,20 @@ OpticksClients + OpticksService : Share GPUs
 
    * Ray trace kernel Optimization with Shader Execution Reordering (SER) 
 
-     * SER reordering - yields 1.75x optical performance boost
+     * :b:`SER reordering - yields 1.75x optical performance boost`
 
    * Optimization of CSG Implementation - guided by kernel profile
  
-     * kernel profile reports point finger at CSG serialization
-     * tests with ultra-lite 32 bit CSG node + RPN serialization in progress
+     * kernel profile reports point finger at CSG CBT (Complete Binary Tree) serialization
+     * tests with ultra-lite 32 bit CSG node + RPN (Reverse Polish Notation) serialization in progress
+
+
+
+.. s5_talk::
+
+   Dingyong doing most of the three species LS model updates - enabled me to
+   take a look at optimization  
+
 
 
 
@@ -1109,7 +1153,7 @@ OpticksClients + OpticksService : Share GPUs
 
 .. class:: small
 
-    SER : GPU ray-tracing optimization - dynamically groups threads : reduces execution + memory divergence
+    SER : GPU ray-tracing optimization - dynamic thread re-grouping (Ada + Blackwell) : reduces execution + memory divergence
 
 .. class:: small
 
@@ -1122,40 +1166,55 @@ OpticksClients + OpticksService : Share GPUs
 
 
 
-    * BNL (DUNE) Opticks-fork user (Simphony) users report[1] 16x speedup from SER
+    * :b:`BNL Opticks-fork user, Gabor Galgoczi, reports[1] 16x SER speedup for DUNE geometry`
 
-    Opticks simulation time very sensitive to geometry + geometry modelling
+    * Opticks simulation time very sensitive to geometry + geometry modelling
 
-    * BUT: large difference in SER benefit warrants investigation + optimization
+      * :r:`BUT: such a large difference in SER speedup for different geometry warrants investigation + optimization`
 
+
+
+.. raw:: html
+
+     <p style="margin-bottom:20mm;" />
+    
 
 .. class:: small
 
-    [1] https://arxiv.org/abs/2608.21396 
+     [1] Mitigating warp divergence in GPU optical photon MC:
+       an order of magnitude speedup with SER
+       
+       * https://arxiv.org/abs/2608.21396
 
 
-.. comment
-
-:tiny:`Mitigating warp divergence in GPU optical photon Monte Carlo: an order of magnitude speedup with Shader Execution Reordering`
- 
 
 
-:small:`GPU Architecture : Memory Tiers (Clock Frequency ~2.5 GHz)` 
+
+.. s5_talk::
+
+    Reordering - threads to improve coherence - gives useful speedup 
+
+    * but nothing like DUNE colleagues observer with their geometry 
+
+
+
+
+:small:`Recent NVIDIA GPU Memory Tiers (Clock Frequency ~2.5 GHz)` 
 -------------------------------------------------------------------------
 
 .. class:: small
 
-    +------------------------+------------------------+---------------------+-----------------------+
-    | Memory Tier            | Latency (Clock Cycles) | Aggregate Bandwidth | Typical Capacity      |
-    +========================+========================+=====================+=======================+
-    | Registers              | ~1 cycle               | ~70–80+ TB/s        | 256 KB per SM         |
-    +------------------------+------------------------+---------------------+-----------------------+
-    | L1 Cache / Shared Mem  | ~20–30 cycles          | ~15–20 TB/s         | 128–256 KB per SM     |
-    +------------------------+------------------------+---------------------+-----------------------+
-    | L2 Cache               | ~150–250 cycles        | ~3–12 TB/s          | 6–96 MB (GPU-wide)    |
-    +------------------------+------------------------+---------------------+-----------------------+
-    | VRAM (HBM / GDDR)      | ~300–600+ cycles       | ~1–4.8 TB/s         | 8–192 GB (Off-chip)   |
-    +------------------------+------------------------+---------------------+-----------------------+
+    +------------------------+------------------------+---------------------+----------------------------+
+    | Memory Tier            | Latency (Clock Cycles) | Aggregate Bandwidth | Typical Capacity           |
+    +========================+========================+=====================+============================+
+    | Registers              | ~1 cycle               | ~70–80+ TB/s        | 256 KB per SM              |
+    +------------------------+------------------------+---------------------+----------------------------+
+    | L1 Cache / Shared Mem  | ~20–30 cycles          | ~15–20 TB/s         | 128–256 KB per SM          |
+    +------------------------+------------------------+---------------------+----------------------------+
+    | L2 Cache               | ~150–250 cycles        | ~3–12 TB/s          | :r:`64–96 MB (GPU-wide)`   |
+    +------------------------+------------------------+---------------------+----------------------------+
+    | VRAM (HBM / GDDR)      | ~300–600+ cycles       | ~1–4.8 TB/s         | 8–192 GB (Off-chip)        |
+    +------------------------+------------------------+---------------------+----------------------------+
 
 
 
@@ -1172,7 +1231,9 @@ OpticksClients + OpticksService : Share GPUs
 
 
 
+.. s5_talk::
 
+    L2 cache is on chip memory, with less than half latency of VRAM
 
 
 
@@ -1201,10 +1262,8 @@ OpticksClients + OpticksService : Share GPUs
 
         * every JUNO solid in L2 cache line (128 bytes)
         * maximize L2 cache-line prefetching   
-        * avoid "thrashing the cache"
+        * :b:`avoid "thrashing the cache"`
      
-
-
 
 
 .. class:: normal
@@ -1234,514 +1293,11 @@ OpticksClients + OpticksService : Share GPUs
     
 
 
-      
-
-
-
-
-
-:small:`II. Work status this year  : Completion of research tasks (I)`
----------------------------------------------------------------------------
-
-
-.. class:: normal
-
-   :r:`Integration + iteration directed by production experience with Opticks + JUNOSW`  
-
-   **Reduced resource simulation using summary "Muon" hits** ``--pmt-hit-type 2``
-
-   * Opticks ``sphotonlite`` (16 bytes), 4x smaller than ``sphoton`` (64 bytes) 
-   * :b:`reduce overheads for big events`, photons per launch ~250M -> ~500M [32 GB VRAM]
-
-   **Removed 32-bit max photon limits -> simulation of giga optical photon events**
-
-   * handles monster double+ muon events, tested with > 8 billion photon events
-
-   **CUDA implementation of PMT hit merging** (``thrust::sort_by_key,reduce_by_key``)
-
-   * merge same PMT hits within time buckets (eg: 1 ns) 
-   * hits selected + merged on GPU
-   * :b:`minimize CPU post processing to merge hits + reduce download overheads` 
-
-.. comment
-
-   32(16) launches with ``sphoton(sphotonlite)`` [32GB VRAM] 
-
-
 .. s5_talk::
 
-   My work has been directed by production experience in three areas:
-  
-   * supporting summary hits
-   * removing limits
-   * hit merging on GPU
- 
+    CSG impl guided by kernel profiling in development
 
 
-:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_muon_cxs_20250707_112242.png` 
----------------------------------------------------------------------
-
-``EVT=muon_cxs cxr_min.sh #12 : photons from muon crossing JUNO Scintillator``
-
-
-.. s5_talk::
-
-   Klop
-
-
-.. comment
-
-    This render shows the photons from a muon crossing the JUNO Scintillator.
-    Having the geometry translated to the GPU enables high performance visualization
-    as well as simulation. The geometry is mostly analytic, not triangulated, just
-    like Geant4 : so it is possible for the two optical simulations to match very closely.
-
-
-:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_muon_cxs_20250707_112243.png` 
----------------------------------------------------------------------
-
-``EVT=muon_cxs cxr_min.sh #13``
-
-
-.. s5_talk::
-
-    Klop
-
-
-:i:`GEOM_J25_4_0_opticks_Debug_cxr_min_muon_cxs_20250707_112244.png` 
----------------------------------------------------------------------
-
-``EVT=muon_cxs cxr_min.sh #14``
-
-
-.. raw:: html
-
-   <p style="margin-bottom:4cm;" />
-
-
-``Large counts motivate merging of hits with same (pmtid,timebucket) : adding counts and keeping earliest time``
-
-
-
-.. s5_talk::
-
-   The extreme numbers of hits resulting from muons crossing the JUNO scintillator, 
-   mean that merging hits together is typically used for data reduction.
-
-
-
-:small:`GPU Hit Merging : High Level Parallelization with CUDA Thrust`
-----------------------------------------------------------------------------
-
-
-.. raw:: html
-
-    <pre style="mypretiny">
-    struct key_functor {   //  <span class="r">Bitwise-OR (pmtid,timebucket) </span>
-      float    timewindow;
-      uint64_t operator()(const sphotonlite& p) const // 16+48 = 64
-      {
-         return (uint64_t(p.identity()) << 48) | uint64_t(p.time/timewindow);
-      }  
-    };
-    </pre>
-
-
-.. class:: small
-
-  Opticks/sysrap ``SPM::merge_partial_select`` using CUDA Thrust (higher level C++ way to use CUDA) 
-
-  +--------------------+-------------------------+-----------------------------------------------------+
-  |  Thrust method     |  Action                 |  Note                                               |
-  +====================+=========================+=====================================================+
-  | ``copy_if``        |  photon -> hit          | using flagmask                                      |
-  +--------------------+-------------------------+-----------------------------------------------------+
-  | ``transform``      |  hit -> key             | bitwise-OR (pmtid, timebucket)                      |
-  +--------------------+-------------------------+-----------------------------------------------------+
-  | ``sort_by_key``    | hit, key -> hit         | hit ordered with same (pmtid,timebucket) contiguous |
-  +--------------------+-------------------------+-----------------------------------------------------+
-  | ``reduce_by_key``  | hit, key -> hitmerged   | merge two hit : earlier time, sum hitcount          |
-  +--------------------+-------------------------+-----------------------------------------------------+
-  
-
-  ``https://github.com/simoncblyth/opticks/blob/master/sysrap/SPM.cu``
-
-  ``https://github.com/simoncblyth/opticks/blob/master/sysrap/sphotonlite.h``
-
-
-.. s5_talk::
-
-   The key to GPU hit merging is this bitwise OR of pmtid and timebucket.
-
-
-
-
-:small:`GPU Hit Merging : Let Opticks Shine Bright [by not obscuring it]`
----------------------------------------------------------------------------
-
-.. class:: small
-
-    **Detsim timings for one double muon event, ~150M photons, 28M hit, 6.4M mergedHit, 1ns bucket merge**
-
-    +---------------------------+------------------------+----------------------+---------------------------------------------------------------------------+
-    | JUNOSW J_Std1,2           |  --pmt-hit-type 1      |  --pmt-hit-type 2    |     Total processing time excluding Initialize                            |
-    +===========================+========================+======================+===========================================================================+
-    | --opticks-mode 0          |      7112 s  (118min)  |     6904 s (115min)  |  :small:`]junoSD_PMT_v2::Initialize → [junoSD_PMT_v2::EndOfEvent`         |
-    +---------------------------+------------------------+----------------------+---------------------------------------------------------------------------+
-
-.. class:: small
-
-    +-----------------+------------------------------+-----------------+----------------------+--------------------------------+-----------------------+
-    |  Opticks+J      | (CPUMerge)+Coll.[s]          |   Kernel [s]    | (GPUMerge)+Download  |             Total (no-init) [s]|   Speedup vs          |
-    |  [1]            |                              |   PREL→POST     |   POST→DOWN  [s]     |              HEAD→RESET        |    J_Std1,2           |
-    +=================+==============================+=================+======================+================================+=======================+
-    |  hit            | |idsp| 190.445               |  |idsp| 22.996  |   |idsp| 1.949       |   |idsp|     215.560           |  |idsp| |fgsp| x32    |
-    +-----------------+------------------------------+-----------------+----------------------+--------------------------------+-----------------------+
-    |  hitmerged      | |idsp| |fgsp| |thsp| 6.712   |  |idsp| 22.988  |   |idsp| 0.543       |   |idsp|     |fgsp| 30.400     |  |idsp| :r:`x233`     |
-    +-----------------+------------------------------+-----------------+----------------------+--------------------------------+-----------------------+
-    |  hitlite        | |idsp| 146.471               |  |idsp| 23.108  |   |emsp| 0.484       |   |idsp|     170.226           |  |idsp| |fgsp| x31    |
-    +-----------------+------------------------------+-----------------+----------------------+--------------------------------+-----------------------+
-    |  hitlitemerged  | |idsp| |fgsp| |thsp| 0.403   |  |idsp| 23.097  |   |emsp| 0.181       |   |idsp|     |fgsp| 23.835     |  |idsp| :r:`x221`     |
-    +-----------------+------------------------------+-----------------+----------------------+--------------------------------+-----------------------+
-
-.. class:: normal
-
-    * :r:`huge speedup of hit collection [eg: 146 -> 0.4 seconds] from GPU pre-merging`
-    * :b:`GPU hit merging time more than compensated by reduced download time` 
-
-
-.. raw:: html
-
-     <p style="margin-bottom:-7mm;" />
-
-.. class:: huge
-
-    **Opticks+J :** :r:`overall speedup > x200  [~2 hrs → ~30 s]`
-
-.. raw:: html
-
-     <p style="margin-bottom:-7mm;" />
-
-.. class:: normal
-
-    **[1] : Workstation (Dell Precision 7960), NVIDIA RTX 5000 Ada, 3rd gen. RT cores, 32 GB**
-
-.. class:: small
-
-    ``https://code.ihep.ac.cn/blyth/j/-/blob/main/zhenning_double_muon/detsim.sh``
-
-
-.. s5_talk::
-
-    These tables compare the timings for simulation of one double muon event with 150M photons.
-
-    Taking a few minutes to merge:
-
-    * is no problem compared to several hours
-    * BUT it swamps 23 seconds of kernel simulation time     
-
-    This was previously hiding Opticks performance.  
-    I avoided this by implementing GPU hit merging.  
-
-    GPU merge time of a fraction of a second is more than made up for by 
-    reduced download time and drastically faster hit collection.
-
-    Overall simulation speedup is more than a factor of 200.  
-
-    Simulations ordinarily taking 2 hours, can be completed in 30 s with Opticks.
-
-
-.. comment
-
-    Previously, much of Opticks performance when using hit merging was hidden by 
-
-
-
-.. comment
-
-    * ~no diff in kernel time (same RT), ``photon->photonlite`` helps only ~25%
-
-    GPU hit merging, avoids obscuring Opticks performance behind CPU post-processing
-
-    GPU hit merging time is more than compensated by reduced download time 
-
-
-:small:`II. Work status this year  : Completion of research tasks (II)`
-----------------------------------------------------------------------------
-
-.. class:: normal
-
-   **Opticks+ JUNOSW validations reveal JUNO geometry bugs, including:**
-
-   * photon leaking UpperChimney + waterpool PMT orientation
-   * overlap between Water distributor and Hama PMTs close to Chimney
-
-   **Integration of Opticks+JUNOSW with gitlab CI/CD build/test/release**
-
-   * automated daily+dated Opticks+JUNOSW releases onto ``/cvmfs/opticks.ihep.ac.cn``
-
-   **OpticksService : first implementation of HTTP optical server working**
-
-   * :r:`receives gensteps, returns (merged)hits`  (FastAPI + nanobind + opticks/CSGOptiX, :strike:`Geant4`)
-   * :b:`share GPU optical acceleration with multiple clients, increased GPU utilization`
-
-   **OpticksClient : almost test stage** [CPU node : collects gensteps, ``libcurl`` request, response]
-
-   * ``G4CXOpticks`` : same API as monolithic for client use (pluggable backend ``SSimulator``)
-   * uses CMake partial build of Opticks ``-DBUILD_WITH_CUDA=OFF``
-
-
-
-
-.. s5_talk::
-
-   Other work includes:
-
-   * finding and fixing geometry issues
-   * automated releases onto /cvmfs
-   * development of Opticks-as-a-service.
-
-
-:small:`2025 : JUNO+Opticks Geom Fixes`
-----------------------------------------
-
-.. raw:: html
-
-    <p style="margin-bottom:-10mm;" />
-    <p style="position:fixed;top:375px;left:10px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">
-    348 WP_ATM_LPMT direct inwards not outwards (MR 981)
-    </p>
-    <p style="position:fixed;top:275px;left:650px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">
-    G4: Photons escape between Lower and UpperChimney
-    </p>
-    <p style="position:fixed;top:625px;left:650px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">
-    Overlap of Water Distributor with Hama PMTs
-    </p>
-    <p style="margin-bottom:20mm;" />
- 
-
-.. raw:: html
-
-    <p style="margin-bottom:-15mm;" />
-
-.. class:: small
-
-   Opticks:Geant4 photon history Chi2, reveals bugs:
-
-   * broken Chimney implementation
-
-     * 1M photons up Chimney -> escapees
-
-   * Waterpool 348 wall PMT orientation
-
-     * bug revealed by visualization inspection
-
-   * overlap of water distributor + upper Hama PMTs
-
-     * visualization -> suspicion
-     * confirmed by KDTree accelerated overlap finder script
-
-       * ray trace intersects (point clouds with normals)
-       * => detect point cloud overlaps 
-
-
-.. s5_talk::
-   
-    Geometry bugs this year include, mis-oriented PMTs, broken Chimney and overlapped Water Distruibutor
-
-.. comment
-
-    * to help with overlap checking, I developed a way to find overlaps between pairs of ray traced point clouds
-      using KDTree to accelerate finding nearest neighbors in the other point cloud.
-
-      * the bright spots show the overlaps found
-
-
-
-
-:i:`Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow 4x4 ?`
----------------------------------------------------------------
-
-.. raw:: html
-
-     <p style="margin-bottom:82mm;" />
-
-.. class:: huge
-
-    Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow 4x4?
-
-.. raw:: html
-
-     <p style="margin-bottom:36mm;" />
-
-.. class:: right
-
-    Production running via "Monolithic" scaling : :r:`inefficient use of scarce GPU resources ?`
-
-
-.. s5_talk::
-
-    How best to scale Opticks is an open question ? Monolithic scaling is the obvious way. 
-
-.. comment
-
-    For large MC productions, scaling this way is not practical because
-    its an extremely inefficient use the GPUs. They would be idle most
-    of the time with a few seconds of compute every few minutes.
-
-
-
-
-OpticksClients + OpticksService : Share GPUs
-------------------------------------------------------
-
-
-.. s5_talk::
-
-    Potentially adding flexibility with GPU-less clients communicating
-    with a server over network may increase throughput for some event sizes.  
-
-.. comment
-
-    Splitting Opticks into into GPU-less clients and server may be able more
-    efficient usage of GPUs.
-
-
-    GPU-less clients sharing a service via HTTP POST allows increasing GPU utilization.
-
-
-
-:i:`Client.png`
-----------------
-
-.. raw:: html
-
-    <p style="position:fixed;top:475px;left:30px;font-size:25px;background-color:white;border:1px solid black;padding:5px;">
-    How many clients ? Depends on server, event photon count, network, ...  (Experimentation needed)
-    </p>
- 
-
-.. s5_talk::
-
-    How many clients can realistically be used with a server, needs experimentation
-
-.. comment
-
-    The aim is for large numbers of clients to share the service. 
-    Actually the more idle the GPUs are in the monolithic approach the 
-    greater the share factor can be.  
-
-    I think that even before developing an asynchronous compute service 
-    it should be possible to reach useful share factors. 
-
-    And those can be improved by putting in the effort of getting async compute to work, 
-    and also using multiple GPUs in the server.
-
-
-
-
-Split Workflow : Share GPUs between OpticksClients
------------------------------------------------------
-
-.. class:: normal 
-
-    :b:`OpticksClient` : Detector Simulation Framework (Geant4 etc..) :strike:`GPU`
-       * *U4.h* : collect gensteps 
-       * *NP_CURL.h* : **HTTP POST** (libcurl)
-
-         * request : genstep array
-         * response : hits array
-
-    :b:`OpticksService` : CSGOptiX + NVIDIA OptiX + :b:`GPU`
-       * *FastAPI* : **ASGI** python web framework (alt: *sanic*, *aiohttp*) :tiny:`grandmetric.com/python-rest-frameworks-performance-comparison/`
-       * *nanobind* : python <=> C++ (alt: *pybind11*), *uv* : :strike:`pip`
-       * *CSGFoundry.h* : load persisted geometry
-       * *CSGOptiXService.h* : simulate 
-
-    :r:`Prototype clients + service under development`
-       * :b:`scale up to MC production ? ~100/1000 clients ?` 
-       * :b:`use multi-GPU to serve more clients ?`
-
-.. raw:: html
-
-    <p style="margin-bottom:10mm;" />
-
-
-.. class:: normal 
-
-    **OR** C++ web framework eg:
-       * :strike:`binding`, :r:`less standard`
-
-
-.. s5_talk::
-
-   This server-client development is at proto-typing stage
-
-
-.. comment
-
-    The service/client are in prototyping stage. 
-    The GPU-less clients just need a few headers
-    for collecting gensteps and POSTing with libcurl
-
-    The service currently uses FastAPI, a  python web framework 
-    as thats simple to start with.
-
-    I will also try C++ web frameworks like Drogon,
-    as getting async compute to work might be easier 
-    without the complication of language barriers and binding.
-
-
-
-
-
-:small:`Personal research results : innovative technology development`
-----------------------------------------------------------------------------
-
-.. class:: normal 
-
-    *Opticks* **Innovative Technology Developments**:
-
-    * integration of state-of-the-art GPU ray tracing with Geant4 
-    * open source analytic CSG implementation developed for GPU
-
-    **2025 : extending these innovations:** 
-
-    * :r:`select + merge hits on GPU`
- 
-      * large resource reduction
-      * considerable performance gains
-
-    * :b:`server/client Opticks`
-
-      * share GPU acceleration across network   
-      * improve GPU utilization
- 
-
-.. class:: huge
- 
-    .. table::
-        :align: center
-
-        +------------------------------------------+
-        | Most Opticks development is innovative   |  
-        +------------------------------------------+
-
-
-
-.. s5_talk::
-
-   * Most Opticks development is innovative, such as GPU hit merging and server/client simulation
-
-
-.. comment
-
-   * for example interactive ray traced vizualizaddtions enabled me to confirm issues just by visual inspection
-   * possible as vizualization and simulation use the same intersect code
-
-
-
-    * shared analytic CPU/GPU geometry model
 
 
 
