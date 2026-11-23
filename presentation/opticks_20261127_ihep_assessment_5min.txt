@@ -738,36 +738,48 @@ Outline of "Research task completion status" Sections
 
 
 
-
-
-
-3. Scaling Opticks with Server/Client Architecture
+3. Scaling Opticks with Server-Client Architecture
 --------------------------------------------------
 
 
-.. raw:: html
+.. sidebar:: :small:`Problem with GPU usage`
 
-     <p style="margin-bottom:52mm;" />
+   .. class:: small
 
-.. class:: huge
+       1. Lack of GPU resources
 
-    Geant4 + Opticks + NVIDIA OptiX : Production Scaling ?
+       2. Difficult to saturate GPUs
+
+       Monolithic scaling Opticks => GPU idle while:
+        
+       * Geant4 init + non-optical simulation
+
+
+       Client/Server architecture:
+
+       * GPU optical simulation by server
+       * share server between CPU nodes
+
+       Adjustable client:server ratio in MC production
+
+       * :b:`makes GPU utilization tunable`
+
 
 
 .. class:: normal
 
-   * hard to make good use of GPU resources, gets harder with each generation
+ 
+   Prototype client/server implemented, open question:
 
-     * :r:`under-utilized GPUs`
+   * could this approach realistically be used in a large production
 
-   * monolithic scaling Opticks ?
 
-     * GPU idle while : Geant4 init + non-optical simulation : :r:`wasteful of GPU resources`
 
-   :b:`=> Client-Server architecture`
 
-   * separate GPU optical simulation into OpticksServer
-   * share server between CPU nodes
+
+
+
+
 
 
 
@@ -782,6 +794,40 @@ Outline of "Research task completion status" Sections
 
 
 
+
+
+
+
+
+.. comment
+
+    3. Scaling Opticks with Server/Client Architecture
+    --------------------------------------------------
+
+
+    .. raw:: html
+
+         <p style="margin-bottom:52mm;" />
+
+    .. class:: huge
+
+        Geant4 + Opticks + NVIDIA OptiX : Production Scaling ?
+
+
+    .. class:: normal
+
+       * hard to make good use of GPU resources, gets harder with each generation
+
+         * :r:`under-utilized GPUs`
+
+       * monolithic scaling Opticks ?
+
+         * GPU idle while : Geant4 init + non-optical simulation : :r:`wasteful of GPU resources`
+
+       :b:`=> Client-Server architecture`
+
+       * separate GPU optical simulation into OpticksServer
+       * share server between CPU nodes
 
 
 
@@ -1301,179 +1347,90 @@ OpticksClients + OpticksService : Share GPUs
 
 
 
-
-:small:`2025 : Personal research results : Conference Proceedings`
--------------------------------------------------------------------
-
-.. comment
-
-   font-family: monospace;
-
-
-
-.. raw:: html
-
-    <p style="margin-bottom:30mm;" />
-
-    <div class="paper-citation" style="border: 1px solid #ccc; padding: 15px; margin: 10px 0; background-color: #f9f9f9; border-radius: 5px;">
-      <div style="margin-bottom: 10px;">
-        <span style="color: #d00; font-weight: bold;">Opticks: GPU ray traced optical photon simulation</span><br>
-        Simon C. Blyth, EPJ Web of Conferences 337, 01093 (2025) (CHEP Proceedings, 8 pages)
-      </div>
-      <div style="margin-bottom: 5px;">
-        <a href="https://doi.org/10.1051/epjconf/202533701093" style="color: #0066cc; text-decoration: none;">https://doi.org/10.1051/epjconf/202533701093</a>
-      </div>
-      <div style="margin-bottom: 5px;">
-        <strong>Published:</strong> 7 October 2025
-      </div>
-      <div>
-        (Retrieved 3 December 2025, [1 Oct 2025 - 30 Nov 2025])<br>
-        <span style="font-weight: bold;">Abstract Views: 139 &nbsp; Article Views: 119</span>
-      </div>
-    </div>
-
-    <style>
-      .paper-citation {
-        max-width: 800px;
-      }
-      .paper-citation a:hover {
-        text-decoration: underline;
-      }
-    </style>
-
-
-
-
-.. s5_talk::
-
-   * my CHEP proceedings paper has been getting attention
-
-
-
-:small:`2025 : Publications from Opticks Users`
+:small:`2026 : Publications from Opticks Users`
 -------------------------------------------------
 
-.. comment
-
-    Advancing Particle Detection in High-Energy Physics through Simulation and Experimentation
-    Ilker Parmaksiz, Texas U., Arlington,  PhD Thesis
-    May 12, 2025
-
-    Performance of an optical TPC Geant4 simulation with opticks GPU-accelerated photon propagation
-    NEXT Collaboration,  I.Parmaksiz(Texas U., Arlington) et al. (Feb 18, 2025)
-    Published in: Eur.Phys.J.C 85 (2025) 8, 910
-
 
 .. raw:: html
 
-    <div class="publications-2025" style="margin: 20px 0; font-family: serif;">
-      <!--div style="font-size: 0.85em; font-style: italic; margin-bottom: 10px;">
-        2025 Publications from Opticks Users
-      </div-->
-      <!--hr style="border: none; border-top: 1px solid #ccc; margin: 10px 0;"-->
-      
-      <div class="publication-item" style="border: 1px solid #ddd; padding: 15px; margin: 15px 0; background-color: #fafafa; border-radius: 5px;">
-        <div style="margin-bottom: 8px;">
-          <strong>PhD Thesis</strong><br>
-          <span style="color: #d00; font-weight: bold;">Advancing Particle Detection in High-Energy Physics through Simulation and Experimentation</span><br>
-          Ilker Parmaksiz, University of Texas at Arlington
-        </div>
-        <div style="margin-bottom: 5px;">
-          <strong>Date:</strong> May 12, 2025
-        </div>
-        <div>
-          <a href="https://mavmatrix.uta.edu/physics_dissertations/178/" style="color: #0066cc; text-decoration: none;">View/Download PDF</a>
-        </div>
-      </div>
-      
-      <div class="publication-item" style="border: 1px solid #ddd; padding: 15px; margin: 15px 0; background-color: #fafafa; border-radius: 5px;">
-        <div style="margin-bottom: 8px;">
-          <span style="color: #d00; font-weight: bold;">Performance of an optical TPC Geant4 simulation with Opticks GPU-accelerated photon propagation</span><br>
-          NEXT Collaboration, I. Parmaksiz (Texas U., Arlington) et al.
-        </div>
-        <div style="margin-bottom: 5px;">
-          <strong>Date:</strong> February 18, 2025 (arXiv); August 28, 2025 (Published)
-        </div>
-        <div style="margin-bottom: 5px;">
-          <strong>Published in:</strong> Eur. Phys. J. C 85 (2025) 8, 910
-        </div>
-        <div>
-          <a href="https://doi.org/10.1140/epjc/s10052-025-14612-0" style="color: #0066cc; text-decoration: none;">DOI: 10.1140/epjc/s10052-025-14612-0</a> | 
-          <a href="https://arxiv.org/abs/2502.13215" style="color: #0066cc; text-decoration: none;">arXiv:2502.13215</a>
-        </div>
-      </div>
-    </div>
-
-    <style>
-      .publications-2025 {
-        max-width: 800px;
-      }
-      .publication-item a:hover {
-        text-decoration: underline;
-      }
-    </style>
-
-
-
-.. s5_talk::
-
-    This year a PhD Thesis and EPJ paper based on Opticks were published
-
-
-:small:`2025 : Progress from EIC-Opticks Fork  (Electron-Ion Collider)`
-------------------------------------------------------------------------
+     <p style="margin-bottom:10mm;" />
 
 .. class:: small
 
-    * Several people from BNL (Gabor Galgoczi  et al.) working on Opticks fork
-    * Worked with them to fix light leak bug when scatters occur close to boundaries
-    * :r:`They aim to make Opticks useful for simulating events with less than millions of photons` 
+    **GPU acceleration of optical photon propagation in low photon yield applications: Opticks for the Electron Ion Collider**
+    
+    * Gabor Galgoczi, et al., European Physical Journal C, Vol. 86, Art. 934, August 5, 2026
+    * https://link.springer.com/article/10.1140/epjc/s10052-026-16180-3
+    * event batching/aggregation extension for low-to-moderate photon yield experiments. 
+    * :b:`Geant4 hit totals within 0.06%, 234x speedup over over single-threaded Geant4`
 
-    *Integration of the Opticks framework into Geant4 simulation of optical photons on GPU*, 
-       65th Geant4 Technical Forum, Stony Brook University, Gabor Galgoczi
+.. raw:: html
 
-    * https://indico.cern.ch/event/1588579/contributions/6695021/
+     <p style="margin-bottom:10mm;" />
+ 
+.. class:: small
 
-.. class:: tiny
+    **Mitigating warp divergence in GPU optical photon Monte Carlo: an order of magnitude speedup with Shader Execution Reordering**
 
-    https://indico.cern.ch/event/1588579/contributions/6695021/attachments/3159769/5614731/Opticks%202025%20--%20Geant4%20Technical%20forum%20--%20Galgoczi-1.pdf
+    * Gabor Galgoczi
+    * https://arxiv.org/abs/2608.21396
+    * :b:`On top of 234x speedup reported above, further speedup of 16x reported from Shader Execution Reordering`
+
+.. raw:: html
+
+     <p style="margin-bottom:10mm;" />
+ 
+.. class:: small
+ 
+    **Accelerating Optical Photon Simulation in DUNE with Opticks**
+
+    * Ilker Parmaksiz et al. 
+    * https://arxiv.org/abs/2608.27306
+    * 10 kt-scale optical photon transport for DUNE far-detector horizontal-drift geometry
+    * :b:`313× speedup over single-threaded Geant4`     
 
 
 .. s5_talk::
 
-   Also there has been progress with an EIC-Opticks fork
+   This year two Opticks users have reported speedups of more than 200x single threaded Geant4 
 
 
 Funding Supporting my work on Opticks
 -----------------------------------------
 
+
+.. raw:: html
+
+     <p style="margin-bottom:15mm;" />
+ 
+
 .. class:: small 
 
-   +--------------------+----------+-------------+-------------------+-------------------------------------------------------------------------------+
-   |  Period            | Amount   |  Source     | Principal         |                                                                               |
-   |                    |  (RMB)   |             |                   |                                                                               |
-   +====================+==========+=============+===================+===============================================================================+
-   | 2018,2019,2020     | Stipend  |  PIFI       |  Li Weidong       |  Visiting Scientist, CAS Presidents International Fellowship Initiative       |
-   +--------------------+----------+-------------+-------------------+-------------------------------------------------------------------------------+
-   | 2021, 2022         | Stipend  |  MOST       |  Wen Liangjian    |  High-end Foreign Experts Introduction Program                                |
-   +--------------------+----------+-------------+-------------------+-------------------------------------------------------------------------------+
-   | 2023-2024/08       | Stipend  |             |  Wen Liangjian    |                                                                               | 
-   +--------------------+----------+-------------+-------------------+-------------------------------------------------------------------------------+
-   | 2023/01 - 2026/12  |  550k    |  NSFC       |  Deng Ziyan       |  12275293: Research on key technologies for massive optical photon simulation |
-   +--------------------+----------+-------------+-------------------+-------------------------------------------------------------------------------+
-   | 2024/09 - 2029/09  | Stipend  |             |  Wen Liangjian    |  IHEP Associate Researcher                                                    |
-   +--------------------+----------+-------------+-------------------+-------------------------------------------------------------------------------+
-   | 2024/09 - 2029/09  |  100k    |  IHEP       |  Simon C Blyth    |  Startup Fund                                                                 |
-   +--------------------+----------+-------------+-------------------+-------------------------------------------------------------------------------+
+   +--------------------------+---------------+-------------+---------------------------------------+-------------------------------------------------------------------------------+
+   |  Period                  | Amount        |  Source     | Principal +                           |                                                                               |
+   |                          |  (RMB)        |             |                                       |                                                                               |
+   +==========================+===============+=============+=======================================+===============================================================================+
+   | 2018,2019,2020           | Stipend       |  PIFI       |  Li Weidong                           |  Visiting Scientist, CAS Presidents International Fellowship Initiative       |
+   +--------------------------+---------------+-------------+---------------------------------------+-------------------------------------------------------------------------------+
+   | 2021, 2022               | Stipend       |  MOST       |  Wen Liangjian                        |  High-end Foreign Experts Introduction Program                                |
+   +--------------------------+---------------+-------------+---------------------------------------+-------------------------------------------------------------------------------+
+   | 2023-2024/08             | Stipend       |             |  Wen Liangjian                        |                                                                               | 
+   +--------------------------+---------------+-------------+---------------------------------------+-------------------------------------------------------------------------------+
+   | 2023/01 - 2026/12        |  550k         |  NSFC       |  | Deng Ziyan +                       |  12275293: Research on key technologies for massive optical photon simulation |
+   |                          |               |             |  | Simon C Blyth                      |                                                                               |
+   +--------------------------+---------------+-------------+---------------------------------------+-------------------------------------------------------------------------------+
+   | 2024/09 - 2029/09        | Stipend       |             |  Wen Liangjian                        |  IHEP Associate Researcher                                                    |
+   +--------------------------+---------------+-------------+---------------------------------------+-------------------------------------------------------------------------------+
+   | 2024/09 - 2029/09        |  100k         |  IHEP       |  Simon C Blyth                        |  Startup Fund                                                                 |
+   +--------------------------+---------------+-------------+---------------------------------------+-------------------------------------------------------------------------------+
+   | :b:`2027/01 - 2030/01`   |  :b:`530k`    |  :b:`NSFC`  |  | :b:`Xiaomei Zhang +`               |  :b:`12675248: Research on a CPU-GPU Heterogeneous Simulation Platform for    |
+   |                          |               |             |  | :b:`Simon C Blyth`                 |  Large-Scale High-Energy Events in the JUNO Experiment`                       |
+   +--------------------------+---------------+-------------+---------------------------------------+-------------------------------------------------------------------------------+
 
 
-.. class:: normal
+.. class:: small
 
-   **Strong potential for further funding :**
-
-   * :b:`immediate benefits to JUNO and others : make simulation unlimited by photons`
-   * innovative + straightforward to explain
-   * novel visualizations with strong potential for outreach 
+   :r:`NEW GRANT: facilitate large distributed Opticks+JUNO MC productions using CPU+GPU resource to workload matching`
 
 
 
@@ -1483,39 +1440,33 @@ Funding Supporting my work on Opticks
 
 
 
-:small:`Academic Exchanges : GPU symposium + DIRAC Workshop + JUNO mtg.`
+:small:`Academic Exchanges : CHEP Conference + JUNO Collaboration Meetings`
 --------------------------------------------------------------------------------
 
 
 .. raw:: html
 
-    <p style="margin-bottom:17mm;" />
+    <p style="margin-bottom:27mm;" />
 
 
 .. class:: normal
 
-    * **2025 January 15**, JUNO Collaboration Meeting, Kaiping, China 
-
-      * *Opticks : GPU ray trace accelerated optical photon simulation*
-
-
-.. class:: normal
-
-    * **2025 March 3**, GPU accelerated HEP applications Symposium, IHEP -- :b:`invited presentation`
-
-      * *Opticks + JUNO : GPU ray trace accelerated optical photon simulation* 
-
-.. class:: normal
-
-    * **2025 July 27**, JUNO Collaboration Meeting, Kaiping, China
+    * **2026 January 22**, JUNO Collaboration Meeting, Wuhan, China
 
       * *Status of JUNOSW + Opticks : GPU ray trace accelerated optical photon simulation*
 
 .. class:: normal
 
-    * **2025 September 19**, **The 11th DIRAC Users Workshop**, IHEP  -- :b:`invited presentation`
+    * **2026 May 27**, Presentation, 28th CHEP Conf, Chulalongkorn Univ, Bangkok, Thailand
 
-      * *Opticks + JUNO : Deploy GPU accelerated MC production ? Can Dirac(X) help ?*
+      * *Opticks: GPU Accelerated Optical Photon Simulation for JUNO and Other Experiments*
+
+
+.. class:: normal
+
+    * **2026 July 21**, JUNO Collaboration Meeting, Beijing, China
+
+      * *Monitoring JUNOSW + Opticks : GPU ray trace accelerated optical photon simulation*
 
 
 
@@ -1534,26 +1485,12 @@ Funding Supporting my work on Opticks
 
     .. class:: small 
 
-       Via email and forum : https://groups.io/g/opticks 
+       Working with principals of active Opticks forks to incorporate some changes in main repo
 
-       Ilker Parmaksiz, Univ of Texas at Arlington (UTA)
-         * :r:`181x speedup cf single-threaded Geant4` NEXT-CRAB-0 (Xenon TPC)
-         * EPJ publication + PhD Thesis
-
-       Gabor Galgoczi et al., BNL, (EIC-Opticks fork)
-         * developed workaround for light-leak bug reported by Gabor 
+       * Ilker Parmaksiz, Rice Univ, Houston, Texas
+       * Gabor Galgoczi, BNL, (EIC-Opticks)
   
-       Zepeng Li, U. Hawaii
-         * Opticks setup 
-
-       Nicola Mori, INFN
-         * Opticks setup 
-
     .. class:: tiny
-
-        NEXT : Neutrino Experiment with a Xenon TPC : neutrinoless double beta decay search 
-
-        CRAB : Camera Readout and Barium Tagging 
 
         EIC : Electron-Ion Collider, BNL
 
@@ -1562,29 +1499,30 @@ Funding Supporting my work on Opticks
 
 .. class:: small 
 
-   **Work with JUNO+Opticks students/postdocs**
+   **Work with students/postdocs/staff**
 
-   Zhenning Qu, IHEP
-     * Opticks + Atmospheric Muon simulation
-     * :r:`Production test at Dongguan GPU cluster`
+   Dingyong Yang, IHEP
+     * Opticks testing
+     * CUDA development for JUNO three species LS model  
+
+   Nahid Bhuiyan, IHEP
+     * Opticks usage for Atmospheric Neutrino Group productions
+
+   Xiaomei Zhang, IHEP
+     * planning for distributed Opticks+JUNO
 
    Peidong Yu, IHEP
      * JUNO geom fixes : Water Distributor, WP Wall PMTs
 
-   Dingyong Yang, IHEP
-     * Opticks testing
-
-   Haosen Zhang, IHEP
-     * Opticks muon testing
-
    Jin Chen, IHEP
      * Development of JUNOSW EMF Coils addition
 
-   Liam Jones, Liverpool + DUYANG Hongyue, SDU
-     * Liverpool GPU Cluster preparation for Opticks
+   Guanbo Zhao, JLU (visiting undergraduate student)
+     * Opticks introduction : simulating rainbows
 
-   Jiabin Wang, SDU
-     * Opticks usage
+   Caixin Xu, SDU (visiting undergraduate student)
+     * Opticks introduction : simulating rainbows
+
 
 
 .. s5_talk::
@@ -1595,15 +1533,24 @@ Funding Supporting my work on Opticks
 
 
 
-III. Existing problems 
--------------------------
+Problems 
+----------
 
 .. class:: normal 
 
-    1. :b:`Opticks still single developer project`, need to:
+    1. Insufficient people with Opticks expertise
 
-       * simplify Opticks usage
-       * train more people
+       * Dingyong development experience is positive, BUT: 
+       * need to train more people
+
+    2. Insufficient GPU resources
+
+       * need to make GPU usage more efficient:
+
+         * optimized CSG
+         * async GPU launch
+          
+
 
 .. raw:: html
 
@@ -1611,17 +1558,11 @@ III. Existing problems
 
 .. class:: normal 
 
-    2. JUNO geometry continues to change, eg: 
+    2. Automated Monitoring of Validation/Performance
 
-       * Water Distributor
-       * Water Pool PMTs still being added
-       * EMF coil
-       * Acrylic repairs
-       * => :r:`all additions require JUNOSW + Opticks work/validation` 
 
     :b:`Chronic lack of manpower working on Opticks (and JUNO Simulation)`
 
-    * Motivates : **Automated Monitoring of Validation/Performance**
 
 .. s5_talk::
 
@@ -1636,74 +1577,65 @@ III. Existing problems
 
 
 
-.. comment
 
-   https://www.tomshardware.com/pc-components/gpus/chinas-latest-gpu-arrives-with-claims-of-cuda-compatibility-and-rt-support-fenghua-no-3-also-boasts-112gb-of-hbm-memory-for-ai
-
-   InnoSilicon Fenghua No.3 GPU, claims:
-
-   * CUDA compatibility
-   * hardware RT
-   * 112GB+ of HBM memory
-
-   https://www.techpowerup.com/341268/innosilicons-fenghua-no-3-gpu-launches-with-112gb-hbm-memory-and-claims-to-support-cuda 
-
-
-
-:small:`IV. Work plan for next year` 
+:small:`Work plan for next year` 
 -------------------------------------------------------
 
-.. sidebar:: :small:`Investigations on the side`
+.. sidebar:: :small:`Side Investigations`
 
    .. class:: small
 
+       **Opticks without OptiX (with Dingyong)**
+         * handcrafted CUDA ray tracing
+
        Server/Client Opticks
          * measure GPU utilization benefit  
-
-       multi-GPU utilization
-         * split work(photons) across GPUs
-         * concurrent launching
 
        async progressive launch 
          * throughout event, not just end
 
        visualization ease-of-use
-         * GUI menus, genstep view
-         * event animation control
+         * GUI menus, genstep view, animation control
+
+
+
+.. sidebar:: :small:`Prepare 1st Opticks Publication, after:`
+
+   .. class:: small
+    
+      1. conclude current optimization + monitoring tasks  
+      2. gain substantial production experience
+ 
+      :r:`Respond to Opticks user publications`  
+      
+
+
 
 
 .. class:: small 
 
+   **Profiling and Optimization**
 
-   **Automated Validation/Performance Monitoring**
+   * kernel profiling with NVIDIA tools
+   * conclude on alternate CSG 
+   * avoid slow CPU hit localization
 
-   * integrate with gitlab CI/CD  
+   **Automated Monitoring : Validation + Performance**
 
-   **Production Optimization**
+   * populate with many tests, "go live"
 
-   * try smarter CPU hit global->local, not 1-by-1 [eg 6.712 sec -> ?]
-   * continue iterative productions (:r:`primary progress driver`)
-   * improve Release build, remove all Debug functionality
-   * profile with NVIDIA tools, try Shader Execution Reordering
-   * test JUNOSW+Opticks under DCI (Dirac)  
+   **Production testing (with Nahid [Atmospheric Neutrino Group])**
 
-   **Improve Opticks User Experience**
+   * gain experience, develop benchmarking 
 
-   * examples, documentation, training, streamline repository
+   **Distributed Opticks+JUNO (with Xiaomei Zhang)**
 
-   **Geant4 contact**
+   * benchmark tasks + metadata collection
 
-   * develop/propose API for external photon propagation
-   * :r:`avoid customized Geant4 processes` 
+   **Work with Opticks fork principals**
 
-   **Non-NVIDIA GPU Investigation**
+   * incorporate some forked developments into main repo
 
-   * Contact local GPU vendors, eg InnoSilicon Fenghua No. 3 (claim: CUDA compatible with RT)
-
-
-.. class:: tiny 
-
-   CI/CD : Continuous Integration/Continuous Deployment
 
 
 .. s5_talk::
@@ -1737,89 +1669,5 @@ III. Existing problems
         |   Quality         |   and creativity, cooperative spirit                                          |         |                    |
         +-------------------+-------------------------------------------------------------------------------+---------+--------------------+
 
-
-
-:small:`Summary and Links`
--------------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Extra Benefits of Adopting Opticks`
-
-   .. class:: small
-
-      * state-of-the-art GPU Hit merging
-      * :b:`high performance novel visualization`
-      * detailed photon instrumentation, validation 
-      * comparisons find issues with both simulations:
-       
-        * complex geometry, overlaps, bugs... 
-
-      :r:`=> using Opticks improves CPU simulation too !!`
-
-.. raw:: html
-
-     <p style="margin-bottom:5mm;" />
-
-..
-
-  *Opticks* : state-of-the-art GPU ray traced optical simulation integrated with *Geant4*, 
-  with automated geometry translation into GPU optimized form. *GPU hit merging 
-  drastically increases hit collection performance.*  
-
-.. raw:: html
-
-     <p style="margin-bottom:18mm;" />
-
-.. class:: normal
-
-  * NVIDIA Ray Trace Performance continues rapid progress (2x each gen., every ~2 yrs) 
-  * :r:`Overall JUNOSW+Opticks performance with GPU hit merging > 200x` [3rd gen RTX]  
-
-
-.. table::
-    :align: center
-
-    +--------------------------------------------------+-----------------------------------------+
-    | https://github.com/simoncblyth/opticks           | day-to-day code repository              |                   
-    +--------------------------------------------------+-----------------------------------------+
-    | https://simoncblyth.github.io                    | presentations and videos                |
-    +--------------------------------------------------+-----------------------------------------+
-    | https://groups.io/g/opticks                      | forum/mailing list archive              |
-    +--------------------------------------------------+-----------------------------------------+
-    | email: ``opticks+subscribe@groups.io``           | subscribe to mailing list               |
-    +--------------------------------------------------+-----------------------------------------+ 
-    | ``simon.c.blyth@gmail.com``                      | any questions                           | 
-    +--------------------------------------------------+-----------------------------------------+ 
-
-
-.. s5_talk::
-
-    Addition of GPU hit merging avoids obscuring Opticks performance, and prevents
-    optical photons from limiting simulation with more than 200x overall speedup
-    going from hours to seconds. 
-
-
-.. comment
-
-    I end with some links : Opticks can make simulation unlimited by optical photons
-
-
-
-.. comment
-
-    :i:`Extra Slides`
-    ----------------------
-
-    .. raw:: html
-
-        <p style="margin-bottom:70mm;" />
-
-    .. class:: huge
-
-       Extra Slides
-
-
-    .. s5_talk::
-
-       Klop
 
 
