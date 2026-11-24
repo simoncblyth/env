@@ -82,37 +82,33 @@
 
 
 
-
-
-
-
-
-
 Standard Outline
 -----------------
 
 .. class:: normal 
 
     I. Job responsibilities (**p2**) 
-    II. Work status this year
+    II. Work situation this year
 
-      * Completion of research tasks [50%] (**p5→16**)
-      * Personal research results 
+      * Research tasks completion status (details) (**p5→22**)
+      * My research results
 
-        * innovative technology development(**p5→16,17**)
-        * papers(**p18,19**), funding(**p21**)[10%]
+        * innovative technology development(**p5→22**)
+        * funding(**p24**)
 
-      * Academic exchanges [10% with above, excluding funding] (**p19,20,22,23**)
-
-      * Public "services" (**p19,20,23**)[10%]
+      * Academic exchanges (**p23,p25-26**)
+      * Public services (**p26**)
  
-    III. Existing problems (**p24**)
-    IV. Work plan for next year (**p25**) 
+    III. Problems (**p27**)
+    IV. Work plan for next year (**p28**) 
 
 
 .. s5_talk::
 
     Standard Outline
+
+
+
 
 
 **I. Job responsibilities** : Dr Simon C. Blyth
@@ -172,7 +168,7 @@ Standard Outline
     .. class:: small
 
          **JUNO Muon Simulation Bottleneck**
-           ~99% CPU time, memory constraints
+           >99.5% CPU time, memory constraints
 
          **Ray-Geometry intersection Dominates**
            simulation is not alone in this problem...
@@ -185,13 +181,7 @@ Standard Outline
 
 .. s5_talk::
 
-   Opticks solves the optical photon simulation problem by offloading to the GPU
-
-.. comment
-
-   * Serial optical simulation is hugely expensive.   
-   * Opticks applies massively parallel GPU ray tracing, to solve the optical simulation problem 
-   * For many experiments Opticks can prevent optical photons from limiting simulation 
+   Opticks solves the optical photon simulation problem by applying GPU ray tracing to optical photon simulation
 
 
 
@@ -219,31 +209,7 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
  
 .. s5_talk::
 
-   Opticks integrates GPU ray tracing with Geant4 simulation. 
-
-
-.. comment    
-
-   Thus crucially requires translation of the geometry into a GPU appropriate form.
-
-
-.. comment    
-
-    Opticks enables the ray tracing performance of NVIDIA OptiX to be applied to Optical photon simulation, 
-    by integrating GPU ray tracing with Geant4
-
-    * This shows how Opticks integrates Geant4 simulations with NVIDIA OptiX GPU ray tracing.  
-    * The most crucial part is the translation of geometry into the form needed on the GPU 
-
-
-
-
-
-
-
-
-
-
+   Opticks integrates GPU optical simulation with the Geant4 simulation of all other particles
 
 
 
@@ -293,10 +259,7 @@ Outline of "Research task completion status" Sections
 
 .. s5_talk::
 
-   In the past year
- 
-   * JUNO simulation geometry and model continued to improve
-   * Opticks work was done to bring those changes to the GPU  
+   This is an outline of this years work 
 
 
 
@@ -307,9 +270,9 @@ Outline of "Research task completion status" Sections
 
      .. class:: small
 
-         * Complete optical recording on CPU+GPU
+         * :b:`Complete optical recording on CPU+GPU`
          * Chi2 statistical match Geant4:Opticks
-         * Interactive 3D ray traced viz of geom + evt
+         * :r:`Interactive 3D ray traced viz of geom + evt`
          * Precise 2D slice visualization of geometry
 
 
@@ -354,7 +317,8 @@ Outline of "Research task completion status" Sections
 
 .. s5_talk::
 
-   All added geometry needs effort to translate to GPU and validate 
+   * added geometry typically has bugs that Opticks validation machinery finds
+   * this year was no exception - with issues with the Water Distributer, MPMT and EMF Coils
 
 
 
@@ -368,7 +332,7 @@ Outline of "Research task completion status" Sections
 
 .. s5_talk::
 
-    Shows the shape
+    This shows the shape of the Water Distributer
 
 
 .. comment
@@ -458,29 +422,31 @@ Outline of "Research task completion status" Sections
 
 
 
-:i:`WaterDistributor Overlap Fixed`
--------------------------------------
+.. comment
 
-.. class:: small
+    :i:`WaterDistributor Overlap Fixed`
+    -------------------------------------
 
-    ``cxt_min.sh : pipes now segmented avoiding overlap``
+    .. class:: small
 
-
-.. raw:: html
-
-   <p style="margin-bottom:50mm;" />
-   
-.. sidebar:: :small:`Peidongs Change`
-
-     * fixed three overlaps
-     * :strike:`one overlap remains` 
-
-       * :r:`MR 1062 now merged`
+        ``cxt_min.sh : pipes now segmented avoiding overlap``
 
 
-.. s5_talk::
+    .. raw:: html
 
-   Three overlaps fixef and this is now merged
+       <p style="margin-bottom:50mm;" />
+       
+    .. sidebar:: :small:`Peidongs Change`
+
+         * fixed three overlaps
+         * :strike:`one overlap remains` 
+
+           * :r:`MR 1062 now merged`
+
+
+    .. s5_talk::
+
+       Three overlaps fixef and this is now merged
 
 
 
@@ -503,38 +469,40 @@ Outline of "Research task completion status" Sections
         Issues
 
 
-
-:i:`MPMT 19,20,21,construction`
----------------------------------
-
-.. class:: normal
-
-     MPMT (branch ``yupd-8inch-pmt``)  
-
-     * tubs-subtract-torus neck : :r:`abombination`
-     * polycone neck
-     * construction of shape
+.. comment
 
 
-.. s5_talk::
+    :i:`MPMT 19,20,21,construction`
+    ---------------------------------
 
-    Replacing the torus neck with polycone
+    .. class:: normal
 
+         MPMT (branch ``yupd-8inch-pmt``)  
 
-
-
-
-:i:`MPMT : 16`
----------------
-
-.. class:: small
-
-     ``MPMT in context``
+         * tubs-subtract-torus neck : :r:`abombination`
+         * polycone neck
+         * construction of shape
 
 
-.. s5_talk::
+    .. s5_talk::
 
-    MPMT in context
+        Replacing the torus neck with polycone
+
+
+
+
+
+    :i:`MPMT : 16`
+    ---------------
+
+    .. class:: small
+
+         ``MPMT in context``
+
+
+    .. s5_talk::
+
+        MPMT in context
 
 
 .. comment
@@ -556,32 +524,34 @@ Outline of "Research task completion status" Sections
 
 
 
-
-:i:`EMF2 2`
-------------
-
-.. class:: small
-
-   ``ELV=^s_EMF MOI=/tmp/emf2.npy EYE=0,0,-2 UP=0,1,0 cxr_min.sh  ## raytrace``
-
-   ``ELV : select solids``
-
-   ``MOI : pick frame``
+.. comment
 
 
-.. raw:: html
+    :i:`EMF2 2`
+    ------------
 
-     <p style="margin-bottom:10cm;" />
+    .. class:: small
+
+       ``ELV=^s_EMF MOI=/tmp/emf2.npy EYE=0,0,-2 UP=0,1,0 cxr_min.sh  ## raytrace``
+
+       ``ELV : select solids``
+
+       ``MOI : pick frame``
 
 
-.. class:: small
+    .. raw:: html
 
-     ``View along EMF axis : (theta,phi) (56,-54) degrees`` 
+         <p style="margin-bottom:10cm;" />
 
 
-.. s5_talk::
+    .. class:: small
 
-    Along EMF axis
+         ``View along EMF axis : (theta,phi) (56,-54) degrees`` 
+
+
+    .. s5_talk::
+
+        Along EMF axis
 
 
 :i:`EMF2 3`
@@ -593,7 +563,7 @@ Outline of "Research task completion status" Sections
 
 .. s5_talk::
 
-    View at bottom of pool
+    View of EMF coils at bottom of pool
 
 
 
@@ -603,15 +573,14 @@ Outline of "Research task completion status" Sections
 
 .. class:: normal
 
-    Former EMFcoils impl: 
+    Initial EMF coils implementation: 
  
     * many small pieces 
     * unexplained breaks
     * +4000 volumes
 
-    * :b:`Converted analytically to Opticks`
+    :b:`Worked with Chen Jing, SJTU to fix issues`
 
-      * as no phicuts 
 
 
 .. s5_talk::
@@ -673,10 +642,8 @@ Outline of "Research task completion status" Sections
 
 
 
-
 :i:`QScintThree_test_sh_COMP_012_LOGY1_EDGE1_DPI300`
 ----------------------------------------------------
-
 
 .. raw:: html
 
@@ -685,7 +652,7 @@ Outline of "Research task completion status" Sections
 
 .. class:: small
 
-    ``1e9 wavelengths - (logscale) G4:Opticks diff not visible - Chi2/ndf < 1.001`` 
+    ``1e9 λ - (logscale) G4:Opticks ICDF GPU texture lookups - Chi2/ndf < 1.001`` 
 
 
 .. s5_talk::
@@ -695,24 +662,27 @@ Outline of "Research task completion status" Sections
 
 
 
-:i:`QScintThree_test_sh_COMP_012_LOGY0_EDGE1_DPI300`
-----------------------------------------------------
+.. comment
+
+
+    :i:`QScintThree_test_sh_COMP_012_LOGY0_EDGE1_DPI300`
+    ----------------------------------------------------
 
 
 
-.. raw:: html
+    .. raw:: html
 
-    <p style="margin-bottom:130mm;" />
-
-
-.. class:: small
-
-    ``1e9 wavelengths - (linear) G4:Opticks diff not visible - Chi2/ndf < 1.001`` 
+        <p style="margin-bottom:130mm;" />
 
 
-.. s5_talk::
+    .. class:: small
 
-    Linear version
+        ``1e9 wavelengths - (linear) G4:Opticks diff not visible - Chi2/ndf < 1.001`` 
+
+
+    .. s5_talk::
+
+        Linear version
 
 
 
@@ -738,45 +708,60 @@ Outline of "Research task completion status" Sections
 
 
 
-3. Scaling Opticks with Server-Client Architecture
---------------------------------------------------
+3. Scaling Opticks with Server-Client Architecture ?
+-----------------------------------------------------
 
 
-.. sidebar:: :small:`Problem with GPU usage`
+.. sidebar:: :small:`Problems with GPUs`
 
    .. class:: small
 
-       1. Lack of GPU resources
+       1. Not enough of them
 
-       2. Difficult to saturate GPUs
+       2. Difficult to keep them busy
 
-       Monolithic scaling Opticks => GPU idle while:
-        
-       * Geant4 init + non-optical simulation
+          * GPU idle while : G4 init + non-optical sim.
 
 
-       Client/Server architecture:
+       **Client/Server architecture:**
 
        * GPU optical simulation by server
        * share server between CPU nodes
+       * adjustable client:server ratio in MC production
 
-       Adjustable client:server ratio in MC production
+         * => :b:`makes GPU utilization tunable`
 
-       * :b:`makes GPU utilization tunable`
+
+       :r:`Strong potential - but pushing the envelope`
 
 
 
 .. class:: normal
 
- 
-   Prototype client/server implemented, open question:
 
-   * could this approach realistically be used in a large production
+   This year:
+
+   * :b:`prototype server-client proved the idea`
+   * succeeded in small scale tests
+
+   BUT, Hand-crafted server problematic:
+
+   * robustness for large scale MC production ?
+   * practicality for system + network admin ?
+
+.. raw:: html
+
+   <p style="margin-bottom:30mm;" />
+
+.. class:: normal
 
 
+   Aim to make a viable solution for MC production:
 
+   * adapt Opticks to an industry standard server **NVIDIA Triton Inference Server**
 
-
+     * :b:`NVIDIA maintained open source server software`
+   
 
 
 
@@ -785,12 +770,15 @@ Outline of "Research task completion status" Sections
 
 .. s5_talk::
 
-   How to scale Opticks is an open question
+   Client-Server architecture is an obvious way
+   to solve the lack of GPU resources and underutilized GPUs -
+   but it is very much pushing the envelope.
 
-   Scaling monolithically means that GPUs sit idle while Geant4 is initialized and
-   the non-optical simulation is done.
+   This year have proved that it can be done.
 
-   Can server-client fix : lack of GPU resources + underutilized GPUs
+   Proving that it can be a practical solution for
+   large scale MC production requires more work.
+ 
 
 
 
@@ -833,30 +821,33 @@ Outline of "Research task completion status" Sections
 
 
 
-:i:`Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow 4x4 ?`
----------------------------------------------------------------
-
-.. raw:: html
-
-     <p style="margin-bottom:82mm;" />
-
-.. class:: huge
-
-    Geant4 + Opticks + NVIDIA OptiX : Monolith x16 ?
-
-.. raw:: html
-
-     <p style="margin-bottom:36mm;" />
-
-.. class:: right
-
-    "Monolithic" scaling : :r:`very inefficient use of scarce GPU resources`
+.. comment
 
 
-.. s5_talk::
+    :i:`Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow 4x4 ?`
+    ---------------------------------------------------------------
 
-    For large MC productions, scaling this way is not practical because
-    its an extremely inefficient use the GPUs.
+    .. raw:: html
+
+         <p style="margin-bottom:82mm;" />
+
+    .. class:: huge
+
+        Geant4 + Opticks + NVIDIA OptiX : Monolith x16 ?
+
+    .. raw:: html
+
+         <p style="margin-bottom:36mm;" />
+
+    .. class:: right
+
+        "Monolithic" scaling : :r:`very inefficient use of scarce GPU resources`
+
+
+    .. s5_talk::
+
+        For large MC productions, scaling this way is not practical because
+        its an extremely inefficient use the GPUs.
 
 
 
@@ -931,37 +922,37 @@ OpticksClients + OpticksService : Share GPUs
 
 
 
-:small:`4. Compatibility Updates for Geant4 11.4, CUDA 13.1, OptiX 9.1`
--------------------------------------------------------------------------
+.. comment
 
-.. class:: normal
+    :small:`4. Compatibility Updates for Geant4 11.4, CUDA 13.1, OptiX 9.1`
+    -------------------------------------------------------------------------
 
-    **Geant4 11.4** 
+    .. class:: normal
 
-    Recreated cvmfs release scripts to support multi-config distributions
-    of Opticks and Opticks+JUNOSW distributions - (Geant4 10.4 + 11.4)
- 
-    * use cron job on stratum-zero, add sha256 tarball digest verification
-    * adopt cvmfs import - much faster that tarball explosion
-  
-    **CUDA 13.1** : Major reorganization of CUDA Thrust headers
+        **Geant4 11.4** 
 
-    * New Docker Image : ``el9.4-cuda13.1-opticks`` for JUNOSW gitlab-ci
+        Recreated cvmfs release scripts to support multi-config distributions
+        of Opticks and Opticks+JUNOSW distributions - (Geant4 10.4 + 11.4)
+     
+      
+        **CUDA 13.1** : Major reorganization of CUDA Thrust headers
 
-      * https://hub.docker.com/r/simoncblyth/junosw/tags
+        * New Docker Image : ``el9.4-cuda13.1-opticks`` for JUNOSW gitlab-ci
 
-    **OptiX 9.1**
+          * https://hub.docker.com/r/simoncblyth/junosw/tags
 
-    * API updates - stricter kernel checks
-    * transition kernel .ptx -> .optixir (small performance gain + detailed profiling)
+        **OptiX 9.1**
 
-    :r:`Enables Opticks+JUNOSW to use NVIDIA Blackwell GPUs`
+        * API updates - stricter kernel checks
+        * transition kernel .ptx -> .optixir (small performance gain + detailed profiling)
+
+        :r:`Enables Opticks+JUNOSW to use NVIDIA Blackwell GPUs`
 
 
 
-.. s5_talk::
+    .. s5_talk::
 
-   Updates for newer versions of externals - enabling use with Blackwell GPUs
+       Updates for newer versions of externals - enabling use with Blackwell GPUs
 
 
 
@@ -1019,39 +1010,39 @@ OpticksClients + OpticksService : Share GPUs
 
 
 
+.. comment
 
 
-
-:i:`opticks_monitoring_gitlab_ci_20260716_141838.png` 
-------------------------------------------------------
-
-
-.. raw:: html
-
-    <p style="margin-bottom:100mm;" />
+    :i:`opticks_monitoring_gitlab_ci_20260716_141838.png` 
+    ------------------------------------------------------
 
 
-.. sidebar:: OJ repository
+    .. raw:: html
 
-    .. class:: small
-
-       ``https://code.ihep.ac.cn/blyth/oj`` 
-           Opticks + JUNOSW test scripts
-
-       * daily testing by GPU Workstation gitlab-runner
-       * :r:`report => summary into SQLite3 DB table`  
-       * Grafana result visualization
+        <p style="margin-bottom:100mm;" />
 
 
-.. s5_talk::
+    .. sidebar:: OJ repository
 
-   OJ repository just contains:
+        .. class:: small
 
-   * high level scripts that run scripts from JUNOSW and Opticks 
-   * gitlab configuration of which scripts to run
+           ``https://code.ihep.ac.cn/blyth/oj`` 
+               Opticks + JUNOSW test scripts
 
-   * gitlab-ci for the OJ repository coordinates which scripts to run and presents pass/fail
-    
+           * daily testing by GPU Workstation gitlab-runner
+           * :r:`report => summary into SQLite3 DB table`  
+           * Grafana result visualization
+
+
+    .. s5_talk::
+
+       OJ repository just contains:
+
+       * high level scripts that run scripts from JUNOSW and Opticks 
+       * gitlab configuration of which scripts to run
+
+       * gitlab-ci for the OJ repository coordinates which scripts to run and presents pass/fail
+        
 
 
 :i:`opticks_monitoring_grafana_20260715_160444.png` 
@@ -1163,7 +1154,7 @@ OpticksClients + OpticksService : Share GPUs
 
    * Slimming Release build
 
-     * reduced context size in Release build => :r:`small perfomance gain`
+     * reduced context size in Release build => :r:`small performance gain`
      * added CMake monitoring of header flattened kernel 
 
    * Adopt OptiX-IR rather than PTX for OptiX compilation
@@ -1330,7 +1321,7 @@ OpticksClients + OpticksService : Share GPUs
     +--------------------------+---------+-------------------+
     |  Traits parm/itra access |  |y|    | avoid duplication |
     +--------------------------+---------+-------------------+
-    |  Prim Intersection       | |y| |n| |                   |
+    |  Prim Intersection       |  |n|    |                   |
     +--------------------------+---------+-------------------+
     |  Tree Intersection       |  |n|    |                   |
     +--------------------------+---------+-------------------+
@@ -1374,7 +1365,7 @@ OpticksClients + OpticksService : Share GPUs
 
     * Gabor Galgoczi
     * https://arxiv.org/abs/2608.21396
-    * :b:`On top of 234x speedup reported above, further speedup of 16x reported from Shader Execution Reordering`
+    * :b:`further optical speedup of 16x reported from Shader Execution Reordering`
 
 .. raw:: html
 
@@ -1538,30 +1529,41 @@ Problems
 
 .. class:: normal 
 
-    1. Insufficient people with Opticks expertise
+    1. **Insufficient people with Opticks expertise**
 
-       * Dingyong development experience is positive, BUT: 
-       * need to train more people
+       Dingyong gaining Opticks experience is positive -- BUT, still need:
 
-    2. Insufficient GPU resources
-
-       * need to make GPU usage more efficient:
-
-         * optimized CSG
-         * async GPU launch
-          
+       * find + train more people
+       * :b:`automate routine work like monitoring validation + performance`
 
 
 .. raw:: html
 
      <p style="margin-bottom:7mm;" />
 
+
 .. class:: normal 
 
-    2. Automated Monitoring of Validation/Performance
+    2. **Insufficient GPU resources**
+
+       * optimization (make better use of resources)
+       * distributed Opticks with Xiaomei Zhang (:r:`gain resources, by effective sharing`)
 
 
-    :b:`Chronic lack of manpower working on Opticks (and JUNO Simulation)`
+.. raw:: html
+
+     <p style="margin-bottom:7mm;" />
+
+
+.. class:: normal 
+
+    3. **Low efficiency use of GPUs**
+
+       * optimization (make better use of resources)
+       * speculative server/client architecture (including multi-GPU)
+     
+
+
 
 
 .. s5_talk::
@@ -1590,6 +1592,7 @@ Problems
 
        Server/Client Opticks
          * measure GPU utilization benefit  
+         * adapt to NVIDIA Triton Inference Server
 
        async progressive launch 
          * throughout event, not just end
