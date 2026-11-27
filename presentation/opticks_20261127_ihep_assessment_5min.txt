@@ -105,9 +105,7 @@ Standard Outline
 
 .. s5_talk::
 
-    Standard Outline
-
-
+    Skip
 
 
 
@@ -147,7 +145,7 @@ Standard Outline
 
 .. s5_talk::
 
-   * My task is to maximize Opticks benefits to JUNO and other experiments. 
+   * My task is to maximize Opticks benefits to JUNO and others
 
 
 
@@ -181,7 +179,7 @@ Standard Outline
 
 .. s5_talk::
 
-   Opticks solves the optical photon simulation problem by applying GPU ray tracing to optical photon simulation
+   Opticks solves the optical photon simulation problem with GPU ray tracing
 
 
 
@@ -209,8 +207,10 @@ Geant4 + Opticks + NVIDIA OptiX : Hybrid Workflow
  
 .. s5_talk::
 
-   Opticks integrates GPU optical simulation with the Geant4 simulation of all other particles
+   GPU optical simulation is integrated with Geant4
 
+   * optical speedups exceed 1000x single-threaded Geant4
+   * overall speedup for JUNO muon simulation is more than 200x
 
 
 
@@ -259,7 +259,7 @@ Outline of "Research task completion status" Sections
 
 .. s5_talk::
 
-   This is an outline of this years work 
+   This outlines my year
 
 
 
@@ -317,9 +317,8 @@ Outline of "Research task completion status" Sections
 
 .. s5_talk::
 
-   * added geometry typically has bugs that Opticks validation machinery finds
-   * this year was no exception - with issues with the Water Distributer, MPMT and EMF Coils
-
+   * new geometry has bugs, Opticks validation finds them
+   * because viz and sim geometry are the same - viz finds overlaps and mis-placements
 
 
 :i:`WDP 89middle`
@@ -332,7 +331,7 @@ Outline of "Research task completion status" Sections
 
 .. s5_talk::
 
-    This shows the shape of the Water Distributer
+    Here is the Water Distributer
 
 
 .. comment
@@ -375,7 +374,7 @@ Outline of "Research task completion status" Sections
 
 .. s5_talk::
 
-    Bottom of CD
+    and its positioning
 
 
 
@@ -563,7 +562,7 @@ Outline of "Research task completion status" Sections
 
 .. s5_talk::
 
-    View of EMF coils at bottom of pool
+    The EMF coils
 
 
 
@@ -585,7 +584,7 @@ Outline of "Research task completion status" Sections
 
 .. s5_talk::
 
-    View at bottom of pool
+    The initial coils had several issues - I worked with Chen Jing to fix them
 
 
 
@@ -636,9 +635,7 @@ Outline of "Research task completion status" Sections
 
 .. s5_talk::
 
-   Three species LS model - required CUDA development.  Significant part
-   of that was done by Dingyong Yang.  So this enabled him to get familiar
-   with the details of Opticks development.
+   The new LS model was ported to the GPU.  Much of the work done by Dingyong Yang.  
 
 
 
@@ -656,6 +653,11 @@ Outline of "Research task completion status" Sections
 
 
 .. s5_talk::
+
+    This shows the chi2 match between GPU generated wavelengths and Geant4 wavelengths - histograms on top of each other
+
+
+.. comment
 
     This compares histograms of a billion wavelengths generated with standard Geant techniques
     vs inverse CDF tex lookups on GPU.  No differences are visible, and Chi2/ndf is consistent with a match. 
@@ -765,25 +767,10 @@ Outline of "Research task completion status" Sections
 
 
 
-
-
-
 .. s5_talk::
 
-   Client-Server architecture is an obvious way
-   to solve the lack of GPU resources and underutilized GPUs -
-   but it is very much pushing the envelope.
-
-   This year have proved that it can be done.
-
-   Proving that it can be a practical solution for
-   large scale MC production requires more work.
- 
-
-
-
-
-
+   Client-Server is attractive to solve both the lack of GPU resources and poor utilization
+   - the concept is proven this year - but not yet the practicality
 
 
 
@@ -858,10 +845,9 @@ OpticksClients + OpticksService : Share GPUs
 ------------------------------------------------------
 
 
-
 .. s5_talk::
 
-    GPU-less clients sharing a service via HTTP POST allows increasing GPU utilization.
+    GPU-less clients sharing GPU server via network 
 
 
 
@@ -916,6 +902,10 @@ OpticksClients + OpticksService : Share GPUs
 
 
 .. s5_talk::
+
+    This is how I chopped Opticks in two connected by HTTP
+
+.. comment
 
     Opticks is a collection of packages split by dependency, which makes it straightforward to divide into server and client.
     The client can be used just like the full opticks but no GPU is needed. It performs the simulation remotely.
@@ -994,6 +984,13 @@ OpticksClients + OpticksService : Share GPUs
 
 .. s5_talk::
 
+   Any changes can break validity and performance - so automated monitoring is needed.
+
+   This year I added machinery for that
+
+
+.. comment
+
    JUNO geometry and model continue to evolve
 
    * any change can break validity or performance
@@ -1061,16 +1058,13 @@ OpticksClients + OpticksService : Share GPUs
 
 .. s5_talk::
 
+
+   This is the starting point for an Opticks Dashboard
+
+
+..  comment
+
    Grafana presents test results in a Dashboard
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1131,8 +1125,12 @@ OpticksClients + OpticksService : Share GPUs
    </pre>
 
 
-
 .. s5_talk::
+
+   Handling multiple Geant4 versions force re-working distribution machinery
+
+
+.. comment
 
    * Everyday gitlab runners do a test build of Opticks+JUNOSW that is deployed onto CVMFS. And a test geometry conversion is done.
    * The first build after each Opticks release is kept as a dated reference release
@@ -1177,6 +1175,11 @@ OpticksClients + OpticksService : Share GPUs
 
 
 .. s5_talk::
+
+   Recently I have been optimizing - giving some significant gains
+
+
+.. comment
 
    Dingyong doing most of the three species LS model updates - enabled me to
    take a look at optimization  
@@ -1229,6 +1232,9 @@ OpticksClients + OpticksService : Share GPUs
 
 .. s5_talk::
 
+
+    Ada and Blackwell GPUs support Shader Execution Reordering - dynamically reordering threads - giving useful speedup
+
     Reordering - threads to improve coherence - gives useful speedup 
 
     * but nothing like DUNE colleagues observer with their geometry 
@@ -1270,7 +1276,7 @@ OpticksClients + OpticksService : Share GPUs
 
 .. s5_talk::
 
-    L2 cache is on chip memory, with less than half latency of VRAM
+    The L2 cache is around 64MB of on chip memory, with less than half the latency of VRAM
 
 
 
@@ -1321,7 +1327,7 @@ OpticksClients + OpticksService : Share GPUs
     +--------------------------+---------+-------------------+
     |  Traits parm/itra access |  |y|    | avoid duplication |
     +--------------------------+---------+-------------------+
-    |  Prim Intersection       |  |n|    |                   |
+    |  Prim Intersection       |  |y|    |                   |
     +--------------------------+---------+-------------------+
     |  Tree Intersection       |  |n|    |                   |
     +--------------------------+---------+-------------------+
@@ -1332,9 +1338,13 @@ OpticksClients + OpticksService : Share GPUs
 
 .. s5_talk::
 
+    Kernel profiling suggests CSG navigation is limiting performance
+    - so I am trying alternate CSG with nodes shrunk to 32 bits
+
+
+.. comment
+
     CSG impl guided by kernel profiling in development
-
-
 
 
 
@@ -1383,7 +1393,8 @@ OpticksClients + OpticksService : Share GPUs
 
 .. s5_talk::
 
-   This year two Opticks users have reported speedups of more than 200x single threaded Geant4 
+   Opticks users have reported speedups - one of more than 300x single threaded Geant4 with DUNE geometry
+
 
 
 Funding Supporting my work on Opticks
@@ -1427,7 +1438,7 @@ Funding Supporting my work on Opticks
 
 .. s5_talk::
 
-   * This table lists funding supporting my work
+   New grant was awarded with Xiaomei for distributed Opticks : improving work to resource matching
 
 
 
@@ -1463,8 +1474,7 @@ Funding Supporting my work on Opticks
 
 .. s5_talk::
 
-   Exchanges this year include two invited presentations
-
+   Exchanges included CHEP presentation
   
 
 
@@ -1522,8 +1532,6 @@ Funding Supporting my work on Opticks
 
 
 
-
-
 Problems 
 ----------
 
@@ -1568,11 +1576,16 @@ Problems
 
 .. s5_talk::
 
-   * Primary problem is lack of people working on Opticks, in an environment 
-     where JUNO continues to change
+    Main problem is lack of people working on Opticks
+
 
 
 .. comment
+
+
+   * Primary problem is lack of people working on Opticks, in an environment 
+     where JUNO continues to change
+
 
    * Its difficult to make progress while JUNO keeps changing and providing more issues. 
    * Have to swim against the stream of issues just to stay in the same place. 

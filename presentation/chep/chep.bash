@@ -9,6 +9,38 @@ CHEP
 ====
 
 
+
+CHEP 2027 
+----------
+
+Dear All,
+
+The 29-th Conference on Computing in High Energy and Nuclear Physics (CHEP)
+will take place in Bucharest, Romania, hosted by POLITEHNICA Bucharest, from
+13-17 September 2027.  CHEP is the flagship international forum for the
+computing, networking, and software communities powering high-energy and
+nuclear physics. With the High-Luminosity LHC era fast approaching, CHEP 2027
+will focus on the critical technologies needed for exabyte-scale readiness,
+from adapting software for heterogeneous computing architectures across
+globally distributed infrastructures to deploying AI and machine learning in
+reconstruction, simulation, analysis, and operations. Beyond HEP and NP, the
+conference welcomes contributions from adjacent data-intensive fields,
+including astrophysics, intensity-frontier particle physics, and quantum
+computing, fostering cross-disciplinary exchange on the next generation of
+scientific computing.
+
+Further details, conference poster, and key upcoming dates are available on the
+CHEP 2027 page https://chep2027.upb.ro
+
+Please note that registration and abstract submission will open on 15 December 2026.
+We would be grateful if you could share this announcement with your community.
+We look forward to welcoming you to Bucharest in 2027!
+Best regards,
+Mihai Carabas (on behalf of the LOC)
+
+
+
+
 CHEP 2027, Bucharest, Romania, 13-17 September 2027 
 -----------------------------------------------------
 
